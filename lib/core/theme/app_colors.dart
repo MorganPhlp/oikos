@@ -5,7 +5,7 @@ class AppColors {
   const AppColors._();
 
   // --- Light Mode Palette (Basé sur le :root du CSS) ---
-  static const Color lightBackground = Color(0xFFFBFFF2);
+  static const Color lightBackground = Color(0xFFF9FDF0);
   static const Color lightForeground = Color(0xFF252525); // oklch(0.145 0 0) approx
 
   static const Color lightPrimary = Color(0xFF030213);
@@ -23,10 +23,18 @@ class AppColors {
   static const Color lightDestructive = Color(0xFFD4183D);
   static const Color lightDestructiveError = Color(0xFFFFFFFF);
 
-  static const Color lightBorder = Color(0x1A000000); // rgba(0, 0, 0, 0.1)
-  static const Color lightInput = Color(0xFFF3F3F5); // input-background
+  static const Color lightBorder = Color(0x1A000000);
+
+  static const Color lightInput = Color(0xFFF9FBF9); // input-background
+  static const Color lightInputBorder = Color(0xFFD4EBD8); // input-border
+  static const Color lightInputBorderFocused = Color(0xFF66BA73); // input-border-focused
+
+  static const Color lightIconPrimary = Color(0xFF65BA74);
+
+  static const Color lightTextPrimary = Color(0xFF37401C);
 
   // --- Dark Mode Palette (Basé sur le .dark du CSS) ---
+  // TODO : Ajuster les couleurs sombres (pas fait pour l'instant on ne modifie que le style clair)
   static const Color darkBackground = Color(0xFF252525); // oklch(0.145 0 0)
   static const Color darkForeground = Color(0xFFFAFAFA); // oklch(0.985 0 0)
 

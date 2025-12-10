@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:oikos/core/theme/app_theme.dart';
+import 'package:oikos/features/auth/presentation/pages/intro_page.dart';
 import 'package:oikos/features/auth/presentation/pages/signup_page.dart';
 
 void main() {
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      home: const SignupPage(),
+      home: const IntroPage(),
     );
   }
 }

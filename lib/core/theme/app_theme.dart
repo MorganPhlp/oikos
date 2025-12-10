@@ -5,6 +5,14 @@ import 'app_typography.dart';
 class AppTheme {
   const AppTheme._();
 
+  static _border([Color color = AppColors.lightInputBorder]) => OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: BorderSide(
+        color: color,
+        width: 2,
+      ),
+    );
+
   // --- Thème Clair ---
   static ThemeData get lightTheme {
     return ThemeData(
@@ -29,23 +37,25 @@ class AppTheme {
       // Exemple d'adaptation des composants globaux (Scaffold, AppBar)
       scaffoldBackgroundColor: AppColors.lightBackground,
 
-      // On peut aussi styliser les inputs globalement comme dans ton CSS
+      // Stylisation des inputs (global)
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.lightInput,
+        contentPadding: const EdgeInsets.all(16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10), // --radius: 0.625rem
           borderSide: BorderSide.none,
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Colors.transparent),
-        ),
+        enabledBorder: _border(),
+        focusedBorder: _border(AppColors.lightInputBorderFocused),
+        errorBorder: _border(AppColors.lightDestructive),
+        hintStyle: TextStyle(color: AppColors.lightTextPrimary.withValues(alpha: 0.4)), // Texte d'indication avec opacité à 40%
       ),
     );
   }
 
   // --- Thème Sombre ---
+  // TODO : Ajuster les couleurs sombres (pas fait pour l'instant on ne modifie que le style clair)
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
