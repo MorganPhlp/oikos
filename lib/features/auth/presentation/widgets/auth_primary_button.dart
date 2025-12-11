@@ -50,6 +50,7 @@ class AuthPrimaryButton extends StatelessWidget {
       ),
     );
 
-    // TODO : Ajouter le fait d'appuyer sur le bouton et modifier la couleur en conséquence
+    // TODO : Ajouter la gestion du clic
+    // TODO : Modifier le clic du bouton
   }
 }

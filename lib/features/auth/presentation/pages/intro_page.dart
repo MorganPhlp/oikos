@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/core/theme/app_typography.dart';
-import 'package:oikos/features/auth/presentation/widgets/auth_field.dart';
 import 'package:oikos/features/auth/presentation/widgets/auth_primary_button.dart';
+import 'package:oikos/features/auth/presentation/widgets/auth_secondary_button.dart';
 
 class IntroPage extends StatefulWidget {
   const IntroPage({super.key});
@@ -15,7 +15,6 @@ class _IntroPageState extends State<IntroPage> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width; // Récupère la largeur de l'écran
-    final screenHeight = MediaQuery.of(context).size.height; // Récupère la hauteur de l'écran
 
     return Scaffold(
       body: SafeArea(
@@ -55,7 +54,7 @@ class _IntroPageState extends State<IntroPage> {
                         ),
                       ),
 
-                      const SizedBox(height: 35),
+                      const SizedBox(height: 25),
 
                       Text(
                         "Prendre soin de notre maison, \nla Terre.",
@@ -71,7 +70,7 @@ class _IntroPageState extends State<IntroPage> {
               ),
 
               // 3. Les boutons en bas
-              Positioned(
+              const Positioned(
                 bottom: 30,
                 left: 0,
                 right: 0,
@@ -81,7 +80,11 @@ class _IntroPageState extends State<IntroPage> {
                       text: "Commencer l'aventure",
                     ),
 
-                    // TODO : Ajouter un bouton secondaire "Me reconnecter" qui redirige vers la page de connexion
+                    AuthSecondaryButton(
+                        text: "Me reconnecter"
+                    ),
+
+                    // TODO : Rediriger vers la page de connexion et d'inscription
                   ],
                 ),
               ),

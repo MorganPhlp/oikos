@@ -32,6 +32,7 @@ class AppColors {
   static const Color lightIconPrimary = Color(0xFF65BA74);
 
   static const Color lightTextPrimary = Color(0xFF37401C);
+  static const Color lightTextGreen = Color(0xFF337841);
 
   // --- Dark Mode Palette (Basé sur le .dark du CSS) ---
   // TODO : Ajuster les couleurs sombres (pas fait pour l'instant on ne modifie que le style clair)

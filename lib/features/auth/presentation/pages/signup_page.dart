@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/core/theme/app_typography.dart';
 import 'package:oikos/features/auth/presentation/widgets/auth_field.dart';
+import 'package:oikos/features/auth/presentation/widgets/auth_primary_button.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -19,28 +20,31 @@ class _SignUpPageState extends State<SignUpPage> {
   String? _cguError;
 
   // TODO : Implémenter la logique de validation et de soumission du formulaire
-  /*
-    void _submit(){
-      setState(() => _cguError = null);
 
-      bool formValid = _formKey.currentState!.validate();
+  void _submit(){
+    setState(() => _cguError = null);
 
-      if(!_acceptedCGU){
-        setState(() => _cguError = "Merci d'accepter les CGU pour continuer");
-        return;
-      }
+    bool formValid = _formKey.currentState!.validate();
 
-      if(formValid){
-        // TODO : Logique d'inscription
-      }
+    if(!_acceptedCGU){
+      setState(() => _cguError = "Merci d'accepter les CGU pour continuer");
+      return;
     }
-   */
+
+    if(formValid){
+      // TODO : Logique d'inscription
+    }
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width; // Récupère la largeur de l'écran
-    final screenHeight = MediaQuery.of(context).size.height; // Récupère la hauteur de l'écran
-
     return Scaffold(
       // AppBar avec bouton de retour
       appBar: AppBar(
@@ -59,54 +63,172 @@ class _SignUpPageState extends State<SignUpPage> {
           child: Form(
             key: _formKey,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Logo Oîkos
-                Image.asset('lib/core/assets/logos/oikos_logo.png', height: 60),
+                Center(
+                  child:
+                    Image.asset('lib/core/assets/logos/oikos_logo.png', height: 60),
+                ),
                 const SizedBox(height: 20),
 
                 // Titre
-                Text(
-                  'Bienvenue parmi nous !',
-                  style: AppTypography.h2,
-                  textAlign: TextAlign.center,
+                Center(
+                  child:
+                    Text(
+                      'Bienvenue parmi nous !',
+                      style: AppTypography.h2,
+                      textAlign: TextAlign.center,
+                    ),
                 ),
 
                 const SizedBox(height: 10),
 
                 // Sous-titre
-                Text(
-                  'Entre ton email pro pour retrouver tes collègues.',
-                  style: AppTypography.body.copyWith(
-                    color: AppColors.lightTextPrimary.withValues(alpha: 0.7), // Opacité 70%
+                Center(
+                  child:
+                  Text(
+                    'Entre ton email pro pour retrouver tes collègues.',
+                    style: AppTypography.body.copyWith(
+                      color: AppColors.lightTextPrimary.withValues(alpha: 0.7), // Opacité 70%
+                    ),
+                    textAlign: TextAlign.center
                   ),
-                  textAlign: TextAlign.center,
                 ),
 
                 const SizedBox(height: 40),
 
                 // Formulaire
-                AuthField(
-                  hintText: 'prenom.nom@entreprise.fr',
-                  controller: _emailController,
-                  prefixIcon: Icons.mail_outlined
-                ),
-                const SizedBox(height: 15),
-                AuthField(
-                  hintText: '••••••••',
-                  controller: _passwordController,
-                  prefixIcon: Icons.lock_outline,
-                  isPassword: true,
-                  isObscured: !_isPasswordVisible,
-                  onToggleVisibility: () {
-                    setState(() {
-                      _isPasswordVisible = !_isPasswordVisible;
-                    });
-                  }
-                ),
-                const SizedBox(height: 15),
+                // Email Champ
 
-                // TODO : Continuer
-              ]
+                Text(
+                  'Email professionnel',
+                  style: AppTypography.body.copyWith(
+                    color: AppColors.lightTextPrimary.withValues(alpha: 0.7),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                Center(
+                  child:
+                  AuthField(
+                      hintText: 'prenom.nom@entreprise.fr',
+                      controller: _emailController,
+                      prefixIcon: Icons.mail_outlined
+                  ),
+                ),
+
+                const SizedBox(height: 30),
+
+                // Mot de Passe Champ
+
+                Text(
+                  'Mot de passe',
+                  style: AppTypography.body.copyWith(
+                    color: AppColors.lightTextPrimary.withValues(alpha: 0.7),
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.left,
+                ),
+
+                const SizedBox(height: 8),
+
+                Center(
+                  child:
+                  AuthField(
+                      hintText: '••••••••',
+                      controller: _passwordController,
+                      prefixIcon: Icons.lock_outline,
+                      isPassword: true,
+                      isObscured: !_isPasswordVisible,
+                      onToggleVisibility: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      }
+                  ),
+                ),
+                const SizedBox(height: 25),
+
+                // CGU Checkbox
+
+                Row(
+                  children: [
+                    Checkbox(
+                      value: _acceptedCGU,
+                      activeColor: AppColors.lightIconPrimary,
+                      onChanged: (value) {
+                        setState(() {
+                          _acceptedCGU = value ?? false;
+                        });
+                      },
+                    ),
+                    Expanded(
+                      child: Wrap(
+                        children: [
+                          Text(
+                            "J'accepte les ",
+                            style: AppTypography.body.copyWith(
+                              color: AppColors.lightTextPrimary.withValues(alpha: 0.7),
+                            ),
+                          ),
+                          InkWell(
+                            onTap: () {
+                              // TODO : Ouvrir les CGU
+                            },
+                            child: Text(
+                              "CGU",
+                              style: AppTypography.body.copyWith(
+                                color: AppColors.lightPrimary.withValues(alpha: 0.7),
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            " et la ",
+                            style: AppTypography.body.copyWith(
+                              color: AppColors.lightTextPrimary.withValues(alpha: 0.7),
+                            ),
+                          ),
+                          InkWell(
+                            onTap: () {
+                              // TODO : Ouvrir la politique de confidentialité
+                            },
+                            child: Text(
+                              "politique de confidentialité",
+                              style: AppTypography.body.copyWith(
+                                color: AppColors.lightPrimary.withValues(alpha: 0.7),
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    ),
+                  ],
+                ),
+
+                // Erreur CGU
+                if (_cguError != null)
+                  Container(
+                    margin: const EdgeInsets.only(top: 10),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      border: Border.all(color: Colors.red.shade200),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(_cguError!, style: TextStyle(color: Colors.red.shade600)),
+                  ),
+
+                const SizedBox(height: 40),
+                AuthPrimaryButton(
+                  text: "C'est parti !",
+                  // onPressed: _submit,
+                ),
+              ],
             ),
           ),
         ),
