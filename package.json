@@ -1,0 +1,7 @@
+{
+  "type": "module",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.87.1",
+    "publicodes": "^1.9.1"
+  }
+}
