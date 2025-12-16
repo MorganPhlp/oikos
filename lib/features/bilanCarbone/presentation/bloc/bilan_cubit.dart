@@ -1,95 +1,91 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/question_entity.dart';
-import 'package:oikos/features/bilanCarbone/domain/repositories/question_repository.dart';
-import 'package:oikos/features/bilanCarbone/domain/repositories/simulation_repository.dart';
-import 'package:oikos/features/bilanCarbone/domain/services/applicability_checker.dart';
+import 'package:oikos/features/bilanCarbone/domain/entities/reponse_entity.dart';
+import 'package:oikos/features/bilanCarbone/domain/use_cases/demarrer_bilan_use_case.dart';
+import 'package:oikos/features/bilanCarbone/domain/use_cases/enregistrer_reponse_use_case.dart';
+import 'package:oikos/features/bilanCarbone/domain/use_cases/prochaine_question_use_case.dart';
 
 
 part 'bilan_state.dart';
 
 class BilanCubit extends Cubit<BilanState> {
-  // Dépendances (Injectées)
-  final SimulationRepository simulationRepo; // Gère Publicodes
-  final QuestionRepository questionRepo;     // Gère Supabase
-  final ApplicabilityChecker _applicabilityChecker;
-
-  // État interne (Privé)
-  List<QuestionBilanEntity> _allQuestions = [];
-  int _currentIndex = 0;
-
+  // Dépendances (Use Cases)
+  final DemarrerBilanUseCase demarrerBilanUseCase;
+  final EnregistrerReponseUseCase repondreUseCase; 
+  final GetProchaineQuestionUseCase prochaineQuestionUseCase;
+  final Map<String, dynamic> reponses = {};
+  
+  // Correction ici :
   BilanCubit({
-    required this.simulationRepo,
-    required this.questionRepo,
-    required ApplicabilityChecker? applicabilityChecker,
-  }) : _applicabilityChecker = applicabilityChecker ?? ApplicabilityChecker(simulationRepo),
-       super(BilanLoading());
+    required this.demarrerBilanUseCase,
+    required this.repondreUseCase,
+    required this.prochaineQuestionUseCase,
+  }) : super(BilanLoading()); // <-- AJOUT DE L'APPEL AU CONSTRUCTEUR PARENT
 
   // --- 1. DÉMARRAGE DU BILAN ---
   Future<void> demarrerBilan() async {
     emit(BilanLoading());
     try {
-      // A. Initialiser le moteur JS
-      await simulationRepo.init();
-
-      // B. Récupérer les questions depuis Supabase
-      _allQuestions = await questionRepo.getQuestions();
-
-      // C. Chercher la première question pertinente
+      // 1. Déléguer l'initialisation et obtenir les questions
+      final allQuestions = await demarrerBilanUseCase.call();
+      
+      // 2. Initialiser le Use Case de navigation avec la liste
+      prochaineQuestionUseCase.setQuestions(allQuestions);
+      
+      // 3. Afficher la première question pertinente
       await _chargerProchaineQuestion();
       
     } catch (e) {
-      emit(BilanError("Erreur au démarrage : $e"));
+      // ...
     }
   }
 
   // --- 2. RÉPONSE UTILISATEUR ---
   Future<void> repondre(dynamic valeur) async {
-    // Sécurité : on vérifie qu'une question est bien affichée
-    if (state is! BilanQuestionDisplayed) return;
-    
     final currentQ = (state as BilanQuestionDisplayed).question;
 
     try {
-      // A. Envoyer la réponse au moteur (via le Repo qui nettoie les données)
-      simulationRepo.updateSituation({ currentQ.slug : valeur });
+      // 1. Déléguer TOUTE la logique d'enregistrement et de simulation
+      await repondreUseCase.call(question: currentQ, valeur: valeur); 
+      reponses[currentQ.slug] = valeur;
+      // 2. Avancer l'index dans le Use Case de navigation
+      prochaineQuestionUseCase.avancerIndex();
 
-      // B. On considère cette question comme traitée, on avance
-      _currentIndex++;
-
-      // C. On cherche la suivante
-      await _chargerProchaineQuestion();
+      // 3. Chercher la suivante
+      await _chargerProchaineQuestion(); 
 
     } catch (e) {
-      emit(BilanError("Erreur lors de la réponse : $e"));
+      // ...
     }
   }
 
-  // --- 3. LOGIQUE DE NAVIGATION (Le Cœur) ---
+  Future<void> revenirQuestionPrecedente() async {
+    // 1. Reculer l'index dans le Use Case de navigation
+    if (state is! BilanQuestionDisplayed) return;
+    if(prochaineQuestionUseCase.currentIndex == 0) return;
+    emit (BilanLoading());
+    prochaineQuestionUseCase.reculerIndex();
+
+    // 2. Chercher la précédente
+    await _chargerProchaineQuestion(); 
+  }
+
+  // --- 3. LOGIQUE DE NAVIGATION (Simplifiée) ---
   Future<void> _chargerProchaineQuestion() async {
-    // Boucle tant qu'on n'est pas à la fin
-    while (_currentIndex < _allQuestions.length) {
-      print("Vérification de la question à l'index $_currentIndex sur ${_allQuestions.length} questions.");
-      final candidate = _allQuestions[_currentIndex];
-
-      // Faut il poser cette question ?
-      final isPertinente = _applicabilityChecker.isQuestionApplicable(candidate);
-      if (isPertinente) {
-        //  On met à jour l'état de l'UI.
-        emit(BilanQuestionDisplayed(
-          question: candidate,
-          index: _currentIndex + 1,
-          totalQuestions: _allQuestions.length,
-        ));
-        return; // On arrête la fonction ici, on attend l'utilisateur.
-      }
-
-      // Si pas pertinente, on passe à la suivante sans rien dire à l'UI
-      _currentIndex++;
+    // Déléguer la logique métier complexe au Use Case
+    final nextQuestion = await prochaineQuestionUseCase.call();
+    final valeurPrecedente = reponses[nextQuestion?.slug];
+    if (nextQuestion != null) {
+      emit(BilanQuestionDisplayed(
+        question: nextQuestion,
+        index: prochaineQuestionUseCase.currentIndex + 1,
+        totalQuestions: prochaineQuestionUseCase.totalQuestions,
+        valeurPrecedente: valeurPrecedente,
+      ));
+    } else {
+      emit(BilanTermine());
     }
-
-    // Si on sort de la boucle, c'est qu'il n'y a plus de questions.
-    print ("Aucune question restante. Bilan terminé.");
-    emit(BilanTermine());
   }
 }

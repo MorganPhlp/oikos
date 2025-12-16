@@ -8,11 +8,12 @@ sealed class ReponseUtilisateurEntity with _$ReponseUtilisateurEntity {
   const ReponseUtilisateurEntity._();
 
   const factory ReponseUtilisateurEntity({
-    @Default(0) int id,
-    @JsonKey(name: 'bilan_id') @Default(0) int bilanId,
-    @JsonKey(name: 'question_id') @Default(0) int questionId,
-    @Default(null) dynamic valeur, 
+  @JsonKey(includeIfNull: false) int? id,
+  @JsonKey(name: 'bilan_id') @Default(0) int bilanId,
+  @JsonKey(name: 'question_id') @Default(0) int questionId,
+  dynamic valeur,
   }) = _ReponseUtilisateurEntity;
+
 
   factory ReponseUtilisateurEntity.fromJson(Map<String, dynamic> json) =>
       _$ReponseUtilisateurEntityFromJson(json);

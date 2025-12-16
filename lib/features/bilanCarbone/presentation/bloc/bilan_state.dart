@@ -16,15 +16,17 @@ class BilanQuestionDisplayed extends BilanState {
   final QuestionBilanEntity question; // La question
   final int index;          // Numéro de la question (ex: 3)
   final int totalQuestions; // Total des questions prévues
+  final dynamic valeurPrecedente; // Valeur déjà donnée (si retour arrière)
 
   const BilanQuestionDisplayed({
     required this.question,
     required this.index,
     required this.totalQuestions,
+    this.valeurPrecedente,
   });
 
   @override
-  List<Object?> get props => [question, index, totalQuestions];
+  List<Object?> get props => [question, index, totalQuestions, valeurPrecedente];
 }
 
 // 3. État final : Le questionnaire est fini

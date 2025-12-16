@@ -56,7 +56,6 @@ class _QuestionNumberWrapperState extends State<QuestionNumberWrapper> {
             
             // Le onChanged de OikosNumberInput renvoie maintenant un int (newValue)
             onChanged: (newValue) { // newValue est de type int
-              // 💡 CORRECTION 4 : newValue est déjà int, affectation directe OK
               setState(() { 
                 _currentValue = newValue; 
                 _isInputEmpty = newValue == 0;
@@ -65,6 +64,10 @@ class _QuestionNumberWrapperState extends State<QuestionNumberWrapper> {
               final isFormValid = _formKey.currentState?.validate() ?? false; 
               final isFieldEmpty = _isInputEmpty;
               widget.onValidityChange(isFormValid && !isFieldEmpty); 
+
+              if (isFormValid && !isFieldEmpty) {
+                widget.onValidSubmit(newValue);
+              }
             },
             
             min: widget.question.config['min'] != null 

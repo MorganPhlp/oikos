@@ -17,6 +17,7 @@ class ReponseRepositoryImpl implements ReponseRepository {
           .upsert(data, onConflict: 'bilan_id, question_id');
           
     } catch (e) {
+      print(e);
       throw Exception('Erreur lors de la sauvegarde de la réponse : $e');
     }
   }
@@ -60,6 +61,7 @@ class ReponseRepositoryImpl implements ReponseRepository {
           .eq('question_id', questionId)
           .single()
           .then((json) => ReponseUtilisateurEntity.fromJson(json))
+          // ignore: invalid_return_type_for_catch_error
           .catchError((_) => null);
     } catch (e) {
       throw Exception('Erreur lors de la récupération de la réponse : $e');

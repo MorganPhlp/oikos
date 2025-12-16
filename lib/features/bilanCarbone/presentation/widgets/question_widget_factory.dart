@@ -46,7 +46,7 @@ class QuestionWidgetFactory extends StatelessWidget {
       // =========================================================
       case TypeWidget.choixMultiple:
         // On s'assure que currentValue est bien une List<String>
-        // Sinon, on initialise une liste vide []
+
         final List<String> selection = (currentValue is List) 
             ? List<String>.from(currentValue as List) 
             : [];
@@ -61,17 +61,17 @@ class QuestionWidgetFactory extends StatelessWidget {
       // CAS 3 : NOMBRE (Input Texte)
       // =========================================================
       case TypeWidget.nombre:
-      final int val = (currentValue is num) 
-          ? (currentValue as num).toInt() 
-          : 0;
+        final int val = (currentValue is num) 
+            ? (currentValue as num).toInt() 
+            : 0;
 
-      return QuestionNumberWrapper(
-        key: ValueKey(question.slug),
-        question: question,
-        initialValue: val,
-        onValidSubmit: (newValue) => onLocalChange(newValue),
-        onValidityChange: (isValid) => onValidityChange(isValid),
-      );
+        return QuestionNumberWrapper(
+          key: ValueKey(question.slug),
+          question: question,
+          initialValue: val,
+          onValidSubmit: (newValue) => onLocalChange(newValue),
+          onValidityChange: (isValid) => onValidityChange(isValid),
+        );
 
 
       // =========================================================
@@ -132,7 +132,6 @@ class QuestionWidgetFactory extends StatelessWidget {
           }).toList(),
         );
 
-      // ... (Code du compteur et default) ...
       default:
          return Text("Widget non supporté : ${question.typeWidget}");
     }

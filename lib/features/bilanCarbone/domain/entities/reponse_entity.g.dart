@@ -9,16 +9,16 @@ part of 'reponse_entity.dart';
 _ReponseUtilisateurEntity _$ReponseUtilisateurEntityFromJson(
   Map<String, dynamic> json,
 ) => _ReponseUtilisateurEntity(
-  id: (json['id'] as num?)?.toInt() ?? 0,
+  id: (json['id'] as num?)?.toInt(),
   bilanId: (json['bilan_id'] as num?)?.toInt() ?? 0,
   questionId: (json['question_id'] as num?)?.toInt() ?? 0,
-  valeur: json['valeur'] ?? null,
+  valeur: json['valeur'],
 );
 
 Map<String, dynamic> _$ReponseUtilisateurEntityToJson(
   _ReponseUtilisateurEntity instance,
 ) => <String, dynamic>{
-  'id': instance.id,
+  'id': ?instance.id,
   'bilan_id': instance.bilanId,
   'question_id': instance.questionId,
   'valeur': instance.valeur,

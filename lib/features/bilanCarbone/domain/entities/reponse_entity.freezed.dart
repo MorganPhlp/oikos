@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ReponseUtilisateurEntity {
 
- int get id;@JsonKey(name: 'bilan_id') int get bilanId;@JsonKey(name: 'question_id') int get questionId; dynamic get valeur;
+@JsonKey(includeIfNull: false) int? get id;@JsonKey(name: 'bilan_id') int get bilanId;@JsonKey(name: 'question_id') int get questionId; dynamic get valeur;
 /// Create a copy of ReponseUtilisateurEntity
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $ReponseUtilisateurEntityCopyWith<$Res>  {
   factory $ReponseUtilisateurEntityCopyWith(ReponseUtilisateurEntity value, $Res Function(ReponseUtilisateurEntity) _then) = _$ReponseUtilisateurEntityCopyWithImpl;
 @useResult
 $Res call({
- int id,@JsonKey(name: 'bilan_id') int bilanId,@JsonKey(name: 'question_id') int questionId, dynamic valeur
+@JsonKey(includeIfNull: false) int? id,@JsonKey(name: 'bilan_id') int bilanId,@JsonKey(name: 'question_id') int questionId, dynamic valeur
 });
 
 
@@ -65,10 +65,10 @@ class _$ReponseUtilisateurEntityCopyWithImpl<$Res>
 
 /// Create a copy of ReponseUtilisateurEntity
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? bilanId = null,Object? questionId = null,Object? valeur = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? bilanId = null,Object? questionId = null,Object? valeur = freezed,}) {
   return _then(_self.copyWith(
-id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,bilanId: null == bilanId ? _self.bilanId : bilanId // ignore: cast_nullable_to_non_nullable
+id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int?,bilanId: null == bilanId ? _self.bilanId : bilanId // ignore: cast_nullable_to_non_nullable
 as int,questionId: null == questionId ? _self.questionId : questionId // ignore: cast_nullable_to_non_nullable
 as int,valeur: freezed == valeur ? _self.valeur : valeur // ignore: cast_nullable_to_non_nullable
 as dynamic,
@@ -153,7 +153,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id, @JsonKey(name: 'bilan_id')  int bilanId, @JsonKey(name: 'question_id')  int questionId,  dynamic valeur)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(includeIfNull: false)  int? id, @JsonKey(name: 'bilan_id')  int bilanId, @JsonKey(name: 'question_id')  int questionId,  dynamic valeur)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ReponseUtilisateurEntity() when $default != null:
 return $default(_that.id,_that.bilanId,_that.questionId,_that.valeur);case _:
@@ -174,7 +174,7 @@ return $default(_that.id,_that.bilanId,_that.questionId,_that.valeur);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id, @JsonKey(name: 'bilan_id')  int bilanId, @JsonKey(name: 'question_id')  int questionId,  dynamic valeur)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(includeIfNull: false)  int? id, @JsonKey(name: 'bilan_id')  int bilanId, @JsonKey(name: 'question_id')  int questionId,  dynamic valeur)  $default,) {final _that = this;
 switch (_that) {
 case _ReponseUtilisateurEntity():
 return $default(_that.id,_that.bilanId,_that.questionId,_that.valeur);}
@@ -191,7 +191,7 @@ return $default(_that.id,_that.bilanId,_that.questionId,_that.valeur);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id, @JsonKey(name: 'bilan_id')  int bilanId, @JsonKey(name: 'question_id')  int questionId,  dynamic valeur)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(includeIfNull: false)  int? id, @JsonKey(name: 'bilan_id')  int bilanId, @JsonKey(name: 'question_id')  int questionId,  dynamic valeur)?  $default,) {final _that = this;
 switch (_that) {
 case _ReponseUtilisateurEntity() when $default != null:
 return $default(_that.id,_that.bilanId,_that.questionId,_that.valeur);case _:
@@ -206,13 +206,13 @@ return $default(_that.id,_that.bilanId,_that.questionId,_that.valeur);case _:
 @JsonSerializable()
 
 class _ReponseUtilisateurEntity extends ReponseUtilisateurEntity {
-  const _ReponseUtilisateurEntity({this.id = 0, @JsonKey(name: 'bilan_id') this.bilanId = 0, @JsonKey(name: 'question_id') this.questionId = 0, this.valeur = null}): super._();
+  const _ReponseUtilisateurEntity({@JsonKey(includeIfNull: false) this.id, @JsonKey(name: 'bilan_id') this.bilanId = 0, @JsonKey(name: 'question_id') this.questionId = 0, this.valeur}): super._();
   factory _ReponseUtilisateurEntity.fromJson(Map<String, dynamic> json) => _$ReponseUtilisateurEntityFromJson(json);
 
-@override@JsonKey() final  int id;
+@override@JsonKey(includeIfNull: false) final  int? id;
 @override@JsonKey(name: 'bilan_id') final  int bilanId;
 @override@JsonKey(name: 'question_id') final  int questionId;
-@override@JsonKey() final  dynamic valeur;
+@override final  dynamic valeur;
 
 /// Create a copy of ReponseUtilisateurEntity
 /// with the given fields replaced by the non-null parameter values.
@@ -247,7 +247,7 @@ abstract mixin class _$ReponseUtilisateurEntityCopyWith<$Res> implements $Repons
   factory _$ReponseUtilisateurEntityCopyWith(_ReponseUtilisateurEntity value, $Res Function(_ReponseUtilisateurEntity) _then) = __$ReponseUtilisateurEntityCopyWithImpl;
 @override @useResult
 $Res call({
- int id,@JsonKey(name: 'bilan_id') int bilanId,@JsonKey(name: 'question_id') int questionId, dynamic valeur
+@JsonKey(includeIfNull: false) int? id,@JsonKey(name: 'bilan_id') int bilanId,@JsonKey(name: 'question_id') int questionId, dynamic valeur
 });
 
 
@@ -264,10 +264,10 @@ class __$ReponseUtilisateurEntityCopyWithImpl<$Res>
 
 /// Create a copy of ReponseUtilisateurEntity
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? bilanId = null,Object? questionId = null,Object? valeur = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? bilanId = null,Object? questionId = null,Object? valeur = freezed,}) {
   return _then(_ReponseUtilisateurEntity(
-id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,bilanId: null == bilanId ? _self.bilanId : bilanId // ignore: cast_nullable_to_non_nullable
+id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int?,bilanId: null == bilanId ? _self.bilanId : bilanId // ignore: cast_nullable_to_non_nullable
 as int,questionId: null == questionId ? _self.questionId : questionId // ignore: cast_nullable_to_non_nullable
 as int,valeur: freezed == valeur ? _self.valeur : valeur // ignore: cast_nullable_to_non_nullable
 as dynamic,

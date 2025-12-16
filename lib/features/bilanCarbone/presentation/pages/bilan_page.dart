@@ -40,12 +40,10 @@ class _BilanPageState extends State<BilanPage> {
               }
             },
             builder: (context, state) {
-              // ... (Cas BilanLoading, BilanError, BilanTermine inchangés) ...
-
-              // --- CAS 4 : QUESTION AFFICHÉE ---
+              // --- CAS QUESTION AFFICHÉE ---
               if (state is BilanQuestionDisplayed) {
                 final double progress = state.index / state.totalQuestions;
-
+                
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
                   child: Column(
@@ -81,7 +79,7 @@ class _BilanPageState extends State<BilanPage> {
 
                               const SizedBox(height: 30),
 
-                              // 👉 FACTORY : Affiche Slider, Boutons ou Compteurs
+                              // Affiche Slider, Boutons ou Compteurs
                               QuestionWidgetFactory(
                                 question: state.question,
                                 currentValue: _currentAnswer,
@@ -123,29 +121,35 @@ class _BilanPageState extends State<BilanPage> {
   // ---------------------------------------------------------------------------
 
   /// Initialise la valeur locale selon le type de widget pour éviter les null errors
+/// Initialise la valeur locale selon le type de widget pour éviter les null errors
 void _initialiserValeurParDefaut(BilanQuestionDisplayed state) {
-  setState(() {
-    switch (state.question.typeWidget) {
-      case TypeWidget.slider:
-        _currentAnswer = state.question.min ?? 0.0;
-        _isAnswerValid = true; 
-        break;
-      case TypeWidget.compteur:
-        _currentAnswer = <String, int>{};
-        _isAnswerValid = true;
-        break;
-      case TypeWidget.nombre:
-        _currentAnswer = 0.0;
-        _isAnswerValid = false; 
-        break;
-      default:
-        _currentAnswer = null;
-        _isAnswerValid = false;
-    }
-  });
-
-  if (state.question.typeWidget == TypeWidget.nombre && _currentAnswer is num) {
-    // Validation gérée par le QuestionNumberWrapper
+  if (state.valeurPrecedente == null) {
+    setState(() {
+      switch (state.question.typeWidget) {
+        case TypeWidget.slider:
+          _currentAnswer = state.question.min ?? 0.0;
+          _isAnswerValid = true; 
+          break;
+        case TypeWidget.compteur:
+          _currentAnswer = <String, int>{};
+          _isAnswerValid = true;
+          break;
+        case TypeWidget.nombre:
+          _currentAnswer = null; 
+          _isAnswerValid = false; 
+          break;
+        default:
+          _currentAnswer = null;
+          _isAnswerValid = false;
+      }
+    });
+  } else {
+    // Si une valeur précédente existe, on initialise la validité
+    setState(() {
+       // Définir la validité par défaut (si on a une valeur, on est valide)
+       _isAnswerValid = true; 
+       _currentAnswer = state.valeurPrecedente;
+    });
   }
 }
 
@@ -186,7 +190,6 @@ void _initialiserValeurParDefaut(BilanQuestionDisplayed state) {
               duration: const Duration(milliseconds: 300),
               height: 8,
               
-              // 👇 AJOUTE LES PARENTHÈSES ICI 👇
               width: (MediaQuery.of(context).size.width - 40) * progress,
               
               decoration: BoxDecoration(
@@ -198,7 +201,6 @@ void _initialiserValeurParDefaut(BilanQuestionDisplayed state) {
         ),
         const SizedBox(height: 8),
 
-        // Texte "Question 1 sur 20"
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -209,7 +211,6 @@ void _initialiserValeurParDefaut(BilanQuestionDisplayed state) {
                 fontSize: 12,
               ),
             ),
-            // Optionnel : Afficher le score en temps réel ici si le Cubit le fournit
           ],
         ),
       ],
@@ -222,14 +223,12 @@ void _initialiserValeurParDefaut(BilanQuestionDisplayed state) {
     bool canProceed = false;
 
     if (state.question.typeWidget == TypeWidget.nombre) {
-      // 💡 NOUVEAU: Utilise l'état remonté par le QuestionNumberWrapper
       canProceed = _isAnswerValid; 
     } else if (state.question.typeWidget == TypeWidget.slider) {
       canProceed = true; // Un slider a toujours une valeur par défaut
     } else if (state.question.typeWidget == TypeWidget.compteur) {
       canProceed = true; // On autorise 0
     } else {
-      // Pour choix unique, il faut avoir cliqué
       canProceed = _currentAnswer != null;
     }
 
@@ -240,11 +239,7 @@ void _initialiserValeurParDefaut(BilanQuestionDisplayed state) {
             // Bouton Retour
             InkWell(
               onTap: () {
-                // TODO: Implémenter la méthode 'reculer()' dans le Cubit si nécessaire
-                // Pour l'instant on peut afficher un message ou ne rien faire
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Retour en arrière bientôt disponible !")),
-                );
+                context.read<BilanCubit>().revenirQuestionPrecedente();
               },
               borderRadius: BorderRadius.circular(12),
               child: Container(
@@ -266,7 +261,6 @@ void _initialiserValeurParDefaut(BilanQuestionDisplayed state) {
                 icon: const Icon(Icons.chevron_right, color: Colors.white),
                 disabled: !canProceed,
                 onPressed: () {
-                  // C'est ICI qu'on valide et qu'on appelle le moteur
                   context.read<BilanCubit>().repondre(_currentAnswer);
                 },
               ),
@@ -287,7 +281,6 @@ void _initialiserValeurParDefaut(BilanQuestionDisplayed state) {
               child: Text("•", style: TextStyle(color: AppColors.lightTextPrimary.withOpacity(0.3))),
             ),
             _buildTextLink("Ça ne m'intéresse pas", () {
-              // On peut imaginer une logique spécifique pour sauter la question
               context.read<BilanCubit>().repondre("non applicable"); 
             }),
           ],
