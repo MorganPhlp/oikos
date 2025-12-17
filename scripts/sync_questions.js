@@ -16,23 +16,23 @@ const rulesPath = path.join(__dirname, '..', 'assets', 'data', 'rules.json')
 
 
 const TARGET_QUESTIONS = [
-    "logement . type",
-    "logement . surface",
-    "logement . propriétaire",
-    "logement . habitants",
-    "logement . chauffage",
-    "logement . chauffage . précision consommation . ressenti",
-    "transport . voiture . utilisateur",
-    "transport . voiture . km",
-    "transport . voiture . motorisation",
-    "transport . mobilité douce",
-    "transport . avion . usager", 
-    "transport . avion . moyen courrier . heures de vol",
-    "alimentation . plats",
-    "alimentation . boisson . eau en bouteille . consommateur", 
-    "divers . numérique . appareils",
-    "divers . textile . volume"
-]
+    ["logement . type", '🏠'],
+    ["logement . surface", '📏'],
+    ["logement . propriétaire", '🔑'],
+    ["logement . habitants", '👥'],
+    ["logement . chauffage", '🔥'],
+    ["logement . chauffage . précision consommation . ressenti", '🌡️'],
+    ["transport . voiture . utilisateur", '🚗'],
+    ["transport . voiture . km", '⛽'],
+    ["transport . voiture . motorisation", '🔧'],
+    ["transport . mobilité douce", '🚲'],
+    ["transport . avion . usager", '✈️'],
+    ["transport . avion . moyen courrier . heures de vol", '🕒'],
+    ["alimentation . plats", '🍽️'],
+    ["alimentation . boisson . eau en bouteille . consommateur", '💧'],
+    ["divers . numérique . appareils", '💻'],
+    ["divers . textile . volume", '🛍️'],
+];
 
 const dependancies = {
 
@@ -137,7 +137,8 @@ async function run() {
     console.log("🛠️ Transformation...")
     const records = []
 
-    for (const [index,slug] of TARGET_QUESTIONS.entries()) {
+    for (const [index,item] of TARGET_QUESTIONS.entries()) {
+        const [slug, icon] = item
         const rule = parsedRules[slug]
         
         if (!rule) {
@@ -154,7 +155,7 @@ async function run() {
             slug: slug,
             categorie_empreinte: category,
             question: raw.question || raw.titre || slug,
-            icone: raw['icônes'] || null,
+            icone: icon || raw.icone || null,
             type_widget: widgetType,
             config_json: buildConfigJson(slug,rule, widgetType),
         })

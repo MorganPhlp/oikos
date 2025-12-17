@@ -5,6 +5,7 @@ import 'package:oikos/features/bilanCarbone/data/repositories/bilan_repository_i
 import 'package:oikos/features/bilanCarbone/data/repositories/reponse_repository_impl.dart';
 import 'package:oikos/features/bilanCarbone/domain/repositories/bilan_repository.dart';
 import 'package:oikos/features/bilanCarbone/domain/repositories/reponse_repository.dart';
+import 'package:oikos/features/bilanCarbone/domain/services/QuestionnaireNavigator.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/demarrer_bilan_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/enregistrer_reponse_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/prochaine_question_use_case.dart';
@@ -23,34 +24,36 @@ final sl = GetIt.instance;
 
 Future<void> init() async {
   // ==========================================================
-  // 1. Présentation (Blocs)
+  // 1. Externes (Outils techniques) - TOUJOURS EN PREMIER
   // ==========================================================
-  // On utilise 'registerFactory' pour avoir un nouveau Cubit neuf à chaque fois
-  sl.registerFactory(() => BilanCubit(
-        demarrerBilanUseCase: sl(),
-        repondreUseCase: sl(),
-        prochaineQuestionUseCase: sl(),
-        // Injection OK
-      ));
+  sl.registerLazySingleton(() => Supabase.instance.client);
 
   // ==========================================================
-  // 2. Domaine (Services/Use Cases)
+  // 2. Data (Repositories & Services de données)
   // ==========================================================
-  // Enregistrement du service de domaine. Il a besoin du SimulationRepository.
-  sl.registerLazySingleton<ApplicabilityChecker>(
-    // GetIt injectera l'instance de SimulationRepository
-    () => ApplicabilityChecker(sl()),
+  sl.registerLazySingleton<SimulationRepository>(() => PublicodesService());
+  sl.registerLazySingleton<QuestionRepository>(() => QuestionRepositoryImpl(supabaseClient: sl()));
+  sl.registerLazySingleton<ReponseRepository>(() => ReponseRepositoryImpl(supabaseClient: sl()));
+  sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(supabaseClient: sl()));
+  sl.registerLazySingleton<BilanSessionRepository>(
+    () => BilanSessionRepositoryImpl(supabaseClient: sl(), authRepo: sl()),
   );
 
-  // Use Case : Démarrer le Bilan
+  // ==========================================================
+  // 3. Domaine (Services & Navigator)
+  // ==========================================================
+  sl.registerLazySingleton<ApplicabilityChecker>(() => ApplicabilityChecker(sl()));
+  
+  // ICI : Ajout du Navigator qui manquait
+  sl.registerLazySingleton(() => QuestionnaireNavigator(sl()));
+
+  // ==========================================================
+  // 4. Use Cases (Dépendent du domaine et des repos)
+  // ==========================================================
   sl.registerLazySingleton(() => DemarrerBilanUseCase(
         simulationRepo: sl(),
         questionRepo: sl(),
         bilanSessionRepo: sl(),
-      ));
-
-  sl.registerLazySingleton(() => GetProchaineQuestionUseCase(
-        applicabilityChecker: sl(),
       ));
 
   sl.registerLazySingleton(() => EnregistrerReponseUseCase(
@@ -58,39 +61,17 @@ Future<void> init() async {
         reponseRepo: sl(),
         bilanSessionRepo: sl(),
       ));
-  // ==========================================================
-  // 3. Data (Repositories & Implementations)
-  // ==========================================================
-  // Simulation : Enregistrement de l'implémentation sous son interface
-  sl.registerLazySingleton<SimulationRepository>(
-    // L'implémentation PublicodesService est utilisée ici
-    () => PublicodesService(),
-  );
-
-  // Questions (Supabase)
-  sl.registerLazySingleton<QuestionRepository>(
-    () => QuestionRepositoryImpl(supabaseClient: sl()),
-  );
-
-  sl.registerLazySingleton<BilanSessionRepository>(
-    () => BilanSessionRepositoryImpl(
-        supabaseClient: sl(), 
-        authRepo: sl(),
-    ),
-  );
-
-  sl.registerLazySingleton<ReponseRepository>(
-    () => ReponseRepositoryImpl(supabaseClient: sl()),
-  );
-
-  sl.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(supabaseClient: sl()),
-  );
+      
+  // Si tu as décidé de passer par des Use Cases pour la navigation (recommandé) :
+  // sl.registerLazySingleton(() => GetNextQuestionUseCase(sl()));
+  // sl.registerLazySingleton(() => GetPreviousQuestionUseCase(sl()));
 
   // ==========================================================
-  // 4. Data Sources & Externes (Outils techniques)
+  // 5. Présentation (Blocs/Cubits) - TOUJOURS EN DERNIER
   // ==========================================================
-
-  // Supabase Client (Déjà initialisé dans le main, on le récupère juste)
-  sl.registerLazySingleton(() => Supabase.instance.client);
+  sl.registerFactory(() => BilanCubit(
+        demarrerBilanUseCase: sl(),
+        repondreUseCase: sl(),
+        navigator: sl(), // Maintenant sl() trouvera QuestionnaireNavigator
+      ));
 }

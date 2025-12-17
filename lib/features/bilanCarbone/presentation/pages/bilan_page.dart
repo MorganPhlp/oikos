@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:oikos/core/shared_widgets/gradient_button.dart';
 // Adapte les imports selon ton arborescence exacte
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/type_widget.dart';
@@ -60,7 +61,7 @@ class _BilanPageState extends State<BilanPage> {
                             children: [
                               // Icône de la question
                               Text(
-                                state.question.icone ?? '🌱',
+                                state.question.icone ?? '🚗',
                                 style: const TextStyle(fontSize: 50),
                               ),
                               const SizedBox(height: 15),
@@ -256,9 +257,8 @@ void _initialiserValeurParDefaut(BilanQuestionDisplayed state) {
 
             // Bouton Suivant (OikosButton)
             Expanded(
-              child: OikosNextButton(
-                label: state.index == state.totalQuestions ? "Terminer" : "Suivant",
-                icon: const Icon(Icons.chevron_right, color: Colors.white),
+              child: GradientButton(
+                label: state.index == state.totalQuestions ? "Terminer" : "Question suivante >",
                 disabled: !canProceed,
                 onPressed: () {
                   context.read<BilanCubit>().repondre(_currentAnswer);

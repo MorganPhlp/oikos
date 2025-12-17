@@ -30,15 +30,12 @@ class GetProchaineQuestionUseCase {
     while (_currentIndex < _allQuestions.length) {
       final candidate = _allQuestions[_currentIndex];
       
-      // La vérification est déléguée au Service ApplicabilityChecker
       final isPertinente = applicabilityChecker.isQuestionApplicable(candidate);
       
       if (isPertinente) {
-        // Trouvé! On retourne la question et on s'arrête.
         return candidate; 
       }
 
-      // Si pas pertinente, on avance l'index et on continue la boucle
       _currentIndex++;
     }
 

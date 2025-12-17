@@ -51,6 +51,22 @@ class AppTheme {
         errorBorder: _border(AppColors.lightDestructive),
         hintStyle: TextStyle(color: AppColors.lightTextPrimary.withValues(alpha: 0.4)), // Texte d'indication avec opacité à 40%
       ),
+
+      // button Theme
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          // Au lieu de screenWidth * 0.93, on utilise infinity
+          // Le bouton remplira son parent, tu n'auras qu'à mettre un Padding autour
+          minimumSize: const Size(double.infinity, 25), 
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          elevation: 0,
+          padding: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          ),
+      ),
     );
   }
 
