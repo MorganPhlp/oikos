@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/shared_widgets/gradient_button.dart';
+import 'package:oikos/core/presentation/shared_widgets/gradient_button.dart';
 // Adapte les imports selon ton arborescence exacte
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/type_widget.dart';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:oikos/core/theme/app_typography.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_colors.dart';
 
 class GradientButton extends StatelessWidget {
   final String label;

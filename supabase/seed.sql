@@ -1,14 +1,14 @@
 -- Scénario fictif : utilisateur "Sophie Martin"
 
 -- 1. Catégories
-INSERT INTO categorie_empreinte (nom, icone, couleurHEX) VALUES
-('Logement', 'home', '#4CAF50'),
-('Transport', 'directions_car', '#2196F3'),
-('Alimentation', 'restaurant', '#FF9800'),
-('Energie_Eau', 'power', '#9C27B0'),
-('Vacances_Loisirs', 'beach_access', '#E91E63'),
-('Numérique', 'devices', '#00BCD4'),
-('Consommation_Dechets', 'shopping_bag', '#8BC34A')
+INSERT INTO categorie_empreinte (nom, icone, couleurHEX, description) VALUES
+('Logement', '🏠', '#4CAF50', 'Habitat et énergie'),
+('Transport', '🚗', '#2196F3', 'Déplacements et véhicules'),
+('Alimentation', '🍽️', '#FF9800', 'Nourriture et boissons'),
+('Energie_Eau', '⚡', '#9C27B0', 'Consommation d''énergie et d''eau'),
+('Vacances_Loisirs', '🏖️', '#E91E63', 'Voyages et loisirs'),
+('Numérique', '💻', '#00BCD4', 'Technologies et appareils numériques'),
+('Consommation_Dechets', '🛍️', '#8BC34A', 'Consommation et déchets')
 ON CONFLICT (nom) DO NOTHING;
 
 -- 2. Communauté

@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS categorie_empreinte (
     nom VARCHAR(255) PRIMARY KEY,
     icone VARCHAR(255) NOT NULL,
-    couleurHEX VARCHAR(7) NOT NULL
+    couleurHEX VARCHAR(7) NOT NULL,
+    description VARCHAR(500)
 );

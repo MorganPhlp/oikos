@@ -5,9 +5,9 @@ import 'package:oikos/features/bilanCarbone/data/repositories/bilan_repository_i
 import 'package:oikos/features/bilanCarbone/data/repositories/reponse_repository_impl.dart';
 import 'package:oikos/features/bilanCarbone/domain/repositories/bilan_repository.dart';
 import 'package:oikos/features/bilanCarbone/domain/repositories/reponse_repository.dart';
-import 'package:oikos/features/bilanCarbone/domain/services/QuestionnaireNavigator.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/demarrer_bilan_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/enregistrer_reponse_use_case.dart';
+import 'package:oikos/features/bilanCarbone/domain/use_cases/precedente_question_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/prochaine_question_use_case.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -44,23 +44,30 @@ Future<void> init() async {
   // ==========================================================
   sl.registerLazySingleton<ApplicabilityChecker>(() => ApplicabilityChecker(sl()));
   
-  // ICI : Ajout du Navigator qui manquait
-  sl.registerLazySingleton(() => QuestionnaireNavigator(sl()));
 
-  // ==========================================================
-  // 4. Use Cases (Dépendent du domaine et des repos)
-  // ==========================================================
-  sl.registerLazySingleton(() => DemarrerBilanUseCase(
-        simulationRepo: sl(),
-        questionRepo: sl(),
-        bilanSessionRepo: sl(),
-      ));
+// ==========================================================
+// 4. Use Cases (Dépendent du domaine et des repos)
+// ==========================================================
+sl.registerLazySingleton(() => DemarrerBilanUseCase(
+      simulationRepo: sl(),
+      questionRepo: sl(),
+      bilanSessionRepo: sl(),
+    ));
 
-  sl.registerLazySingleton(() => EnregistrerReponseUseCase(
-        simulationRepo: sl(),
-        reponseRepo: sl(),
-        bilanSessionRepo: sl(),
-      ));
+sl.registerLazySingleton(() => EnregistrerReponseUseCase(
+      simulationRepo: sl(),
+      reponseRepo: sl(),
+      bilanSessionRepo: sl(),
+    ));
+
+// ✅ DÉCOMMENTE ET CORRIGE LES NOMS ICI :
+sl.registerLazySingleton(() => GetProchaineQuestionUseCase(
+      applicabilityChecker: sl(),
+    ));
+
+sl.registerLazySingleton(() => GetPreviousQuestionUseCase(
+      applicabilityChecker: sl(),
+    ));
       
   // Si tu as décidé de passer par des Use Cases pour la navigation (recommandé) :
   // sl.registerLazySingleton(() => GetNextQuestionUseCase(sl()));
@@ -72,6 +79,8 @@ Future<void> init() async {
   sl.registerFactory(() => BilanCubit(
         demarrerBilanUseCase: sl(),
         repondreUseCase: sl(),
-        navigator: sl(), // Maintenant sl() trouvera QuestionnaireNavigator
+        getNextUseCase: sl(),
+        getPrevUseCase: sl(),
+
       ));
 }

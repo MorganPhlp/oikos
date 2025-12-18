@@ -1,0 +1,342 @@
+@startuml diagramme
+left to right direction
+skinparam packageStyle rectangle
+skinparam linetype polyline
+hide empty members
+skinparam classAttributeIconSize 0
+
+' ===========================
+' Utilisateur & Authentification
+' ===========================
+package "Utilisateur & Authentification" {
+
+  class Utilisateur {
+    +id : Integer
+    '+passwordHash : String
+    +email : String
+    +pseud : String
+    +avatar : String
+    +estCompteValide : Boolean
+    +role : RoleUtilisateur
+    +etatCompte : EtatCompte
+    +impactScoreXP : Integer
+    +co2EconomiseTotal : Float
+    +aAccepteCGU : Boolean
+  }
+
+  'class SessionAuthentification {
+  '  +estActive : Boolean
+  '}
+
+  'class CodeVerificationMotDePasse {
+  '  +code : String
+  '}
+
+
+  enum RoleUtilisateur {
+    UTILISATEUR
+    ADMINISTRATEUR
+  }
+
+  enum EtatCompte {
+    ACTIF
+    SUPPRIME
+    ANONYMISÉ
+  }
+}
+
+' ===========================
+' Bilan Carbone & Questionnaire
+' ===========================
+package "Bilan Carbone & Questionnaire" {
+
+' le questionnaire est un processus (déroulement, navigation, sauvegarde, reprise)
+  class QuestionnaireBilan {
+    +nom : String
+    +description : String
+  }
+
+  class QuestionBilan {
+    +id : Integer
+    +question : String
+    +icone : String
+    +type_widget : TypeWidget
+    +config_json : String
+    +ordre_affichage : Integer
+  }
+' estApprofondissement ??
+
+  class CategorieEmpreinte {
+    +nom : String 
+    +icone : URL 
+    +couleurHEX : string 
+    +description : String
+  }
+
+  class ReponseUtilisateur {
+    +valeur : String
+    '+estPasse : Boolean
+    '+dateReponse : DateTime
+  }
+
+  class BilanCarbone {
+    +scoreTotalCO2eAn : Float
+    +statut : StatutBilan
+    +dateBilan : DateTime
+  }
+
+  enum StatutBilan {
+    EN_COURS
+    TERMINE
+    INTERROMPU
+  }
+
+  class ScoreCategorieBilan {
+    +valeurCO2e : Float
+    +pourcentage : Float
+  }
+
+  class EquivalentConcret {
+    +libelle : String
+    +typeEquivalent : String
+    +ratioCO2eParUnite : Float
+  }
+
+  enum TypeWidget {
+    SLIDER
+    CHOIX_MULTIPLE
+    CHOIX_UNIQUE
+    BOOLEEN
+    NOMBRE
+    COMPTEUR
+  }
+
+' MesureEmpreinte permet de mesurer l'empreinte à l'instant t pour tracer graphiquement l'évolution 
+  class MesureEmpreinte {
+    +periode : String
+    +typePeriode : TypePeriode
+    +valeurCO2e : Float
+  }
+
+  enum TypePeriode {
+    MENSUEL
+    ANNUEL
+  }
+
+  class ObjectifCarbone {
+    +nom : String
+    +valeurCO2eAn : Float
+  }
+}
+
+' ===========================
+' Actions & Gamification
+' ===========================
+package "Actions & Gamification" {
+
+  class Action {
+    +titre : String
+    +description : String
+    +typeAction : TypeAction
+    +difficulte : String
+    +cout : String
+    +tempsMiseEnPlace : String
+    +gainCO2 : Float
+    +xpGain : Integer
+    +sourceScientifique : String
+    +frequenceDefi : String
+    +estCommunATous : Boolean
+  }
+
+  enum TypeAction {
+    ACTION
+    DEFI
+  }
+
+' une action peut être réalisée plusieurs fois , par plusieurs utilisateurs ou par un utilisateur (ex : trajet vélo quotidien)
+  class RealisationAction {
+    +statutSynchro : StatutSynchro
+    +estOffline : Boolean
+  }
+'  l'attribut   +horodatageLocal : DateTime sera dans la BDD supabase. 
+
+  enum StatutSynchro {
+    EN_ATTENTE
+    SYNCHRONISEE
+  }
+
+  class ActionIgnoree {
+    ' Liaison Utilisateur-Action ignorée
+  }
+
+  class PreferenceCategorieActionIgnoree {
+    ' Liaison Utilisateur-CategorieEmpreinte ignorée
+  }
+
+  class PreferenceNotification {
+    +typeNotification : TypeNotification
+    +estActive : Boolean
+  }
+
+  enum TypeNotification {
+    DEFI
+    CLASSEMENT
+    AUTRE
+  }
+
+  class Ligue {
+    +nom : String
+    +xpSeuilMin : Integer
+  }
+
+  class Defi {
+    ' cibleType : UserVSUser ou ComuVSComu
+    +cibleType : TypeCibleDefi
+    +metrique : String
+    +dateDebut : Date
+    +dateFin : Date
+  }
+
+  enum TypeCibleDefi {
+    UTILISATEUR
+    COMMUNAUTE
+  }
+
+  class DefiParticipant {
+    +typeParticipant : TypeParticipantDefi
+    +aAccepte : Boolean
+    +scoreDefi : Float
+  }
+
+  enum TypeParticipantDefi {
+    UTILISATEUR
+    COMMUNAUTE
+  }
+
+  class StreakCollectif {
+    +valeurJours : Integer
+    +seuilParticipation : Float
+    +toleranceInactiviteJours : Integer
+    +joursConsecutifsSousSeuil : Integer
+  }
+}
+
+' ===========================
+' Communautés & Statistiques
+' ===========================
+package "Communautés & Statistiques" {
+
+  class Communaute {
+    +nom : String
+    +description : String
+    +icone : String
+    +couleurHEX : String
+  }
+
+  class StatistiquesGlobales {
+    +utilisateursActifs : Integer
+    +utilisateursTotal : Integer
+    +co2TotalEconomise : Float
+  }
+
+  class StatistiquesCommunaute {
+    +impactScoreMoyen : Float
+    +tauxParticipation : Float
+  }
+}
+
+' ===========================
+' Associations
+' ===========================
+
+' Utilisateur & Auth
+' un utilisateur peut avoir plusieurs sessions (connecté sur plusieurs smartphones)
+Utilisateur "1" -- "0..*" SessionAuthentification 
+' ??? un utilisateur peut avoir plusieurs codes de vérification (historique) OU un seul ?
+Utilisateur "1" -- "0..*" CodeVerificationMotDePasse
+
+' Utilisateur & Bilan / Questionnaire
+' un utilisateur peut avoir plusieurs bilans carbone, le bilan est lié à un seul utilisateur
+' ou alors on ne garde que le dernier bilan carbone par utilisateur
+Utilisateur "1" -- "1" BilanCarbone
+' un utilisateur répond à plusieurs questions : plusieurs réponses, la réponse est liée à un seul utilisateur
+Utilisateur "1" -- "0..*" ReponseUtilisateur
+' un utilisateur peut avoir plusieurs mesures d'empreinte carbone ou 0 s'il n'a pas commencé
+Utilisateur "1" -- "0..*" MesureEmpreinte
+' une question est accociée à un questionnaire et un questionnaire contient au moins une question
+QuestionnaireBilan "1" -- "1..*" QuestionBilan
+' une question appartient à une catégorie et une catégorie peut contenir plusieurs questions
+QuestionBilan "*" -- "1" CategorieEmpreinte
+
+' ??? une réponse utilisateur est liée à une question et une question peut avoir plusieurs réponses utilisateur (si on décide de garder l'historique des réponses ? )
+ReponseUtilisateur "*" -- "1" QuestionBilan
+
+' un bilan carbone est associé à un questionnaire
+BilanCarbone "1" -- "1" QuestionnaireBilan
+' un bilan carbone contient plusieurs réponses utilisateur et une réponse utilisateur appartient à un seul bilan carbone
+BilanCarbone "1" -- "1..*" ReponseUtilisateur
+' les scores par catégorie se ratachent à un bilan carbone. 1 bilan carbone contient plusieurs scores par catégorie
+BilanCarbone "1" -- "1..*" ScoreCategorieBilan
+' chaque score par catégorie se rattache à une catégorie d'empreinte, 1 catégorie d'empreinte aura un score pour chaque bilan
+ScoreCategorieBilan "*" -- "1" CategorieEmpreinte
+' un bilan carbone peut être associé à plusieurs équivalents concrets, un équivalent concret est propre à un bilan carbone
+BilanCarbone "1" -- "0..*" EquivalentConcret
+' ??? une mesure d'empreinte peut être liée à un objectif carbone ou pas, un objectif carbone peut être lié à plusieurs mesures d'empreinte. Depend de comment est calculé l'objectif carbone ? 
+MesureEmpreinte "*" -- "0..1" ObjectifCarbone
+
+' Utilisateur & Actions
+' un utilisateur peut réaliser plusieurs actions, une réalisation d'action est liée à un seul utilisateur
+Utilisateur "1" -- "0..*" RealisationAction
+' une action peut être réalisée plusieurs fois par plusieurs utilisateurs, une réalisation d'action est liée à une seule action
+Action "1" -- "0..*" RealisationAction
+' une action appartient à une catégorie et une catégorie peut contenir plusieurs actions
+Action "*" -- "1" CategorieEmpreinte
+
+' un utilisateur peut ignorer plusieurs actions, une action ignorée est liée à un seul utilisateur
+Utilisateur "1" -- "0..*" ActionIgnoree
+' une action peut être ignorée par plusieurs utilisateurs, une action ignorée est liée à une seule action
+Action "1" -- "0..*" ActionIgnoree
+' un utilisateur peut ignorer plusieurs catégories d'actions, une préférence d'ignorance est liée à un seul utilisateur
+Utilisateur "1" -- "0..*" PreferenceCategorieActionIgnoree
+' une catégorie d'actions peut être ignorée par plusieurs utilisateurs, une préférence d'ignorance est liée à une seule catégorie
+CategorieEmpreinte "1" -- "0..*" PreferenceCategorieActionIgnoree
+
+' Plusieurs types de notifications configurables séparément.
+' Un utilisateur peut avoir plusieurs préférences de notification, une préférence de notification est liée à un seul utilisateur
+Utilisateur "1" -- "0..*" PreferenceNotification
+
+' Utilisateur & Communautés / Ligues
+' un utilisateur peut appartenir à plusieurs communautés et une communauté peut avoir plusieurs utilisateurs
+Communaute "1" -- "0..*" Utilisateur
+' une ligue peut contenir plusieurs utilisateurs et un utilisateur appartient à une seule ligue
+Ligue "1" -- "0..*" Utilisateur
+
+' Communautés & Streak / Stats
+' ??? : pour ces deux relations, on pourrait mettre la cardinalité à 1..1 et considérer qu'une streak à 0 est une streak, idem pour les stats. 
+' une communauté ne peut pas avoir de streak collectif ou en avoir une. Une streak appartient à une seule communauté
+Communaute "1" -- "0..1" StreakCollectif
+' une communauté peut avoir des statistiques ou pas. Des statistiques appartiennent à une seule communauté
+Communaute "1" -- "0..1" StatistiquesCommunaute
+
+StreakCollectif ..> RealisationAction : "calculé à partir de"
+StatistiquesCommunaute ..> RealisationAction : "agrégé depuis"
+StatistiquesGlobales ..> StatistiquesCommunaute : "agrégé depuis"
+
+' Gamification : défis ???
+' un défi implique au moins 2 participants, un défi en cours est associé à un défi donné
+Defi "1" -- "2..*" DefiParticipant
+' CONTRAINTE METIER
+' un participant à un défi est lié à un utilisateur ou à une communauté. Soit l'un, soit l'autre
+DefiParticipant "*" -- "0..1" Utilisateur
+' un participant à un défi est lié à un utilisateur ou à une communauté. Soit l'un, soit l'autre 
+DefiParticipant "*" -- "0..1" Communaute
+' un défi est associé à une catégorie d'empreinte, une catégorie d'empreinte peut avoir plusieurs défis
+Defi "*" -- "0..1" CategorieEmpreinte
+
+' Ligues & XP
+Ligue ..> Utilisateur : "déterminée par impactScoreXP"
+
+' Catégorie d'empreinte préférée
+Utilisateur "1" -- "0..1" CategorieEmpreinte : "catégorie préférée"
+
+@enduml
