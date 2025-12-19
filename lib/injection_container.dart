@@ -1,10 +1,18 @@
 import 'package:get_it/get_it.dart';
+import 'package:oikos/core/data/category_empreinte_repository_impl.dart';
+import 'package:oikos/core/data/utilisateur_repository_impl.dart';
+import 'package:oikos/core/domain/repositories/categorie_empreinte_repository.dart';
+import 'package:oikos/core/domain/repositories/utilisateur_repository.dart';
 import 'package:oikos/features/auth/data/auth_repository_impl.dart';
 import 'package:oikos/features/auth/domain/auth_repository.dart';
 import 'package:oikos/features/bilanCarbone/data/repositories/bilan_repository_impl.dart';
 import 'package:oikos/features/bilanCarbone/data/repositories/reponse_repository_impl.dart';
 import 'package:oikos/features/bilanCarbone/domain/repositories/bilan_repository.dart';
 import 'package:oikos/features/bilanCarbone/domain/repositories/reponse_repository.dart';
+import 'package:oikos/features/bilanCarbone/domain/use_cases/calculer_bilan_use_case.dart';
+import 'package:oikos/features/bilanCarbone/domain/use_cases/choix_categories_use_case.dart';
+import 'package:oikos/features/bilanCarbone/domain/use_cases/definir_objectif_use_case.dart';
+import 'package:oikos/features/bilanCarbone/domain/use_cases/demarrer_approfondissement_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/demarrer_bilan_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/enregistrer_reponse_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/precedente_question_use_case.dart';
@@ -38,7 +46,12 @@ Future<void> init() async {
   sl.registerLazySingleton<BilanSessionRepository>(
     () => BilanSessionRepositoryImpl(supabaseClient: sl(), authRepo: sl()),
   );
-
+  sl.registerLazySingleton<CategorieEmpreinteRepository>(
+    () => CategorieEmpreinteRepositoryImpl(supabaseClient: sl()),
+  );
+  sl.registerLazySingleton<UtilisateurRepository>(
+    () => UtilisateurRepositoryImpl(supabaseClient: sl()),
+  );
   // ==========================================================
   // 3. Domaine (Services & Navigator)
   // ==========================================================
@@ -68,10 +81,22 @@ sl.registerLazySingleton(() => GetProchaineQuestionUseCase(
 sl.registerLazySingleton(() => GetPreviousQuestionUseCase(
       applicabilityChecker: sl(),
     ));
+
+sl.registerLazySingleton(() => DemarrerApprofondissementUseCase(
+      categorieRepo: sl(),
+    ));
+
+sl.registerLazySingleton(() => ChoixCategoriesUseCase(
+      categorieRepo: sl(),
+    ));
       
-  // Si tu as décidé de passer par des Use Cases pour la navigation (recommandé) :
-  // sl.registerLazySingleton(() => GetNextQuestionUseCase(sl()));
-  // sl.registerLazySingleton(() => GetPreviousQuestionUseCase(sl()));
+sl.registerLazySingleton(() => DefinirObjectifUseCase(
+      utilisateurRepo: sl(),
+    ));
+
+sl.registerLazySingleton(() => CalculerBilanUseCase(
+      simulationRepository: sl(),
+    ));
 
   // ==========================================================
   // 5. Présentation (Blocs/Cubits) - TOUJOURS EN DERNIER
@@ -81,6 +106,9 @@ sl.registerLazySingleton(() => GetPreviousQuestionUseCase(
         repondreUseCase: sl(),
         getNextUseCase: sl(),
         getPrevUseCase: sl(),
-
+        choixCategoriesUseCase: sl(),
+        demarrerApprofondissementUseCase: sl(),
+        definirObjectifUseCase: sl(),
+        calculerBilanUseCase: sl(),
       ));
 }

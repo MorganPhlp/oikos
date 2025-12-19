@@ -10,4 +10,5 @@ abstract class SimulationRepository {
   bool isQuestionApplicable(String questionSlug);
 
   Map<String, dynamic> getAccumulatedSituation();
+  double getScore( {String objective = "bilan"} );
 }

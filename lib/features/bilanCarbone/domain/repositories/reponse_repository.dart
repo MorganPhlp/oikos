@@ -13,4 +13,6 @@ abstract class ReponseRepository {
   /// Récupère une réponse spécifique pour une question dans un bilan donné
   /// Retourne null si aucune réponse n'existe
   Future<ReponseUtilisateurEntity?> getReponse(int bilanId, int questionId);
+
+  Future<Map<String, dynamic>> chargerSituationDepuisVue();
 }

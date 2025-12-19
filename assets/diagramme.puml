@@ -129,6 +129,10 @@ package "Bilan Carbone & Questionnaire" {
   }
 }
 
+class utilisateurCategoriePreference {
+  ' Liaison Utilisateur-CategorieEmpreinte préférée
+}
+
 ' ===========================
 ' Actions & Gamification
 ' ===========================
@@ -337,6 +341,7 @@ Defi "*" -- "0..1" CategorieEmpreinte
 Ligue ..> Utilisateur : "déterminée par impactScoreXP"
 
 ' Catégorie d'empreinte préférée
-Utilisateur "1" -- "0..1" CategorieEmpreinte : "catégorie préférée"
+Utilisateur "1" -- "0..1" utilisateurCategoriePreference : "preférence"
+CategorieEmpreinte "1" -- "0..*" utilisateurCategoriePreference : "catégorie préférée"
 
 @enduml

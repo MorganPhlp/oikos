@@ -13,7 +13,6 @@ class BilanSessionRepositoryImpl implements BilanSessionRepository {
   
   @override
   Future<int?> getBilanId() async {
-    return 0;
     try {
       // 1. Utiliser le Repo d'Auth pour obtenir l'ID utilisateur (nettoyage de la dépendance)
       final userId = await authRepo.getUserId();
@@ -39,7 +38,7 @@ class BilanSessionRepositoryImpl implements BilanSessionRepository {
   Future<void> createNewBilanSession() async {
     try {
       // 1. Obtenir l'ID utilisateur via le repo d'Auth
-      final userId = 1;//await authRepo.getUserId();
+      final userId = await authRepo.getUserId();
       if (userId == null) {
         throw Exception("Utilisateur non connecté. Impossible de créer une session de bilan.");
       }

@@ -16,5 +16,6 @@ CREATE TABLE IF NOT EXISTS question_bilan (
     icone VARCHAR(50),
     type_widget type_widget NOT NULL,
     config_json JSONB NOT NULL DEFAULT '{}'::jsonb,
-    ordre_affichage INT DEFAULT 0
+    ordre_affichage INT DEFAULT 0,
+    est_obligatoire BOOLEAN DEFAULT TRUE
 );

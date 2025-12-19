@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_cubit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'injection_container.dart' as di; // Ton injection de dépendances
 import 'features/bilanCarbone/presentation/pages/bilan_page.dart';
@@ -19,6 +21,49 @@ void main() async {
   // 2. Injection de dépendances
   // Cela va créer le Repository qui utilisera l'instance Supabase configurée juste au-dessus
   await di.init(); 
+  final client = Supabase.instance.client;
+
+  // 1. Nettoyage radical du cache local
+  await client.auth.signOut();
+  
+  const String testEmail = 'jamel.debbouze@viveris.fr';
+  const String testPassword = 'password123';
+
+  // 2. Connexion ou Inscription avec récupération explicite du résultat
+  AuthResponse res;
+  try {
+    // On essaie de se connecter d'abord
+    res = await client.auth.signInWithPassword(email: testEmail, password: testPassword);
+    print("✅ Utilisateur existant connecté");
+  } catch (e) {
+    // Si échec, on crée le compte
+    res = await client.auth.signUp(email: testEmail, password: testPassword);
+    print("✅ Nouvel utilisateur créé dans Auth");
+  }
+
+  // 💡 LE FIX CRUCIAL : On attend que PostgreSQL propage l'utilisateur dans auth.users
+  await Future.delayed(const Duration(milliseconds: 1000));
+
+  final user = res.user;
+  if (user != null) {
+    try {
+      // 3. SYNCHRONISATION
+      // On utilise upsert pour écraser si l'id existe déjà
+      await client.from('utilisateur').upsert({
+        'id': user.id,
+        'email': user.email,
+        'pseudo': user.email!.split('@')[0],
+        'role': 'UTILISATEUR',
+        'etat_compte': 'ACTIF',
+        'est_compte_valide': true,
+        'a_accepte_cgu': true,
+      });
+      print("🚀 Table 'public.utilisateur' synchronisée avec succès !");
+    } catch (e) {
+      print("❌ Erreur de synchronisation toujours présente : $e");
+      // Si l'erreur persiste ici, ton instance Supabase locale doit être reset
+    }
+  }
 
   runApp(const MyTestApp());
 }
@@ -34,10 +79,12 @@ class MyTestApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         scaffoldBackgroundColor: AppColors.lightBackground,
-        // Tu peux ajouter tes polices ici si besoin
       ),
-      // On lance directement la page qu'on veut tester
-      home: const BilanPage(),
+      // 💡 C'EST ICI : On enveloppe la "home" ou le Navigator avec le provider
+      home: BlocProvider(
+        create: (context) => di.sl<BilanCubit>()..demarrerBilan(),
+        child: const BilanPage(),
+      ),
     );
   }
 }

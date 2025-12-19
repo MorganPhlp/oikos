@@ -29,4 +29,50 @@ class CategorieEmpreinteRepositoryImpl implements CategorieEmpreinteRepository {
       throw Exception('Une erreur inattendue est survenue: $e');
     }
   }
+
+  @override
+  Future<void> setSelectedCategories(List<CategorieEmpreinteEntity> categories) async {
+    try {
+      final user = _supabase.auth.currentUser;
+      if (user == null) throw Exception('Utilisateur non authentifié');
+
+      // 1. Préparer les données pour une insertion groupée (Bulk insert)
+      // C'est beaucoup plus performant qu'une boucle !
+      final dataToUpsert = categories.map((cat) => {
+        'utilisateur_id': user.id,
+        'categorie_nom': cat.nom,
+      }).toList();
+
+      // 2. Exécuter l'upsert en une seule fois
+      // Supabase gère très bien les listes de Maps pour l'upsert.
+      await _supabase
+          .from('utilisateur_categorie_preference')
+          .upsert(dataToUpsert, onConflict: 'utilisateur_id, categorie_nom'); 
+          // Note: l'onConflict dépend de tes contraintes en base de données
+
+    } catch (e) {
+      // Dans les versions récentes de supabase_flutter, les erreurs lancent des PostgrestException
+      throw Exception('Erreur lors de la sélection des catégories: $e');
+    }
+  }
+
+  @override
+  Future<List<CategorieEmpreinteEntity>> getSelectedCategories() async {
+    try {
+      final user = _supabase.auth.currentUser;
+      if (user == null) throw Exception('Utilisateur non authentifié');
+
+      final List<Map<String, dynamic>> data = await _supabase
+          .from('utilisateur_categorie_preference')
+          .select('categorie_nom(*)')
+          .eq('utilisateur_id', user.id);
+
+      return data
+          .map((json) => CategorieEmpreinteEntity.fromJson(json['categorie_nom']))
+          .toList();
+
+    } catch (e) {
+      throw Exception('Erreur lors de la récupération des catégories sélectionnées: $e');
+    }
+  }
 }

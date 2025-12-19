@@ -42,11 +42,20 @@ sealed class QuestionBilanEntity with _$QuestionBilanEntity {
       _$QuestionBilanEntityFromJson(json);
 
   // Récupère la liste des choix possibles (ex: ["maison", "appartement"])
-  List<String> get options {
-    final list = config['options'];
-    if (list is List) return list.map((e) => e.toString()).toList();
-    return [];
+List<Map<String, dynamic>> get options {
+  final list = config['options'];
+  
+  if (list is List) {
+    return list.map((e) {
+        final Map<String, dynamic> element = {};
+        element['label'] = e.toString().toLowerCase().split('.').first;
+        element['value'] = e.toString();
+        return element;
+
+    }).toList();
   }
+  return [];
+}
 
   // Récupère l'unité (ex: "km", "m2", "kg")
   String? get unit => config['unit'] as String?;

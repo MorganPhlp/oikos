@@ -48,9 +48,6 @@ class PublicodesService implements SimulationRepository {
   void updateSituation(Map<String, dynamic> nouvelleReponse) {
     // A. On fusionne la nouvelle réponse avec l'historique
     _accumulatedSituation.addAll(nouvelleReponse);
-
-    // B. On envoie TOUT l'historique au moteur
-    //_envoyerSituationAuMoteur();
   }
 
 void _envoyerSituationAuMoteur() {
@@ -60,6 +57,7 @@ void _envoyerSituationAuMoteur() {
     // 2.  Échapper les guillemets (") pour que le JSON reste intact 
     // lorsqu'il est inséré dans les guillemets de la commande JS.
     String safeJson = jsonSituation.replaceAll('"', '\\"');
+    print("JSON échappé pour JS : $safeJson");
 
     // 3. 🎯 L'ENVOI CORRECT : On utilise la chaîne safeJson comme argument
     String command = 'globalThis.updateSituation("$safeJson")';
@@ -111,6 +109,35 @@ void _envoyerSituationAuMoteur() {
         // Retourne la Map Dart qui stocke toutes les réponses.
         return _accumulatedSituation; 
     }
+  
+  @override
+  double getScore({String objective = "bilan"}) {
+    if (!_isInitialized) return 0.0;
+
+    _envoyerSituationAuMoteur();
+    // 1. On appelle la fonction JS 'getBilan' avec l'objectif souhaité (ex: 'bilan')
+    // On utilise jsonEncode pour entourer l'objectif de guillemets correctement
+    final result = _flutterJs.evaluate("getBilan(${jsonEncode(objective)})");
+
+    if (result.isError) {
+      print("❌ Erreur JS getScore: ${result.stringResult}");
+      return 0.0;
+    }
+
+    // 2. Le résultat arrive sous forme de String (ex: "8.523")
+    // On le parse en double
+    try {
+      final String rawValue = result.stringResult;
+      // Note: result.stringResult contient parfois des guillemets doubles si JSON.stringify a été utilisé en JS
+      // On nettoie la chaîne au cas où
+      final cleanValue = rawValue.replaceAll('"', '');
+      print("✅ Score obtenu: $cleanValue");
+      return double.tryParse(cleanValue) ?? 0.0;
+    } catch (e) {
+      print("❌ Erreur parsing score: $e");
+      return 0.0;
+    }
+  }
 
   void dispose() {
     _flutterJs.dispose();

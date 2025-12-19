@@ -39,3 +39,25 @@ class BilanError extends BilanState {
   @override
   List<Object?> get props => [message];
 }
+
+class BilanChoixCategories extends BilanState {
+  final List <CategorieEmpreinteEntity> categories;
+  const BilanChoixCategories(this.categories);
+  
+  @override
+  List<Object?> get props => [categories];
+}
+
+class BilanChoixObjectifs extends BilanState {
+  // Le Record utilise maintenant un double pour la valeur (le %)
+  final List<({double valeur, String label, String description, List<Color> colors})> objectifs;
+  final double scoreActuel;
+
+  const BilanChoixObjectifs({
+    required this.objectifs,
+    required this.scoreActuel,
+  });
+
+  @override
+  List<Object?> get props => [objectifs];
+}

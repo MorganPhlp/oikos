@@ -5,10 +5,10 @@ INSERT INTO categorie_empreinte (nom, icone, couleurHEX, description) VALUES
 ('Logement', '🏠', '#4CAF50', 'Habitat et énergie'),
 ('Transport', '🚗', '#2196F3', 'Déplacements et véhicules'),
 ('Alimentation', '🍽️', '#FF9800', 'Nourriture et boissons'),
-('Energie_Eau', '⚡', '#9C27B0', 'Consommation d''énergie et d''eau'),
-('Vacances_Loisirs', '🏖️', '#E91E63', 'Voyages et loisirs'),
+('Energie & Eau', '⚡', '#9C27B0', 'Consommation d''énergie et d''eau'),
+('Vacances & Loisirs', '🏖️', '#E91E63', 'Voyages et loisirs'),
 ('Numérique', '💻', '#00BCD4', 'Technologies et appareils numériques'),
-('Consommation_Dechets', '🛍️', '#8BC34A', 'Consommation et déchets')
+('Consommation & Dechets', '🛍️', '#8BC34A', 'Consommation et déchets')
 ON CONFLICT (nom) DO NOTHING;
 
 -- 2. Communauté
@@ -16,24 +16,9 @@ INSERT INTO communaute (nom, description, logo, couleurHEX) VALUES
 ('Viveris', 'Le sang', 'logo', '#4CAF50')
 ON CONFLICT (nom) DO NOTHING;
 
--- 3. Utilisateur fictif
-INSERT INTO utilisateur (
-    email, pseudo, mot_de_passe, avatar, role, etat_compte,
-    estCompteValide, impactScoreXP, co2EconomiseTotal, aAccepteCGU, communaute
-) VALUES (
-    'jamel.debbouze@viveris.fr',
-    'jamel.debbouze',
-    '$2a$10$abcdefghijklmnopqrstuvwxyz1234567890',
-    'avatar',
-    'UTILISATEUR',
-    'ACTIF',
-    TRUE,
-    0,
-    0,
-    TRUE,
-    'Viveris'
-)
-ON CONFLICT (email) DO NOTHING;
+-- =============================================
+-- 3. UTILISATEUR FICTIF (Lien Auth + Profil)
+-- =============================================
 
 /*
 -- 4. Questions du bilan

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'selection_button.dart'; // Importe ton bouton de base
+import 'selection_button.dart';
 
 class OikosMultiSelection extends StatelessWidget {
-  final List<String> options;
-  final List<String> selectedValues; // Une liste, car on peut en choisir plusieurs
+  // Changement du type ici : List<dynamic> car ce sont des Maps
+  final List<dynamic> options; 
+  final List<String> selectedValues;
   final ValueChanged<List<String>> onChanged;
 
   const OikosMultiSelection({
@@ -17,18 +18,23 @@ class OikosMultiSelection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: options.map((option) {
-        final isSelected = selectedValues.contains(option);
+        // Extraction des valeurs depuis la Map
+        final String label = option['label'];
+        final String technicalValue = option['value'];
+        
+        // La vérification se fait sur la valeur technique (le slug complet)
+        final isSelected = selectedValues.contains(technicalValue);
 
         return OikosSelectionButton(
-          label: option,
+          label: label, // Affichage : "Maison"
           isSelected: isSelected,
           onTap: () {
-            // Logique d'ajout / retrait
+            // Logique d'ajout / retrait basée sur la valeur technique
             final newList = List<String>.from(selectedValues);
             if (isSelected) {
-              newList.remove(option);
+              newList.remove(technicalValue);
             } else {
-              newList.add(option);
+              newList.add(technicalValue);
             }
             onChanged(newList);
           },

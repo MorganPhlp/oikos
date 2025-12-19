@@ -87,6 +87,7 @@ function determineWidgetType(rule) {
         return 'NOMBRE'
     }
 
+
     // D. BOOLEEN (Par élimination)
     // Une question qui n'est ni une liste, ni un nombre borné/unité, est une variable d'activation.
     // Ex: "transport . avion . usager" n'a pas d'unité (pas de km, pas de kg), c'est juste un état.
@@ -122,6 +123,11 @@ function buildConfigJson(slug,rule, widgetType) {
     if (dependancies[slug]) {
         console.log("   -> with dependancies")
         config.dependances = dependancies[slug]
+    }
+
+    //chargement suggestions
+    if (raw.mosaique && raw.mosaique.suggestions) {
+        config.suggestions = raw.mosaique.suggestions
     }
 
     return config
