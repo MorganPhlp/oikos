@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:oikos/core/theme/app_colors.dart';
-import 'package:oikos/core/theme/app_typography.dart';
 
 class AuthField extends StatelessWidget {
   final String hintText;

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:oikos/core/theme/app_colors.dart';
 
 class AppTypography {
   const AppTypography._();

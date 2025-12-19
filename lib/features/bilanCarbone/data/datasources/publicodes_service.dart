@@ -57,7 +57,6 @@ void _envoyerSituationAuMoteur() {
     // 2.  Échapper les guillemets (") pour que le JSON reste intact 
     // lorsqu'il est inséré dans les guillemets de la commande JS.
     String safeJson = jsonSituation.replaceAll('"', '\\"');
-    print("JSON échappé pour JS : $safeJson");
 
     // 3. 🎯 L'ENVOI CORRECT : On utilise la chaîne safeJson comme argument
     String command = 'globalThis.updateSituation("$safeJson")';
@@ -65,7 +64,6 @@ void _envoyerSituationAuMoteur() {
     // 4. Appel JS sécurisé
     final result = _flutterJs.evaluate(command);
     
-    print("\n\nSituation envoyée (Raw JSON) : $jsonSituation\n\n");
     if (result.isError) {
       print("❌ Erreur JS : ${result.stringResult}");
     }
@@ -85,7 +83,6 @@ void _envoyerSituationAuMoteur() {
 
     // Récupération de la liste brute ["logement . chauffage", ...]
     List<dynamic> variablesManquantes = jsonDecode(result.stringResult);
-    printlong(  "Variables manquantes pour 'bilan' : $variablesManquantes");
     return variablesManquantes.any((variable) {
       String v = variable.toString();
       

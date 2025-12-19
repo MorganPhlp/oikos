@@ -16,8 +16,6 @@ class ApplicabilityChecker {
     bool isQuestionApplicable(QuestionBilanEntity candidate) {
         // 1. Récupérer l'état actuel de toutes les réponses (la "situation")
         final currentSituation = _simulationRepo.getAccumulatedSituation();
-        print('Vérification de la pertinence pour la question: ${candidate.slug}');
-        print('Situation actuelle: $currentSituation');
         // 2. Lire les conditions de dépendance depuis l'entité
         final config = candidate.config; 
         // On suppose que QuestionBilanEntity.configJson est un Map<String, dynamic>

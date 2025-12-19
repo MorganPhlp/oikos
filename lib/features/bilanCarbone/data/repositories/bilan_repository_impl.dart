@@ -47,7 +47,6 @@ class BilanSessionRepositoryImpl implements BilanSessionRepository {
           .from('bilan_carbone')
           .upsert({'id':0,'utilisateur_id': userId, 'date_bilan': DateTime.now().toIso8601String(),'scoretotalco2ean':0});
     } catch (e) {
-      print(e);
       throw Exception('Erreur lors de la création d\'une nouvelle session de bilan : $e');
     }
   }

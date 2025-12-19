@@ -40,7 +40,6 @@ class _ChoixCategoriesPageState extends State<ChoixCategoriesPage> {
                 value: context.read<BilanCubit>(),
                 child: PersonalGoalPage(
                   objectifs: state.objectifs,
-
                 ),
               ),
             ),
@@ -54,7 +53,7 @@ class _ChoixCategoriesPageState extends State<ChoixCategoriesPage> {
             categories = state.categories;
           }
 
-         if (state is BilanLoading || state is BilanChoixObjectifs) {
+         if (state is BilanLoading) {
             return const Scaffold(
               body: Center(
                 child: Column(

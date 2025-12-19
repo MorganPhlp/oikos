@@ -72,7 +72,6 @@ class ReponseRepositoryImpl implements ReponseRepository {
 @override
   Future<Map<String, dynamic>> chargerSituationDepuisVue() async {
     try {
-      // Note : Il est recommandé de passer bilanId en paramètre plutôt que d'utiliser une constante
       const bilanId = 0;
       final String utilisateurId = supabaseClient.auth.currentUser?.id ?? '';
 
