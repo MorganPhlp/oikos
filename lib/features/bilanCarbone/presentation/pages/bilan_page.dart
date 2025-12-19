@@ -59,6 +59,10 @@ class _BilanPageState extends State<BilanPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
                 child: Column(
                   children: [
+                    Image.asset(
+                      'assets/logos/oikos_logo.png',
+                      width: MediaQuery.of(context).size.width * 0.4, 
+                    ),
                     _buildHeader(progress, state),
                     const SizedBox(height: 30),
                     Expanded(

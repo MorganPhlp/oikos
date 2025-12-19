@@ -51,7 +51,7 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
               child: Column(
                 children: [
                   Center(
-                    child: Image.asset('lib/core/assets/logos/oikos_logo.png', height: 50),
+                    child: Image.asset('assets/logos/oikos_logo.png', height: 50),
                   ),
                   const SizedBox(height: 30),
                   const Text(

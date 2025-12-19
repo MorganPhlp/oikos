@@ -74,8 +74,8 @@ flutter:
   #   - assets/a_dot_burr.jpeg
   #   - assets/a_dot_ham.jpeg
   assets:
-      - lib/core/assets/logos/oikos_logo.png
-      - lib/core/assets/logos/viveris_logo.png
+      - assets/logos/oikos_logo.png
+      - assets/logos/viveris_logo.png
       - assets/js/publicodes_bundle.js
       - assets/data/rules.json
 
