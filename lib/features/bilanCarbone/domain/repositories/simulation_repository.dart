@@ -7,8 +7,8 @@ abstract class SimulationRepository {
   void updateSituation(Map<String, dynamic> reponses);
 
   /// Vérifie si une question est pertinente pour la suite
-  bool isQuestionApplicable(String questionSlug);
+  Future<bool> isQuestionApplicable(String questionSlug);
 
   Map<String, dynamic> getAccumulatedSituation();
-  double getScore( {String objective = "bilan"} );
+  Future<double> getScore( {String objective = "bilan"} );
 }

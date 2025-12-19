@@ -1,142 +1,114 @@
 import 'dart:convert';
+import 'dart:isolate';
 import 'package:flutter/services.dart';
 import 'package:flutter_js/flutter_js.dart';
 import 'package:oikos/features/bilanCarbone/domain/repositories/simulation_repository.dart';
 
 class PublicodesService implements SimulationRepository {
-  late JavascriptRuntime _flutterJs;
+  final Map<String, dynamic> _accumulatedSituation = {};
+  String? _cachedBundle;
+  String? _cachedRules;
   bool _isInitialized = false;
 
-  //  MÉMOIRE : On garde l'historique de toutes les réponses ici
-  // Sinon Publicodes oublie les réponses précédentes à chaque update
-  final Map<String, dynamic> _accumulatedSituation = {
-  };
-
-  // --- 1. INITIALISATION ---
   @override
   Future<void> init() async {
     if (_isInitialized) return;
 
-    _flutterJs = getJavascriptRuntime();
-    
-    // 1. Charger le moteur JS (le bundle)
-    // On suppose que ce fichier contient le code de index.js ci-dessous
-    String bundle = await rootBundle.loadString('assets/js/publicodes_bundle.js');
-    _flutterJs.evaluate(bundle);
+    // On charge les fichiers en mémoire une seule fois
+    _cachedBundle = await rootBundle.loadString('assets/js/publicodes_bundle.js');
+    _cachedRules = await rootBundle.loadString('assets/data/rules.json');
 
-    // 2. Charger les règles JSON
-    String rules = await rootBundle.loadString('assets/data/rules.json');
-    
-    // On passe les règles au moteur. 
-    // On utilise jsonEncode pour que le string Dart devienne un string JS valide.
-    final result = _flutterJs.evaluate('initEngine(${jsonEncode(rules)})');
-    
-    if (result.isError) {
-      print("❌ Erreur Init Publicodes: ${result.stringResult}");
-    } else {
-      print("✅ Moteur Publicodes initialisé.");
-    }
-
-    // 3. Initialiser la situation de départ
-    _envoyerSituationAuMoteur();
-    
     _isInitialized = true;
+    print("✅ PublicodesService prêt (Assets chargés)");
   }
 
-  // --- 2. MISE À JOUR ---
   @override
   void updateSituation(Map<String, dynamic> nouvelleReponse) {
-    // A. On fusionne la nouvelle réponse avec l'historique
     _accumulatedSituation.addAll(nouvelleReponse);
   }
 
-void _envoyerSituationAuMoteur() {
-    // 1. On encode la Map en JSON 
-    String jsonSituation = jsonEncode(_accumulatedSituation);
-    
-    // 2.  Échapper les guillemets (") pour que le JSON reste intact 
-    // lorsqu'il est inséré dans les guillemets de la commande JS.
-    String safeJson = jsonSituation.replaceAll('"', '\\"');
-
-    // 3. 🎯 L'ENVOI CORRECT : On utilise la chaîne safeJson comme argument
-    String command = 'globalThis.updateSituation("$safeJson")';
-    
-    // 4. Appel JS sécurisé
-    final result = _flutterJs.evaluate(command);
-    
-    if (result.isError) {
-      print("❌ Erreur JS : ${result.stringResult}");
-    }
-  }
+  @override
+  Map<String, dynamic> getAccumulatedSituation() => _accumulatedSituation;
 
   @override
-  bool isQuestionApplicable(String questionSlug) {
-    if (!_isInitialized) return true; // Par défaut on affiche si pas prêt
-
-    // On demande les variables manquantes pour l'objectif "bilan"
-    final result = _flutterJs.evaluate('checkApplicability("bilan")');
-    
-    if (result.isError) {
-      print("Erreur JS checkApplicability: ${result.stringResult}");
-      return true; 
-    }
-
-    // Récupération de la liste brute ["logement . chauffage", ...]
-    List<dynamic> variablesManquantes = jsonDecode(result.stringResult);
-    return variablesManquantes.any((variable) {
-      String v = variable.toString();
-      
-      // 1. Correspondance Exacte
-      if (v == questionSlug) return true;
-
-      // 2. Correspondance Mosaïque 
-      if (v.startsWith("$questionSlug .")) return true;
-
-      return false;
-    });
-  }
-
-  void printlong(String text) {
-    final pattern = RegExp('.{1,800}'); // 800 caractères par segment
-    pattern.allMatches(text).forEach((match) => print(match.group(0)));
-  }
-
-  @override
-    Map<String, dynamic> getAccumulatedSituation() {
-        // Retourne la Map Dart qui stocke toutes les réponses.
-        return _accumulatedSituation; 
-    }
-  
-  @override
-  double getScore({String objective = "bilan"}) {
+  Future<double> getScore({String objective = "bilan"}) async {
     if (!_isInitialized) return 0.0;
 
-    _envoyerSituationAuMoteur();
-    // 1. On appelle la fonction JS 'getBilan' avec l'objectif souhaité (ex: 'bilan')
-    // On utilise jsonEncode pour entourer l'objectif de guillemets correctement
-    final result = _flutterJs.evaluate("getBilan(${jsonEncode(objective)})");
+    // On lance le calcul dans un thread séparé
+    return await Isolate.run(() => _computeScore(
+          bundle: _cachedBundle!,
+          rules: _cachedRules!,
+          situation: Map.from(_accumulatedSituation), // Copie pour thread-safety
+          objective: objective,
+        ));
+  }
 
-    if (result.isError) {
-      print("❌ Erreur JS getScore: ${result.stringResult}");
-      return 0.0;
-    }
+  @override
+  Future<bool> isQuestionApplicable(String questionSlug) async {
+    if (!_isInitialized) return true;
 
-    // 2. Le résultat arrive sous forme de String (ex: "8.523")
-    // On le parse en double
+    // On lance la vérification dans un thread séparé
+    return await Isolate.run(() => _computeApplicability(
+          bundle: _cachedBundle!,
+          rules: _cachedRules!,
+          situation: Map.from(_accumulatedSituation),
+          questionSlug: questionSlug,
+        ));
+  }
+
+  // --- FONCTIONS DE CALCUL (S'exécutent dans l'Isolate) ---
+
+  static double _computeScore({
+    required String bundle,
+    required String rules,
+    required Map<String, dynamic> situation,
+    required String objective,
+  }) {
+    final js = getJavascriptRuntime();
     try {
-      final String rawValue = result.stringResult;
-      // Note: result.stringResult contient parfois des guillemets doubles si JSON.stringify a été utilisé en JS
-      // On nettoie la chaîne au cas où
-      final cleanValue = rawValue.replaceAll('"', '');
-      print("✅ Score obtenu: $cleanValue");
+      _setupEngine(js, bundle, rules, situation);
+      
+      final result = js.evaluate("getBilan(${jsonEncode(objective)})");
+      if (result.isError) return 0.0;
+
+      final cleanValue = result.stringResult.replaceAll('"', '');
       return double.tryParse(cleanValue) ?? 0.0;
-    } catch (e) {
-      print("❌ Erreur parsing score: $e");
-      return 0.0;
+    } finally {
+      js.dispose(); // Libère la mémoire de l'Isolate
     }
   }
 
-  void dispose() {
-    _flutterJs.dispose();
+  static bool _computeApplicability({
+    required String bundle,
+    required String rules,
+    required Map<String, dynamic> situation,
+    required String questionSlug,
+  }) {
+    final js = getJavascriptRuntime();
+    try {
+      _setupEngine(js, bundle, rules, situation);
+
+      final result = js.evaluate('checkApplicability("bilan")');
+      if (result.isError) return true;
+
+      List<dynamic> missing = jsonDecode(result.stringResult);
+      return missing.any((v) => 
+        v.toString() == questionSlug || v.toString().startsWith("$questionSlug .")
+      );
+    } finally {
+      js.dispose();
+    }
+  }
+
+  /// Helper interne pour initialiser le moteur dans chaque Isolate
+  static void _setupEngine(JavascriptRuntime js, String bundle, String rules, Map situation) {
+    js.evaluate(bundle);
+    js.evaluate('initEngine(${jsonEncode(rules)})');
+    
+    if (situation.isNotEmpty) {
+      String jsonSituation = jsonEncode(situation);
+      String safeJson = jsonSituation.replaceAll('"', '\\"');
+      js.evaluate('globalThis.updateSituation("$safeJson")');
+    }
   }
 }
