@@ -74,8 +74,8 @@ class _IntroPageState extends State<IntroPage> {
               // 3. Les boutons en bas
               Positioned(
                 bottom: 30,
-                left: 0,
-                right: 0,
+                left: 10,
+                right: 10,
                 child: Column(
                   children: [
                     AuthPrimaryButton(

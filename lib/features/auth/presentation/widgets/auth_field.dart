@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/src/services/text_formatter.dart';
 import 'package:oikos/core/theme/app_colors.dart';
-import 'package:oikos/core/theme/app_typography.dart';
 
 class AuthField extends StatelessWidget {
   final String hintText;
@@ -10,6 +10,8 @@ class AuthField extends StatelessWidget {
   final String? Function(String?)? validator;
   final bool isObscured;
   final VoidCallback? onToggleVisibility;
+  final int maxLength;
+  final List<FilteringTextInputFormatter> inputFormatters;
 
   const AuthField({
     super.key,
@@ -20,6 +22,8 @@ class AuthField extends StatelessWidget {
     this.validator,
     this.isObscured = false,
     this.onToggleVisibility,
+    this.maxLength = 50,
+    this.inputFormatters = const [],
   });
 
   @override

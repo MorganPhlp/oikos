@@ -6,6 +6,14 @@ class AuthValidators {
     'enterprise.fr'
   ];
 
+  // Mock Data
+  // TODO : Remplacer par un appel API réel
+  static const Map<String, Map<String, String>> communityCodes = {
+    'PAR123': {'name': 'Paris La Défense', 'icon': '🗼'},
+    'LYO456': {'name': 'Lyon Part-Dieu', 'icon': '🦁'},
+    // ... autres codes
+  };
+
   static String? validateProfessionalEmail(String? value) {
     if (value == null || value.isEmpty) {
       return 'Oups ! Il manque ton email 😊';
@@ -16,11 +24,10 @@ class AuthValidators {
 
     final domain = parts[1];
     // Vérifie si le domaine fait partie de la liste
-    // Note: simplifiée par rapport au React, on vérifie si ça finit par le domaine
     bool isPro = professionalDomains.any((d) => domain.contains(d));
 
     if (!isPro) {
-      return 'On a besoin de ton email pro pour tes collègues 🤝';
+      return 'On a besoin de ton email pro et non perso 😉';
     }
     return null;
   }
@@ -31,6 +38,23 @@ class AuthValidators {
     }
     if (value.length < 6) {
       return 'Le mot de passe est trop court';
+    }
+    return null;
+  }
+
+  static String? validateCommunityCode(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Le code de communauté est requis';
+    }
+    if (value.length != 6) {
+      return 'Le code de communauté doit contenir 6 caractères';
+    }
+    final regex = RegExp(r'^[A-Za-z0-9]{6}$');
+    if (!regex.hasMatch(value)) {
+      return 'Le code de communauté doit être alphanumérique';
+    }
+    if(!communityCodes.containsKey(value.toUpperCase())) {
+      return 'Code de communauté invalide';
     }
     return null;
   }
