@@ -5,6 +5,10 @@ import 'package:oikos/features/auth/presentation/widgets/auth_field.dart';
 import 'package:oikos/features/auth/presentation/widgets/auth_primary_button.dart';
 
 class SignUpPage extends StatefulWidget {
+  static MaterialPageRoute<dynamic> route() => MaterialPageRoute(
+    builder: (context) => const SignUpPage(),
+  );
+
   const SignUpPage({super.key});
 
   @override
@@ -48,8 +52,6 @@ class _SignUpPageState extends State<SignUpPage> {
     return Scaffold(
       // AppBar avec bouton de retour
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.chevron_left, color: AppColors.lightIconPrimary, size: 32),
           onPressed: () => Navigator.pop(context),
@@ -117,6 +119,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       hintText: 'prenom.nom@entreprise.fr',
                       controller: _emailController,
                       prefixIcon: Icons.mail_outlined
+                      // TODO : Ajouter validation email
                   ),
                 ),
 
@@ -148,6 +151,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           _isPasswordVisible = !_isPasswordVisible;
                         });
                       }
+                      // TODO : Ajouter validation mot de passe
                   ),
                 ),
                 const SizedBox(height: 25),
@@ -226,9 +230,12 @@ class _SignUpPageState extends State<SignUpPage> {
                 const SizedBox(height: 40),
                 AuthPrimaryButton(
                   text: "C'est parti !",
-                  // onPressed: _submit,
+                  onPressed: () {
+                    //_submit
+                  },
+
                 ),
-              ],
+            ],
             ),
           ),
         ),

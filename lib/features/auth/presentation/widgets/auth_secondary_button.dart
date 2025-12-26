@@ -4,10 +4,12 @@ import '../../../../core/theme/app_colors.dart';
 
 class AuthSecondaryButton extends StatelessWidget {
   final String text;
+  final VoidCallback? onPressed;
 
   const AuthSecondaryButton({
     super.key,
     required this.text,
+    this.onPressed,
   });
 
   @override
@@ -15,7 +17,7 @@ class AuthSecondaryButton extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return ElevatedButton(
-      onPressed: () {},
+      onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         fixedSize: Size(screenWidth * 0.93, 25),
         backgroundColor: Colors.transparent,
@@ -35,7 +37,6 @@ class AuthSecondaryButton extends StatelessWidget {
       ),
     );
 
-    // TODO : Ajouter la gestion du clic
-    // TODO : Modifier le clic du bouton
+    // TODO : Modifier le design clic du bouton
   }
 }

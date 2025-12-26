@@ -5,8 +5,13 @@ import '../../../../core/theme/app_colors.dart';
 
 class AuthPrimaryButton extends StatelessWidget {
   final String text;
+  final VoidCallback? onPressed;
 
-  const AuthPrimaryButton({super.key, required this.text});
+  const AuthPrimaryButton({
+    super.key,
+    required this.text,
+    this.onPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +38,7 @@ class AuthPrimaryButton extends StatelessWidget {
         ],
       ),
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           fixedSize: Size(screenWidth * 0.93, 25), // Largeur 90% de l'écran, hauteur 55px
           shape: RoundedRectangleBorder(
@@ -50,7 +55,6 @@ class AuthPrimaryButton extends StatelessWidget {
       ),
     );
 
-    // TODO : Ajouter la gestion du clic
-    // TODO : Modifier le clic du bouton
+    // TODO : Modifier le design clic du bouton
   }
 }
