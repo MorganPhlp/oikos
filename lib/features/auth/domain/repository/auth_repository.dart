@@ -1,6 +1,6 @@
 import 'package:fpdart/fpdart.dart';
 
-import '../../../core/error/failures.dart';
+import '../../../../core/error/failures.dart';
 
 abstract interface class AuthRepository {
   Future<String?> getUserId();
@@ -8,6 +8,8 @@ abstract interface class AuthRepository {
   Future<Either<Failure, String>> signUpWithEmailPassword({ //
     required String email,
     required String password,
+    required String pseudo,
+    required String communityCode,
   }); // TODO : Remplacer String par UserModel
 
   Future<Either<Failure, String>> signInWithEmailPassword({

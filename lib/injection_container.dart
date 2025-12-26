@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
-import 'package:oikos/features/auth/data/auth_repository_impl.dart';
-import 'package:oikos/features/auth/domain/auth_repository.dart';
+import 'package:oikos/features/auth/data/datasources/auth_remote_data_source.dart';
+import 'package:oikos/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
 import 'package:oikos/features/bilanCarbone/data/repositories/bilan_repository_impl.dart';
 import 'package:oikos/features/bilanCarbone/data/repositories/reponse_repository_impl.dart';
 import 'package:oikos/features/bilanCarbone/domain/repositories/bilan_repository.dart';
@@ -84,7 +85,7 @@ Future<void> init() async {
   );
 
   sl.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(supabaseClient: sl()),
+    () => AuthRepositoryImpl(supabaseClient: sl(), remoteDataSource: AuthRemoteDataSourceImpl(supabaseClient: sl())),
   );
 
   // ==========================================================

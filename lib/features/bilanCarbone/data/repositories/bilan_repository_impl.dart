@@ -1,6 +1,6 @@
 // features/bilanCarbone/data/repositories/bilan_session_repository_impl.dart
 // Doit DEPENDRE de l'AuthRepository
-import 'package:oikos/features/auth/domain/auth_repository.dart';
+import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
 import 'package:oikos/features/bilanCarbone/domain/repositories/bilan_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'; 
 // Et de la source de données pour l'accès à Supabase (si vous en avez une)
