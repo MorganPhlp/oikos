@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pinput/pinput.dart'; // N'oublie pas le package !
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:oikos/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:pinput/pinput.dart';
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/core/theme/app_typography.dart';
 import '../widgets/confirm_community_modal.dart';
@@ -67,6 +69,7 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
           communityName: community['name']!,
           communityIcon: community['icon']!,
           onConfirm: () {
+            context.read<AuthBloc>().add(AuthSignUp(email: widget.email, password: widget.password, pseudo: widget.pseudo, communityCode: upperCode));
             // TODO: Logique finale (ex: enregistrer user et aller à l'accueil)
             Navigator.pop(context); // Ferme la modale
           },
