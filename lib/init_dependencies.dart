@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 import 'package:oikos/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:oikos/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
+import 'package:oikos/features/auth/domain/usecases/user_signin.dart';
 import 'package:oikos/features/auth/domain/usecases/user_signup.dart';
 import 'package:oikos/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -21,12 +22,14 @@ Future<void> initDependencies() async {
 }
 
 void _initAuth() {
+  // Data source
   serviceLocator.registerFactory<AuthRemoteDataSource>(
     () => AuthRemoteDataSourceImpl(
       supabaseClient: serviceLocator<SupabaseClient>(),
     ),
   );
 
+  // Repository
   serviceLocator.registerFactory<AuthRepository>(
     () => AuthRepositoryImpl(
       supabaseClient: serviceLocator(),
@@ -34,9 +37,15 @@ void _initAuth() {
     ),
   );
 
+  // Use cases
+  serviceLocator.registerFactory(
+    () => UserSignin(repository: serviceLocator()),
+  );
+
   serviceLocator.registerFactory(() => UserSignup(serviceLocator()));
 
+  // Bloc
   serviceLocator.registerLazySingleton(
-    () => AuthBloc(userSignup: serviceLocator()),
+    () => AuthBloc(userSignup: serviceLocator(), userSignin: serviceLocator()),
   );
 }

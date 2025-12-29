@@ -17,7 +17,6 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<String?> getUserId() async {
-    // TODO: Temporaire
     final user = supabaseClient.auth.currentUser;
     return user?.id;
   }
@@ -26,9 +25,13 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, User>> signInWithEmailPassword({
     required String email,
     required String password,
-  }) {
-    // TODO: implement signInWithEmailPassword
-    throw UnimplementedError();
+  }) async {
+    return _getUser(
+      () async => await remoteDataSource.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      ),
+    );
   }
 
   @override
@@ -38,15 +41,24 @@ class AuthRepositoryImpl implements AuthRepository {
     required String pseudo,
     required String communityCode,
   }) async {
-    try {
-      final user = await remoteDataSource.signUpWithEmailAndPassword(
+    return _getUser(
+      () async => await remoteDataSource.signUpWithEmailAndPassword(
         email: email,
         password: password,
         pseudo: pseudo,
         communityCode: communityCode,
-      );
+      ),
+    );
+  }
+
+  // Helper method to reduce code duplication
+  Future<Either<Failure, User>> _getUser(Future<User> Function() fn) async {
+    try {
+      final user = await fn();
 
       return right(user);
+    } on AuthException catch (e) {
+      return left(Failure(e.message));
     } on ServerException catch (e) {
       return left(Failure(e.message));
     }
