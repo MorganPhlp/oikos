@@ -25,15 +25,13 @@ import 'package:oikos/features/bilanCarbone/domain/use_cases/obtenir_objectifs_d
 import 'package:oikos/features/bilanCarbone/domain/use_cases/preparer_choix_objectifs_use_case.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-// Imports de tes classes (Adapte les chemins si besoin)
-import 'features/bilanCarbone/data/datasources/publicodes_service.dart';
-import 'features/bilanCarbone/data/repositories/question_repository_impl.dart';
-import 'features/bilanCarbone/domain/repositories/question_repository.dart';
-import 'features/bilanCarbone/domain/repositories/simulation_repository.dart';
-import 'features/bilanCarbone/presentation/bloc/bilan_cubit.dart';
-import 'features/bilanCarbone/domain/services/applicability_checker.dart';
+import 'data/datasources/publicodes_service.dart';
+import 'data/repositories/question_repository_impl.dart';
+import 'domain/repositories/question_repository.dart';
+import 'domain/repositories/simulation_repository.dart';
+import 'presentation/bloc/bilan_cubit.dart';
+import 'domain/services/applicability_checker.dart';
 
-// La variable globale 'sl' qu'on utilisera partout
 final sl = GetIt.instance;
 
 Future<void> init() async {

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_cubit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'injection_container.dart' as di; // Ton injection de dépendances
+import 'features/bilanCarbone/injection_container.dart' as di; 
 import 'features/bilanCarbone/presentation/pages/bilan_page.dart';
-import 'core/theme/app_colors.dart'; // Si tu veux appliquer le thème
+import 'core/theme/app_colors.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,7 +41,6 @@ void main() async {
     print("✅ Nouvel utilisateur créé dans Auth");
   }
 
-  // 💡 LE FIX CRUCIAL : On attend que PostgreSQL propage l'utilisateur dans auth.users
   await Future.delayed(const Duration(milliseconds: 1000));
 
   final user = res.user;

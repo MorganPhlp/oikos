@@ -23,7 +23,6 @@ class SuggestionsWidget extends StatelessWidget {
         final bool isSelected = selectedSuggestion == suggestion;
 
         return ChoiceChip(
-          // ChoiceChip est plus adapté pour une sélection que ActionChip
           label: Text(
             suggestion,
             style: TextStyle(

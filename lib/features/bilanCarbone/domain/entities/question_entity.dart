@@ -20,15 +20,13 @@ sealed class QuestionBilanEntity with _$QuestionBilanEntity {
     @Default('') String question,
 
     // Mapping vers la colonne SQL
-    // Vérifiez si votre colonne s'appelle "categorieEmpreinte" ou "categorieempreinte"
     @JsonKey(name: 'categorie_empreinte') 
     @Default('') String categorieEmpreinte,
 
     // L'icône (emoji ou chemin)
     @Default('') String? icone,
 
-    // Utilisation de l'Enum pour la sécurité
-    // unknownEnumValue: évite le crash si la DB a une valeur inconnue
+    // Utilisation de l'Enum 
     @JsonKey(name: 'type_widget', unknownEnumValue: TypeWidget.nombre)
     @Default(TypeWidget.nombre) TypeWidget typeWidget,
 

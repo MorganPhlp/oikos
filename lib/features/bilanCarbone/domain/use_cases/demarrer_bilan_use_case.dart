@@ -23,8 +23,6 @@ class DemarrerBilanUseCase {
     await bilanSessionRepo.createNewBilanSession();
     // 2. Récupérer toutes les questions depuis la source de données (Supabase)
     final allQuestions = await questionRepo.getQuestions();
-
-    // 3. (Optionnel) Ici, on pourrait pré-charger des données initiales si nécessaire.
     
     return allQuestions;
   }

@@ -33,8 +33,6 @@ class _ChoixCategoriesPageState extends State<ChoixCategoriesPage> {
       onPopInvokedWithResult: (didPop, result) {
         // didPop est vrai si le Navigator a bien supprimé la page
         if (didPop) {
-          // 💡 On synchronise l'état du Cubit pour qu'il repasse sur "Questions"
-          // Cela évite l'écran blanc sur la page BilanPage qui est en dessous.
           context.read<BilanCubit>().retourVersQuestionsFromObjectifs();
         }
       },

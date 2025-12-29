@@ -16,6 +16,6 @@ class GetPreviousQuestionUseCase {
       }
       prevIndex--;
     }
-    return 0; // On reste sur la première si on ne peut pas reculer plus
+    return 0; 
   }
 }

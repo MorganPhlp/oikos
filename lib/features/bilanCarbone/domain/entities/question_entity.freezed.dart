@@ -17,10 +17,8 @@ mixin _$QuestionBilanEntity {
 
  int get id;// C'est ce que Publicodes utilise pour identifier la variable.
  String get slug; String get question;// Mapping vers la colonne SQL
-// Vérifiez si votre colonne s'appelle "categorieEmpreinte" ou "categorieempreinte"
 @JsonKey(name: 'categorie_empreinte') String get categorieEmpreinte;// L'icône (emoji ou chemin)
- String? get icone;// Utilisation de l'Enum pour la sécurité
-// unknownEnumValue: évite le crash si la DB a une valeur inconnue
+ String? get icone;// Utilisation de l'Enum 
 @JsonKey(name: 'type_widget', unknownEnumValue: TypeWidget.nombre) TypeWidget get typeWidget;@JsonKey(name: 'config_json') Map<String, dynamic> get config;@JsonKey(name: 'ordre_affichage') int get ordre;
 /// Create a copy of QuestionBilanEntity
 /// with the given fields replaced by the non-null parameter values.
@@ -224,12 +222,10 @@ class _QuestionBilanEntity extends QuestionBilanEntity {
 @override@JsonKey() final  String slug;
 @override@JsonKey() final  String question;
 // Mapping vers la colonne SQL
-// Vérifiez si votre colonne s'appelle "categorieEmpreinte" ou "categorieempreinte"
 @override@JsonKey(name: 'categorie_empreinte') final  String categorieEmpreinte;
 // L'icône (emoji ou chemin)
 @override@JsonKey() final  String? icone;
-// Utilisation de l'Enum pour la sécurité
-// unknownEnumValue: évite le crash si la DB a une valeur inconnue
+// Utilisation de l'Enum 
 @override@JsonKey(name: 'type_widget', unknownEnumValue: TypeWidget.nombre) final  TypeWidget typeWidget;
  final  Map<String, dynamic> _config;
 @override@JsonKey(name: 'config_json') Map<String, dynamic> get config {

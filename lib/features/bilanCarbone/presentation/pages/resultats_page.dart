@@ -101,10 +101,9 @@ class ResultsPage extends StatelessWidget {
       ),
       itemCount: equivalents!.length > 4 ? 4 : equivalents!.length,
       itemBuilder: (context, index) {
-        // 💡 On caste l'item pour avoir l'autocomplétion (aide beaucoup !)
+        // On caste l'item pour avoir l'autocomplétion
         final item = equivalents![index] as CarboneEquivalentEntity;
         
-        // 🛠️ UTILISATION DES BONS GETTERS :
         final double finalValue = scoreInTonnes * item.valeur1Tonne;
 
         return _buildEquivalentCard(

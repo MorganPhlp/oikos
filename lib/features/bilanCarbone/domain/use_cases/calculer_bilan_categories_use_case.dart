@@ -4,7 +4,6 @@ import 'package:oikos/features/bilanCarbone/domain/repositories/simulation_repos
 class CalculerBilanCategoriesUseCase {
   final SimulationRepository simulationRepository;
 
-  // Ajoute des accolades pour transformer l'argument en argument "nommé"
   CalculerBilanCategoriesUseCase({required this.simulationRepository}); 
 
   Future<Map<String, double>> call() async {
