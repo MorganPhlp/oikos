@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/presentation/widgets/gradient_button.dart';
-import 'package:oikos/core/theme/app_colors.dart'; // Assure-toi que le chemin est correct
+import 'package:oikos/core/theme/app_colors.dart';
+import 'package:oikos/features/bilanCarbone/domain/entities/objectif_entity.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_cubit.dart';
 import 'package:oikos/features/bilanCarbone/presentation/pages/resultats_page.dart';
 
 class PersonalGoalPage extends StatefulWidget {
-  final List<({double valeur, String label, String description, List<Color> colors})> objectifs;
-
   const PersonalGoalPage({
     super.key,
-    required this.objectifs,
   });
 
   @override
@@ -42,8 +40,8 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
       child: BlocConsumer<BilanCubit, BilanState>(
         listener: (context, state) {
           if (state is BilanResultats) {
-      
-            Navigator.of(context).pushReplacement(
+            
+            Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(
                 builder: (_) => BlocProvider.value(
                   value: context.read<BilanCubit>(),
@@ -52,11 +50,12 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
                     scoresParCategorie: state.scoresParCategorie,
                     equivalents: state.equivalents,
                     onContinue: () {
-                      Navigator.of(context).popUntil((route) => route.isFirst);
+                      //TO DO
                     },
                   ),
                 ),
               ),
+              (route) => false,
             );
       
           } else if (state is BilanError) {
@@ -67,6 +66,8 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
         },
         builder: (context, state) {
           final double score = state is BilanChoixObjectifs ? state.scoreActuel/1000 : 0.0;
+          final objectifs = state is BilanChoixObjectifs ? state.objectifs : [];
+          
           return Scaffold(
             backgroundColor: AppColors.lightBackground,
             body: SafeArea(
@@ -101,7 +102,7 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
                     _buildCurrentEmpreinteBox(score),
                     const SizedBox(height: 24),
       
-                    ...widget.objectifs.map((obj) => _buildGoalCard(obj, score)).toList(),
+                    ...objectifs.map((obj) => _buildGoalCard(obj, score)).toList(),
       
                     _buildCustomGoalCard(score),
       
@@ -160,12 +161,12 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
     );
   }
 
-  Widget _buildGoalCard(({double valeur, String label, String description, List<Color> colors}) obj, double score) {
-    final bool isSelected = !_isCustomMode && _selectedRatio == obj.valeur;
-    final double targetValue = score * obj.valeur;
+  Widget _buildGoalCard( ObjectifEntity objectif, double score) {
+    final bool isSelected = !_isCustomMode && _selectedRatio == objectif.valeur;
+    final double targetValue = score * objectif.valeur;
 
     return GestureDetector(
-      onTap: () => _handlePresetSelect(obj.valeur),
+      onTap: () => _handlePresetSelect(objectif.valeur),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         margin: const EdgeInsets.only(bottom: 16),
@@ -195,18 +196,18 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
         ),
         child: Row(
           children: [
-            _buildIconCircle(Icons.bolt, obj.colors, isSelected),
+            _buildIconCircle(Icons.bolt, objectif.gradientColors, isSelected),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    obj.label, 
+                    objectif.label, 
                     style: const TextStyle(color: AppColors.lightTextPrimary, fontWeight: FontWeight.bold, fontSize: 16)
                   ),
                   Text(
-                    obj.description, 
+                    objectif.description, 
                     style: TextStyle(color: AppColors.lightTextPrimary.withOpacity(0.6))
                   ),
                   const SizedBox(height: 4),

@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart'; // <--- IMPORTANT : L'import doit être ici
 import 'package:oikos/core/domain/entities/categorie_empreinte_entity.dart';
@@ -14,7 +12,9 @@ import 'package:oikos/features/bilanCarbone/domain/use_cases/enregistrer_reponse
 import 'package:oikos/features/bilanCarbone/domain/use_cases/precedente_question_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/prochaine_question_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/question_entity.dart';
+import 'package:oikos/features/bilanCarbone/domain/entities/objectif_entity.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/recuperer_equivalents_carbone_use_case.dart';
+import 'package:oikos/features/bilanCarbone/domain/use_cases/preparer_choix_objectifs_use_case.dart';
 part 'bilan_state.dart';
 
 class BilanCubit extends Cubit<BilanState> {
@@ -28,6 +28,7 @@ class BilanCubit extends Cubit<BilanState> {
   final CalculerBilanUseCase calculerBilanUseCase;
   final CalculerBilanCategoriesUseCase calculerBilanCategoriesUseCase;
   final RecupererEquivalentsCarboneUseCase recupererEquivalentsCarboneUseCase;
+  final PreparerChoixObjectifsUseCase preparerChoixObjectifsUseCase;
 
   List<QuestionBilanEntity> _allQuestions = [];
   List<CategorieEmpreinteEntity> _allCategories = [];
@@ -46,6 +47,7 @@ class BilanCubit extends Cubit<BilanState> {
     required this.calculerBilanUseCase,
     required this.calculerBilanCategoriesUseCase,
     required this.recupererEquivalentsCarboneUseCase,
+    required this.preparerChoixObjectifsUseCase,
   }) : super(BilanLoading());
 
   Future<void> demarrerBilan() async {
@@ -110,45 +112,23 @@ class BilanCubit extends Cubit<BilanState> {
 
   void setSelectedCategories(List<CategorieEmpreinteEntity> categories) {
     // Logique pour gérer les catégories sélectionnées
-    // Par exemple, enregistrer les catégories sélectionnées dans le use case
     choixCategoriesUseCase.call(categories: categories);
     preparerObjectifs();
   }
 
-    void preparerObjectifs() async {
-    // 1. On affiche le chargement immédiatement
+  void preparerObjectifs() async {
     emit(BilanLoading());
     await Future.delayed(const Duration(milliseconds: 100));
     try {
-      // 2. On attend le calcul du score (qui est en kg selon tes messages précédents)
-      final scoreEnKg = await obtenirScoreActuel();
-
-      // 3. On émet l'état final avec le score calculé
+      final resultat = await preparerChoixObjectifsUseCase.call();
+      
+      scoreTotal = resultat.scoreActuel;
+      
       emit(BilanChoixObjectifs(
-        scoreActuel: scoreEnKg,
-        objectifs: [
-          (
-            valeur: 0.7, // -30%
-            label: 'Ambitieux',
-            description: '-30% par rapport à maintenant',
-            colors: [const Color(0xFFE8914A), const Color(0xFFD47A3A)],
-          ),
-          (
-            valeur: 0.8, // -20%
-            label: 'Équilibré',
-            description: '-20% par rapport à maintenant',
-            colors: [const Color(0xFFBDEE63), const Color(0xFF65BA74)],
-          ),
-          (
-            valeur: 0.9, // -10%
-            label: 'Progressif',
-            description: '-10% par rapport à maintenant',
-            colors: [const Color(0xFF65BA74), const Color(0xFF4A9960)],
-          ),
-        ],
+        scoreActuel: resultat.scoreActuel,
+        objectifs: resultat.objectifs,
       ));
     } catch (e) {
-      // 4. Gestion d'erreur si le moteur Publicodes plante
       print("❌ Erreur lors du calcul final : $e");
       emit(BilanError("Impossible de calculer votre bilan carbone."));
     }
@@ -157,7 +137,6 @@ class BilanCubit extends Cubit<BilanState> {
   void validerObjectif(double objectif) async {
     // Logique pour valider l'objectif choisi
     definirObjectifUseCase.call(objectif);
-    print( await calculerBilanCategoriesUseCase.call());
     emit(BilanResultats(
       scoreTotal: scoreTotal ?? 0.0, 
       scoresParCategorie: await calculerBilanCategoriesUseCase.call(),
@@ -165,8 +144,4 @@ class BilanCubit extends Cubit<BilanState> {
       ));
   }
 
-  Future<double> obtenirScoreActuel() async {
-    scoreTotal = await calculerBilanUseCase.call();
-    return scoreTotal!;
-  }
 }

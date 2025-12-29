@@ -131,19 +131,8 @@ class _BilanPageState extends State<BilanPage> {
   void _initialiserValeurParDefaut(BilanQuestionDisplayed state) {
     if (state.valeurPrecedente == null) {
       setState(() {
-        switch (state.question.typeWidget) {
-          case TypeWidget.slider:
-            _currentAnswer = state.question.min ?? 0.0;
-            _isAnswerValid = true;
-            break;
-          case TypeWidget.compteur:
-            _currentAnswer = <String, int>{};
-            _isAnswerValid = true;
-            break;
-          default:
-            _currentAnswer = null;
-            _isAnswerValid = false;
-        }
+        _currentAnswer = state.question.getInitialValue();
+        _isAnswerValid = state.question.isAlwaysValid();
       });
     } else {
       setState(() {

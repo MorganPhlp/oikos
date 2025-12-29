@@ -80,4 +80,23 @@ List<Map<String, dynamic>> get options {
   }
   return null;
 }
+
+  /// Retourne la valeur par défaut à utiliser pour l'initialisation de la réponse
+  /// en fonction du type de widget
+  dynamic getInitialValue() {
+    switch (typeWidget) {
+      case TypeWidget.slider:
+        return min ?? 0.0;
+      case TypeWidget.compteur:
+        return <String, int>{};
+      default:
+        return null;
+    }
+  }
+
+  /// Indique si le type de widget nécessite une validation
+  /// (slider et compteur sont toujours valides par défaut)
+  bool isAlwaysValid() {
+    return typeWidget == TypeWidget.slider || typeWidget == TypeWidget.compteur;
+  }
 }

@@ -48,9 +48,7 @@ class _ChoixCategoriesPageState extends State<ChoixCategoriesPage> {
               MaterialPageRoute(
                 builder: (_) => BlocProvider.value(
                   value: context.read<BilanCubit>(),
-                  child: PersonalGoalPage(
-                    objectifs: state.objectifs,
-                  ),
+                  child: const PersonalGoalPage(),
                 ),
               ),
             );

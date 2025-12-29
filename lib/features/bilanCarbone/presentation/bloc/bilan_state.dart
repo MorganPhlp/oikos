@@ -65,8 +65,7 @@ class BilanResultats extends BilanState {
 }
 
 class BilanChoixObjectifs extends BilanState {
-  // Le Record utilise maintenant un double pour la valeur (le %)
-  final List<({double valeur, String label, String description, List<Color> colors})> objectifs;
+  final List<ObjectifEntity> objectifs;
   final double scoreActuel;
 
   const BilanChoixObjectifs({
@@ -75,5 +74,5 @@ class BilanChoixObjectifs extends BilanState {
   });
 
   @override
-  List<Object?> get props => [objectifs];
+  List<Object?> get props => [objectifs, scoreActuel];
 }

@@ -21,6 +21,8 @@ import 'package:oikos/features/bilanCarbone/domain/use_cases/enregistrer_reponse
 import 'package:oikos/features/bilanCarbone/domain/use_cases/precedente_question_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/prochaine_question_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/recuperer_equivalents_carbone_use_case.dart';
+import 'package:oikos/features/bilanCarbone/domain/use_cases/obtenir_objectifs_disponibles_use_case.dart';
+import 'package:oikos/features/bilanCarbone/domain/use_cases/preparer_choix_objectifs_use_case.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 // Imports de tes classes (Adapte les chemins si besoin)
@@ -114,6 +116,13 @@ sl.registerLazySingleton(() => CalculerBilanCategoriesUseCase(
       simulationRepository: sl(),
     ));
 
+sl.registerLazySingleton(() => ObtenirObjectifsDisponiblesUseCase());
+
+sl.registerLazySingleton(() => PreparerChoixObjectifsUseCase(
+      calculerBilanUseCase: sl(),
+      obtenirObjectifsUseCase: sl(),
+    ));
+
   // ==========================================================
   // 5. Présentation (Blocs/Cubits) - TOUJOURS EN DERNIER
   // ==========================================================
@@ -128,5 +137,6 @@ sl.registerLazySingleton(() => CalculerBilanCategoriesUseCase(
         calculerBilanUseCase: sl(),
         calculerBilanCategoriesUseCase: sl(),
         recupererEquivalentsCarboneUseCase: sl(),
+        preparerChoixObjectifsUseCase: sl(),
       ));
 }
