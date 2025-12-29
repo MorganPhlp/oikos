@@ -72,8 +72,8 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
           communityIcon: community['icon']!,
           onConfirm: () {
             context.read<AuthBloc>().add(AuthSignUp(email: widget.email, password: widget.password, pseudo: widget.pseudo, communityCode: upperCode));
-            // TODO: Logique finale (ex: enregistrer user et aller à l'accueil)
             Navigator.pop(context); // Ferme la modale
+            // TODO : Gérer la navigation après l'inscription réussie dans le listener du Bloc
           },
           onCancel: () {
             Navigator.pop(context); // Ferme la modale
@@ -106,7 +106,6 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
 
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
-        // TODO : Implementer le listener
         // Gérer les états de succès ou d'erreur ici si nécessaire
         if (state is AuthFailure) {
           showSnackBar(context, state.message);

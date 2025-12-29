@@ -40,7 +40,6 @@ class _SignUpPageState extends State<SignUpPage> {
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       ));
-      // TODO : Sauvegarder localement les infos pour les envoyer ensuite à l'API si pseudo et communauté OK
     }
   }
 
