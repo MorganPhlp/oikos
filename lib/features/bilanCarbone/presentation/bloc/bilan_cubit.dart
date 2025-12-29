@@ -3,6 +3,8 @@ import 'dart:ui';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart'; // <--- IMPORTANT : L'import doit être ici
 import 'package:oikos/core/domain/entities/categorie_empreinte_entity.dart';
+import 'package:oikos/features/bilanCarbone/domain/entities/carbone_equivalent_entity.dart';
+import 'package:oikos/features/bilanCarbone/domain/use_cases/calculer_bilan_categories_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/calculer_bilan_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/choix_categories_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/definir_objectif_use_case.dart';
@@ -12,6 +14,7 @@ import 'package:oikos/features/bilanCarbone/domain/use_cases/enregistrer_reponse
 import 'package:oikos/features/bilanCarbone/domain/use_cases/precedente_question_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/prochaine_question_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/question_entity.dart';
+import 'package:oikos/features/bilanCarbone/domain/use_cases/recuperer_equivalents_carbone_use_case.dart';
 part 'bilan_state.dart';
 
 class BilanCubit extends Cubit<BilanState> {
@@ -23,11 +26,14 @@ class BilanCubit extends Cubit<BilanState> {
   final DemarrerApprofondissementUseCase demarrerApprofondissementUseCase;
   final DefinirObjectifUseCase definirObjectifUseCase;
   final CalculerBilanUseCase calculerBilanUseCase;
+  final CalculerBilanCategoriesUseCase calculerBilanCategoriesUseCase;
+  final RecupererEquivalentsCarboneUseCase recupererEquivalentsCarboneUseCase;
 
   List<QuestionBilanEntity> _allQuestions = [];
   List<CategorieEmpreinteEntity> _allCategories = [];
   int _currentIndex = 0;
   final Map<String, dynamic> reponses = {};
+  double? scoreTotal;
 
   BilanCubit({
     required this.demarrerBilanUseCase,
@@ -38,6 +44,8 @@ class BilanCubit extends Cubit<BilanState> {
     required this.demarrerApprofondissementUseCase,
     required this.definirObjectifUseCase,
     required this.calculerBilanUseCase,
+    required this.calculerBilanCategoriesUseCase,
+    required this.recupererEquivalentsCarboneUseCase,
   }) : super(BilanLoading());
 
   Future<void> demarrerBilan() async {
@@ -80,6 +88,14 @@ class BilanCubit extends Cubit<BilanState> {
       currentIndex: _currentIndex,
     );
     _emitQuestion();
+  }
+
+  void retourVersQuestionsFromObjectifs() {
+    _emitQuestion();
+  }
+
+  void retourVersChoixCategoriesFromObjectifs() {
+    emit(BilanChoixCategories(_allCategories));
   }
 
   void _emitQuestion() {
@@ -138,12 +154,19 @@ class BilanCubit extends Cubit<BilanState> {
     }
   }
 
-  void validerObjectif(double objectif) {
+  void validerObjectif(double objectif) async {
     // Logique pour valider l'objectif choisi
     definirObjectifUseCase.call(objectif);
+    print( await calculerBilanCategoriesUseCase.call());
+    emit(BilanResultats(
+      scoreTotal: scoreTotal ?? 0.0, 
+      scoresParCategorie: await calculerBilanCategoriesUseCase.call(),
+      equivalents: await recupererEquivalentsCarboneUseCase.call(),
+      ));
   }
 
-  Future<double> obtenirScoreActuel() {
-    return calculerBilanUseCase.call();
+  Future<double> obtenirScoreActuel() async {
+    scoreTotal = await calculerBilanUseCase.call();
+    return scoreTotal!;
   }
 }

@@ -40,13 +40,20 @@ class _OikosNumberInputState extends State<OikosNumberInput> {
   @override
   void didUpdateWidget(covariant OikosNumberInput oldWidget) {
     super.didUpdateWidget(oldWidget);
+    
     if (widget.value != oldWidget.value) {
       final newText = _getInitialText();
+      
       if (_controller.text != newText) {
-        _controller.text = newText;
-        _controller.selection = TextSelection.fromPosition(
-          TextPosition(offset: _controller.text.length),
-        );
+        
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          
+          _controller.text = newText;
+          _controller.selection = TextSelection.fromPosition(
+            TextPosition(offset: _controller.text.length),
+          );
+        });
       }
     }
   }

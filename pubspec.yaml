@@ -43,6 +43,8 @@ dependencies:
   equatable: ^2.0.7
   flutter_bloc: ^9.1.1
   get_it: ^9.2.0
+  fl_chart: ^1.1.1
+  lucide_icons: ^0.257.0
 
 dev_dependencies:
   flutter_test:

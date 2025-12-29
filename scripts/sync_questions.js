@@ -129,6 +129,12 @@ function buildConfigJson(slug,rule, widgetType) {
     if (raw.mosaique && raw.mosaique.suggestions) {
         config.suggestions = raw.mosaique.suggestions
     }
+    else{
+        if (raw.suggestions) {
+            config.suggestions = raw.suggestions
+        }
+    }
+
 
     return config
 }

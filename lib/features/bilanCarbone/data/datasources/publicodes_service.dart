@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:isolate';
 import 'package:flutter/services.dart';
@@ -66,6 +67,25 @@ class PublicodesService implements SimulationRepository {
     final result = await _send('applicability', {'slug': questionSlug});
     return (result as bool?) ?? true;
   }
+
+   @override
+    Future<Map<String, double>> getScoresByCategory() async {
+      List<String> categories = ["alimentation", "logement", "transport", "divers","services sociétaux"];
+
+      try {
+        // On crée une liste de tous les appels à lancer
+        final futures = categories.map((cat) => getScore(objective: cat)).toList();
+
+        // On les lance tous en parallèle et on attend les résultats
+        final results = await Future.wait(futures);
+
+        // On combine les noms des catégories avec leurs scores respectifs
+        return Map.fromIterables(categories, results);
+      } catch (e) {
+        print("❌ Erreur lors du calcul global : $e");
+        return {};
+      }
+    }
 
   /// Helper de communication avec l'Isolate incluant une sécurité Timeout
   Future<dynamic> _send(String type, Map<String, dynamic> payload) async {

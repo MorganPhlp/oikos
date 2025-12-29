@@ -7,6 +7,7 @@ import 'package:oikos/features/bilanCarbone/domain/entities/type_widget.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_cubit.dart';
 import 'package:oikos/features/bilanCarbone/presentation/pages/choix_categories_page.dart';
 import 'package:oikos/features/bilanCarbone/presentation/widgets/question_widget_factory.dart';
+import 'package:oikos/features/bilanCarbone/presentation/widgets/suggestions_widget.dart';
 
 class BilanPage extends StatefulWidget {
   const BilanPage({super.key});
@@ -18,11 +19,10 @@ class BilanPage extends StatefulWidget {
 class _BilanPageState extends State<BilanPage> {
   dynamic _currentAnswer;
   bool _isAnswerValid = false;
+  String? _selectedSuggestion;
 
   @override
   Widget build(BuildContext context) {
-    // 💡 NOTE : Le BlocProvider a été déplacé dans main.dart 
-    // pour que le Cubit survive au changement de page.
     return Scaffold(
       backgroundColor: AppColors.lightBackground,
       body: SafeArea(
@@ -70,7 +70,7 @@ class _BilanPageState extends State<BilanPage> {
                         child: Column(
                           children: [
                             Text(
-                              state.question.icone ?? '🚗',
+                              state.question.icone ?? '',
                               style: const TextStyle(fontSize: 50),
                             ),
                             const SizedBox(height: 15),
@@ -85,11 +85,26 @@ class _BilanPageState extends State<BilanPage> {
                               ),
                             ),
                             const SizedBox(height: 30),
+                            state.question.suggestions != null ? SuggestionsWidget(
+                            suggestions: List<String>.from(state.question.suggestions!.keys),
+                            selectedSuggestion: _selectedSuggestion, // On passe la CLÉ ici
+                            onLocalChange: (key) {
+                              setState(() {
+                                _selectedSuggestion = key; // On retient quel bouton est cliqué
+                                _currentAnswer = state.question.suggestions![key]; // La Map pour la logique
+                                _isAnswerValid = true;
+                              });
+                            },
+                          ) : const SizedBox.shrink(),
+                          const SizedBox(height: 30),
                             QuestionWidgetFactory(
                               question: state.question,
                               currentValue: _currentAnswer,
                               onLocalChange: (newValue) {
-                                setState(() => _currentAnswer = newValue);
+                                setState(() {
+                                  _currentAnswer = newValue;
+                                  _selectedSuggestion = null; // On désélectionne la suggestion
+                                  });
                               },
                               onValidityChange: (isValid) {
                                 setState(() => _isAnswerValid = isValid);

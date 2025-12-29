@@ -80,7 +80,6 @@ class MyTestApp extends StatelessWidget {
         useMaterial3: true,
         scaffoldBackgroundColor: AppColors.lightBackground,
       ),
-      // 💡 C'EST ICI : On enveloppe la "home" ou le Navigator avec le provider
       home: BlocProvider(
         create: (context) => di.sl<BilanCubit>()..demarrerBilan(),
         child: const BilanPage(),

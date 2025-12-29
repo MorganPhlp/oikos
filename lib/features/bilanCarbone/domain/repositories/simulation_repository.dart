@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 abstract class SimulationRepository {
   /// Initialise le moteur de simulation (charge le JS et les règles)
   Future<void> init();
@@ -11,4 +13,6 @@ abstract class SimulationRepository {
 
   Map<String, dynamic> getAccumulatedSituation();
   Future<double> getScore( {String objective = "bilan"} );
+
+  Future<Map<String, double>> getScoresByCategory();
 }

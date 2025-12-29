@@ -5,8 +5,6 @@ import 'package:oikos/core/presentation/widgets/gradient_button.dart';
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_cubit.dart';
 import 'package:oikos/features/bilanCarbone/presentation/pages/choix_objectifs.dart';
-// Importe ta page d'objectifs ici
-// import 'package:oikos/features/bilanCarbone/presentation/pages/personal_goal_page.dart';
 
 class ChoixCategoriesPage extends StatefulWidget {
   const ChoixCategoriesPage({super.key});
@@ -30,161 +28,187 @@ class _ChoixCategoriesPageState extends State<ChoixCategoriesPage> {
 
   @override
   Widget build(BuildContext context) {
-    // 💡 BlocListener pour gérer la navigation suite au changement d'état
-    return BlocListener<BilanCubit, BilanState>(
-      listener: (context, state) {
-        if (state is BilanChoixObjectifs) {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => BlocProvider.value(
-                value: context.read<BilanCubit>(),
-                child: PersonalGoalPage(
-                  objectifs: state.objectifs,
-                ),
-              ),
-            ),
-          );
+    return PopScope(
+      canPop: true, // Autorise le retour arrière physique
+      onPopInvokedWithResult: (didPop, result) {
+        // didPop est vrai si le Navigator a bien supprimé la page
+        if (didPop) {
+          // 💡 On synchronise l'état du Cubit pour qu'il repasse sur "Questions"
+          // Cela évite l'écran blanc sur la page BilanPage qui est en dessous.
+          context.read<BilanCubit>().retourVersQuestionsFromObjectifs();
         }
       },
-      child: BlocBuilder<BilanCubit, BilanState>(
-        builder: (context, state) {
-          List<CategorieEmpreinteEntity> categories = [];
-          if (state is BilanChoixCategories) {
-            categories = state.categories;
+      child: BlocListener<BilanCubit, BilanState>(
+        listener: (context, state) {
+          if (state is BilanTermine){
+            
           }
-
-         if (state is BilanLoading) {
-            return const Scaffold(
-              body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircularProgressIndicator(color: AppColors.gradientGreenEnd),
-                    SizedBox(height: 20),
-                    Text("Calcul de ton empreinte..."),
-                  ],
+          if (state is BilanChoixObjectifs) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (_) => BlocProvider.value(
+                  value: context.read<BilanCubit>(),
+                  child: PersonalGoalPage(
+                    objectifs: state.objectifs,
+                  ),
                 ),
               ),
             );
           }
+        },
+        child: BlocBuilder<BilanCubit, BilanState>(
+          builder: (context, state) {
+            List<CategorieEmpreinteEntity> categories = [];
+            if (state is BilanChoixCategories) {
+              categories = state.categories;
+            }
 
-          return Scaffold(
-            backgroundColor: AppColors.lightBackground,
-            body: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            const SizedBox(height: 40),
-                            Text(
-                              "Quels sujets t'intéressent ?",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: AppColors.lightTextPrimary,
-                                fontSize: 26,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              "Sélectionne toutes les catégories qui te parlent pour recevoir des suggestions personnalisées.",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: AppColors.lightTextPrimary.withOpacity(0.7),
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(height: 24),
+            if (state is BilanLoading) {
+              return const Scaffold(
+                body: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(color: AppColors.gradientGreenEnd),
+                      SizedBox(height: 20),
+                      Text("Calcul de ton empreinte..."),
+                    ],
+                  ),
+                ),
+              );
+            }
 
-                            // Info Box
-                            Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: AppColors.lightIconPrimary.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: AppColors.lightIconPrimary.withOpacity(0.3),
-                                  width: 2,
-                                ),
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text("💡 ", style: TextStyle(fontSize: 18)),
-                                  Expanded(
-                                    child: Text(
-                                      "Tu ne recevras pas d'actions proposées dans les catégories non cochées.",
-                                      style: TextStyle(
-                                        color: AppColors.lightTextPrimary,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 35),
-
-                            // Liste des catégories
-                            ListView.separated(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: categories.length,
-                              separatorBuilder: (_, __) => const SizedBox(height: 12),
-                              itemBuilder: (context, index) {
-                                final cat = categories[index];
-                                final isSelected = _selectedNames.contains(cat.nom);
-
-                                return _CategoryCard(
-                                  label: cat.nom,
-                                  icon: cat.icone ?? '🌱',
-                                  description: cat.description ?? '',
-                                  isSelected: isSelected,
-                                  onTap: () => _toggleCategory(cat.nom),
-                                );
-                              },
-                            ),
-                            const SizedBox(height: 30),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    // Footer avec le bouton adapté
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      child: GradientButton(
-                        label: _selectedNames.isNotEmpty
-                            ? "Continuer avec ${_selectedNames.length} ${_selectedNames.length == 1 ? 'catégorie' : 'catégories'}"
-                            : "Toutes les catégories m'intéressent",
-                        onPressed: () {
-                          // Récupération des entités sélectionnées
-                          final finalSelection = _selectedNames.isEmpty 
-                              ? categories 
-                              : categories.where((c) => _selectedNames.contains(c.nom)).toList();
-                          
-                          // 💡 On notifie le Cubit. Le Cubit va enregistrer 
-                          // PUIS émettre BilanChoixObjectifs, ce qui déclenchera le Listener au-dessus.
-                          context.read<BilanCubit>().setSelectedCategories(finalSelection);
-                        },
-                      ),
-                    ),
-                  ],
+            return Scaffold(
+              backgroundColor: AppColors.lightBackground,
+              appBar: AppBar(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: AppColors.lightTextPrimary),
+                  onPressed: () {
+                    // On gère manuellement le retour pour le bouton visuel
+                    context.read<BilanCubit>().retourVersQuestionsFromObjectifs();
+                    Navigator.of(context).pop();
+                  },
                 ),
               ),
+              body: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 10),
+                              const Text(
+                                "Quels sujets t'intéressent ?",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: AppColors.lightTextPrimary,
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                "Sélectionne toutes les catégories qui te parlent pour recevoir des suggestions personnalisées.",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: AppColors.lightTextPrimary.withOpacity(0.7),
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              _buildInfoBox(),
+                              const SizedBox(height: 35),
+                              _buildCategoryList(categories),
+                              const SizedBox(height: 30),
+                            ],
+                          ),
+                        ),
+                      ),
+                      _buildFooter(categories),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  // --- Sous-widgets pour la clarté ---
+
+  Widget _buildInfoBox() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.lightIconPrimary.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.lightIconPrimary.withOpacity(0.3),
+          width: 2,
+        ),
+      ),
+      child: const Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("💡 ", style: TextStyle(fontSize: 18)),
+          Expanded(
+            child: Text(
+              "Tu ne recevras pas d'actions proposées dans les catégories non cochées.",
+              style: TextStyle(color: AppColors.lightTextPrimary, fontSize: 14),
             ),
-          );
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryList(List<CategorieEmpreinteEntity> categories) {
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: categories.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (context, index) {
+        final cat = categories[index];
+        final isSelected = _selectedNames.contains(cat.nom);
+
+        return _CategoryCard(
+          label: cat.nom,
+          icon: cat.icone,
+          description: cat.description,
+          isSelected: isSelected,
+          onTap: () => _toggleCategory(cat.nom),
+        );
+      },
+    );
+  }
+
+  Widget _buildFooter(List<CategorieEmpreinteEntity> categories) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      child: GradientButton(
+        label: _selectedNames.isNotEmpty
+            ? "Continuer avec ${_selectedNames.length} ${_selectedNames.length == 1 ? 'catégorie' : 'catégories'}"
+            : "Toutes les catégories m'intéressent",
+        onPressed: () {
+          final finalSelection = _selectedNames.isEmpty
+              ? categories
+              : categories.where((c) => _selectedNames.contains(c.nom)).toList();
+
+          context.read<BilanCubit>().setSelectedCategories(finalSelection);
         },
       ),
     );
   }
 }
 
-// Widget de carte (inchangé par rapport à ta version, juste pour la complétude)
 class _CategoryCard extends StatelessWidget {
   final String label;
   final String icon;

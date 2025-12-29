@@ -16,6 +16,12 @@ INSERT INTO communaute (nom, description, logo, couleurHEX) VALUES
 ('Viveris', 'Le sang', 'logo', '#4CAF50')
 ON CONFLICT (nom) DO NOTHING;
 
+-- 3. Equivalent Carbone
+INSERT INTO carbone_equivalent (equivalent_label, valeur_1_tonne) VALUES
+('A/R Paris-New York en avion', 0.49),
+('A/R Paris-Marseille en TGV', 227),
+('kg de baguette tradition', 1287)
+
 -- =============================================
 -- 3. UTILISATEUR FICTIF (Lien Auth + Profil)
 -- =============================================

@@ -48,6 +48,22 @@ class BilanChoixCategories extends BilanState {
   List<Object?> get props => [categories];
 }
 
+class BilanResultats extends BilanState {
+  final double scoreTotal;
+  final Map<String, double> scoresParCategorie;
+  final List<CarboneEquivalentEntity>? equivalents;
+
+
+  const BilanResultats({
+    required this.scoreTotal,
+    required this.scoresParCategorie,
+    this.equivalents,
+  });
+
+  @override
+  List<Object?> get props => [scoreTotal, scoresParCategorie, equivalents];
+}
+
 class BilanChoixObjectifs extends BilanState {
   // Le Record utilise maintenant un double pour la valeur (le %)
   final List<({double valeur, String label, String description, List<Color> colors})> objectifs;

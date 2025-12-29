@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/presentation/widgets/gradient_button.dart';
 import 'package:oikos/core/theme/app_colors.dart'; // Assure-toi que le chemin est correct
 import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_cubit.dart';
+import 'package:oikos/features/bilanCarbone/presentation/pages/resultats_page.dart';
 
 class PersonalGoalPage extends StatefulWidget {
   final List<({double valeur, String label, String description, List<Color> colors})> objectifs;
@@ -31,75 +32,99 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<BilanCubit, BilanState>(
-      listener: (context, state) {
-        if (state is BilanTermine) {
-          Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
-        } else if (state is BilanError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message), backgroundColor: AppColors.lightDestructive),
-          );
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result)  {
+        if (didPop) {
+          context.read<BilanCubit>().retourVersChoixCategoriesFromObjectifs();
         }
       },
-      builder: (context, state) {
-        final double score = state is BilanChoixObjectifs ? state.scoreActuel/1000 : 0.0;
-        return Scaffold(
-          backgroundColor: AppColors.lightBackground,
-          body: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  Center(
-                    child: Image.asset('assets/logos/oikos_logo.png', height: 50),
-                  ),
-                  const SizedBox(height: 30),
-                  const Text(
-                    "Fixe-toi un objectif personnel",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: AppColors.lightTextPrimary,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    "En plus de l'objectif des Accords de Paris (2 tonnes CO₂/an), choisis ton propre défi !",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: AppColors.lightTextPrimary.withOpacity(0.7), 
-                      fontSize: 16
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-
-                  _buildCurrentEmpreinteBox(score),
-                  const SizedBox(height: 24),
-
-                  ...widget.objectifs.map((obj) => _buildGoalCard(obj, score)).toList(),
-
-                  _buildCustomGoalCard(score),
-
-                  const SizedBox(height: 24),
-                  _buildHintBox(),
-                  const SizedBox(height: 30),
-
-                  GradientButton(
-                    label: state is BilanLoading ? "Sauvegarde..." : "Valider mon objectif",
-                    disabled: _selectedRatio == null || state is BilanLoading,
-                    onPressed: () {
-                      if (_selectedRatio != null) {
-                        context.read<BilanCubit>().validerObjectif(_selectedRatio!);
-                      }
+      child: BlocConsumer<BilanCubit, BilanState>(
+        listener: (context, state) {
+          if (state is BilanResultats) {
+      
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (_) => BlocProvider.value(
+                  value: context.read<BilanCubit>(),
+                  child: ResultsPage( 
+                    score: state.scoreTotal,
+                    scoresParCategorie: state.scoresParCategorie,
+                    equivalents: state.equivalents,
+                    onContinue: () {
+                      Navigator.of(context).popUntil((route) => route.isFirst);
                     },
                   ),
-                ],
+                ),
+              ),
+            );
+      
+          } else if (state is BilanError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message), backgroundColor: AppColors.lightDestructive),
+            );
+          }
+        },
+        builder: (context, state) {
+          final double score = state is BilanChoixObjectifs ? state.scoreActuel/1000 : 0.0;
+          return Scaffold(
+            backgroundColor: AppColors.lightBackground,
+            body: SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    Center(
+                      child: Image.asset('assets/logos/oikos_logo.png', height: 50),
+                    ),
+                    const SizedBox(height: 30),
+                    const Text(
+                      "Fixe-toi un objectif personnel",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: AppColors.lightTextPrimary,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      "En plus de l'objectif des Accords de Paris (2 tonnes CO₂/an), choisis ton propre défi !",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: AppColors.lightTextPrimary.withOpacity(0.7), 
+                        fontSize: 16
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+      
+                    _buildCurrentEmpreinteBox(score),
+                    const SizedBox(height: 24),
+      
+                    ...widget.objectifs.map((obj) => _buildGoalCard(obj, score)).toList(),
+      
+                    _buildCustomGoalCard(score),
+      
+                    const SizedBox(height: 24),
+                    _buildHintBox(),
+                    const SizedBox(height: 30),
+      
+                    GradientButton(
+                      label: state is BilanLoading ? "Sauvegarde..." : "Valider mon objectif",
+                      disabled: _selectedRatio == null || state is BilanLoading,
+                      onPressed: () {
+                        if (_selectedRatio != null) {
+                          context.read<BilanCubit>().validerObjectif(_selectedRatio!);
+                        }
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 

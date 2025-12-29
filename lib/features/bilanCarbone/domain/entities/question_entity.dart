@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'type_widget.dart';
 
@@ -69,4 +71,13 @@ List<Map<String, dynamic>> get options {
   
   // Description / Aide contextuelle
   String? get description => config['description'] as String?;
+
+  // Suggestions de réponses rapides
+  HashMap<String, dynamic>? get suggestions {
+  final sugg = config['suggestions'];
+  if (sugg is Map) {
+    return HashMap<String, dynamic>.from(sugg);
+  }
+  return null;
+}
 }

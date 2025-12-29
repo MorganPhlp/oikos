@@ -40,7 +40,7 @@ class QuestionWidgetFactory extends StatelessWidget {
               onTap: () {
                 // 1. On met à jour la valeur
                 onLocalChange(option['value']);
-                // 2. ✅ ON DÉBLOQUE LE BOUTON !
+                // 2. on debloque le boutton
                 onValidityChange(true);
               },
             );
