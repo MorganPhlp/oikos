@@ -1,15 +1,16 @@
 import 'package:oikos/core/error/exceptions.dart';
+import 'package:oikos/features/auth/data/models/user_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract interface class AuthRemoteDataSource {
-  Future<String> signUpWithEmailAndPassword({
+  Future<UserModel> signUpWithEmailAndPassword({
     required String email,
     required String password,
     required String pseudo,
     required String communityCode,
   });
 
-  Future<String> signInWithEmailAndPassword({
+  Future<UserModel> signInWithEmailAndPassword({
     required String email,
     required String password,
   });
@@ -21,7 +22,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   AuthRemoteDataSourceImpl({required this.supabaseClient});
 
   @override
-  Future<String> signUpWithEmailAndPassword({
+  Future<UserModel> signUpWithEmailAndPassword({
     required String email,
     required String password,
     required String pseudo,
@@ -39,14 +40,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if(response.user == null) {
         throw ServerException('User is null');
       }
-      return response.user!.id;
+      return UserModel.fromJson(response.user!.toJson());
     } catch (e) {
       throw ServerException(e.toString());
     }
   }
 
   @override
-  Future<String> signInWithEmailAndPassword({
+  Future<UserModel> signInWithEmailAndPassword({
     required String email,
     required String password,
   }) {

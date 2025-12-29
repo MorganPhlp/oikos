@@ -1,19 +1,20 @@
 import 'package:fpdart/fpdart.dart';
+import 'package:oikos/features/auth/domain/entities/user.dart';
 
 import '../../../../core/error/failures.dart';
 
 abstract interface class AuthRepository {
   Future<String?> getUserId();
 
-  Future<Either<Failure, String>> signUpWithEmailPassword({ //
+  Future<Either<Failure, User>> signUpWithEmailPassword({ //
     required String email,
     required String password,
     required String pseudo,
     required String communityCode,
-  }); // TODO : Remplacer String par UserModel
+  });
 
-  Future<Either<Failure, String>> signInWithEmailPassword({
+  Future<Either<Failure, User>> signInWithEmailPassword({
     required String email,
     required String password,
-  }); // TODO : Remplacer String par UserModel
+  });
 }

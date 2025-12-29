@@ -5,7 +5,7 @@ import 'app_typography.dart';
 class AppTheme {
   const AppTheme._();
 
-  static _border([Color color = AppColors.lightInputBorder]) => OutlineInputBorder(
+  static OutlineInputBorder _border([Color color = AppColors.lightInputBorder]) => OutlineInputBorder(
       borderRadius: BorderRadius.circular(10),
       borderSide: BorderSide(
         color: color,

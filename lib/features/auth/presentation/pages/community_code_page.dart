@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:oikos/core/common/widgets/loader.dart';
+import 'package:oikos/core/utils/show_snackbar.dart';
 import 'package:oikos/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pinput/pinput.dart';
 import 'package:oikos/core/theme/app_colors.dart';
@@ -102,130 +104,150 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
       border: Border.all(color: AppColors.lightInputBorderFocused, width: 2),
     );
 
-    return Scaffold(
-      backgroundColor: AppColors.lightBackground,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
+    return BlocConsumer<AuthBloc, AuthState>(
+      listener: (context, state) {
+        // TODO : Implementer le listener
+        // Gérer les états de succès ou d'erreur ici si nécessaire
+        if (state is AuthFailure) {
+          showSnackBar(context, state.message);
+        }
+      },
+      builder: (context, state) {
+        if(state is AuthLoading) {
+          // Afficher un indicateur de chargement
+          return const Loader();
+        }
+
+        return Scaffold(
+          backgroundColor: AppColors.lightBackground,
+          body: Stack(
             children: [
-              // Logo
-              Image.asset('assets/logos/oikos_logo.png', height: 60),
-              const SizedBox(height: 20),
-
-              // Carte Entreprise (Facultatif, selon la maquette)
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      AppColors.gradientGreenStart.withValues(alpha: 0.3),
-                      AppColors.gradientGreenEnd.withValues(alpha: 0.3)
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Row(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Entreprise détectée", style: TextStyle(color: AppColors.lightTextPrimary.withValues(alpha: 0.6), fontSize: 12)),
-                        Text(_companyName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                      ],
-                    )
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 40),
-
-              // Icône Sparkles Centrée et après logo entreprise
-              Container(
-                width: 80, height: 80,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [AppColors.gradientGreenStart, AppColors.gradientGreenEnd],
-                  ),
-                  boxShadow: [BoxShadow(blurRadius: 10, color: Colors.black12, offset: Offset(0, 4))],
-                ),
-                child: const Icon(Icons.auto_awesome, size: 40, color: AppColors.lightTextPrimary), // TODO : Remplacer par logo de l'entreprise
-              ),
-
-              const SizedBox(height: 24),
-
-              Text("Rejoignez votre communauté", style: AppTypography.h2, textAlign: TextAlign.center),
-              const SizedBox(height: 10),
-              Text(
-                "Saisissez le code fourni par votre administrateur pour rejoindre votre équipe",
-                textAlign: TextAlign.center,
-                style: AppTypography.body.copyWith(color: AppColors.lightTextPrimary.withValues(alpha: 0.7)),
-              ),
-
-              const SizedBox(height: 30),
-
-              Text("Code communauté", style: TextStyle(fontWeight: FontWeight.w500, color: AppColors.lightTextPrimary)),
-              const SizedBox(height: 12),
-
-              // INPUT PIN
-              Pinput(
-                controller: _pinController,
-                length: 6,
-                defaultPinTheme: defaultPinTheme,
-                focusedPinTheme: focusedPinTheme,
-                textCapitalization: TextCapitalization.characters,
-                onCompleted: _validateCode,
-                onChanged: (_) => setState(() => _errorText = null),
-              ),
-
-              if (_errorText != null) ...[
-                const SizedBox(height: 20),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade50,
-                    border: Border.all(color: Colors.red.shade200),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
+              SafeArea(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
                     children: [
-                      Icon(Icons.error_outline, color: Colors.red.shade500, size: 20),
-                      const SizedBox(width: 8),
-                      Expanded(child: Text(_errorText!, style: TextStyle(color: Colors.red.shade700))),
+                      // Logo
+                      Image.asset('assets/logos/oikos_logo.png', height: 60),
+                      const SizedBox(height: 20),
+
+                      // Carte Entreprise (Facultatif, selon la maquette)
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              AppColors.gradientGreenStart.withValues(alpha: 0.3),
+                              AppColors.gradientGreenEnd.withValues(alpha: 0.3)
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Row(
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("Entreprise détectée", style: TextStyle(color: AppColors.lightTextPrimary.withValues(alpha: 0.6), fontSize: 12)),
+                                Text(_companyName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                              ],
+                            )
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 40),
+
+                      // Icône Sparkles Centrée et après logo entreprise
+                      Container(
+                        width: 80, height: 80,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [AppColors.gradientGreenStart, AppColors.gradientGreenEnd],
+                          ),
+                          boxShadow: [BoxShadow(blurRadius: 10, color: Colors.black12, offset: Offset(0, 4))],
+                        ),
+                        child: const Icon(Icons.auto_awesome, size: 40, color: AppColors.lightTextPrimary), // TODO : Remplacer par logo de l'entreprise
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      Text("Rejoignez votre communauté", style: AppTypography.h2, textAlign: TextAlign.center),
+                      const SizedBox(height: 10),
+                      Text(
+                        "Saisissez le code fourni par votre administrateur pour rejoindre votre équipe",
+                        textAlign: TextAlign.center,
+                        style: AppTypography.body.copyWith(color: AppColors.lightTextPrimary.withValues(alpha: 0.7)),
+                      ),
+
+                      const SizedBox(height: 30),
+
+                      Text("Code communauté", style: TextStyle(fontWeight: FontWeight.w500, color: AppColors.lightTextPrimary)),
+                      const SizedBox(height: 12),
+
+                      // INPUT PIN
+                      Pinput(
+                        controller: _pinController,
+                        length: 6,
+                        defaultPinTheme: defaultPinTheme,
+                        focusedPinTheme: focusedPinTheme,
+                        textCapitalization: TextCapitalization.characters,
+                        onCompleted: _validateCode,
+                        onChanged: (_) => setState(() => _errorText = null),
+                      ),
+
+                      if (_errorText != null) ...[
+                        const SizedBox(height: 20),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.red.shade50,
+                            border: Border.all(color: Colors.red.shade200),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.error_outline, color: Colors.red.shade500, size: 20),
+                              const SizedBox(width: 8),
+                              Expanded(child: Text(_errorText!, style: TextStyle(color: Colors.red.shade700))),
+                            ],
+                          ),
+                        )
+                      ],
+
+                      const SizedBox(height: 30),
+
+                      // Info Card Bas de page
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppColors.gradientGreenStart.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.info_outline, color: AppColors.lightIconPrimary),
+                            const SizedBox(width: 12),
+                            const Expanded(
+                              child: Text(
+                                "Vous n'avez pas de code ? Contactez l'administrateur de votre entreprise.",
+                                style: TextStyle(fontSize: 13),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
-                )
-              ],
-
-              const SizedBox(height: 30),
-
-              // Info Card Bas de page
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.gradientGreenStart.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.info_outline, color: AppColors.lightIconPrimary),
-                    const SizedBox(width: 12),
-                    const Expanded(
-                      child: Text(
-                        "Vous n'avez pas de code ? Contactez l'administrateur de votre entreprise.",
-                        style: TextStyle(fontSize: 13),
-                      ),
-                    ),
-                  ],
                 ),
               ),
             ],
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

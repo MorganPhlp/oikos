@@ -2,7 +2,8 @@ import 'package:fpdart/fpdart.dart';
 import 'package:oikos/core/error/exceptions.dart';
 import 'package:oikos/core/error/failures.dart';
 import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:oikos/features/auth/domain/entities/user.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide User;
 import '../datasources/auth_remote_data_source.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -22,7 +23,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, String>> signInWithEmailPassword({
+  Future<Either<Failure, User>> signInWithEmailPassword({
     required String email,
     required String password,
   }) {
@@ -31,21 +32,21 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, String>> signUpWithEmailPassword({
+  Future<Either<Failure, User>> signUpWithEmailPassword({
     required String email,
     required String password,
     required String pseudo,
     required String communityCode,
   }) async {
     try {
-      final userId = await remoteDataSource.signUpWithEmailAndPassword(
+      final user = await remoteDataSource.signUpWithEmailAndPassword(
         email: email,
         password: password,
         pseudo: pseudo,
         communityCode: communityCode,
       );
 
-      return right(userId);
+      return right(user);
     } on ServerException catch (e) {
       return left(Failure(e.message));
     }
