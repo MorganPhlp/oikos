@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'question_entity.dart';
+part of 'question_model.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -13,26 +13,22 @@ part of 'question_entity.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$QuestionBilanEntity {
+mixin _$QuestionBilanModel {
 
- int get id;// C'est ce que Publicodes utilise pour identifier la variable.
- String get slug; String get question;// Mapping vers la colonne SQL
-@JsonKey(name: 'categorie_empreinte') String get categorieEmpreinte;// L'icône (emoji ou chemin)
- String? get icone;// Utilisation de l'Enum 
-@JsonKey(name: 'type_widget', unknownEnumValue: TypeWidget.nombre) TypeWidget get typeWidget;@JsonKey(name: 'config_json') Map<String, dynamic> get config;@JsonKey(name: 'ordre_affichage') int get ordre;
-/// Create a copy of QuestionBilanEntity
+ int get id; String get slug; String get question;@JsonKey(name: 'categorie_empreinte') String get categorieEmpreinte; String? get icone;@JsonKey(name: 'type_widget', unknownEnumValue: TypeWidget.nombre) TypeWidget get typeWidget;@JsonKey(name: 'config_json') Map<String, dynamic> get config;@JsonKey(name: 'ordre_affichage') int get ordre;
+/// Create a copy of QuestionBilanModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-$QuestionBilanEntityCopyWith<QuestionBilanEntity> get copyWith => _$QuestionBilanEntityCopyWithImpl<QuestionBilanEntity>(this as QuestionBilanEntity, _$identity);
+$QuestionBilanModelCopyWith<QuestionBilanModel> get copyWith => _$QuestionBilanModelCopyWithImpl<QuestionBilanModel>(this as QuestionBilanModel, _$identity);
 
-  /// Serializes this QuestionBilanEntity to a JSON map.
+  /// Serializes this QuestionBilanModel to a JSON map.
   Map<String, dynamic> toJson();
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is QuestionBilanEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.slug, slug) || other.slug == slug)&&(identical(other.question, question) || other.question == question)&&(identical(other.categorieEmpreinte, categorieEmpreinte) || other.categorieEmpreinte == categorieEmpreinte)&&(identical(other.icone, icone) || other.icone == icone)&&(identical(other.typeWidget, typeWidget) || other.typeWidget == typeWidget)&&const DeepCollectionEquality().equals(other.config, config)&&(identical(other.ordre, ordre) || other.ordre == ordre));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is QuestionBilanModel&&(identical(other.id, id) || other.id == id)&&(identical(other.slug, slug) || other.slug == slug)&&(identical(other.question, question) || other.question == question)&&(identical(other.categorieEmpreinte, categorieEmpreinte) || other.categorieEmpreinte == categorieEmpreinte)&&(identical(other.icone, icone) || other.icone == icone)&&(identical(other.typeWidget, typeWidget) || other.typeWidget == typeWidget)&&const DeepCollectionEquality().equals(other.config, config)&&(identical(other.ordre, ordre) || other.ordre == ordre));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -41,15 +37,15 @@ int get hashCode => Object.hash(runtimeType,id,slug,question,categorieEmpreinte,
 
 @override
 String toString() {
-  return 'QuestionBilanEntity(id: $id, slug: $slug, question: $question, categorieEmpreinte: $categorieEmpreinte, icone: $icone, typeWidget: $typeWidget, config: $config, ordre: $ordre)';
+  return 'QuestionBilanModel(id: $id, slug: $slug, question: $question, categorieEmpreinte: $categorieEmpreinte, icone: $icone, typeWidget: $typeWidget, config: $config, ordre: $ordre)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $QuestionBilanEntityCopyWith<$Res>  {
-  factory $QuestionBilanEntityCopyWith(QuestionBilanEntity value, $Res Function(QuestionBilanEntity) _then) = _$QuestionBilanEntityCopyWithImpl;
+abstract mixin class $QuestionBilanModelCopyWith<$Res>  {
+  factory $QuestionBilanModelCopyWith(QuestionBilanModel value, $Res Function(QuestionBilanModel) _then) = _$QuestionBilanModelCopyWithImpl;
 @useResult
 $Res call({
  int id, String slug, String question,@JsonKey(name: 'categorie_empreinte') String categorieEmpreinte, String? icone,@JsonKey(name: 'type_widget', unknownEnumValue: TypeWidget.nombre) TypeWidget typeWidget,@JsonKey(name: 'config_json') Map<String, dynamic> config,@JsonKey(name: 'ordre_affichage') int ordre
@@ -60,14 +56,14 @@ $Res call({
 
 }
 /// @nodoc
-class _$QuestionBilanEntityCopyWithImpl<$Res>
-    implements $QuestionBilanEntityCopyWith<$Res> {
-  _$QuestionBilanEntityCopyWithImpl(this._self, this._then);
+class _$QuestionBilanModelCopyWithImpl<$Res>
+    implements $QuestionBilanModelCopyWith<$Res> {
+  _$QuestionBilanModelCopyWithImpl(this._self, this._then);
 
-  final QuestionBilanEntity _self;
-  final $Res Function(QuestionBilanEntity) _then;
+  final QuestionBilanModel _self;
+  final $Res Function(QuestionBilanModel) _then;
 
-/// Create a copy of QuestionBilanEntity
+/// Create a copy of QuestionBilanModel
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? slug = null,Object? question = null,Object? categorieEmpreinte = null,Object? icone = freezed,Object? typeWidget = null,Object? config = null,Object? ordre = null,}) {
   return _then(_self.copyWith(
@@ -86,8 +82,8 @@ as int,
 }
 
 
-/// Adds pattern-matching-related methods to [QuestionBilanEntity].
-extension QuestionBilanEntityPatterns on QuestionBilanEntity {
+/// Adds pattern-matching-related methods to [QuestionBilanModel].
+extension QuestionBilanModelPatterns on QuestionBilanModel {
 /// A variant of `map` that fallback to returning `orElse`.
 ///
 /// It is equivalent to doing:
@@ -100,10 +96,10 @@ extension QuestionBilanEntityPatterns on QuestionBilanEntity {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _QuestionBilanEntity value)?  $default,{required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _QuestionBilanModel value)?  $default,{required TResult orElse(),}){
 final _that = this;
 switch (_that) {
-case _QuestionBilanEntity() when $default != null:
+case _QuestionBilanModel() when $default != null:
 return $default(_that);case _:
   return orElse();
 
@@ -122,10 +118,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _QuestionBilanEntity value)  $default,){
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _QuestionBilanModel value)  $default,){
 final _that = this;
 switch (_that) {
-case _QuestionBilanEntity():
+case _QuestionBilanModel():
 return $default(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
@@ -140,10 +136,10 @@ return $default(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _QuestionBilanEntity value)?  $default,){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _QuestionBilanModel value)?  $default,){
 final _that = this;
 switch (_that) {
-case _QuestionBilanEntity() when $default != null:
+case _QuestionBilanModel() when $default != null:
 return $default(_that);case _:
   return null;
 
@@ -163,7 +159,7 @@ return $default(_that);case _:
 
 @optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String slug,  String question, @JsonKey(name: 'categorie_empreinte')  String categorieEmpreinte,  String? icone, @JsonKey(name: 'type_widget', unknownEnumValue: TypeWidget.nombre)  TypeWidget typeWidget, @JsonKey(name: 'config_json')  Map<String, dynamic> config, @JsonKey(name: 'ordre_affichage')  int ordre)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
-case _QuestionBilanEntity() when $default != null:
+case _QuestionBilanModel() when $default != null:
 return $default(_that.id,_that.slug,_that.question,_that.categorieEmpreinte,_that.icone,_that.typeWidget,_that.config,_that.ordre);case _:
   return orElse();
 
@@ -184,7 +180,7 @@ return $default(_that.id,_that.slug,_that.question,_that.categorieEmpreinte,_tha
 
 @optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String slug,  String question, @JsonKey(name: 'categorie_empreinte')  String categorieEmpreinte,  String? icone, @JsonKey(name: 'type_widget', unknownEnumValue: TypeWidget.nombre)  TypeWidget typeWidget, @JsonKey(name: 'config_json')  Map<String, dynamic> config, @JsonKey(name: 'ordre_affichage')  int ordre)  $default,) {final _that = this;
 switch (_that) {
-case _QuestionBilanEntity():
+case _QuestionBilanModel():
 return $default(_that.id,_that.slug,_that.question,_that.categorieEmpreinte,_that.icone,_that.typeWidget,_that.config,_that.ordre);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -201,7 +197,7 @@ return $default(_that.id,_that.slug,_that.question,_that.categorieEmpreinte,_tha
 
 @optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String slug,  String question, @JsonKey(name: 'categorie_empreinte')  String categorieEmpreinte,  String? icone, @JsonKey(name: 'type_widget', unknownEnumValue: TypeWidget.nombre)  TypeWidget typeWidget, @JsonKey(name: 'config_json')  Map<String, dynamic> config, @JsonKey(name: 'ordre_affichage')  int ordre)?  $default,) {final _that = this;
 switch (_that) {
-case _QuestionBilanEntity() when $default != null:
+case _QuestionBilanModel() when $default != null:
 return $default(_that.id,_that.slug,_that.question,_that.categorieEmpreinte,_that.icone,_that.typeWidget,_that.config,_that.ordre);case _:
   return null;
 
@@ -213,19 +209,15 @@ return $default(_that.id,_that.slug,_that.question,_that.categorieEmpreinte,_tha
 /// @nodoc
 @JsonSerializable()
 
-class _QuestionBilanEntity extends QuestionBilanEntity {
-  const _QuestionBilanEntity({this.id = 0, this.slug = '', this.question = '', @JsonKey(name: 'categorie_empreinte') this.categorieEmpreinte = '', this.icone = '', @JsonKey(name: 'type_widget', unknownEnumValue: TypeWidget.nombre) this.typeWidget = TypeWidget.nombre, @JsonKey(name: 'config_json') final  Map<String, dynamic> config = const {}, @JsonKey(name: 'ordre_affichage') this.ordre = 0}): _config = config,super._();
-  factory _QuestionBilanEntity.fromJson(Map<String, dynamic> json) => _$QuestionBilanEntityFromJson(json);
+class _QuestionBilanModel extends QuestionBilanModel {
+  const _QuestionBilanModel({this.id = 0, this.slug = '', this.question = '', @JsonKey(name: 'categorie_empreinte') this.categorieEmpreinte = '', this.icone = '', @JsonKey(name: 'type_widget', unknownEnumValue: TypeWidget.nombre) this.typeWidget = TypeWidget.nombre, @JsonKey(name: 'config_json') final  Map<String, dynamic> config = const {}, @JsonKey(name: 'ordre_affichage') this.ordre = 0}): _config = config,super._();
+  factory _QuestionBilanModel.fromJson(Map<String, dynamic> json) => _$QuestionBilanModelFromJson(json);
 
 @override@JsonKey() final  int id;
-// C'est ce que Publicodes utilise pour identifier la variable.
 @override@JsonKey() final  String slug;
 @override@JsonKey() final  String question;
-// Mapping vers la colonne SQL
 @override@JsonKey(name: 'categorie_empreinte') final  String categorieEmpreinte;
-// L'icône (emoji ou chemin)
 @override@JsonKey() final  String? icone;
-// Utilisation de l'Enum 
 @override@JsonKey(name: 'type_widget', unknownEnumValue: TypeWidget.nombre) final  TypeWidget typeWidget;
  final  Map<String, dynamic> _config;
 @override@JsonKey(name: 'config_json') Map<String, dynamic> get config {
@@ -236,20 +228,20 @@ class _QuestionBilanEntity extends QuestionBilanEntity {
 
 @override@JsonKey(name: 'ordre_affichage') final  int ordre;
 
-/// Create a copy of QuestionBilanEntity
+/// Create a copy of QuestionBilanModel
 /// with the given fields replaced by the non-null parameter values.
 @override @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-_$QuestionBilanEntityCopyWith<_QuestionBilanEntity> get copyWith => __$QuestionBilanEntityCopyWithImpl<_QuestionBilanEntity>(this, _$identity);
+_$QuestionBilanModelCopyWith<_QuestionBilanModel> get copyWith => __$QuestionBilanModelCopyWithImpl<_QuestionBilanModel>(this, _$identity);
 
 @override
 Map<String, dynamic> toJson() {
-  return _$QuestionBilanEntityToJson(this, );
+  return _$QuestionBilanModelToJson(this, );
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _QuestionBilanEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.slug, slug) || other.slug == slug)&&(identical(other.question, question) || other.question == question)&&(identical(other.categorieEmpreinte, categorieEmpreinte) || other.categorieEmpreinte == categorieEmpreinte)&&(identical(other.icone, icone) || other.icone == icone)&&(identical(other.typeWidget, typeWidget) || other.typeWidget == typeWidget)&&const DeepCollectionEquality().equals(other._config, _config)&&(identical(other.ordre, ordre) || other.ordre == ordre));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _QuestionBilanModel&&(identical(other.id, id) || other.id == id)&&(identical(other.slug, slug) || other.slug == slug)&&(identical(other.question, question) || other.question == question)&&(identical(other.categorieEmpreinte, categorieEmpreinte) || other.categorieEmpreinte == categorieEmpreinte)&&(identical(other.icone, icone) || other.icone == icone)&&(identical(other.typeWidget, typeWidget) || other.typeWidget == typeWidget)&&const DeepCollectionEquality().equals(other._config, _config)&&(identical(other.ordre, ordre) || other.ordre == ordre));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -258,15 +250,15 @@ int get hashCode => Object.hash(runtimeType,id,slug,question,categorieEmpreinte,
 
 @override
 String toString() {
-  return 'QuestionBilanEntity(id: $id, slug: $slug, question: $question, categorieEmpreinte: $categorieEmpreinte, icone: $icone, typeWidget: $typeWidget, config: $config, ordre: $ordre)';
+  return 'QuestionBilanModel(id: $id, slug: $slug, question: $question, categorieEmpreinte: $categorieEmpreinte, icone: $icone, typeWidget: $typeWidget, config: $config, ordre: $ordre)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class _$QuestionBilanEntityCopyWith<$Res> implements $QuestionBilanEntityCopyWith<$Res> {
-  factory _$QuestionBilanEntityCopyWith(_QuestionBilanEntity value, $Res Function(_QuestionBilanEntity) _then) = __$QuestionBilanEntityCopyWithImpl;
+abstract mixin class _$QuestionBilanModelCopyWith<$Res> implements $QuestionBilanModelCopyWith<$Res> {
+  factory _$QuestionBilanModelCopyWith(_QuestionBilanModel value, $Res Function(_QuestionBilanModel) _then) = __$QuestionBilanModelCopyWithImpl;
 @override @useResult
 $Res call({
  int id, String slug, String question,@JsonKey(name: 'categorie_empreinte') String categorieEmpreinte, String? icone,@JsonKey(name: 'type_widget', unknownEnumValue: TypeWidget.nombre) TypeWidget typeWidget,@JsonKey(name: 'config_json') Map<String, dynamic> config,@JsonKey(name: 'ordre_affichage') int ordre
@@ -277,17 +269,17 @@ $Res call({
 
 }
 /// @nodoc
-class __$QuestionBilanEntityCopyWithImpl<$Res>
-    implements _$QuestionBilanEntityCopyWith<$Res> {
-  __$QuestionBilanEntityCopyWithImpl(this._self, this._then);
+class __$QuestionBilanModelCopyWithImpl<$Res>
+    implements _$QuestionBilanModelCopyWith<$Res> {
+  __$QuestionBilanModelCopyWithImpl(this._self, this._then);
 
-  final _QuestionBilanEntity _self;
-  final $Res Function(_QuestionBilanEntity) _then;
+  final _QuestionBilanModel _self;
+  final $Res Function(_QuestionBilanModel) _then;
 
-/// Create a copy of QuestionBilanEntity
+/// Create a copy of QuestionBilanModel
 /// with the given fields replaced by the non-null parameter values.
 @override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? slug = null,Object? question = null,Object? categorieEmpreinte = null,Object? icone = freezed,Object? typeWidget = null,Object? config = null,Object? ordre = null,}) {
-  return _then(_QuestionBilanEntity(
+  return _then(_QuestionBilanModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,slug: null == slug ? _self.slug : slug // ignore: cast_nullable_to_non_nullable
 as String,question: null == question ? _self.question : question // ignore: cast_nullable_to_non_nullable

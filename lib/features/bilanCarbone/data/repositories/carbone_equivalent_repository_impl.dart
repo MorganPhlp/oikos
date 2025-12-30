@@ -1,6 +1,7 @@
 import 'package:oikos/features/bilanCarbone/domain/entities/carbone_equivalent_entity.dart';
 import 'package:oikos/features/bilanCarbone/domain/repositories/carbone_equivalent_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../models/carbone_equivalent_model.dart';
 
 class CarboneEquivalentRepositoryImpl implements CarboneEquivalentRepository {
   final SupabaseClient supabaseClient;
@@ -15,7 +16,7 @@ class CarboneEquivalentRepositoryImpl implements CarboneEquivalentRepository {
         .order('id', ascending: true);
     final data = response as List<dynamic>;
     return data
-        .map((json) => CarboneEquivalentEntity.fromJson(json))
+        .map((json) => CarboneEquivalentModel.fromJson(json).toEntity())
         .toList();
   }
 }

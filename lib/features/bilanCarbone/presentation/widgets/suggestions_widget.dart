@@ -3,7 +3,7 @@ import 'package:oikos/core/theme/app_colors.dart';
 
 class SuggestionsWidget extends StatelessWidget {
   final List<String> suggestions;
-  final Function(String) onLocalChange; // Typé en String pour plus de clarté
+  final Function(String) onLocalChange; 
   final String? selectedSuggestion;
 
   const SuggestionsWidget({
@@ -37,7 +37,6 @@ class SuggestionsWidget extends StatelessWidget {
           },
           selectedColor: AppColors.lightTextGreen.withOpacity(0.7),
           backgroundColor: AppColors.lightBackground,
-          // Retire l'ombre ou les bordures par défaut si nécessaire
           shape: StadiumBorder(
             side: BorderSide(
               color: isSelected ? Colors.transparent : Colors.grey.shade300,

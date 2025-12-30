@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart'; 
 import '../../domain/repositories/question_repository.dart';
 import '../../domain/entities/question_entity.dart';
+import '../models/question_model.dart';
 
 class QuestionRepositoryImpl implements QuestionRepository {
   final SupabaseClient supabaseClient;
@@ -17,7 +18,7 @@ class QuestionRepositoryImpl implements QuestionRepository {
           .order('id', ascending: true);
       final data = response as List<dynamic>;
       return data
-          .map((json) => QuestionBilanEntity.fromJson(json))
+          .map((json) => QuestionBilanModel.fromJson(json).toEntity())
           .toList();
     } catch (e) {
       throw Exception('Erreur lors de la récupération des questions : $e');

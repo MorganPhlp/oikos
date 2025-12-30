@@ -58,37 +58,43 @@ class _BilanPageState extends State<BilanPage> {
 
             if (state is BilanQuestionDisplayed) {
               final double progress = state.index / state.totalQuestions;
+              final size = MediaQuery.of(context).size;
+              final horizontalPadding = size.width * 0.05;
+              final verticalPadding = size.height * 0.012;
               
               return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                padding: EdgeInsets.symmetric(
+                  horizontal: horizontalPadding, 
+                  vertical: verticalPadding,
+                ),
                 child: Column(
                   children: [
                     Image.asset(
                       'assets/logos/oikos_logo.png',
-                      width: MediaQuery.of(context).size.width * 0.4, 
+                      width: size.width * 0.4, 
                     ),
-                    _buildHeader(progress, state),
-                    const SizedBox(height: 30),
+                    _buildHeader(progress, state, context),
+                    SizedBox(height: size.height * 0.03),
                     Expanded(
                       child: SingleChildScrollView(
                         child: Column(
                           children: [
                             Text(
                               state.question.icone ?? '',
-                              style: const TextStyle(fontSize: 50),
+                              style: TextStyle(fontSize: size.width * 0.12),
                             ),
-                            const SizedBox(height: 15),
+                            SizedBox(height: size.height * 0.015),
                             Text(
                               state.question.question,
                               textAlign: TextAlign.center,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: AppColors.lightTextPrimary,
-                                fontSize: 24,
+                                fontSize: size.width < 360 ? 20 : size.width * 0.06,
                                 fontWeight: FontWeight.bold,
                                 height: 1.2,
                               ),
                             ),
-                            const SizedBox(height: 30),
+                            SizedBox(height: size.height * 0.03),
                             state.question.suggestions != null ? SuggestionsWidget(
                             suggestions: List<String>.from(state.question.suggestions!.keys),
                             selectedSuggestion: _selectedSuggestion, 
@@ -100,7 +106,7 @@ class _BilanPageState extends State<BilanPage> {
                               });
                             },
                           ) : const SizedBox.shrink(),
-                          const SizedBox(height: 30),
+                          SizedBox(height: size.height * 0.03),
                             QuestionWidgetFactory(
                               question: state.question,
                               currentValue: _currentAnswer,
@@ -118,8 +124,8 @@ class _BilanPageState extends State<BilanPage> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    _buildFooterActions(context, state),
+                    SizedBox(height: size.height * 0.02),
+                    _buildFooterActions(context, state, size),
                   ],
                 ),
               );
@@ -146,25 +152,32 @@ class _BilanPageState extends State<BilanPage> {
     }
   }
 
-  Widget _buildHeader(double progress, BilanQuestionDisplayed state) {
+  Widget _buildHeader(double progress, BilanQuestionDisplayed state, BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isSmallScreen = size.width < 360;
+    
     return Column(
       children: [
-        const Row(
+        Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.eco_outlined, color: AppColors.gradientGreenEnd, size: 24),
-            SizedBox(width: 8),
+            Icon(
+              Icons.eco_outlined, 
+              color: AppColors.gradientGreenEnd, 
+              size: isSmallScreen ? 20 : size.width * 0.06,
+            ),
+            SizedBox(width: size.width * 0.02),
             Text(
               "Dis-nous comment tu vis",
               style: TextStyle(
                 color: AppColors.lightTextPrimary,
-                fontSize: 16,
+                fontSize: isSmallScreen ? 14 : size.width * 0.04,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 15),
+        SizedBox(height: size.height * 0.018),
         LinearProgressIndicator(
           value: progress,
           backgroundColor: AppColors.gradientGreenEnd.withOpacity(0.2),
@@ -172,19 +185,21 @@ class _BilanPageState extends State<BilanPage> {
           minHeight: 8,
           borderRadius: BorderRadius.circular(4),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: size.height * 0.01),
         Text(
           "Question ${state.index} sur ${state.totalQuestions}",
           style: TextStyle(
             color: AppColors.lightTextPrimary.withOpacity(0.6),
-            fontSize: 12,
+            fontSize: isSmallScreen ? 11 : size.width * 0.03,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildFooterActions(BuildContext context, BilanQuestionDisplayed state) {
+  Widget _buildFooterActions(BuildContext context, BilanQuestionDisplayed state, Size size) {
+    final buttonSize = size.width * 0.14;
+    
     return Column(
       children: [
         Row(
@@ -195,10 +210,10 @@ class _BilanPageState extends State<BilanPage> {
               style: IconButton.styleFrom(
                 side: const BorderSide(color: AppColors.gradientGreenEnd, width: 2),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                fixedSize: const Size(56, 56),
+                fixedSize: Size(buttonSize, buttonSize),
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: size.width * 0.03),
             Expanded(
               child: GradientButton(
                 label: state.index == state.totalQuestions ? "Terminer" : "Question suivante >",
@@ -208,23 +223,23 @@ class _BilanPageState extends State<BilanPage> {
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: size.height * 0.02),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildTextLink("Je ne sais pas", () => context.read<BilanCubit>().repondre(null)),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8),
-              child: Text("•", style: TextStyle(color: Colors.grey)),
+            _buildTextLink("Je ne sais pas", () => context.read<BilanCubit>().repondre(null), size),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: size.width * 0.02),
+              child: const Text("•", style: TextStyle(color: Colors.grey)),
             ),
-            _buildTextLink("Pas concerné", () => context.read<BilanCubit>().repondre(null)),
+            _buildTextLink("Pas concerné", () => context.read<BilanCubit>().repondre(null), size),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildTextLink(String text, VoidCallback onTap) {
+  Widget _buildTextLink(String text, VoidCallback onTap, Size size) {
     return InkWell(
       onTap: onTap,
       child: Text(
@@ -232,6 +247,7 @@ class _BilanPageState extends State<BilanPage> {
         style: TextStyle(
           color: AppColors.lightTextPrimary.withOpacity(0.6),
           decoration: TextDecoration.underline,
+          fontSize: size.width < 360 ? 13 : size.width * 0.035,
         ),
       ),
     );

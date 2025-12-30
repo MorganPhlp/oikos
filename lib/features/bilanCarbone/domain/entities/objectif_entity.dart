@@ -1,20 +1,17 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:ui';
 
-part 'objectif_entity.freezed.dart';
-part 'objectif_entity.g.dart';
+class ObjectifEntity {
+  final double valeur;
+  final String label;
+  final String description;
+  final List<int> colors;
 
-@freezed
-sealed class ObjectifEntity with _$ObjectifEntity {
-  const factory ObjectifEntity({
-    required double valeur,
-    required String label,
-    required String description,
-    required List<int> colors, // Stockés comme [ARGB, ARGB]
-  }) = _ObjectifEntity;
-
-  factory ObjectifEntity.fromJson(Map<String, dynamic> json) =>
-      _$ObjectifEntityFromJson(json);
+  const ObjectifEntity({
+    required this.valeur,
+    required this.label,
+    required this.description,
+    required this.colors,
+  });
 }
 
 extension ObjectifColors on ObjectifEntity {

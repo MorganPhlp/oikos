@@ -31,7 +31,7 @@ class OikosSlider extends StatelessWidget {
           style: const TextStyle(
             fontSize: 32,
             fontWeight: FontWeight.bold,
-            color: AppColors.gradientGreenEnd, // Le vert Oïkos
+            color: AppColors.gradientGreenEnd, 
           ),
         ),
         

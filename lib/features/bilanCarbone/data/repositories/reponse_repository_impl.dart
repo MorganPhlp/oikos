@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:oikos/features/bilanCarbone/domain/entities/reponse_entity.dart';
 import 'package:oikos/features/bilanCarbone/domain/repositories/reponse_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../models/reponse_model.dart';
 
 class ReponseRepositoryImpl implements ReponseRepository {
   SupabaseClient supabaseClient;
@@ -12,7 +13,8 @@ class ReponseRepositoryImpl implements ReponseRepository {
 @override
   Future<void> saveReponse(ReponseUtilisateurEntity reponse) async {
     try {
-      final data = reponse.toJson();
+      final model = ReponseUtilisateurModel.fromEntity(reponse);
+      final data = model.toJson();
 
       await supabaseClient
           .from('reponse_utilisateur')
@@ -32,7 +34,7 @@ class ReponseRepositoryImpl implements ReponseRepository {
           .eq('bilan_id', bilanId);
       final data = response as List<dynamic>;
       return data
-          .map((json) => ReponseUtilisateurEntity.fromJson(json))
+          .map((json) => ReponseUtilisateurModel.fromJson(json).toEntity())
           .toList();
     } catch (e) {
       throw Exception('Erreur lors de la récupération des réponses : $e');
@@ -61,7 +63,7 @@ class ReponseRepositoryImpl implements ReponseRepository {
           .eq('bilan_id', bilanId)
           .eq('question_id', questionId)
           .single()
-          .then((json) => ReponseUtilisateurEntity.fromJson(json))
+          .then((json) => ReponseUtilisateurModel.fromJson(json).toEntity())
           // ignore: invalid_return_type_for_catch_error
           .catchError((_) => null);
     } catch (e) {

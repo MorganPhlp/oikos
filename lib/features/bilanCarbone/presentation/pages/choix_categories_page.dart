@@ -94,42 +94,48 @@ class _ChoixCategoriesPageState extends State<ChoixCategoriesPage> {
               ),
               body: SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: MediaQuery.of(context).size.width * 0.05,
+                  ),
                   child: Column(
                     children: [
                       Expanded(
                         child: SingleChildScrollView(
                           child: Column(
                             children: [
-                              const SizedBox(height: 10),
-                              const Text(
+                              SizedBox(height: MediaQuery.of(context).size.height * 0.012),
+                              Text(
                                 "Quels sujets t'intéressent ?",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   color: AppColors.lightTextPrimary,
-                                  fontSize: 26,
+                                  fontSize: MediaQuery.of(context).size.width < 360 
+                                    ? 22 
+                                    : MediaQuery.of(context).size.width * 0.065,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              const SizedBox(height: 12),
+                              SizedBox(height: MediaQuery.of(context).size.height * 0.015),
                               Text(
                                 "Sélectionne toutes les catégories qui te parlent pour recevoir des suggestions personnalisées.",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   color: AppColors.lightTextPrimary.withOpacity(0.7),
-                                  fontSize: 16,
+                                  fontSize: MediaQuery.of(context).size.width < 360 
+                                    ? 14 
+                                    : MediaQuery.of(context).size.width * 0.04,
                                 ),
                               ),
-                              const SizedBox(height: 24),
-                              _buildInfoBox(),
-                              const SizedBox(height: 35),
-                              _buildCategoryList(categories),
-                              const SizedBox(height: 30),
+                              SizedBox(height: MediaQuery.of(context).size.height * 0.024),
+                              _buildInfoBox(context),
+                              SizedBox(height: MediaQuery.of(context).size.height * 0.035),
+                              _buildCategoryList(categories, context),
+                              SizedBox(height: MediaQuery.of(context).size.height * 0.03),
                             ],
                           ),
                         ),
                       ),
-                      _buildFooter(categories),
+                      _buildFooter(categories, context),
                     ],
                   ),
                 ),
@@ -143,25 +149,34 @@ class _ChoixCategoriesPageState extends State<ChoixCategoriesPage> {
 
   // --- Sous-widgets pour la clarté ---
 
-  Widget _buildInfoBox() {
+  Widget _buildInfoBox(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isSmallScreen = size.width < 360;
+    
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(size.width * 0.03),
       decoration: BoxDecoration(
         color: AppColors.lightIconPrimary.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(size.width * 0.03),
         border: Border.all(
           color: AppColors.lightIconPrimary.withOpacity(0.3),
           width: 2,
         ),
       ),
-      child: const Row(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("💡 ", style: TextStyle(fontSize: 18)),
+          Text(
+            "💡 ", 
+            style: TextStyle(fontSize: isSmallScreen ? 16 : size.width * 0.045),
+          ),
           Expanded(
             child: Text(
               "Tu ne recevras pas d'actions proposées dans les catégories non cochées.",
-              style: TextStyle(color: AppColors.lightTextPrimary, fontSize: 14),
+              style: TextStyle(
+                color: AppColors.lightTextPrimary, 
+                fontSize: isSmallScreen ? 13 : size.width * 0.035,
+              ),
             ),
           ),
         ],
@@ -169,12 +184,13 @@ class _ChoixCategoriesPageState extends State<ChoixCategoriesPage> {
     );
   }
 
-  Widget _buildCategoryList(List<CategorieEmpreinteEntity> categories) {
+  Widget _buildCategoryList(List<CategorieEmpreinteEntity> categories, BuildContext context) {
+    final spacing = MediaQuery.of(context).size.height * 0.015;
     return ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: categories.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      separatorBuilder: (_, __) => SizedBox(height: spacing),
       itemBuilder: (context, index) {
         final cat = categories[index];
         final isSelected = _selectedNames.contains(cat.nom);
@@ -190,9 +206,11 @@ class _ChoixCategoriesPageState extends State<ChoixCategoriesPage> {
     );
   }
 
-  Widget _buildFooter(List<CategorieEmpreinteEntity> categories) {
+  Widget _buildFooter(List<CategorieEmpreinteEntity> categories, BuildContext context) {
+    final verticalPadding = MediaQuery.of(context).size.height * 0.025;
+    
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20),
+      padding: EdgeInsets.symmetric(vertical: verticalPadding),
       child: GradientButton(
         label: _selectedNames.isNotEmpty
             ? "Continuer avec ${_selectedNames.length} ${_selectedNames.length == 1 ? 'catégorie' : 'catégories'}"
@@ -226,14 +244,19 @@ class _CategoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isSmallScreen = size.width < 360;
+    final iconSize = size.width * 0.125;
+    final padding = size.width * 0.04;
+    
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(padding),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(size.width * 0.04),
           border: Border.all(
             color: isSelected ? AppColors.lightIconPrimary : AppColors.lightBorder,
             width: 2,
@@ -257,8 +280,8 @@ class _CategoryCard extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 50,
-              height: 50,
+              width: iconSize,
+              height: iconSize,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: isSelected ? null : const Color(0xFFF5F5F5),
@@ -271,9 +294,12 @@ class _CategoryCard extends StatelessWidget {
                     : null,
               ),
               alignment: Alignment.center,
-              child: Text(icon, style: const TextStyle(fontSize: 24)),
+              child: Text(
+                icon, 
+                style: TextStyle(fontSize: isSmallScreen ? 20 : size.width * 0.06),
+              ),
             ),
-            const SizedBox(width: 15),
+            SizedBox(width: size.width * 0.037),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -284,7 +310,7 @@ class _CategoryCard extends StatelessWidget {
                     style: TextStyle(
                       color: AppColors.lightTextPrimary,
                       fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                      fontSize: 16,
+                      fontSize: isSmallScreen ? 15 : size.width * 0.04,
                     ),
                   ),
                   if (description.isNotEmpty)
@@ -294,14 +320,18 @@ class _CategoryCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: AppColors.lightTextPrimary.withOpacity(0.5),
-                        fontSize: 13,
+                        fontSize: isSmallScreen ? 12 : size.width * 0.033,
                       ),
                     ),
                 ],
               ),
             ),
             if (isSelected)
-              const Icon(Icons.check_circle, color: AppColors.lightIconPrimary, size: 24),
+              Icon(
+                Icons.check_circle, 
+                color: AppColors.lightIconPrimary, 
+                size: isSmallScreen ? 20 : size.width * 0.06,
+              ),
           ],
         ),
       ),

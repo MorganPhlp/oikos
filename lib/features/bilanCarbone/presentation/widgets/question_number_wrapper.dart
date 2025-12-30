@@ -1,5 +1,3 @@
-// features/bilanCarbone/presentation/widgets/question_number_wrapper.dart
-
 import 'package:flutter/material.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/question_entity.dart';
 import 'package:oikos/features/bilanCarbone/presentation/widgets/number_input.dart';
@@ -54,7 +52,6 @@ class _QuestionNumberWrapperState extends State<QuestionNumberWrapper> {
             value: _currentValue,
             unit: widget.question.unit ?? '',
             
-            // Le onChanged de OikosNumberInput renvoie maintenant un int (newValue)
             onChanged: (newValue) { // newValue est de type int
               setState(() { 
                 _currentValue = newValue; 

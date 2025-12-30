@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'selection_button.dart';
 
 class OikosMultiSelection extends StatelessWidget {
-  // Changement du type ici : List<dynamic> car ce sont des Maps
   final List<dynamic> options; 
   final List<String> selectedValues;
   final ValueChanged<List<String>> onChanged;

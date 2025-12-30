@@ -15,7 +15,7 @@ class ResultsPage extends StatelessWidget {
   final VoidCallback onContinue;
 
   static Route route(BilanCubit cubit) {
-  // On récupère l'état actuel (forcément BilanResultats ici)
+  // On récupère l'état actuel 
   final state = cubit.state as BilanResultats;
 
   return MaterialPageRoute(
@@ -25,7 +25,7 @@ class ResultsPage extends StatelessWidget {
         score: state.scoreTotal,
         scoresParCategorie: state.scoresParCategorie,
         equivalents: state.equivalents,
-        onContinue: () => /* Ton action ici */ {},
+        onContinue: () => {},
       ),
     ),
   );
@@ -41,6 +41,11 @@ class ResultsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isSmallScreen = size.width < 360;
+    final horizontalPadding = size.width * 0.05;
+    final verticalSpacing = size.height * 0.02;
+    
     // Score affiché tel quel (en kg)
     final int displayScore = score.round();
     const int parisTarget = 2000;
@@ -48,50 +53,54 @@ class ResultsPage extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          _buildBackgroundDecorations(),
+          _buildBackgroundDecorations(context),
           SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
               child: Column(
                 children: [
-                  const SizedBox(height: 20),
+                  SizedBox(height: verticalSpacing),
                   Center(
-                    child: Image.asset('assets/logos/oikos_logo.png', height: 60),
+                    child: Image.asset('assets/logos/oikos_logo.png', 
+                      height: isSmallScreen ? size.height * 0.06 : size.height * 0.08),
                   ),
-                  const SizedBox(height: 30),
-                  _buildHeaderTitle(),
-                  const SizedBox(height: 30),
+                  SizedBox(height: verticalSpacing * 1.5),
+                  _buildHeaderTitle(context),
+                  SizedBox(height: verticalSpacing * 1.5),
 
                   // Hero Score
-                  _buildHeroScore(displayScore, parisTarget),
-                  const SizedBox(height: 24),
+                  _buildHeroScore(displayScore, parisTarget, context),
+                  SizedBox(height: verticalSpacing),
 
                   // Graphique dynamique
-                  _buildCategoryChart(),
-                  const SizedBox(height: 30),
+                  _buildCategoryChart(context),
+                  SizedBox(height: verticalSpacing * 1.5),
 
                   Text(
                     "$displayScore kg de CO₂ par an",
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 22,
+                    style: TextStyle(
+                      fontSize: isSmallScreen ? 18 : size.width * 0.055,
                       fontWeight: FontWeight.bold,
                       color: AppColors.lightTextPrimary,
                     ),
                   ),
-                  const Text(
+                  Text(
                     "C'est l'équivalent de :",
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey),
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: isSmallScreen ? 14 : size.width * 0.04,
+                    ),
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: verticalSpacing),
 
                   // Grid des équivalents adaptée au score
-                  _buildEquivalentsGrid(),
+                  _buildEquivalentsGrid(context),
 
-                  const SizedBox(height: 40),
-                  _buildFooter(), // Accède bien à onContinue ici
-                  const SizedBox(height: 20),
+                  SizedBox(height: verticalSpacing * 2),
+                  _buildFooter(context), // Accède bien à onContinue ici
+                  SizedBox(height: verticalSpacing),
                 ],
               ),
             ),
@@ -102,21 +111,23 @@ class ResultsPage extends StatelessWidget {
   }
 
   // --- LOGIQUE DES ÉQUIVALENTS ---
-  Widget _buildEquivalentsGrid() {
+  Widget _buildEquivalentsGrid(BuildContext context) {
     if (equivalents == null || equivalents!.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
 
+    final size = MediaQuery.of(context).size;
+    final spacing = size.width * 0.04;
     final double scoreInTonnes = score / 1000.0;
 
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        crossAxisSpacing: 15,
-        mainAxisSpacing: 15,
-        childAspectRatio: 0.9,
+        crossAxisSpacing: spacing,
+        mainAxisSpacing: spacing,
+        childAspectRatio: size.width < 360 ? 0.85 : 0.9,
       ),
       itemCount: equivalents!.length > 4 ? 4 : equivalents!.length,
       itemBuilder: (context, index) {
@@ -126,11 +137,11 @@ class ResultsPage extends StatelessWidget {
         final double finalValue = scoreInTonnes * item.valeur1Tonne;
 
         return _buildEquivalentCard(
-          // Attention : 'icone' et 'unite' manquent dans ton entité actuelle
+          context: context,
           icon: _getIconData(item.equivalentLabel.toLowerCase()), 
           label: item.equivalentLabel,
           value: finalValue > 10 ? finalValue.round().toString() : finalValue.toStringAsFixed(1),
-          unit: "unités", // Valeur par défaut en attendant l'update de l'entité
+          unit: "",
           gradient: index % 2 == 0 
               ? [const Color(0xFF65BA74), const Color(0xFF8DB654)]
               : [const Color(0xFFBDEE63), const Color(0xFF8DB654)],
@@ -141,7 +152,12 @@ class ResultsPage extends StatelessWidget {
   }
 
   // --- GRAPHIQUE DYNAMIQUE ---
-  Widget _buildCategoryChart() {
+  Widget _buildCategoryChart(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isSmallScreen = size.width < 360;
+    final chartRadius = size.width * 0.13;
+    final centerRadius = size.width * 0.07;
+    
     final List<PieChartSectionData> sections = [];
     final List<Widget> legendItems = [];
     
@@ -167,9 +183,9 @@ class ResultsPage extends StatelessWidget {
           color: color,
           value: value,
           title: '${percentage.toStringAsFixed(0)}%', // Affiche le % sur le graph
-          radius: 55,
-          titleStyle: const TextStyle(
-            fontSize: 12,
+          radius: chartRadius,
+          titleStyle: TextStyle(
+            fontSize: isSmallScreen ? 10 : 12,
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
@@ -183,27 +199,33 @@ class ResultsPage extends StatelessWidget {
 
     return Container(
       // Augmentation de la hauteur pour accueillir la légende
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(size.width * 0.05),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(size.width * 0.06),
         border: Border.all(color: const Color(0xFFBDEE63).withOpacity(0.2), width: 4),
       ),
       child: Column(
         children: [
-          const Text("Répartition par catégorie", style: TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 20),
+          Text(
+            "Répartition par catégorie", 
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: isSmallScreen ? 14 : size.width * 0.04,
+            ),
+          ),
+          SizedBox(height: size.height * 0.02),
           Row(
             children: [
               // Graphique à gauche
               Expanded(
                 flex: 2,
                 child: SizedBox(
-                  height: 160,
+                  height: size.width * 0.4,
                   child: PieChart(
                     PieChartData(
                       sectionsSpace: 4,
-                      centerSpaceRadius: 30,
+                      centerSpaceRadius: centerRadius,
                       sections: sections.isNotEmpty 
                           ? sections 
                           : [PieChartSectionData(color: Colors.grey.shade200, value: 1)],
@@ -211,7 +233,7 @@ class ResultsPage extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 20),
+              SizedBox(width: size.width * 0.04),
               // Légende à droite
               Expanded(
                 flex: 2,
@@ -262,12 +284,16 @@ class ResultsPage extends StatelessWidget {
 
   // --- WIDGETS DE CONSTRUCTION INTERNES ---
 
-  Widget _buildHeroScore(int score, int target) {
+  Widget _buildHeroScore(int score, int target, BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isSmallScreen = size.width < 360;
+    final padding = size.width * 0.075;
+    
     return Container(
-      padding: const EdgeInsets.all(30),
+      padding: EdgeInsets.all(padding),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(size.width * 0.07),
         border: Border.all(color: AppColors.gradientGreenEnd.withOpacity(0.1), width: 4),
         boxShadow: [
           BoxShadow(
@@ -279,18 +305,37 @@ class ResultsPage extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Text("Ton empreinte annuelle", style: TextStyle(color: Colors.grey)),
-          const SizedBox(height: 10),
+          Text(
+            "Ton empreinte annuelle", 
+            style: TextStyle(
+              color: Colors.grey,
+              fontSize: isSmallScreen ? 14 : size.width * 0.04,
+            ),
+          ),
+          SizedBox(height: size.height * 0.01),
           Text(
             "$score",
-            style: const TextStyle(fontSize: 56, fontWeight: FontWeight.bold, color: AppColors.lightTextPrimary),
+            style: TextStyle(
+              fontSize: isSmallScreen ? 44 : size.width * 0.14, 
+              fontWeight: FontWeight.bold, 
+              color: AppColors.lightTextPrimary,
+            ),
           ),
-          const Text("kg CO₂e par an", style: TextStyle(color: Colors.grey)),
-          const SizedBox(height: 20),
+          Text(
+            "kg CO₂e par an", 
+            style: TextStyle(
+              color: Colors.grey,
+              fontSize: isSmallScreen ? 14 : size.width * 0.04,
+            ),
+          ),
+          SizedBox(height: size.height * 0.02),
           const Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
-          const SizedBox(height: 20),
+          SizedBox(height: size.height * 0.02),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: EdgeInsets.symmetric(
+              horizontal: size.width * 0.04, 
+              vertical: size.height * 0.012,
+            ),
             decoration: BoxDecoration(
               color: AppColors.gradientGreenEnd.withOpacity(0.1),
               borderRadius: BorderRadius.circular(30),
@@ -309,23 +354,26 @@ class ResultsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildFooter() {
+  Widget _buildFooter(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isSmallScreen = size.width < 360;
+    
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(size.width * 0.05),
           decoration: BoxDecoration(
             color: AppColors.gradientGreenEnd.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(size.width * 0.05),
             border: Border.all(color: AppColors.gradientGreenEnd.withOpacity(0.2)),
           ),
-          child: const Text(
+          child: Text(
             "Prêt à faire la différence ?\nDécouvre des actions simples pour réduire ton impact",
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14),
+            style: TextStyle(fontSize: isSmallScreen ? 13 : size.width * 0.037),
           ),
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: size.height * 0.02),
         GradientButton(
           label: "Continuer",
           onPressed: onContinue, // Utilisation correcte de la variable de classe
@@ -346,18 +394,21 @@ class ResultsPage extends StatelessWidget {
     }
   }
 
-  Widget _buildBackgroundDecorations() {
+  Widget _buildBackgroundDecorations(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final circleSize = size.width * 0.4;
+    
     return Stack(
       children: [
         Positioned(
-          top: -50,
-          right: -40,
-          child: _blurCircle(180, AppColors.gradientGreenEnd.withOpacity(0.2)),
+          top: -size.height * 0.05,
+          right: -size.width * 0.1,
+          child: _blurCircle(circleSize, AppColors.gradientGreenEnd.withOpacity(0.2)),
         ),
         Positioned(
-          top: 40,
-          left: -60,
-          child: _blurCircle(200, Colors.green.withOpacity(0.1)),
+          top: size.height * 0.04,
+          left: -size.width * 0.15,
+          child: _blurCircle(circleSize * 1.1, Colors.green.withOpacity(0.1)),
         ),
       ],
     );
@@ -375,17 +426,24 @@ class ResultsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeaderTitle() {
+  Widget _buildHeaderTitle(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isSmallScreen = size.width < 360;
+    
     return Column(
       children: [
-        const Text(
+        Text(
           "Mon bilan carbone",
-          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.lightTextPrimary),
+          style: TextStyle(
+            fontSize: isSmallScreen ? 24 : size.width * 0.07, 
+            fontWeight: FontWeight.bold, 
+            color: AppColors.lightTextPrimary,
+          ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: size.height * 0.01),
         Container(
           height: 4,
-          width: 150,
+          width: size.width * 0.4,
           decoration: BoxDecoration(
             gradient: LinearGradient(colors: [
               Colors.transparent,
@@ -400,6 +458,7 @@ class ResultsPage extends StatelessWidget {
   }
 
   Widget _buildEquivalentCard({
+    required BuildContext context,
     required IconData icon,
     required String label,
     required String value,
@@ -407,21 +466,44 @@ class ResultsPage extends StatelessWidget {
     required List<Color> gradient,
     required Color textColor,
   }) {
+    final size = MediaQuery.of(context).size;
+    final isSmallScreen = size.width < 360;
+    
     return Container(
-      padding: const EdgeInsets.all(15),
+      padding: EdgeInsets.all(size.width * 0.04),
       decoration: BoxDecoration(
         gradient: LinearGradient(colors: gradient, begin: Alignment.topLeft, end: Alignment.bottomRight),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(size.width * 0.05),
         boxShadow: [BoxShadow(color: gradient.first.withOpacity(0.2), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: textColor, size: 28),
-          const SizedBox(height: 8),
-          Text(label, style: TextStyle(color: textColor.withOpacity(0.8), fontSize: 11), textAlign: TextAlign.center),
-          Text(value, style: TextStyle(color: textColor, fontSize: 24, fontWeight: FontWeight.bold)),
-          Text(unit, style: TextStyle(color: textColor.withOpacity(0.8), fontSize: 11)),
+          Icon(icon, color: textColor, size: isSmallScreen ? 24 : size.width * 0.07),
+          SizedBox(height: size.height * 0.008),
+          Text(
+            label, 
+            style: TextStyle(
+              color: textColor.withOpacity(0.8), 
+              fontSize: isSmallScreen ? 10 : size.width * 0.028,
+            ), 
+            textAlign: TextAlign.center,
+          ),
+          Text(
+            value, 
+            style: TextStyle(
+              color: textColor, 
+              fontSize: isSmallScreen ? 20 : size.width * 0.06, 
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            unit, 
+            style: TextStyle(
+              color: textColor.withOpacity(0.8), 
+              fontSize: isSmallScreen ? 10 : size.width * 0.028,
+            ),
+          ),
         ],
       ),
     );

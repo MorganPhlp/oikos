@@ -1,13 +1,13 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'objectif_entity.dart';
+part of 'objectif_model.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-_ObjectifEntity _$ObjectifEntityFromJson(Map<String, dynamic> json) =>
-    _ObjectifEntity(
+_ObjectifModel _$ObjectifModelFromJson(Map<String, dynamic> json) =>
+    _ObjectifModel(
       valeur: (json['valeur'] as num).toDouble(),
       label: json['label'] as String,
       description: json['description'] as String,
@@ -16,7 +16,7 @@ _ObjectifEntity _$ObjectifEntityFromJson(Map<String, dynamic> json) =>
           .toList(),
     );
 
-Map<String, dynamic> _$ObjectifEntityToJson(_ObjectifEntity instance) =>
+Map<String, dynamic> _$ObjectifModelToJson(_ObjectifModel instance) =>
     <String, dynamic>{
       'valeur': instance.valeur,
       'label': instance.label,

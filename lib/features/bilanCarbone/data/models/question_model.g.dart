@@ -1,13 +1,13 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'question_entity.dart';
+part of 'question_model.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-_QuestionBilanEntity _$QuestionBilanEntityFromJson(Map<String, dynamic> json) =>
-    _QuestionBilanEntity(
+_QuestionBilanModel _$QuestionBilanModelFromJson(Map<String, dynamic> json) =>
+    _QuestionBilanModel(
       id: (json['id'] as num?)?.toInt() ?? 0,
       slug: json['slug'] as String? ?? '',
       question: json['question'] as String? ?? '',
@@ -24,18 +24,17 @@ _QuestionBilanEntity _$QuestionBilanEntityFromJson(Map<String, dynamic> json) =>
       ordre: (json['ordre_affichage'] as num?)?.toInt() ?? 0,
     );
 
-Map<String, dynamic> _$QuestionBilanEntityToJson(
-  _QuestionBilanEntity instance,
-) => <String, dynamic>{
-  'id': instance.id,
-  'slug': instance.slug,
-  'question': instance.question,
-  'categorie_empreinte': instance.categorieEmpreinte,
-  'icone': instance.icone,
-  'type_widget': _$TypeWidgetEnumMap[instance.typeWidget]!,
-  'config_json': instance.config,
-  'ordre_affichage': instance.ordre,
-};
+Map<String, dynamic> _$QuestionBilanModelToJson(_QuestionBilanModel instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'slug': instance.slug,
+      'question': instance.question,
+      'categorie_empreinte': instance.categorieEmpreinte,
+      'icone': instance.icone,
+      'type_widget': _$TypeWidgetEnumMap[instance.typeWidget]!,
+      'config_json': instance.config,
+      'ordre_affichage': instance.ordre,
+    };
 
 const _$TypeWidgetEnumMap = {
   TypeWidget.slider: 'SLIDER',

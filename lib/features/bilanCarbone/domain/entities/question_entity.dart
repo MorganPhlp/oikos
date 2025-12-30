@@ -1,45 +1,26 @@
 import 'dart:collection';
-
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'type_widget.dart';
 
-part 'question_entity.freezed.dart';
-part 'question_entity.g.dart';
+class QuestionBilanEntity {
+  final int id;
+  final String slug;
+  final String question;
+  final String categorieEmpreinte;
+  final String? icone;
+  final TypeWidget typeWidget;
+  final Map<String, dynamic> config;
+  final int ordre;
 
-@freezed
-sealed class QuestionBilanEntity with _$QuestionBilanEntity {
-  // Constructeur privé pour permettre l'ajout de méthodes/getters
-  const QuestionBilanEntity._();
-
-  const factory QuestionBilanEntity({
-    @Default(0) int id,
-    
-    // C'est ce que Publicodes utilise pour identifier la variable.
-    @Default('') String slug,
-
-    @Default('') String question,
-
-    // Mapping vers la colonne SQL
-    @JsonKey(name: 'categorie_empreinte') 
-    @Default('') String categorieEmpreinte,
-
-    // L'icône (emoji ou chemin)
-    @Default('') String? icone,
-
-    // Utilisation de l'Enum 
-    @JsonKey(name: 'type_widget', unknownEnumValue: TypeWidget.nombre)
-    @Default(TypeWidget.nombre) TypeWidget typeWidget,
-
-    @JsonKey(name: 'config_json') 
-    @Default({}) Map<String, dynamic> config,
-    
-    @JsonKey(name: 'ordre_affichage')
-    @Default(0) int ordre,
-
-  }) = _QuestionBilanEntity;
-
-  factory QuestionBilanEntity.fromJson(Map<String, dynamic> json) =>
-      _$QuestionBilanEntityFromJson(json);
+  const QuestionBilanEntity({
+    required this.id,
+    required this.slug,
+    required this.question,
+    required this.categorieEmpreinte,
+    this.icone,
+    required this.typeWidget,
+    required this.config,
+    required this.ordre,
+  });
 
   // Récupère la liste des choix possibles (ex: ["maison", "appartement"])
 List<Map<String, dynamic>> get options {
