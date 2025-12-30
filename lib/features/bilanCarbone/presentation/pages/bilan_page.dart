@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/presentation/widgets/gradient_button.dart';
-// Adapte les imports selon ton arborescence exacte
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/type_widget.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_cubit.dart';
@@ -87,7 +86,7 @@ class _BilanPageState extends State<BilanPage> {
                             const SizedBox(height: 30),
                             state.question.suggestions != null ? SuggestionsWidget(
                             suggestions: List<String>.from(state.question.suggestions!.keys),
-                            selectedSuggestion: _selectedSuggestion, // On passe la CLÉ ici
+                            selectedSuggestion: _selectedSuggestion, 
                             onLocalChange: (key) {
                               setState(() {
                                 _selectedSuggestion = key; // On retient quel bouton est cliqué

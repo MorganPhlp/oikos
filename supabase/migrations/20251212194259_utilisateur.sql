@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS utilisateur (
     email VARCHAR(255) UNIQUE NOT NULL,
     pseudo VARCHAR(255) UNIQUE NOT NULL,
     -- Note : Le mot de passe est géré par auth.users, on ne le stocke pas ici par sécurité
-    avatar VARCHAR(255),
+    avatar_url VARCHAR(255),
     
     role role_utilisateur DEFAULT 'UTILISATEUR',
     etat_compte etat_compte DEFAULT 'ACTIF',
