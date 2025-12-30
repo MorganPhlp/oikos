@@ -3,11 +3,12 @@ import Engine from 'publicodes'
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import 'dotenv/config'
 
 
 // --- CONFIGURATION ---
-const SUPABASE_URL = 'https://oppmoxxtebmxbuwkjkgs.supabase.co'
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9wcG1veHh0ZWJteGJ1d2tqa2dzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MzMyOTM1NiwiZXhwIjoyMDc4OTA1MzU2fQ.yKIqMdVpSNG6h1CmlkZTuYRONlLUo68NSthckppgxuM'
+const SUPABASE_URL = process.env.SUPABASE_URL
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
 const __filename = fileURLToPath(import.meta.url)

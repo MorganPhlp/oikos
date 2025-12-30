@@ -2,6 +2,7 @@
   "type": "module",
   "dependencies": {
     "@supabase/supabase-js": "^2.87.1",
+    "dotenv": "^17.2.3",
     "publicodes": "^1.9.1"
   }
 }
