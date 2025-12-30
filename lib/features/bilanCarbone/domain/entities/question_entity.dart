@@ -48,7 +48,15 @@ List<Map<String, dynamic>> get options {
   if (list is List) {
     return list.map((e) {
         final Map<String, dynamic> element = {};
-        element['label'] = e.toString().toLowerCase().split('.').first;
+        if (e.contains('présent')){
+          var parts = e.toString().toLowerCase().split('.');
+          if (parts.length >= 2) {
+            element['label'] = parts[parts.length - 2];
+          }
+        }
+        else{
+          element['label'] = e.toString().toLowerCase().split('.').first;
+        }
         element['value'] = e.toString();
         return element;
 
