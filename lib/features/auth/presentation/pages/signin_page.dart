@@ -1,8 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:oikos/core/common/widgets/loader.dart';
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/core/theme/app_typography.dart';
+import 'package:oikos/core/utils/show_snackbar.dart';
+import 'package:oikos/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:oikos/features/auth/presentation/widgets/auth_secondary_button.dart';
+
+import '../widgets/auth_field.dart';
+import '../widgets/auth_primary_button.dart';
+import '../widgets/forgot_password_modal.dart';
 
 class SignInPage extends StatefulWidget {
+  static MaterialPageRoute<dynamic> route() =>
+      MaterialPageRoute(builder: (context) => const SignInPage());
+
   const SignInPage({super.key});
 
   @override
@@ -10,65 +22,175 @@ class SignInPage extends StatefulWidget {
 }
 
 class _SignInPageState extends State<SignInPage> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _isPasswordVisible = false;
+
+  void _submit() {
+    bool formValid = _formKey.currentState!.validate();
+
+    if (formValid) {
+      context.read<AuthBloc>().add(
+        AuthSignIn(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _showForgotPasswordModal() {
+    showDialog(
+      context: context,
+      builder: (context) => ForgotPasswordModal(email: _emailController.text),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width; // Récupère la largeur de l'écran
-    final screenHeight = MediaQuery.of(context).size.height; // Récupère la hauteur de l'écran
-
     return Scaffold(
-      //backgroundColor: AppColors.lightBackground,
+
+      // AppBar avec bouton de retour
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(
+            Icons.chevron_left,
+            color: AppColors.lightIconPrimary,
+            size: 32,
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+
+      // Corps de la page
       body: SafeArea(
-        child: Stack(
-          children: [
-            // 1. Logo Viveris en haut à droite
-            Positioned(
-              top: 20, // top - 20px
-              right: 20, // right - 20px
-              child: Image(
-                image: AssetImage('lib/core/assets/logos/viveris_logo.png'),
-                height: 28,
-                fit: BoxFit.contain, // Conserve les proportions de l'image
-              ),
-            ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: BlocConsumer<AuthBloc, AuthState>(
+            listener: (context, state) {
+              if(state is AuthFailure) {
+                showSnackBar(context, state.message);
+              }
+            },
+            builder: (context, state) {
+              if(state is AuthLoading) {
+                return const Loader();
+              }
 
-            // 2. Contenu Principal (Flux vertical)
-            SizedBox(
-              width: double.infinity, // Prend toute la largeur disponible
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20), // Padding horizontal de 20px
+              return Form(
+                key: _formKey,
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 20 + 49), // Espace pour descendre le logo
-
                     // Logo Oîkos
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        maxWidth: 368, // Largeur maximale de 368px
+                    Center(
+                      child: Image.asset(
+                        'lib/core/assets/logos/oikos_logo.png',
+                        height: 60,
                       ),
-                      child: Image(
-                        image: AssetImage('lib/core/assets/logos/oikos_logo.png'),
-                        width: screenWidth * 0.8, // 80% de la largeur de l'écran
-                        fit: BoxFit.contain,
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Titre
+                    Center(
+                      child: Text(
+                        'Content de te revoir !',
+                        style: AppTypography.h2,
+                        textAlign: TextAlign.center,
                       ),
                     ),
 
-                    const SizedBox(height: 35),
+                    const SizedBox(height: 10),
 
-                    Text(
-                      "Prendre soin de notre maison, \nla Terre.",
-                      textAlign: TextAlign.center,
-                      style: AppTypography.body.copyWith(
-                        color: AppColors.lightTextPrimary,
-                        height: 1.625, // leading-relaxed approx
+                    // Sous-titre
+                    Center(
+                      child: Text(
+                        'Entre ton email pro pour retrouver tes collègues.',
+                        style: AppTypography.body.copyWith(
+                          color: AppColors.lightTextPrimary.withValues(
+                            alpha: 0.7,
+                          ), // Opacité 70%
+                        ),
+                        textAlign: TextAlign.center,
                       ),
+                    ),
+
+                    const SizedBox(height: 40),
+
+                    // Formulaire
+                    // Email Champ
+                    Text(
+                      'Email professionnel',
+                      style: AppTypography.body.copyWith(
+                        color: AppColors.lightTextPrimary.withValues(
+                          alpha: 0.7,
+                        ),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    Center(
+                      child: AuthField(
+                        hintText: 'prenom.nom@entreprise.fr',
+                        controller: _emailController,
+                        prefixIcon: Icons.mail_outlined,
+                      ),
+                    ),
+
+                    const SizedBox(height: 30),
+
+                    // Mot de Passe Champ
+                    Text(
+                      'Mot de passe',
+                      style: AppTypography.body.copyWith(
+                        color: AppColors.lightTextPrimary.withValues(
+                          alpha: 0.7,
+                        ),
+                        fontWeight: FontWeight.w500,
+                      ),
+                      textAlign: TextAlign.left,
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    Center(
+                      child: AuthField(
+                        hintText: '••••••••',
+                        controller: _passwordController,
+                        prefixIcon: Icons.lock_outline,
+                        isPassword: true,
+                        isObscured: !_isPasswordVisible,
+                        onToggleVisibility: () {
+                          setState(() {
+                            _isPasswordVisible = !_isPasswordVisible;
+                          });
+                        },
+                      ),
+                    ),
+
+                    const SizedBox(height: 60),
+
+                    AuthPrimaryButton(text: "Se connecter", onPressed: _submit),
+
+                    AuthSecondaryButton(
+                      text: "Mot de passe oublié ?",
+                      onPressed: _showForgotPasswordModal,
                     ),
                   ],
                 ),
-              ),
-            ),
-          ],
+              );
+            },
+          ),
         ),
       ),
     );

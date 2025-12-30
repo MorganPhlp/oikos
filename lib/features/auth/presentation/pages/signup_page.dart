@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/core/theme/app_typography.dart';
+import 'package:oikos/features/auth/presentation/pages/pseudo_page.dart';
 import 'package:oikos/features/auth/presentation/widgets/auth_field.dart';
 import 'package:oikos/features/auth/presentation/widgets/auth_primary_button.dart';
+import 'package:oikos/features/auth/utils/auth_validators.dart';
 
 class SignUpPage extends StatefulWidget {
+  static MaterialPageRoute<dynamic> route() => MaterialPageRoute(
+    builder: (context) => const SignUpPage(),
+  );
+
   const SignUpPage({super.key});
 
   @override
@@ -19,12 +25,10 @@ class _SignUpPageState extends State<SignUpPage> {
   bool _acceptedCGU = false;
   String? _cguError;
 
-  // TODO : Implémenter la logique de validation et de soumission du formulaire
-
   void _submit(){
     setState(() => _cguError = null);
 
-    bool formValid = _formKey.currentState!.validate();
+    bool formValid = _formKey.currentState!.validate(); // Déclenche les validateurs des champs
 
     if(!_acceptedCGU){
       setState(() => _cguError = "Merci d'accepter les CGU pour continuer");
@@ -32,7 +36,10 @@ class _SignUpPageState extends State<SignUpPage> {
     }
 
     if(formValid){
-      // TODO : Logique d'inscription
+      Navigator.push(context, PseudoPage.route(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      ));
     }
   }
 
@@ -48,8 +55,6 @@ class _SignUpPageState extends State<SignUpPage> {
     return Scaffold(
       // AppBar avec bouton de retour
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.chevron_left, color: AppColors.lightIconPrimary, size: 32),
           onPressed: () => Navigator.pop(context),
@@ -116,7 +121,8 @@ class _SignUpPageState extends State<SignUpPage> {
                   AuthField(
                       hintText: 'prenom.nom@entreprise.fr',
                       controller: _emailController,
-                      prefixIcon: Icons.mail_outlined
+                      prefixIcon: Icons.mail_outlined,
+                      validator: AuthValidators.validateProfessionalEmail,
                   ),
                 ),
 
@@ -138,16 +144,17 @@ class _SignUpPageState extends State<SignUpPage> {
                 Center(
                   child:
                   AuthField(
-                      hintText: '••••••••',
-                      controller: _passwordController,
-                      prefixIcon: Icons.lock_outline,
-                      isPassword: true,
-                      isObscured: !_isPasswordVisible,
-                      onToggleVisibility: () {
-                        setState(() {
-                          _isPasswordVisible = !_isPasswordVisible;
-                        });
-                      }
+                    hintText: '••••••••',
+                    controller: _passwordController,
+                    prefixIcon: Icons.lock_outline,
+                    isPassword: true,
+                    isObscured: !_isPasswordVisible,
+                    onToggleVisibility: () {
+                      setState(() {
+                        _isPasswordVisible = !_isPasswordVisible;
+                      });
+                    },
+                    validator: AuthValidators.validatePassword,
                   ),
                 ),
                 const SizedBox(height: 25),
@@ -226,9 +233,9 @@ class _SignUpPageState extends State<SignUpPage> {
                 const SizedBox(height: 40),
                 AuthPrimaryButton(
                   text: "C'est parti !",
-                  // onPressed: _submit,
+                  onPressed: _submit,
                 ),
-              ],
+            ],
             ),
           ),
         ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/core/theme/app_typography.dart';
+import 'package:oikos/features/auth/presentation/pages/signin_page.dart';
+import 'package:oikos/features/auth/presentation/pages/signup_page.dart';
 import 'package:oikos/features/auth/presentation/widgets/auth_primary_button.dart';
 import 'package:oikos/features/auth/presentation/widgets/auth_secondary_button.dart';
 
@@ -70,21 +72,25 @@ class _IntroPageState extends State<IntroPage> {
               ),
 
               // 3. Les boutons en bas
-              const Positioned(
+              Positioned(
                 bottom: 30,
-                left: 0,
-                right: 0,
+                left: 10,
+                right: 10,
                 child: Column(
                   children: [
                     AuthPrimaryButton(
                       text: "Commencer l'aventure",
+                      onPressed: () {
+                        Navigator.push(context, SignUpPage.route());
+                      },
                     ),
 
                     AuthSecondaryButton(
-                        text: "Me reconnecter"
+                      text: "Me reconnecter",
+                      onPressed: () {
+                        Navigator.push(context, SignInPage.route());
+                      },
                     ),
-
-                    // TODO : Rediriger vers la page de connexion et d'inscription
                   ],
                 ),
               ),

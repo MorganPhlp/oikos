@@ -37,6 +37,12 @@ class AppTheme {
       // Exemple d'adaptation des composants globaux (Scaffold, AppBar)
       scaffoldBackgroundColor: AppColors.lightBackground,
 
+      appBarTheme: const AppBarTheme(
+        backgroundColor: AppColors.lightBackground,
+        foregroundColor: AppColors.lightForeground,
+        elevation: 0,
+      ),
+
       // Stylisation des inputs (global)
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
