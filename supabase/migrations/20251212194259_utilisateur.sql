@@ -29,7 +29,9 @@ CREATE TABLE IF NOT EXISTS utilisateur (
     co2_economise_total FLOAT DEFAULT 0,
     a_accepte_cgu BOOLEAN DEFAULT FALSE,
     communaute_nom VARCHAR(255),
+    code_communaute VARCHAR(100),
     objectif FLOAT DEFAULT 0.1,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     
     -- Foreign Key vers ta table communauté (qui doit exister)
     CONSTRAINT fk_communaute 

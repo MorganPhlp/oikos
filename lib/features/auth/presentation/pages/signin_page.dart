@@ -93,7 +93,7 @@ class _SignInPageState extends State<SignInPage> {
                     // Logo Oîkos
                     Center(
                       child: Image.asset(
-                        'lib/core/assets/logos/oikos_logo.png',
+                        'assets/logos/oikos_logo.png',
                         height: 60,
                       ),
                     ),

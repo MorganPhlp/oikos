@@ -6,8 +6,8 @@ import { fileURLToPath } from 'url'
 
 
 // --- CONFIGURATION ---
-const SUPABASE_URL = 'http://127.0.0.1:41002'
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU'
+const SUPABASE_URL = 'https://oppmoxxtebmxbuwkjkgs.supabase.co'
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9wcG1veHh0ZWJteGJ1d2tqa2dzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MzMyOTM1NiwiZXhwIjoyMDc4OTA1MzU2fQ.yKIqMdVpSNG6h1CmlkZTuYRONlLUo68NSthckppgxuM'
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
 const __filename = fileURLToPath(import.meta.url)

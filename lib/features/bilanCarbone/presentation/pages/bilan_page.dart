@@ -7,9 +7,20 @@ import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_cubit.dart';
 import 'package:oikos/features/bilanCarbone/presentation/pages/choix_categories_page.dart';
 import 'package:oikos/features/bilanCarbone/presentation/widgets/question_widget_factory.dart';
 import 'package:oikos/features/bilanCarbone/presentation/widgets/suggestions_widget.dart';
+import 'package:oikos/init_dependencies.dart';
 
 class BilanPage extends StatefulWidget {
   const BilanPage({super.key});
+
+  static MaterialPageRoute route() {
+    return MaterialPageRoute(
+      builder: (context) => BlocProvider(
+        // On injecte le Cubit ici, à la source
+        create: (context) => serviceLocator<BilanCubit>()..demarrerBilan(),
+        child: const BilanPage(),
+      ),
+    );
+  }
 
   @override
   State<BilanPage> createState() => _BilanPageState();
@@ -36,13 +47,7 @@ class _BilanPageState extends State<BilanPage> {
             if (state is BilanChoixCategories) {
               final cubit = context.read<BilanCubit>();
               Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => BlocProvider.value(
-                  // 2. On "ré-injecte" l'instance existante dans la nouvelle route
-                  value: cubit,
-                  child: const ChoixCategoriesPage(),
-                  )
-                ),
+                ChoixCategoriesPage.route(cubit),
               );
             }
           },

@@ -73,7 +73,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 // Logo Oîkos
                 Center(
                   child:
-                    Image.asset('lib/core/assets/logos/oikos_logo.png', height: 60),
+                    Image.asset('assets/logos/oikos_logo.png', height: 60),
                 ),
                 const SizedBox(height: 20),
 

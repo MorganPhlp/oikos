@@ -1,16 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'dart:ui';
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/core/presentation/widgets/gradient_button.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/carbone_equivalent_entity.dart';
+import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_cubit.dart';
 
 class ResultsPage extends StatelessWidget {
   final double score; // Score en kg CO2
   final Map<String, double> scoresParCategorie;
   final List<dynamic>? equivalents; // Liste d'entités (label, valeur, icone, unite)
   final VoidCallback onContinue;
+
+  static Route route(BilanCubit cubit) {
+  // On récupère l'état actuel (forcément BilanResultats ici)
+  final state = cubit.state as BilanResultats;
+
+  return MaterialPageRoute(
+    builder: (_) => BlocProvider.value(
+      value: cubit,
+      child: ResultsPage(
+        score: state.scoreTotal,
+        scoresParCategorie: state.scoresParCategorie,
+        equivalents: state.equivalents,
+        onContinue: () => /* Ton action ici */ {},
+      ),
+    ),
+  );
+}
 
   const ResultsPage({
     super.key,

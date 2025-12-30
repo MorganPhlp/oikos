@@ -4,6 +4,8 @@ import 'package:oikos/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:oikos/features/auth/presentation/pages/intro_page.dart';
+import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_cubit.dart';
+import 'package:oikos/features/bilanCarbone/presentation/pages/bilan_page.dart';
 import 'package:oikos/init_dependencies.dart';
 
 void main() async {
@@ -50,8 +52,11 @@ class _MyAppState extends State<MyApp> {
         },
         builder: (context, state) {
           if (state) {
-            // Si l'utilisateur est connecté, afficher la page principale
-            return const IntroPage(); // TODO: Remplacer par home page ou bilan
+            // Si l'utilisateur est connecté, afficher le bilan
+            return BlocProvider(
+              create: (context) => serviceLocator<BilanCubit>()..demarrerBilan(),
+              child: const BilanPage(),
+            );
           } else {
             // Sinon, afficher la page d'introduction ou de connexion
             return const IntroPage(); // Remplacez par votre page d'introduction

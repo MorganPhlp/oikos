@@ -3,8 +3,7 @@ import 'package:oikos/core/data/category_empreinte_repository_impl.dart';
 import 'package:oikos/core/data/utilisateur_repository_impl.dart';
 import 'package:oikos/core/domain/repositories/categorie_empreinte_repository.dart';
 import 'package:oikos/core/domain/repositories/utilisateur_repository.dart';
-import 'package:oikos/features/auth/data/auth_repository_impl.dart';
-import 'package:oikos/features/auth/domain/auth_repository.dart';
+import 'package:oikos/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:oikos/features/bilanCarbone/data/repositories/bilan_repository_impl.dart';
 import 'package:oikos/features/bilanCarbone/data/repositories/carbone_equivalent_repository_impl.dart';
 import 'package:oikos/features/bilanCarbone/data/repositories/reponse_repository_impl.dart';
@@ -46,7 +45,7 @@ Future<void> init() async {
   sl.registerLazySingleton<SimulationRepository>(() => PublicodesService());
   sl.registerLazySingleton<QuestionRepository>(() => QuestionRepositoryImpl(supabaseClient: sl()));
   sl.registerLazySingleton<ReponseRepository>(() => ReponseRepositoryImpl(supabaseClient: sl()));
-  sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(supabaseClient: sl()));
+  sl.registerLazySingleton<AuthRemoteDataSource>(() => AuthRemoteDataSourceImpl(supabaseClient: sl()),);
   sl.registerLazySingleton<BilanSessionRepository>(
     () => BilanSessionRepositoryImpl(supabaseClient: sl(), authRepo: sl()),
   );
@@ -104,6 +103,7 @@ sl.registerLazySingleton(() => DefinirObjectifUseCase(
 
 sl.registerLazySingleton(() => CalculerBilanUseCase(
       simulationRepository: sl(),
+      bilanRepository: sl(),
     ));
 
 sl.registerLazySingleton(() => RecupererEquivalentsCarboneUseCase(

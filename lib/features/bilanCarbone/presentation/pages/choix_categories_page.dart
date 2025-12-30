@@ -9,6 +9,15 @@ import 'package:oikos/features/bilanCarbone/presentation/pages/choix_objectifs.d
 class ChoixCategoriesPage extends StatefulWidget {
   const ChoixCategoriesPage({super.key});
 
+  static MaterialPageRoute route(BilanCubit existingCubit) {
+    return MaterialPageRoute(
+      builder: (context) => BlocProvider.value(
+        value: existingCubit,
+        child: const ChoixCategoriesPage(),
+      ),
+    );
+  }
+
   @override
   State<ChoixCategoriesPage> createState() => _ChoixCategoriesPageState();
 }
@@ -43,12 +52,7 @@ class _ChoixCategoriesPageState extends State<ChoixCategoriesPage> {
           }
           if (state is BilanChoixObjectifs) {
             Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (_) => BlocProvider.value(
-                  value: context.read<BilanCubit>(),
-                  child: const PersonalGoalPage(),
-                ),
-              ),
+              PersonalGoalPage.route(context.read<BilanCubit>())
             );
           }
         },

@@ -76,7 +76,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         return null;
       }
       final userData = await supabaseClient
-          .from('profiles')
+          .from('utilisateur')
           .select()
           .eq('id', currentUserSession!.user.id);
       return UserModel.fromJson(userData.first);

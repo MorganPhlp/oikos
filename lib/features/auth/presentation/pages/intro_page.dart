@@ -50,7 +50,7 @@ class _IntroPageState extends State<IntroPage> {
                           maxWidth: 368, // Largeur maximale de 368px
                         ),
                         child: Image(
-                          image: AssetImage('lib/core/assets/logos/oikos_logo.png'),
+                          image: AssetImage('assets/logos/oikos_logo.png'),
                           width: screenWidth * 0.8, // 80% de la largeur de l'écran
                           fit: BoxFit.contain,
                         ),

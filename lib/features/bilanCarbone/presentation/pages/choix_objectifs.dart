@@ -11,6 +11,15 @@ class PersonalGoalPage extends StatefulWidget {
     super.key,
   });
 
+  static MaterialPageRoute route(BilanCubit existingCubit) {
+    return MaterialPageRoute(
+      builder: (context) => BlocProvider.value(
+        value: existingCubit,
+        child: const PersonalGoalPage(),
+      ),
+    );
+  }
+
   @override
   State<PersonalGoalPage> createState() => _PersonalGoalPageState();
 }
@@ -42,19 +51,7 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
           if (state is BilanResultats) {
             
             Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(
-                builder: (_) => BlocProvider.value(
-                  value: context.read<BilanCubit>(),
-                  child: ResultsPage( 
-                    score: state.scoreTotal,
-                    scoresParCategorie: state.scoresParCategorie,
-                    equivalents: state.equivalents,
-                    onContinue: () {
-                      //TO DO
-                    },
-                  ),
-                ),
-              ),
+              ResultsPage.route(context.read<BilanCubit>()),
               (route) => false,
             );
       

@@ -50,4 +50,24 @@ class BilanSessionRepositoryImpl implements BilanSessionRepository {
       throw Exception('Erreur lors de la création d\'une nouvelle session de bilan : $e');
     }
   }
+
+  @override
+  Future<void> setBilanScore(double score) async {
+    try {
+      // 1. Obtenir l'ID utilisateur via le repo d'Auth
+      final userId = await authRepo.getUserId();
+      if (userId == null) {
+        throw Exception("Utilisateur non connecté. Impossible de mettre à jour le score du bilan.");
+      }
+      // 2. Mettre à jour le score total du bilan dans la base de données
+      await supabaseClient
+          .from('bilan_carbone')
+          .update({'scoretotalco2ean': score})
+          .eq('utilisateur_id', userId)
+          .order('date_bilan', ascending: false)
+          .limit(1);
+    } catch (e) {
+      throw Exception('Erreur lors de la mise à jour du score du bilan : $e');
+    }
+  }
 }

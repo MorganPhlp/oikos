@@ -1,4 +1,3 @@
-import 'dart:collection';
 
 abstract class SimulationRepository {
   /// Initialise le moteur de simulation (charge le JS et les règles)

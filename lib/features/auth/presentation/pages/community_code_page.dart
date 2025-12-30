@@ -72,8 +72,7 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
           communityIcon: community['icon']!,
           onConfirm: () {
             context.read<AuthBloc>().add(AuthSignUp(email: widget.email, password: widget.password, pseudo: widget.pseudo, communityCode: upperCode));
-            Navigator.pop(context); // Ferme la modale
-            // TODO : Gérer la navigation après l'inscription réussie dans le listener du Bloc
+            Navigator.popUntil(context, (route) => route.isFirst);
           },
           onCancel: () {
             Navigator.pop(context); // Ferme la modale
