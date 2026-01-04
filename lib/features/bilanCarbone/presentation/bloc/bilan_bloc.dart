@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:equatable/equatable.dart'; // <--- IMPORTANT : L'import doit être ici
+import 'package:equatable/equatable.dart';
 import 'package:oikos/core/domain/entities/categorie_empreinte_entity.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/carbone_equivalent_entity.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/calculer_bilan_categories_use_case.dart';
@@ -15,9 +15,11 @@ import 'package:oikos/features/bilanCarbone/domain/entities/question_entity.dart
 import 'package:oikos/features/bilanCarbone/domain/entities/objectif_entity.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/recuperer_equivalents_carbone_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/preparer_choix_objectifs_use_case.dart';
+
+part 'bilan_event.dart';
 part 'bilan_state.dart';
 
-class BilanCubit extends Cubit<BilanState> {
+class BilanBloc extends Bloc<BilanEvent, BilanState> {
   final DemarrerBilanUseCase demarrerBilanUseCase;
   final EnregistrerReponseUseCase repondreUseCase;
   final GetProchaineQuestionUseCase getNextUseCase;
@@ -36,10 +38,10 @@ class BilanCubit extends Cubit<BilanState> {
   final Map<String, dynamic> reponses = {};
   double? scoreTotal;
 
-  BilanCubit({
+  BilanBloc({
     required this.demarrerBilanUseCase,
     required this.repondreUseCase,
-    required this.getNextUseCase ,
+    required this.getNextUseCase,
     required this.getPrevUseCase,
     required this.choixCategoriesUseCase,
     required this.demarrerApprofondissementUseCase,
@@ -48,9 +50,21 @@ class BilanCubit extends Cubit<BilanState> {
     required this.calculerBilanCategoriesUseCase,
     required this.recupererEquivalentsCarboneUseCase,
     required this.preparerChoixObjectifsUseCase,
-  }) : super(BilanLoading());
+  }) : super(BilanLoading()) {
+    on<DemarrerBilanEvent>(_onDemarrerBilan);
+    on<RepondreQuestionEvent>(_onRepondreQuestion);
+    on<RevenirQuestionPrecedenteEvent>(_onRevenirQuestionPrecedente);
+    on<RetourVersQuestionsFromObjectifsEvent>(_onRetourVersQuestionsFromObjectifs);
+    on<RetourVersChoixCategoriesFromObjectifsEvent>(_onRetourVersChoixCategoriesFromObjectifs);
+    on<SelectionnerCategoriesEvent>(_onSelectionnerCategories);
+    on<PreparerObjectifsEvent>(_onPreparerObjectifs);
+    on<ValiderObjectifEvent>(_onValiderObjectif);
+  }
 
-  Future<void> demarrerBilan() async {
+  Future<void> _onDemarrerBilan(
+    DemarrerBilanEvent event,
+    Emitter<BilanState> emit,
+  ) async {
     emit(BilanLoading());
     _allQuestions = await demarrerBilanUseCase();
     
@@ -58,49 +72,62 @@ class BilanCubit extends Cubit<BilanState> {
     if (!getNextUseCase.applicabilityChecker.isQuestionApplicable(_allQuestions[_currentIndex])) {
       _currentIndex = await getNextUseCase(allQuestions: _allQuestions, currentIndex: -1);
     }
-    _emitQuestion();
+    _emitQuestion(emit);
   }
 
-  Future<void> repondre(dynamic valeur) async {
+  Future<void> _onRepondreQuestion(
+    RepondreQuestionEvent event,
+    Emitter<BilanState> emit,
+  ) async {
     final currentQ = _allQuestions[_currentIndex];
-    await repondreUseCase(question: currentQ, valeur: valeur);
-    reponses[currentQ.slug] = valeur;
+    await repondreUseCase(question: currentQ, valeur: event.valeur);
+    reponses[currentQ.slug] = event.valeur;
 
     final nextIndex = await getNextUseCase(
       allQuestions: _allQuestions,
       currentIndex: _currentIndex,
     );
 
-    //On arrive a la fin des questions
+    // On arrive à la fin des questions
     if (nextIndex == -1) {
       // cas fin des questions obligatoires - on lance l'approfondissement
-      if (state is BilanQuestionDisplayed){
-      _allCategories = await demarrerApprofondissementUseCase.call();
-      emit(BilanChoixCategories(_allCategories));}
+      if (state is BilanQuestionDisplayed) {
+        _allCategories = await demarrerApprofondissementUseCase.call();
+        emit(BilanChoixCategories(_allCategories));
+      }
     } // si il reste des questions
     else {
       _currentIndex = nextIndex;
-      _emitQuestion();
+      _emitQuestion(emit);
     }
   }
 
-  Future<void> revenirQuestionPrecedente() async {
+  Future<void> _onRevenirQuestionPrecedente(
+    RevenirQuestionPrecedenteEvent event,
+    Emitter<BilanState> emit,
+  ) async {
     _currentIndex = await getPrevUseCase(
       allQuestions: _allQuestions,
       currentIndex: _currentIndex,
     );
-    _emitQuestion();
+    _emitQuestion(emit);
   }
 
-  void retourVersQuestionsFromObjectifs() {
-    _emitQuestion();
+  void _onRetourVersQuestionsFromObjectifs(
+    RetourVersQuestionsFromObjectifsEvent event,
+    Emitter<BilanState> emit,
+  ) {
+    _emitQuestion(emit);
   }
 
-  void retourVersChoixCategoriesFromObjectifs() {
+  void _onRetourVersChoixCategoriesFromObjectifs(
+    RetourVersChoixCategoriesFromObjectifsEvent event,
+    Emitter<BilanState> emit,
+  ) {
     emit(BilanChoixCategories(_allCategories));
   }
 
-  void _emitQuestion() {
+  void _emitQuestion(Emitter<BilanState> emit) {
     final q = _allQuestions[_currentIndex];
     emit(BilanQuestionDisplayed(
       question: q,
@@ -110,13 +137,19 @@ class BilanCubit extends Cubit<BilanState> {
     ));
   }
 
-  void setSelectedCategories(List<CategorieEmpreinteEntity> categories) {
+  void _onSelectionnerCategories(
+    SelectionnerCategoriesEvent event,
+    Emitter<BilanState> emit,
+  ) {
     // Logique pour gérer les catégories sélectionnées
-    choixCategoriesUseCase.call(categories: categories);
-    preparerObjectifs();
+    choixCategoriesUseCase.call(categories: event.categories);
+    add(PreparerObjectifsEvent());
   }
 
-  void preparerObjectifs() async {
+  Future<void> _onPreparerObjectifs(
+    PreparerObjectifsEvent event,
+    Emitter<BilanState> emit,
+  ) async {
     emit(BilanLoading());
     await Future.delayed(const Duration(milliseconds: 100));
     try {
@@ -134,14 +167,16 @@ class BilanCubit extends Cubit<BilanState> {
     }
   }
 
-  void validerObjectif(double objectif) async {
+  Future<void> _onValiderObjectif(
+    ValiderObjectifEvent event,
+    Emitter<BilanState> emit,
+  ) async {
     // Logique pour valider l'objectif choisi
-    definirObjectifUseCase.call(objectif);
+    definirObjectifUseCase.call(event.objectif);
     emit(BilanResultats(
-      scoreTotal: scoreTotal ?? 0.0, 
+      scoreTotal: scoreTotal ?? 0.0,
       scoresParCategorie: await calculerBilanCategoriesUseCase.call(),
       equivalents: await recupererEquivalentsCarboneUseCase.call(),
-      ));
+    ));
   }
-
 }

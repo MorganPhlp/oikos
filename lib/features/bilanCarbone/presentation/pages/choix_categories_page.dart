@@ -3,16 +3,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/domain/entities/categorie_empreinte_entity.dart';
 import 'package:oikos/core/presentation/widgets/gradient_button.dart';
 import 'package:oikos/core/theme/app_colors.dart';
-import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_cubit.dart';
+import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_bloc.dart';
 import 'package:oikos/features/bilanCarbone/presentation/pages/choix_objectifs.dart';
 
 class ChoixCategoriesPage extends StatefulWidget {
   const ChoixCategoriesPage({super.key});
 
-  static MaterialPageRoute route(BilanCubit existingCubit) {
+  static MaterialPageRoute route(BilanBloc existingBloc) {
     return MaterialPageRoute(
       builder: (context) => BlocProvider.value(
-        value: existingCubit,
+        value: existingBloc,
         child: const ChoixCategoriesPage(),
       ),
     );
@@ -42,21 +42,21 @@ class _ChoixCategoriesPageState extends State<ChoixCategoriesPage> {
       onPopInvokedWithResult: (didPop, result) {
         // didPop est vrai si le Navigator a bien supprimé la page
         if (didPop) {
-          context.read<BilanCubit>().retourVersQuestionsFromObjectifs();
+          context.read<BilanBloc>().add(RetourVersQuestionsFromObjectifsEvent());
         }
       },
-      child: BlocListener<BilanCubit, BilanState>(
+      child: BlocListener<BilanBloc, BilanState>(
         listener: (context, state) {
           if (state is BilanTermine){
             
           }
           if (state is BilanChoixObjectifs) {
             Navigator.of(context).pushReplacement(
-              PersonalGoalPage.route(context.read<BilanCubit>())
+              PersonalGoalPage.route(context.read<BilanBloc>())
             );
           }
         },
-        child: BlocBuilder<BilanCubit, BilanState>(
+        child: BlocBuilder<BilanBloc, BilanState>(
           builder: (context, state) {
             List<CategorieEmpreinteEntity> categories = [];
             if (state is BilanChoixCategories) {
@@ -87,7 +87,7 @@ class _ChoixCategoriesPageState extends State<ChoixCategoriesPage> {
                   icon: const Icon(Icons.arrow_back, color: AppColors.lightTextPrimary),
                   onPressed: () {
                     // On gère manuellement le retour pour le bouton visuel
-                    context.read<BilanCubit>().retourVersQuestionsFromObjectifs();
+                    context.read<BilanBloc>().add(RetourVersQuestionsFromObjectifsEvent());
                     Navigator.of(context).pop();
                   },
                 ),
@@ -220,7 +220,7 @@ class _ChoixCategoriesPageState extends State<ChoixCategoriesPage> {
               ? categories
               : categories.where((c) => _selectedNames.contains(c.nom)).toList();
 
-          context.read<BilanCubit>().setSelectedCategories(finalSelection);
+          context.read<BilanBloc>().add(SelectionnerCategoriesEvent(finalSelection));
         },
       ),
     );

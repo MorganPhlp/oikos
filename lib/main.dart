@@ -4,7 +4,7 @@ import 'package:oikos/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:oikos/features/auth/presentation/pages/intro_page.dart';
-import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_cubit.dart';
+import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_bloc.dart';
 import 'package:oikos/features/bilanCarbone/presentation/pages/bilan_page.dart';
 import 'package:oikos/init_dependencies.dart';
 
@@ -54,7 +54,7 @@ class _MyAppState extends State<MyApp> {
           if (state) {
             // Si l'utilisateur est connecté, afficher le bilan
             return BlocProvider(
-              create: (context) => serviceLocator<BilanCubit>()..demarrerBilan(),
+              create: (context) => serviceLocator<BilanBloc>()..add(DemarrerBilanEvent()),
               child: const BilanPage(),
             );
           } else {

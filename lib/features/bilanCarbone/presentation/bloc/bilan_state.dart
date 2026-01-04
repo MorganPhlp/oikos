@@ -1,4 +1,4 @@
-part of 'bilan_cubit.dart';
+part of 'bilan_bloc.dart';
 
 
 abstract class BilanState extends Equatable {

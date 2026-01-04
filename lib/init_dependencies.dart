@@ -33,7 +33,7 @@ import 'package:oikos/features/bilanCarbone/domain/use_cases/precedente_question
 import 'package:oikos/features/bilanCarbone/domain/use_cases/preparer_choix_objectifs_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/prochaine_question_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/recuperer_equivalents_carbone_use_case.dart';
-import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_cubit.dart';
+import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/common/cubits/app_user/app_user_cubit.dart';
@@ -143,9 +143,9 @@ void _initAuth() {
       ));
 
   // ==========================================================
-  // PRESENTATION (Cubit)
+  // PRESENTATION (Bloc)
   // ==========================================================
-  serviceLocator.registerFactory(() => BilanCubit(
+  serviceLocator.registerFactory(() => BilanBloc(
         demarrerBilanUseCase: serviceLocator(),
         repondreUseCase: serviceLocator(),
         getNextUseCase: serviceLocator(),

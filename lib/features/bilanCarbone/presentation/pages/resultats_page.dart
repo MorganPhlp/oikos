@@ -6,7 +6,7 @@ import 'dart:ui';
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/core/presentation/widgets/gradient_button.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/carbone_equivalent_entity.dart';
-import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_cubit.dart';
+import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_bloc.dart';
 
 class ResultsPage extends StatelessWidget {
   final double score; // Score en kg CO2
@@ -14,13 +14,13 @@ class ResultsPage extends StatelessWidget {
   final List<dynamic>? equivalents; // Liste d'entités (label, valeur, icone, unite)
   final VoidCallback onContinue;
 
-  static Route route(BilanCubit cubit) {
+  static Route route(BilanBloc bloc) {
   // On récupère l'état actuel 
-  final state = cubit.state as BilanResultats;
+  final state = bloc.state as BilanResultats;
 
   return MaterialPageRoute(
     builder: (_) => BlocProvider.value(
-      value: cubit,
+      value: bloc,
       child: ResultsPage(
         score: state.scoreTotal,
         scoresParCategorie: state.scoresParCategorie,

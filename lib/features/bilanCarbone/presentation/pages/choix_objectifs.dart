@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/presentation/widgets/gradient_button.dart';
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/objectif_entity.dart';
-import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_cubit.dart';
+import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_bloc.dart';
 import 'package:oikos/features/bilanCarbone/presentation/pages/resultats_page.dart';
 
 class PersonalGoalPage extends StatefulWidget {
@@ -11,10 +11,10 @@ class PersonalGoalPage extends StatefulWidget {
     super.key,
   });
 
-  static MaterialPageRoute route(BilanCubit existingCubit) {
+  static MaterialPageRoute route(BilanBloc existingBloc) {
     return MaterialPageRoute(
       builder: (context) => BlocProvider.value(
-        value: existingCubit,
+        value: existingBloc,
         child: const PersonalGoalPage(),
       ),
     );
@@ -43,15 +43,15 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
       canPop: true,
       onPopInvokedWithResult: (didPop, result)  {
         if (didPop) {
-          context.read<BilanCubit>().retourVersChoixCategoriesFromObjectifs();
+          context.read<BilanBloc>().add(RetourVersChoixCategoriesFromObjectifsEvent());
         }
       },
-      child: BlocConsumer<BilanCubit, BilanState>(
+      child: BlocConsumer<BilanBloc, BilanState>(
         listener: (context, state) {
           if (state is BilanResultats) {
             
             Navigator.of(context).pushAndRemoveUntil(
-              ResultsPage.route(context.read<BilanCubit>()),
+              ResultsPage.route(context.read<BilanBloc>()),
               (route) => false,
             );
       
@@ -118,7 +118,7 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
                       disabled: _selectedRatio == null || state is BilanLoading,
                       onPressed: () {
                         if (_selectedRatio != null) {
-                          context.read<BilanCubit>().validerObjectif(_selectedRatio!);
+                          context.read<BilanBloc>().add(ValiderObjectifEvent(_selectedRatio!));
                         }
                       },
                     ),

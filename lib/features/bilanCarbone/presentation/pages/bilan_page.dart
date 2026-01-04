@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/presentation/widgets/gradient_button.dart';
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/type_widget.dart';
-import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_cubit.dart';
+import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_bloc.dart';
 import 'package:oikos/features/bilanCarbone/presentation/pages/choix_categories_page.dart';
 import 'package:oikos/features/bilanCarbone/presentation/widgets/question_widget_factory.dart';
 import 'package:oikos/features/bilanCarbone/presentation/widgets/suggestions_widget.dart';
@@ -15,8 +15,8 @@ class BilanPage extends StatefulWidget {
   static MaterialPageRoute route() {
     return MaterialPageRoute(
       builder: (context) => BlocProvider(
-        // On injecte le Cubit ici, à la source
-        create: (context) => serviceLocator<BilanCubit>()..demarrerBilan(),
+        // On injecte le Bloc ici, à la source
+        create: (context) => serviceLocator<BilanBloc>()..add(DemarrerBilanEvent()),
         child: const BilanPage(),
       ),
     );
@@ -36,7 +36,7 @@ class _BilanPageState extends State<BilanPage> {
     return Scaffold(
       backgroundColor: AppColors.lightBackground,
       body: SafeArea(
-        child: BlocConsumer<BilanCubit, BilanState>(
+        child: BlocConsumer<BilanBloc, BilanState>(
           listener: (context, state) {
             // Initialisation locale des valeurs quand une question arrive
             if (state is BilanQuestionDisplayed) {
@@ -45,9 +45,9 @@ class _BilanPageState extends State<BilanPage> {
             
             // Navigation vers le choix des catégories
             if (state is BilanChoixCategories) {
-              final cubit = context.read<BilanCubit>();
+              final bloc = context.read<BilanBloc>();
               Navigator.of(context).push(
-                ChoixCategoriesPage.route(cubit),
+                ChoixCategoriesPage.route(bloc),
               );
             }
           },
@@ -205,7 +205,7 @@ class _BilanPageState extends State<BilanPage> {
         Row(
           children: [
             IconButton(
-              onPressed: () => context.read<BilanCubit>().revenirQuestionPrecedente(),
+              onPressed: () => context.read<BilanBloc>().add(RevenirQuestionPrecedenteEvent()),
               icon: const Icon(Icons.chevron_left),
               style: IconButton.styleFrom(
                 side: const BorderSide(color: AppColors.gradientGreenEnd, width: 2),
@@ -218,7 +218,7 @@ class _BilanPageState extends State<BilanPage> {
               child: GradientButton(
                 label: state.index == state.totalQuestions ? "Terminer" : "Question suivante >",
                 disabled: !_isAnswerValid && state.question.typeWidget != TypeWidget.slider,
-                onPressed: () => context.read<BilanCubit>().repondre(_currentAnswer),
+                onPressed: () => context.read<BilanBloc>().add(RepondreQuestionEvent(_currentAnswer)),
               ),
             ),
           ],
@@ -227,12 +227,12 @@ class _BilanPageState extends State<BilanPage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildTextLink("Je ne sais pas", () => context.read<BilanCubit>().repondre(null), size),
+            _buildTextLink("Je ne sais pas", () => context.read<BilanBloc>().add(RepondreQuestionEvent(null)), size),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: size.width * 0.02),
               child: const Text("•", style: TextStyle(color: Colors.grey)),
             ),
-            _buildTextLink("Pas concerné", () => context.read<BilanCubit>().repondre(null), size),
+            _buildTextLink("Pas concerné", () => context.read<BilanBloc>().add(RepondreQuestionEvent(null)), size),
           ],
         ),
       ],
