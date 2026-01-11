@@ -7,11 +7,9 @@ import 'package:supabase_flutter/supabase_flutter.dart' hide User;
 import '../datasources/auth_remote_data_source.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  final SupabaseClient supabaseClient; // TODO: Remplacer par data source (supprimer si possible)
   final AuthRemoteDataSource remoteDataSource;
 
   const AuthRepositoryImpl({
-    required this.supabaseClient, // TODO: Remplacer par data source (supprimer si possible)
     required this.remoteDataSource,
   });
 
@@ -29,8 +27,8 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<String?> getUserId() async { // TODO: Remplacer avec les changements faits (peut-être supprimer la méthode ou remplacer avec data source)
-    final user = supabaseClient.auth.currentUser;
+  Future<String?> getUserId() async {
+    final user = remoteDataSource.client.auth.currentUser;
     return user?.id;
   }
 
@@ -62,6 +60,25 @@ class AuthRepositoryImpl implements AuthRepository {
         communityCode: communityCode,
       ),
     );
+  }
+
+  @override
+  Future<Either<Failure, (String name, String? logoUrl)>> verifyCommunityCode({
+    required String communityCode,
+  }) async {
+    try {
+      final result = await remoteDataSource.client.from('communaute').select('nom, logo').eq('code', communityCode).maybeSingle();
+
+      if (result == null) {
+        return left(Failure('Ce code communauté est invalide.'));
+      }
+
+      return right((result['nom'] as String, result['logo'] as String?));
+    } on AuthException catch (e) {
+      return left(Failure(e.message));
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
   }
 
   // Helper method to reduce code duplication

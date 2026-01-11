@@ -1,3 +1,4 @@
+// TODO: A revoir et affiner
 class AuthValidators {
   static const List<String> professionalDomains = [ // TODO : A aller chercher depuis BD plus tard
     'oikos.fr',
@@ -5,14 +6,6 @@ class AuthValidators {
     'company.com',
     'enterprise.fr'
   ];
-
-  // Mock Data
-  // TODO : Remplacer par un appel API réel
-  static const Map<String, Map<String, String>> communityCodes = {
-    'PAR123': {'name': 'Paris La Défense', 'icon': '🗼'},
-    'LYO456': {'name': 'Lyon Part-Dieu', 'icon': '🦁'},
-    // ... autres codes
-  };
 
   static String? validateProfessionalEmail(String? value) {
     if (value == null || value.isEmpty) {
@@ -52,9 +45,6 @@ class AuthValidators {
     final regex = RegExp(r'^[A-Za-z0-9]{6}$');
     if (!regex.hasMatch(value)) {
       return 'Le code de communauté doit être alphanumérique';
-    }
-    if(!communityCodes.containsKey(value.toUpperCase())) {
-      return 'Code de communauté invalide';
     }
     return null;
   }

@@ -1,21 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/common/widgets/loader.dart';
-import 'package:oikos/core/utils/show_snackbar.dart';
 import 'package:oikos/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pinput/pinput.dart';
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/core/theme/app_typography.dart';
 import '../widgets/confirm_community_modal.dart';
-
-
-// Mock Data
-// TODO : Remplacer par un appel API réel
-const Map<String, Map<String, String>> communityCodes = {
-  'PAR123': {'name': 'Paris La Défense', 'icon': '🗼'},
-  'LYO456': {'name': 'Lyon Part-Dieu', 'icon': '🦁'},
-  // ... autres codes
-};
 
 
 class CommunityCodePage extends StatefulWidget {
@@ -45,6 +35,7 @@ class CommunityCodePage extends StatefulWidget {
 class _CommunityCodePageState extends State<CommunityCodePage> {
   final _pinController = TextEditingController();
   String? _errorText;
+  String? _loadedLogoUrl;
 
   // Logique pour extraire le nom de l'entreprise de l'email
   String get _companyName {
@@ -57,32 +48,14 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
     return "Entreprise";
   }
 
+  // Fonction pour valider le code communauté
   void _validateCode(String code) {
     setState(() => _errorText = null);
 
     final upperCode = code.toUpperCase();
-    final community = communityCodes[upperCode];
 
-    if (community != null) {
-      // Code valide -> Ouvrir Modal
-      showDialog(
-        context: context,
-        builder: (context) => ConfirmCommunityModal(
-          communityName: community['name']!,
-          communityIcon: community['icon']!,
-          onConfirm: () {
-            context.read<AuthBloc>().add(AuthSignUp(email: widget.email, password: widget.password, pseudo: widget.pseudo, communityCode: upperCode));
-            Navigator.popUntil(context, (route) => route.isFirst);
-          },
-          onCancel: () {
-            Navigator.pop(context); // Ferme la modale
-            _pinController.clear(); // Reset le champ
-          },
-        ),
-      );
-    } else {
-      setState(() => _errorText = "Code invalide. Vérifiez auprès de votre administrateur.");
-    }
+    // Déclenche l'événement pour vérifier le code communauté
+    context.read<AuthBloc>().add(AuthVerifyCommunity(communityCode: upperCode));
   }
 
   @override
@@ -107,11 +80,37 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
       listener: (context, state) {
         // Gérer les états de succès ou d'erreur ici si nécessaire
         if (state is AuthFailure) {
-          showSnackBar(context, state.message);
+          setState(() => _errorText = state.message);
+        }
+
+        if (state is AuthCommunityVerified) {
+          if(state.logoUrl != null) {
+            setState(() => _loadedLogoUrl = state.logoUrl);
+          }
+
+          // Le code est valide, afficher la modale de confirmation
+          showDialog(
+            context: context,
+            builder: (context) => ConfirmCommunityModal(
+              communityName: state.communityName,
+              communityIcon: state.logoUrl ?? '',
+              onConfirm: () {
+                // Déclenche l'événement d'inscription
+                context.read<AuthBloc>().add(AuthSignUp(email: widget.email, password: widget.password, pseudo: widget.pseudo, communityCode: _pinController.text.toUpperCase()));
+                Navigator.popUntil(context, (route) => route.isFirst); // Ferme toutes les modales et revient à la page principale
+              },
+              onCancel: () {
+                Navigator.pop(context); // Ferme la modale
+                _pinController.clear(); // Réinitialise le champ de saisie
+                setState(() => _loadedLogoUrl = null); // Réinitialise le logo chargé
+              },
+            ),
+          );
         }
       },
       builder: (context, state) {
-        if(state is AuthLoading) {
+        // Afficher un loader si l'état est en cours de chargement et que le PIN n'est pas complet
+        if(state is AuthLoading && _pinController.length != 6) {
           // Afficher un indicateur de chargement
           return const Loader();
         }
@@ -156,7 +155,9 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
 
                       const SizedBox(height: 40),
 
-                      // Icône Sparkles Centrée et après logo entreprise
+                      // Icône Sparkles (si pas logo) ou logo entreprise
+                      // TODO: Vérifier quel logo par défaut utiliser
+                      // TODO: Vérifier l'entreprise pour charger le logo
                       Container(
                         width: 80, height: 80,
                         decoration: const BoxDecoration(
@@ -168,7 +169,15 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
                           ),
                           boxShadow: [BoxShadow(blurRadius: 10, color: Colors.black12, offset: Offset(0, 4))],
                         ),
-                        child: const Icon(Icons.auto_awesome, size: 40, color: AppColors.lightTextPrimary), // TODO : Remplacer par logo de l'entreprise
+                        child: _loadedLogoUrl != null
+                          ? ClipOval(
+                              child: Image.network(
+                                _loadedLogoUrl!,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) => const Icon(Icons.business, color: AppColors.lightTextPrimary, size: 40),
+                              ),
+                            )
+                          : const Icon(Icons.auto_awesome, color: Colors.white, size: 40)
                       ),
 
                       const SizedBox(height: 24),
@@ -194,7 +203,11 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
                         focusedPinTheme: focusedPinTheme,
                         textCapitalization: TextCapitalization.characters,
                         onCompleted: _validateCode,
-                        onChanged: (_) => setState(() => _errorText = null),
+                        onChanged: (_) {
+                          if(_errorText != null) {
+                            setState(() => _errorText = null);
+                          }
+                        },
                       ),
 
                       if (_errorText != null) ...[

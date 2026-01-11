@@ -57,7 +57,15 @@ class ConfirmCommunityModal extends StatelessWidget {
                 ),
               ),
               child: Center(
-                child: Text(communityIcon, style: const TextStyle(fontSize: 40)),
+                child: Image.network(
+                  communityIcon,
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Icon(Icons.group, size: 50, color: AppColors.lightBackground);
+                  },
+                ),
               ),
             ),
 

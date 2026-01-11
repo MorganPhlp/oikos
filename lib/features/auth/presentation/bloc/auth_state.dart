@@ -18,3 +18,12 @@ final class AuthFailure extends AuthState {
   final String message;
   const AuthFailure(this.message);
 }
+
+final class AuthCommunityVerified extends AuthState {
+  final String communityName;
+  final String? logoUrl;
+  const AuthCommunityVerified({
+    required this.communityName,
+    this.logoUrl,
+  });
+}

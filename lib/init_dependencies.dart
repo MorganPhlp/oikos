@@ -66,7 +66,6 @@ void _initAuth() {
   // Repository
   serviceLocator.registerFactory<AuthRepository>(
     () => AuthRepositoryImpl(
-      supabaseClient: serviceLocator(),
       remoteDataSource: serviceLocator(),
     ),
   );
@@ -87,6 +86,7 @@ void _initAuth() {
       userSignin: serviceLocator(),
       currentUser: serviceLocator(),
       appUserCubit: serviceLocator(),
+      authRepository: serviceLocator(),
     ),
   );
 }

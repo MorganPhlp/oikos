@@ -28,3 +28,11 @@ final class AuthSignIn extends AuthEvent {
 }
 
 final class AuthIsUserLoggedIn extends AuthEvent {}
+
+final class AuthVerifyCommunity extends AuthEvent {
+  final String communityCode;
+
+  AuthVerifyCommunity({
+    required this.communityCode,
+  });
+}

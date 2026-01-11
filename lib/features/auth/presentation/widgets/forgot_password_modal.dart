@@ -106,7 +106,7 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
                       hintText: "prenom.nom@entreprise.fr",
                       controller: _emailController,
                       prefixIcon: Icons.mail_outline,
-                      // TODO : Ajouter règles de validation email
+                      // TODO : Ajouter règles de validation email (vérifier que c'est email pro via appel API vers BD des domaines pro)
                     ),
 
                     const SizedBox(height: 20),

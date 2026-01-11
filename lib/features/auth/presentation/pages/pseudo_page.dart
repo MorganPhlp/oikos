@@ -34,6 +34,7 @@ class _PseudoPageState extends State<PseudoPage> {
   // ignore: unused_field
   String? _errorText;
 
+  // TODO: Ajouter vérification de l'unicité du pseudo via API
   String? _validatePseudo(String? value) {
     if (value == null || value.trim().isEmpty) {
       return 'Choisis un petit nom sympa 😊';

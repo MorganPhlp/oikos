@@ -9,6 +9,8 @@ import 'package:oikos/features/bilanCarbone/presentation/widgets/question_widget
 import 'package:oikos/features/bilanCarbone/presentation/widgets/suggestions_widget.dart';
 import 'package:oikos/init_dependencies.dart';
 
+import '../../../../core/common/widgets/loader.dart';
+
 class BilanPage extends StatefulWidget {
   const BilanPage({super.key});
 
@@ -53,7 +55,7 @@ class _BilanPageState extends State<BilanPage> {
           },
           builder: (context, state) {
             if (state is BilanLoading) {
-              return const Center(child: CircularProgressIndicator());
+              return const Loader();
             }
 
             if (state is BilanQuestionDisplayed) {

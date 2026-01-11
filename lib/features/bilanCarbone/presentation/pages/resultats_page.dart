@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:oikos/core/common/widgets/loader.dart';
 import 'dart:ui';
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/core/presentation/widgets/gradient_button.dart';
@@ -113,7 +114,7 @@ class ResultsPage extends StatelessWidget {
   // --- LOGIQUE DES ÉQUIVALENTS ---
   Widget _buildEquivalentsGrid(BuildContext context) {
     if (equivalents == null || equivalents!.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return const Loader();
     }
 
     final size = MediaQuery.of(context).size;

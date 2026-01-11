@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/core/common/entities/user.dart';
+import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
 import 'package:oikos/features/auth/domain/usecases/current_user.dart';
 import 'package:oikos/features/auth/domain/usecases/user_signin.dart';
 import 'package:oikos/features/auth/domain/usecases/user_signup.dart';
@@ -16,21 +17,25 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final UserSignin _userSignin;
   final CurrentUser _currentUser;
   final AppUserCubit _appUserCubit;
+  final AuthRepository _authRepository;
 
   AuthBloc({
     required UserSignup userSignup,
     required UserSignin userSignin,
     required CurrentUser currentUser,
     required AppUserCubit appUserCubit,
+    required AuthRepository authRepository,
   }) : _userSignin = userSignin,
        _userSignup = userSignup,
        _currentUser = currentUser,
        _appUserCubit = appUserCubit,
+       _authRepository = authRepository,
        super(AuthInitial()) {
     on<AuthEvent>((_, emit) => emit(AuthLoading())); // Appliquer un état de chargement par défaut pour tous les événements
     on<AuthSignUp>(_onAuthSignUp);
     on<AuthSignIn>(_onAuthSignIn);
     on<AuthIsUserLoggedIn>(_onAuthIsUserLoggedIn);
+    on<AuthVerifyCommunity>(_onAuthVerifyCommunity);
   }
 
   void _onAuthIsUserLoggedIn(
@@ -69,6 +74,25 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     res.fold(
       (failure) => emit(AuthFailure(failure.message)),
       (user) => _emitAuthSuccess(user, emit),
+    );
+  }
+
+  void _onAuthVerifyCommunity(
+    AuthVerifyCommunity event,
+    Emitter<AuthState> emit,
+  ) async {
+    final res = await _authRepository.verifyCommunityCode(
+      communityCode: event.communityCode,
+    );
+
+    res.fold(
+      (failure) => emit(AuthFailure(failure.message)),
+      (communityData) => emit(
+        AuthCommunityVerified(
+          communityName: communityData.$1,
+          logoUrl: communityData.$2,
+        ),
+      ),
     );
   }
 

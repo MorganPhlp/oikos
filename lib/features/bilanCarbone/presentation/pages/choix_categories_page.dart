@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:oikos/core/common/widgets/loader.dart';
 import 'package:oikos/core/domain/entities/categorie_empreinte_entity.dart';
 import 'package:oikos/core/presentation/widgets/gradient_button.dart';
 import 'package:oikos/core/theme/app_colors.dart';
@@ -69,7 +70,7 @@ class _ChoixCategoriesPageState extends State<ChoixCategoriesPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      CircularProgressIndicator(color: AppColors.gradientGreenEnd),
+                      Loader(),
                       SizedBox(height: 20),
                       Text("Calcul de ton empreinte..."),
                     ],
