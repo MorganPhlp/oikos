@@ -49,7 +49,7 @@ List<Map<String, dynamic>> get options {
   // Récupère l'unité (ex: "km", "m2", "kg")
   String? get unit => config['unit'] as String?;
 
-  // Pour les sliders et inputs numériques
+  // Pour les sliders, inputs numeriques et compteurs
   double? get min => (config['min'] as num?)?.toDouble();
   double? get max => (config['max'] as num?)?.toDouble();
   
