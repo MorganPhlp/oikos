@@ -28,6 +28,12 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
   double? _selectedRatio;
   bool _isCustomMode = false;
   final TextEditingController _customController = TextEditingController();
+  //les icones pour les objectifs
+  final List<IconData> goalIcons = [
+    Icons.eco, // Objectif 1
+    Icons.directions_bike,    // Objectif 2
+    Icons.rocket_launch,      // Objectif 3
+];
 
   void _handlePresetSelect(double ratio) {
     setState(() {
@@ -105,7 +111,16 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
                     _buildCurrentEmpreinteBox(score, context),
                     SizedBox(height: size.height * 0.024),
       
-                    ...objectifs.map((obj) => _buildGoalCard(obj, score, context)).toList(),
+                    ...objectifs.asMap().entries.map((entry) {
+                      int idx = entry.key;
+                      var obj = entry.value;
+                      return _buildGoalCard(
+                        obj, 
+                        score, 
+                        context, 
+                        goalIcons[idx % goalIcons.length],
+                      );
+                    }).toList(),
       
                     _buildCustomGoalCard(score, context),
       
@@ -171,7 +186,7 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
     );
   }
 
-  Widget _buildGoalCard( ObjectifEntity objectif, double score, BuildContext context) {
+  Widget _buildGoalCard( ObjectifEntity objectif, double score, BuildContext context, IconData icon) {
     final size = MediaQuery.of(context).size;
     final isSmallScreen = size.width < 360;
     final bool isSelected = !_isCustomMode && _selectedRatio == objectif.valeur;
@@ -208,7 +223,7 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
         ),
         child: Row(
           children: [
-            _buildIconCircle(Icons.bolt, objectif.gradientColors, isSelected, context),
+            _buildIconCircle(icon, objectif.gradientColors, isSelected, context),
             SizedBox(width: size.width * 0.04),
             Expanded(
               child: Column(

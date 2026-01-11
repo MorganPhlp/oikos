@@ -62,6 +62,10 @@ const dependancies = {
     ],
 };
 
+const limites = {
+    "alimentation . plats": {"min": 0, "max": 14},
+}
+
 // --- 1. DÉTECTION STRUCTURELLE (SANS REGEX) ---
 function determineWidgetType(rule) {
     const raw = rule.rawNode
@@ -126,6 +130,12 @@ function buildConfigJson(slug,rule, widgetType) {
         config.dependances = dependancies[slug]
     }
 
+    //limites
+    if (limites[slug]) {
+        console.log("   -> with limites")
+        config.min = limites[slug].min
+        config.max = limites[slug].max
+    }
     //chargement suggestions
     if (raw.mosaique && raw.mosaique.suggestions) {
         config.suggestions = raw.mosaique.suggestions

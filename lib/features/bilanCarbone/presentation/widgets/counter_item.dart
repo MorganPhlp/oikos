@@ -7,6 +7,7 @@ class CounterItem extends StatelessWidget {
   final int value;
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
+  final bool isMaxReached;
 
   const CounterItem({
     super.key,
@@ -15,12 +16,16 @@ class CounterItem extends StatelessWidget {
     required this.onIncrement,
     required this.onDecrement,
     this.iconEmoji,
+    this.isMaxReached = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    if (label.trim().toLowerCase() == "aucun"){
+      return SizedBox.shrink();
+    }
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(left: 6, right: 6, bottom: 12), 
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.lightInput, // Fond gris très clair
@@ -55,7 +60,6 @@ class CounterItem extends StatelessWidget {
               ],
             ),
           ),
-
           // CONTROLES (+ / -)
           Row(
             children: [
@@ -81,7 +85,7 @@ class CounterItem extends StatelessWidget {
               _CounterButton(
                 icon: Icons.add,
                 onTap: onIncrement,
-                isActive: true,
+                isActive: !isMaxReached, // Désactivé si max atteint
               ),
             ],
           ),

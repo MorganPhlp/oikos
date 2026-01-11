@@ -32,6 +32,7 @@ class _BilanPageState extends State<BilanPage> {
   dynamic _currentAnswer;
   bool _isAnswerValid = false;
   String? _selectedSuggestion;
+  ScrollController _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -64,69 +65,87 @@ class _BilanPageState extends State<BilanPage> {
               final horizontalPadding = size.width * 0.05;
               final verticalPadding = size.height * 0.012;
               
-              return Padding(
+            return Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: horizontalPadding, 
+                  horizontal: horizontalPadding,
                   vertical: verticalPadding,
                 ),
                 child: Column(
                   children: [
+                    // --- ÉLÉMENTS FIXES (Haut) ---
                     Image.asset(
                       'assets/logos/oikos_logo.png',
-                      width: size.width * 0.4, 
+                      width: size.width * 0.4,
                     ),
                     _buildHeader(progress, state, context),
-                    SizedBox(height: size.height * 0.03),
-                    Expanded(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            Text(
-                              state.question.icone ?? '',
-                              style: TextStyle(fontSize: size.width * 0.12),
-                            ),
-                            SizedBox(height: size.height * 0.015),
-                            Text(
-                              state.question.question,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: AppColors.lightTextPrimary,
-                                fontSize: size.width < 360 ? 20 : size.width * 0.06,
-                                fontWeight: FontWeight.bold,
-                                height: 1.2,
-                              ),
-                            ),
-                            SizedBox(height: size.height * 0.03),
-                            state.question.suggestions != null ? SuggestionsWidget(
-                            suggestions: List<String>.from(state.question.suggestions!.keys),
-                            selectedSuggestion: _selectedSuggestion, 
-                            onLocalChange: (key) {
-                              setState(() {
-                                _selectedSuggestion = key; // On retient quel bouton est cliqué
-                                _currentAnswer = state.question.suggestions![key]; // La Map pour la logique
-                                _isAnswerValid = true;
-                              });
-                            },
-                          ) : const SizedBox.shrink(),
-                          SizedBox(height: size.height * 0.03),
-                            QuestionWidgetFactory(
-                              question: state.question,
-                              currentValue: _currentAnswer,
-                              onLocalChange: (newValue) {
-                                setState(() {
-                                  _currentAnswer = newValue;
-                                  _selectedSuggestion = null; // On désélectionne la suggestion
-                                  });
-                              },
-                              onValidityChange: (isValid) {
-                                setState(() => _isAnswerValid = isValid);
-                              },
-                            ),
-                          ],
-                        ),
+                    SizedBox(height: size.height * 0.02),
+                    
+                    // Icône et Question restent fixes
+                    Text(
+                      state.question.icone ?? '',
+                      style: TextStyle(fontSize: size.width * 0.12),
+                    ),
+                    SizedBox(height: size.height * 0.01),
+                    Text(
+                      state.question.question,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: AppColors.lightTextPrimary,
+                        fontSize: size.width < 360 ? 20 : size.width * 0.055,
+                        fontWeight: FontWeight.bold,
+                        height: 1.2,
                       ),
                     ),
                     SizedBox(height: size.height * 0.02),
+
+                    // --- ZONE SCROLLABLE (Uniquement pour les réponses) ---
+                    Expanded(
+                      child: Scrollbar(
+                        controller: _scrollController,
+                        thumbVisibility: true,
+                        child: SingleChildScrollView(
+                          controller: _scrollController,
+                          child: Column(
+                            children: [
+                              // Suggestions (si présentes)
+                              if (state.question.suggestions != null) ...[
+                                SuggestionsWidget(
+                                  suggestions: List<String>.from(state.question.suggestions!.keys),
+                                  selectedSuggestion: _selectedSuggestion,
+                                  onLocalChange: (key) {
+                                    setState(() {
+                                      _selectedSuggestion = key;
+                                      _currentAnswer = state.question.suggestions![key];
+                                      _isAnswerValid = true;
+                                    });
+                                  },
+                                ),
+                                SizedBox(height: size.height * 0.02),
+                              ],
+
+                              // Le Widget Factory
+                              QuestionWidgetFactory(
+                                question: state.question,
+                                currentValue: _currentAnswer,
+                                onLocalChange: (newValue) {
+                                  setState(() {
+                                    _currentAnswer = newValue;
+                                    _selectedSuggestion = null;
+                                  });
+                                },
+                                onValidityChange: (isValid) {
+                                  setState(() => _isAnswerValid = isValid);
+                                },
+                              ),
+                              // Petit padding à la fin pour ne pas coller au footer
+                              SizedBox(height: 20),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // --- ÉLÉMENTS FIXES (Bas) ---
                     _buildFooterActions(context, state, size),
                   ],
                 ),
