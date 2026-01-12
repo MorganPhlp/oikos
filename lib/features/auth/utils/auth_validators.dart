@@ -1,51 +1,48 @@
-// TODO: A revoir et affiner
 class AuthValidators {
-  static const List<String> professionalDomains = [ // TODO : A aller chercher depuis BD plus tard
-    'oikos.fr',
-    'viveris.fr',
-    'company.com',
-    'enterprise.fr'
-  ];
-
-  static String? validateProfessionalEmail(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Oups ! Il manque ton email 😊';
-    }
-
-    final parts = value.split('@');
-    if (parts.length != 2) return 'Format d\'email invalide';
-
-    final domain = parts[1];
-    // Vérifie si le domaine fait partie de la liste
-    bool isPro = professionalDomains.any((d) => domain.contains(d));
-
-    if (!isPro) {
-      return 'On a besoin de ton email pro et non perso 😉';
-    }
-    return null;
+  // Regex basique pour valider le format d'email
+  static bool isValidEmail(String email) {
+    return RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    ).hasMatch(email);
   }
 
-  static String? validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Le mot de passe est requis';
-    }
-    if (value.length < 6) {
-      return 'Le mot de passe est trop court';
-    }
-    return null;
+  // Mot de passe robuste
+  static bool isStrongPassword(String password) {
+    // Au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial
+    return RegExp(
+      r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_(){}#/-])[A-Za-z\d@$!%*?&_(){}#/-]{8,}$',
+    ).hasMatch(password);
   }
 
-  static String? validateCommunityCode(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Le code de communauté est requis';
+  static String? passwordErrorText(String? password) {
+    if(password == null || password.isEmpty) {
+      return 'Veuillez entrer un mot de passe.';
     }
-    if (value.length != 6) {
-      return 'Le code de communauté doit contenir 6 caractères';
+    if (password.length < 8) {
+      return 'Le mot de passe doit contenir au moins 8 caractères.';
     }
-    final regex = RegExp(r'^[A-Za-z0-9]{6}$');
-    if (!regex.hasMatch(value)) {
-      return 'Le code de communauté doit être alphanumérique';
+    if (!RegExp(r'[A-Z]').hasMatch(password)) {
+      return 'Le mot de passe doit contenir au moins une lettre majuscule.';
     }
-    return null;
+    if (!RegExp(r'[a-z]').hasMatch(password)) {
+      return 'Le mot de passe doit contenir au moins une lettre minuscule.';
+    }
+    if (!RegExp(r'\d').hasMatch(password)) {
+      return 'Le mot de passe doit contenir au moins un chiffre.';
+    }
+    if (!RegExp(r'[@$!%*?&_(){}#/-]').hasMatch(password)) {
+      return 'Le mot de passe doit contenir au moins un caractère spécial.';
+    }
+    return null; // Mot de passe valide
+  }
+
+  static String? validateEmail(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Veuillez entrer une adresse e-mail.';
+    }
+    if (!isValidEmail(value.trim())) {
+      return 'Veuillez entrer une adresse e-mail valide.';
+    }
+    return null; // Email valide
   }
 }

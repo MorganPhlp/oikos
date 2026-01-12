@@ -10,6 +10,7 @@ class UserSignup implements UseCase<User, UserSignupParams>{
 
   @override
   Future<Either<Failure, User>> call(UserSignupParams params) async {
+
     return await authRepository.signUpWithEmailPassword(
         email: params.email,
         password: params.password,

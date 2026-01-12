@@ -27,4 +27,8 @@ abstract interface class AuthRepository {
   Future<Either<Failure, String>> verifyCommunityCode({
     required String communityCode,
   });
+
+  Future<Either<Failure, bool>> isPseudoUnique({
+    required String pseudo,
+  });
 }

@@ -193,7 +193,6 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
                       const SizedBox(height: 40),
 
                       // Icône Sparkles (si pas logo) ou logo entreprise
-                      // TODO: Vérifier quel logo par défaut utiliser
                       Container(
                         width: 80,
                         height: 80,

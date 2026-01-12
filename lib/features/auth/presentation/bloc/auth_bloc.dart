@@ -6,6 +6,8 @@ import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
 import 'package:oikos/features/auth/domain/usecases/current_user.dart';
 import 'package:oikos/features/auth/domain/usecases/user_signin.dart';
 import 'package:oikos/features/auth/domain/usecases/user_signup.dart';
+import 'package:oikos/features/auth/domain/usecases/validate_email_password.dart';
+import 'package:oikos/features/auth/domain/usecases/validate_pseudo.dart';
 
 import '../../../../core/usecase/usecase.dart';
 
@@ -18,6 +20,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final CurrentUser _currentUser;
   final AppUserCubit _appUserCubit;
   final AuthRepository _authRepository;
+  final ValidateEmailPassword _validateEmailPassword;
+  final ValidatePseudo _validatePseudo;
 
   AuthBloc({
     required UserSignup userSignup,
@@ -25,11 +29,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required CurrentUser currentUser,
     required AppUserCubit appUserCubit,
     required AuthRepository authRepository,
+    required ValidateEmailPassword validateEmailPassword,
+    required ValidatePseudo validatePseudo,
   }) : _userSignin = userSignin,
        _userSignup = userSignup,
        _currentUser = currentUser,
        _appUserCubit = appUserCubit,
        _authRepository = authRepository,
+       _validateEmailPassword = validateEmailPassword,
+       _validatePseudo = validatePseudo,
        super(AuthInitial()) {
     on<AuthEvent>(
       (_, emit) => emit(AuthLoading()),
@@ -39,6 +47,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthIsUserLoggedIn>(_onAuthIsUserLoggedIn);
     on<AuthVerifyCommunity>(_onAuthVerifyCommunity);
     on<AuthLoadCompanyInfo>(_onAuthLoadCompanyInfo);
+    on<AuthValidateEmailPassword>(_onAuthValidateEmailPassword);
+    on<AuthValidatePseudo>(_onAuthValidatePseudo);
   }
 
   void _onAuthIsUserLoggedIn(
@@ -109,6 +119,37 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (failure) => emit(AuthFailure(failure.message)),
       (communityName) =>
           emit(AuthCommunityVerified(communityName: communityName)),
+    );
+  }
+
+  void _onAuthValidateEmailPassword(
+    AuthValidateEmailPassword event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit (AuthLoading());
+
+    final res = await _validateEmailPassword(
+      ValidateEmailPasswordParams(
+        email: event.email,
+        password: event.password,
+      ),
+    );
+
+    res.fold(
+      (failure) => emit(AuthFailure(failure.message)),
+      (_) => emit(AuthEmailPasswordVerified()),
+    );
+  }
+
+  void _onAuthValidatePseudo(
+    AuthValidatePseudo event,
+    Emitter<AuthState> emit,
+  ) async {
+    final res = await _validatePseudo(event.pseudo);
+
+    res.fold(
+      (failure) => emit(AuthFailure(failure.message)),
+      (_) => emit(AuthPseudoVerified()),
     );
   }
 

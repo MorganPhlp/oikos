@@ -80,7 +80,9 @@ class AuthRepositoryImpl implements AuthRepository {
           .maybeSingle();
 
       if (result == null) {
-        return left(Failure('Aucune entreprise trouvée pour ce domaine email.'));
+        return left(
+          Failure('Aucune entreprise trouvée pour ce domaine email.'),
+        );
       }
 
       final nom = result['nom'] as String;
@@ -118,6 +120,24 @@ class AuthRepositoryImpl implements AuthRepository {
       }
 
       return right((result['nom'] as String));
+    } on AuthException catch (e) {
+      return left(Failure(e.message));
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> isPseudoUnique({required String pseudo}) async {
+    try {
+      final response = await remoteDataSource.client
+          .from('utilisateur')
+          .select('pseudo')
+          .eq('pseudo', pseudo)
+          .count(CountOption.exact);
+
+      final count = response.count;
+      return right(count == 0);
     } on AuthException catch (e) {
       return left(Failure(e.message));
     } on ServerException catch (e) {

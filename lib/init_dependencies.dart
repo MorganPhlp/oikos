@@ -38,6 +38,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/common/cubits/app_user/app_user_cubit.dart';
 import 'core/secrets/app_secrets.dart';
+import 'features/auth/domain/usecases/validate_email_password.dart';
+import 'features/auth/domain/usecases/validate_pseudo.dart';
 
 final serviceLocator = GetIt.instance;
 
@@ -65,9 +67,7 @@ void _initAuth() {
 
   // Repository
   serviceLocator.registerFactory<AuthRepository>(
-    () => AuthRepositoryImpl(
-      remoteDataSource: serviceLocator(),
-    ),
+    () => AuthRepositoryImpl(remoteDataSource: serviceLocator()),
   );
 
   // Use cases
@@ -79,6 +79,10 @@ void _initAuth() {
 
   serviceLocator.registerFactory(() => CurrentUser(serviceLocator()));
 
+  serviceLocator.registerFactory(() => ValidateEmailPassword(serviceLocator(),));
+
+  serviceLocator.registerFactory(() => ValidatePseudo(serviceLocator(),));
+
   // Bloc
   serviceLocator.registerLazySingleton(
     () => AuthBloc(
@@ -87,19 +91,30 @@ void _initAuth() {
       currentUser: serviceLocator(),
       appUserCubit: serviceLocator(),
       authRepository: serviceLocator(),
+      validateEmailPassword: serviceLocator(),
+      validatePseudo: serviceLocator(),
     ),
   );
 }
 
-  void _initBilan() {
+void _initBilan() {
   // ==========================================================
   // DATA (Repositories & Services)
   // ==========================================================
-  serviceLocator.registerLazySingleton<SimulationRepository>(() => PublicodesService());
-  serviceLocator.registerLazySingleton<QuestionRepository>(() => QuestionRepositoryImpl(supabaseClient: serviceLocator()));
-  serviceLocator.registerLazySingleton<ReponseRepository>(() => ReponseRepositoryImpl(supabaseClient: serviceLocator()));
+  serviceLocator.registerLazySingleton<SimulationRepository>(
+    () => PublicodesService(),
+  );
+  serviceLocator.registerLazySingleton<QuestionRepository>(
+    () => QuestionRepositoryImpl(supabaseClient: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton<ReponseRepository>(
+    () => ReponseRepositoryImpl(supabaseClient: serviceLocator()),
+  );
   serviceLocator.registerLazySingleton<BilanSessionRepository>(
-    () => BilanSessionRepositoryImpl(supabaseClient: serviceLocator(), authRepo: serviceLocator()),
+    () => BilanSessionRepositoryImpl(
+      supabaseClient: serviceLocator(),
+      authRepo: serviceLocator(),
+    ),
   );
   serviceLocator.registerLazySingleton<CategorieEmpreinteRepository>(
     () => CategorieEmpreinteRepositoryImpl(supabaseClient: serviceLocator()),
@@ -114,48 +129,82 @@ void _initAuth() {
   // ==========================================================
   // DOMAINE (Services & Use Cases)
   // ==========================================================
-  serviceLocator.registerLazySingleton(() => ApplicabilityChecker(serviceLocator()));
+  serviceLocator.registerLazySingleton(
+    () => ApplicabilityChecker(serviceLocator()),
+  );
 
-  serviceLocator.registerLazySingleton(() => DemarrerBilanUseCase(
-        simulationRepo: serviceLocator(),
-        questionRepo: serviceLocator(),
-        bilanSessionRepo: serviceLocator(),
-      ));
+  serviceLocator.registerLazySingleton(
+    () => DemarrerBilanUseCase(
+      simulationRepo: serviceLocator(),
+      questionRepo: serviceLocator(),
+      bilanSessionRepo: serviceLocator(),
+    ),
+  );
 
-  serviceLocator.registerLazySingleton(() => EnregistrerReponseUseCase(
-        simulationRepo: serviceLocator(),
-        reponseRepo: serviceLocator(),
-        bilanSessionRepo: serviceLocator(),
-      ));
+  serviceLocator.registerLazySingleton(
+    () => EnregistrerReponseUseCase(
+      simulationRepo: serviceLocator(),
+      reponseRepo: serviceLocator(),
+      bilanSessionRepo: serviceLocator(),
+    ),
+  );
 
-  serviceLocator.registerLazySingleton(() => GetProchaineQuestionUseCase(applicabilityChecker: serviceLocator()));
-  serviceLocator.registerLazySingleton(() => GetPreviousQuestionUseCase(applicabilityChecker: serviceLocator()));
-  serviceLocator.registerLazySingleton(() => DemarrerApprofondissementUseCase(categorieRepo: serviceLocator()));
-  serviceLocator.registerLazySingleton(() => ChoixCategoriesUseCase(categorieRepo: serviceLocator()));
-  serviceLocator.registerLazySingleton(() => DefinirObjectifUseCase(utilisateurRepo: serviceLocator()));
-  serviceLocator.registerLazySingleton(() => CalculerBilanUseCase(simulationRepository: serviceLocator(), bilanRepository: serviceLocator()));
-  serviceLocator.registerLazySingleton(() => RecupererEquivalentsCarboneUseCase(carboneEquivalentRepository: serviceLocator()));
-  serviceLocator.registerLazySingleton(() => CalculerBilanCategoriesUseCase(simulationRepository: serviceLocator()));
-  serviceLocator.registerLazySingleton(() => ObtenirObjectifsDisponiblesUseCase());
-  serviceLocator.registerLazySingleton(() => PreparerChoixObjectifsUseCase(
-        calculerBilanUseCase: serviceLocator(),
-        obtenirObjectifsUseCase: serviceLocator(),
-      ));
+  serviceLocator.registerLazySingleton(
+    () => GetProchaineQuestionUseCase(applicabilityChecker: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => GetPreviousQuestionUseCase(applicabilityChecker: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => DemarrerApprofondissementUseCase(categorieRepo: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => ChoixCategoriesUseCase(categorieRepo: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => DefinirObjectifUseCase(utilisateurRepo: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => CalculerBilanUseCase(
+      simulationRepository: serviceLocator(),
+      bilanRepository: serviceLocator(),
+    ),
+  );
+  serviceLocator.registerLazySingleton(
+    () => RecupererEquivalentsCarboneUseCase(
+      carboneEquivalentRepository: serviceLocator(),
+    ),
+  );
+  serviceLocator.registerLazySingleton(
+    () =>
+        CalculerBilanCategoriesUseCase(simulationRepository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => ObtenirObjectifsDisponiblesUseCase(),
+  );
+  serviceLocator.registerLazySingleton(
+    () => PreparerChoixObjectifsUseCase(
+      calculerBilanUseCase: serviceLocator(),
+      obtenirObjectifsUseCase: serviceLocator(),
+    ),
+  );
 
   // ==========================================================
   // PRESENTATION (Bloc)
   // ==========================================================
-  serviceLocator.registerFactory(() => BilanBloc(
-        demarrerBilanUseCase: serviceLocator(),
-        repondreUseCase: serviceLocator(),
-        getNextUseCase: serviceLocator(),
-        getPrevUseCase: serviceLocator(),
-        choixCategoriesUseCase: serviceLocator(),
-        demarrerApprofondissementUseCase: serviceLocator(),
-        definirObjectifUseCase: serviceLocator(),
-        calculerBilanUseCase: serviceLocator(),
-        calculerBilanCategoriesUseCase: serviceLocator(),
-        recupererEquivalentsCarboneUseCase: serviceLocator(),
-        preparerChoixObjectifsUseCase: serviceLocator(),
-      ));
+  serviceLocator.registerFactory(
+    () => BilanBloc(
+      demarrerBilanUseCase: serviceLocator(),
+      repondreUseCase: serviceLocator(),
+      getNextUseCase: serviceLocator(),
+      getPrevUseCase: serviceLocator(),
+      choixCategoriesUseCase: serviceLocator(),
+      demarrerApprofondissementUseCase: serviceLocator(),
+      definirObjectifUseCase: serviceLocator(),
+      calculerBilanUseCase: serviceLocator(),
+      calculerBilanCategoriesUseCase: serviceLocator(),
+      recupererEquivalentsCarboneUseCase: serviceLocator(),
+      preparerChoixObjectifsUseCase: serviceLocator(),
+    ),
+  );
 }

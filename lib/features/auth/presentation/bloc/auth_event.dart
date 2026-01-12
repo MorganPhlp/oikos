@@ -37,3 +37,16 @@ final class AuthVerifyCommunity extends AuthEvent {
 
   AuthVerifyCommunity({required this.communityCode});
 }
+
+final class AuthValidateEmailPassword extends AuthEvent {
+  final String email;
+  final String password;
+
+  AuthValidateEmailPassword({required this.email, required this.password});
+}
+
+final class AuthValidatePseudo extends AuthEvent {
+  final String pseudo;
+
+  AuthValidatePseudo({required this.pseudo});
+}

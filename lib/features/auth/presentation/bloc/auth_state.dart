@@ -29,3 +29,7 @@ final class AuthCommunityVerified extends AuthState {
   final String communityName;
   const AuthCommunityVerified({required this.communityName});
 }
+
+final class AuthEmailPasswordVerified extends AuthState {}
+
+final class AuthPseudoVerified extends AuthState {}
