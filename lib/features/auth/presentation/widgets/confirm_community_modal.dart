@@ -45,7 +45,7 @@ class ConfirmCommunityModal extends StatelessWidget {
               ),
             ),
 
-            // Icone Communauté (Cercle Dégradé)
+            // Icône Communauté (Cercle Dégradé)
             Container(
               width: 80, height: 80,
               decoration: const BoxDecoration(

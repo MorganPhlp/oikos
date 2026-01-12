@@ -19,11 +19,13 @@ final class AuthFailure extends AuthState {
   const AuthFailure(this.message);
 }
 
+final class AuthCompanyInfoLoaded extends AuthState {
+  final String companyName;
+  final String? logoUrl;
+  const AuthCompanyInfoLoaded({required this.companyName, this.logoUrl});
+}
+
 final class AuthCommunityVerified extends AuthState {
   final String communityName;
-  final String? logoUrl;
-  const AuthCommunityVerified({
-    required this.communityName,
-    this.logoUrl,
-  });
+  const AuthCommunityVerified({required this.communityName});
 }

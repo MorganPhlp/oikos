@@ -31,11 +31,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
        _appUserCubit = appUserCubit,
        _authRepository = authRepository,
        super(AuthInitial()) {
-    on<AuthEvent>((_, emit) => emit(AuthLoading())); // Appliquer un état de chargement par défaut pour tous les événements
+    on<AuthEvent>(
+      (_, emit) => emit(AuthLoading()),
+    ); // Appliquer un état de chargement par défaut pour tous les événements
     on<AuthSignUp>(_onAuthSignUp);
     on<AuthSignIn>(_onAuthSignIn);
     on<AuthIsUserLoggedIn>(_onAuthIsUserLoggedIn);
     on<AuthVerifyCommunity>(_onAuthVerifyCommunity);
+    on<AuthLoadCompanyInfo>(_onAuthLoadCompanyInfo);
   }
 
   void _onAuthIsUserLoggedIn(
@@ -77,6 +80,23 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
+  void _onAuthLoadCompanyInfo(
+    AuthLoadCompanyInfo event,
+    Emitter<AuthState> emit,
+  ) async {
+    final res = await _authRepository.getCompanyByEmail(email: event.email);
+
+    res.fold(
+      (failure) => emit(AuthFailure(failure.message)),
+      (companyData) => emit(
+        AuthCompanyInfoLoaded(
+          companyName: companyData.$1,
+          logoUrl: companyData.$2,
+        ),
+      ),
+    );
+  }
+
   void _onAuthVerifyCommunity(
     AuthVerifyCommunity event,
     Emitter<AuthState> emit,
@@ -87,12 +107,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     res.fold(
       (failure) => emit(AuthFailure(failure.message)),
-      (communityData) => emit(
-        AuthCommunityVerified(
-          communityName: communityData.$1,
-          logoUrl: communityData.$2,
-        ),
-      ),
+      (communityName) =>
+          emit(AuthCommunityVerified(communityName: communityName)),
     );
   }
 

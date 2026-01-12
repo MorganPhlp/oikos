@@ -7,14 +7,14 @@ import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/core/theme/app_typography.dart';
 import '../widgets/confirm_community_modal.dart';
 
-
 class CommunityCodePage extends StatefulWidget {
-  static MaterialPageRoute<dynamic> route({required String email, required String password, required String pseudo}) => MaterialPageRoute(
-    builder: (context) => CommunityCodePage(
-        email: email,
-        password: password,
-        pseudo: pseudo,
-    ),
+  static MaterialPageRoute<dynamic> route({
+    required String email,
+    required String password,
+    required String pseudo,
+  }) => MaterialPageRoute(
+    builder: (context) =>
+        CommunityCodePage(email: email, password: password, pseudo: pseudo),
   );
 
   final String email;
@@ -35,17 +35,15 @@ class CommunityCodePage extends StatefulWidget {
 class _CommunityCodePageState extends State<CommunityCodePage> {
   final _pinController = TextEditingController();
   String? _errorText;
-  String? _loadedLogoUrl;
 
-  // Logique pour extraire le nom de l'entreprise de l'email
-  String get _companyName {
-    final parts = widget.email.split('@');
-    if (parts.length > 1) {
-      final domain = parts[1].split('.')[0];
-      // Met la première lettre en majuscule
-      return domain[0].toUpperCase() + domain.substring(1);
-    }
-    return "Entreprise";
+  String? _companyName;
+  String? _companyLogoUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    // Récupération du nom de l'entreprise et du logo si nécessaire
+    context.read<AuthBloc>().add(AuthLoadCompanyInfo(email: widget.email));
   }
 
   // Fonction pour valider le code communauté
@@ -64,10 +62,17 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
     final defaultPinTheme = PinTheme(
       width: 45,
       height: 55,
-      textStyle: const TextStyle(fontSize: 20, color: AppColors.lightTextPrimary, fontWeight: FontWeight.w600),
+      textStyle: const TextStyle(
+        fontSize: 20,
+        color: AppColors.lightTextPrimary,
+        fontWeight: FontWeight.w600,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(color: AppColors.lightInputBorderFocused.withValues(alpha: 0.3), width: 2),
+        border: Border.all(
+          color: AppColors.lightInputBorderFocused.withValues(alpha: 0.3),
+          width: 2,
+        ),
         borderRadius: BorderRadius.circular(12),
       ),
     );
@@ -83,26 +88,41 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
           setState(() => _errorText = state.message);
         }
 
-        if (state is AuthCommunityVerified) {
-          if(state.logoUrl != null) {
-            setState(() => _loadedLogoUrl = state.logoUrl);
-          }
+        // L'entreprise a été chargée avec succès
+        if (state is AuthCompanyInfoLoaded) {
+          setState(() {
+            _companyName = state.companyName;
+            _companyLogoUrl = state.logoUrl;
+          });
+        }
 
-          // Le code est valide, afficher la modale de confirmation
+        // Le code communauté a été vérifié avec succès
+        if (state is AuthCommunityVerified) {
           showDialog(
             context: context,
             builder: (context) => ConfirmCommunityModal(
               communityName: state.communityName,
-              communityIcon: state.logoUrl ?? '',
+              communityIcon:
+                  _companyLogoUrl ??
+                  '', // Utilise le logo de l'entreprise si disponible
               onConfirm: () {
                 // Déclenche l'événement d'inscription
-                context.read<AuthBloc>().add(AuthSignUp(email: widget.email, password: widget.password, pseudo: widget.pseudo, communityCode: _pinController.text.toUpperCase()));
-                Navigator.popUntil(context, (route) => route.isFirst); // Ferme toutes les modales et revient à la page principale
+                context.read<AuthBloc>().add(
+                  AuthSignUp(
+                    email: widget.email,
+                    password: widget.password,
+                    pseudo: widget.pseudo,
+                    communityCode: _pinController.text.toUpperCase(),
+                  ),
+                );
+                Navigator.popUntil(
+                  context,
+                  (route) => route.isFirst,
+                ); // Ferme toutes les modales et revient à la page principale
               },
               onCancel: () {
                 Navigator.pop(context); // Ferme la modale
                 _pinController.clear(); // Réinitialise le champ de saisie
-                setState(() => _loadedLogoUrl = null); // Réinitialise le logo chargé
               },
             ),
           );
@@ -110,7 +130,7 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
       },
       builder: (context, state) {
         // Afficher un loader si l'état est en cours de chargement et que le PIN n'est pas complet
-        if(state is AuthLoading && _pinController.length != 6) {
+        if (state is AuthLoading) {
           // Afficher un indicateur de chargement
           return const Loader();
         }
@@ -129,70 +149,119 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
                       const SizedBox(height: 20),
 
                       // Carte Entreprise (Facultatif, selon la maquette)
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              AppColors.gradientGreenStart.withValues(alpha: 0.3),
-                              AppColors.gradientGreenEnd.withValues(alpha: 0.3)
+                      if(_companyName != null)
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                AppColors.gradientGreenStart.withValues(
+                                  alpha: 0.3,
+                                ),
+                                AppColors.gradientGreenEnd.withValues(
+                                    alpha: 0.3),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Row(
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Entreprise détectée",
+                                    style: TextStyle(
+                                      color: AppColors.lightTextPrimary
+                                          .withValues(alpha: 0.6),
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  Text(
+                                    _companyName!,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
-                          borderRadius: BorderRadius.circular(15),
                         ),
-                        child: Row(
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Entreprise détectée", style: TextStyle(color: AppColors.lightTextPrimary.withValues(alpha: 0.6), fontSize: 12)),
-                                Text(_companyName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
 
                       const SizedBox(height: 40),
 
                       // Icône Sparkles (si pas logo) ou logo entreprise
                       // TODO: Vérifier quel logo par défaut utiliser
-                      // TODO: Vérifier l'entreprise pour charger le logo
                       Container(
-                        width: 80, height: 80,
+                        width: 80,
+                        height: 80,
                         decoration: const BoxDecoration(
                           shape: BoxShape.circle,
                           gradient: LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
-                            colors: [AppColors.gradientGreenStart, AppColors.gradientGreenEnd],
+                            colors: [
+                              AppColors.gradientGreenStart,
+                              AppColors.gradientGreenEnd,
+                            ],
                           ),
-                          boxShadow: [BoxShadow(blurRadius: 10, color: Colors.black12, offset: Offset(0, 4))],
+                          boxShadow: [
+                            BoxShadow(
+                              blurRadius: 10,
+                              color: Colors.black12,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
                         ),
-                        child: _loadedLogoUrl != null
-                          ? ClipOval(
-                              child: Image.network(
-                                _loadedLogoUrl!,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) => const Icon(Icons.business, color: AppColors.lightTextPrimary, size: 40),
+                        child: _companyLogoUrl != null
+                            ? ClipOval(
+                                child: Image.network(
+                                  _companyLogoUrl!,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      const Icon(
+                                        Icons.business,
+                                        color: AppColors.lightTextPrimary,
+                                        size: 40,
+                                      ),
+                                ),
+                              )
+                            : const Icon(
+                                Icons.auto_awesome,
+                                color: Colors.white,
+                                size: 40,
                               ),
-                            )
-                          : const Icon(Icons.auto_awesome, color: Colors.white, size: 40)
                       ),
 
                       const SizedBox(height: 24),
 
-                      Text("Rejoignez votre communauté", style: AppTypography.h2, textAlign: TextAlign.center),
+                      Text(
+                        "Rejoignez votre communauté",
+                        style: AppTypography.h2,
+                        textAlign: TextAlign.center,
+                      ),
                       const SizedBox(height: 10),
                       Text(
                         "Saisissez le code fourni par votre administrateur pour rejoindre votre équipe",
                         textAlign: TextAlign.center,
-                        style: AppTypography.body.copyWith(color: AppColors.lightTextPrimary.withValues(alpha: 0.7)),
+                        style: AppTypography.body.copyWith(
+                          color: AppColors.lightTextPrimary.withValues(
+                            alpha: 0.7,
+                          ),
+                        ),
                       ),
 
                       const SizedBox(height: 30),
 
-                      Text("Code communauté", style: TextStyle(fontWeight: FontWeight.w500, color: AppColors.lightTextPrimary)),
+                      Text(
+                        "Code communauté",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.lightTextPrimary,
+                        ),
+                      ),
                       const SizedBox(height: 12),
 
                       // INPUT PIN
@@ -204,7 +273,7 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
                         textCapitalization: TextCapitalization.characters,
                         onCompleted: _validateCode,
                         onChanged: (_) {
-                          if(_errorText != null) {
+                          if (_errorText != null) {
                             setState(() => _errorText = null);
                           }
                         },
@@ -221,12 +290,21 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
                           ),
                           child: Row(
                             children: [
-                              Icon(Icons.error_outline, color: Colors.red.shade500, size: 20),
+                              Icon(
+                                Icons.error_outline,
+                                color: Colors.red.shade500,
+                                size: 20,
+                              ),
                               const SizedBox(width: 8),
-                              Expanded(child: Text(_errorText!, style: TextStyle(color: Colors.red.shade700))),
+                              Expanded(
+                                child: Text(
+                                  _errorText!,
+                                  style: TextStyle(color: Colors.red.shade700),
+                                ),
+                              ),
                             ],
                           ),
-                        )
+                        ),
                       ],
 
                       const SizedBox(height: 30),
@@ -235,12 +313,17 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: AppColors.gradientGreenStart.withValues(alpha: 0.2),
+                          color: AppColors.gradientGreenStart.withValues(
+                            alpha: 0.2,
+                          ),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.info_outline, color: AppColors.lightIconPrimary),
+                            const Icon(
+                              Icons.info_outline,
+                              color: AppColors.lightIconPrimary,
+                            ),
                             const SizedBox(width: 12),
                             const Expanded(
                               child: Text(

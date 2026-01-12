@@ -24,19 +24,23 @@ CREATE TABLE IF NOT EXISTS utilisateur (
     role role_utilisateur DEFAULT 'UTILISATEUR',
     etat_compte etat_compte DEFAULT 'ACTIF',
     
-    est_compte_valide BOOLEAN DEFAULT FALSE, -- Snake_case recommandé en SQL
+    est_compte_valide BOOLEAN DEFAULT TRUE,
     impact_score_xp INT DEFAULT 0,
     co2_economise_total FLOAT DEFAULT 0,
-    a_accepte_cgu BOOLEAN DEFAULT FALSE,
-    communaute_nom VARCHAR(255),
-    code_communaute VARCHAR(100),
+    entreprise_id UUID,
+    code_communaute VARCHAR(6),
     objectif FLOAT DEFAULT 0.1,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     
-    -- Foreign Key vers ta table communauté (qui doit exister)
+    -- Foreign Keys
     CONSTRAINT fk_communaute 
-        FOREIGN KEY (communaute_nom) 
-        REFERENCES communaute(nom) 
+        FOREIGN KEY (code_communaute)
+        REFERENCES communaute(code)
+        ON DELETE SET NULL
+
+    CONSTRAINT fk_entreprise
+        FOREIGN KEY (entreprise_id)
+        REFERENCES entreprise(id)
         ON DELETE SET NULL
 );
 

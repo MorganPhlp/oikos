@@ -9,15 +9,13 @@ import '../datasources/auth_remote_data_source.dart';
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
 
-  const AuthRepositoryImpl({
-    required this.remoteDataSource,
-  });
+  const AuthRepositoryImpl({required this.remoteDataSource});
 
   @override
   Future<Either<Failure, User>> currentUser() async {
     try {
       final user = await remoteDataSource.getCurrentUserData();
-      if(user == null) {
+      if (user == null) {
         return left(Failure('User not logged in!'));
       }
       return right(user);
@@ -63,17 +61,63 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, (String name, String? logoUrl)>> verifyCommunityCode({
+  Future<Either<Failure, (String name, String? logoUrl)>> getCompanyByEmail({
+    required String email,
+  }) async {
+    try {
+      // Extraction du domaine
+      final parts = email.split('@');
+      if (parts.length != 2) {
+        return left(Failure('Adresse email invalide.'));
+      }
+      final domain = parts[1];
+
+      // Requête à la base de données
+      final result = await remoteDataSource.client
+          .from('entreprise')
+          .select('nom, logo_url')
+          .eq('domaine_email', domain)
+          .maybeSingle();
+
+      if (result == null) {
+        return left(Failure('Aucune entreprise trouvée pour ce domaine email.'));
+      }
+
+      final nom = result['nom'] as String;
+      final logo = result['logo_url'] as String?;
+
+      // Génération de l'URL publique du logo si disponible
+      String? logoUrl;
+      if (logo != null && logo.isNotEmpty) {
+        logoUrl = remoteDataSource.client.storage
+            .from('logos')
+            .getPublicUrl(logo);
+      }
+
+      return right((nom, logoUrl));
+    } on AuthException catch (e) {
+      return left(Failure(e.message));
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> verifyCommunityCode({
     required String communityCode,
   }) async {
     try {
-      final result = await remoteDataSource.client.from('communaute').select('nom, logo').eq('code', communityCode).maybeSingle();
+      final result = await remoteDataSource.client
+          .from('communaute')
+          .select('nom')
+          .eq('code', communityCode)
+          .maybeSingle();
 
       if (result == null) {
         return left(Failure('Ce code communauté est invalide.'));
       }
 
-      return right((result['nom'] as String, result['logo'] as String?));
+      return right((result['nom'] as String));
     } on AuthException catch (e) {
       return left(Failure(e.message));
     } on ServerException catch (e) {
