@@ -22,8 +22,8 @@ INSERT INTO communaute (code, nom, entreprise_id, description, couleurHEX) VALUE
 ON CONFLICT (code) DO NOTHING;
 
 -- 4. Equivalent Carbone
-INSERT INTO carbone_equivalent (equivalent_label, valeur_1_tonne) VALUES
-('A/R Paris-New York en avion', 0.49),
-('A/R Paris-Marseille en TGV', 227),
-('kg de baguette tradition', 1287)
+INSERT INTO carbone_equivalent (equivalent_label, valeur_1_tonne, icone) VALUES
+('A/R Paris-New York en avion', 0.49, '✈️'),
+('Litres d''eau', 130000, '💧'),
+('% de l''empreinte carbone moyenne d''un français', 11, '🇫🇷')
 ON CONFLICT DO NOTHING;

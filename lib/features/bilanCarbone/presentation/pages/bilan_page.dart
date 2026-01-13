@@ -5,6 +5,7 @@ import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/type_widget.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_bloc.dart';
 import 'package:oikos/features/bilanCarbone/presentation/widgets/question_widget_factory.dart';
+import 'package:oikos/features/bilanCarbone/presentation/widgets/suggestion_container.dart';
 import 'package:oikos/features/bilanCarbone/presentation/widgets/suggestions_widget.dart';
 import 'package:oikos/init_dependencies.dart';
 
@@ -142,8 +143,9 @@ class _BilanPageState extends State<BilanPage> {
                                   setState(() => _isAnswerValid = isValid);
                                 },
                               ),
-                              // Petit padding à la fin pour ne pas coller au footer
-                              SizedBox(height: 20),
+                              //Expliquation des suggestions 
+                              if (state.question.suggestions != null)
+                                SuggestionContainer(),
                             ],
                           ),
                         ),

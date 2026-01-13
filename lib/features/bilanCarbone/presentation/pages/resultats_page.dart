@@ -12,6 +12,11 @@ import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_bloc.dart';
 class ResultsPage extends StatelessWidget {
   const ResultsPage({super.key});
 
+  String _formatKgToTonnes(double kgValue, {int decimals = 1}) {
+    double tonnes = kgValue / 1000;
+    return tonnes.toStringAsFixed(decimals).replaceAll('.', ',');
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<BilanBloc, BilanState>(
@@ -20,21 +25,13 @@ class ResultsPage extends StatelessWidget {
           return const Scaffold(body: Center(child: Loader()));
         }
 
-        // --- DONNÉES ---
-        final double score = state.scoreTotal;
+        final double scoreKg = state.scoreTotal;
         final Map<String, double> scoresParCategorie = state.scoresParCategorie;
         final List<dynamic>? equivalents = state.equivalents;
 
-        // --- LOGIQUE DE NAVIGATION ---
-        void onContinue() {
-          Navigator.of(context).popUntil((route) => route.isFirst);
-        }
-
-        // --- DESIGN VARIABLES ---
         final size = MediaQuery.of(context).size;
         final isSmallScreen = size.width < 360;
-        final int displayScore = score.round();
-        const int parisTarget = 2000;
+        final String totalTonnesFormatted = _formatKgToTonnes(scoreKg, decimals: 1);
 
         return Scaffold(
           body: Stack(
@@ -56,16 +53,16 @@ class ResultsPage extends StatelessWidget {
                       _buildHeaderTitle(context),
                       SizedBox(height: size.height * 0.03),
 
-                      // Hero Score
-                      _buildHeroScore(displayScore, parisTarget, context),
-                      SizedBox(height: size.height * 0.02),
-
-                      // Graphique avec Légende
-                      _buildCategoryChart(context, scoresParCategorie),
+                      // Score Hero (Style d'avant)
+                      _buildHeroScore(scoreKg, 2000.0, context),
                       SizedBox(height: size.height * 0.03),
 
+                      // Graphique (Style d'avant)
+                      _buildCategoryChart(context, scoresParCategorie),
+                      SizedBox(height: size.height * 0.04),
+
                       Text(
-                        "$displayScore kg de CO₂ par an",
+                        "$totalTonnesFormatted tonnes de CO₂ par an",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: isSmallScreen ? 18 : size.width * 0.055,
@@ -75,16 +72,15 @@ class ResultsPage extends StatelessWidget {
                       ),
                       const Text(
                         "C'est l'équivalent de :",
-                        textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.grey),
                       ),
                       SizedBox(height: size.height * 0.02),
 
-                      // Grille des équivalents
-                      _buildEquivalentsGrid(context, equivalents, score),
+                      // Nouveaux équivalents (épurés avec emojis)
+                      _buildEquivalentsGrid(context, equivalents, scoreKg),
 
                       SizedBox(height: size.height * 0.04),
-                      _buildFooter(context, onContinue),
+                      _buildFooter(context, () => Navigator.of(context).popUntil((route) => route.isFirst)),
                       SizedBox(height: size.height * 0.02),
                     ],
                   ),
@@ -97,7 +93,7 @@ class ResultsPage extends StatelessWidget {
     );
   }
 
-  // --- COMPOSANTS DE STYLE ---
+  // --- COMPOSANTS DE STYLE (Thème original) ---
 
   Widget _buildBackgroundDecorations(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -129,33 +125,10 @@ class ResultsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeaderTitle(BuildContext context) {
+  Widget _buildHeroScore(double scoreKg, double targetKg, BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return Column(
-      children: [
-        Text(
-          "Mon bilan carbone",
-          style: TextStyle(
-            fontSize: size.width * 0.07,
-            fontWeight: FontWeight.bold,
-            color: AppColors.lightTextPrimary,
-          ),
-        ),
-        SizedBox(height: 4),
-        Container(
-          height: 3,
-          width: 60,
-          decoration: BoxDecoration(
-            color: AppColors.gradientGreenEnd,
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-      ],
-    );
-  }
+    final String scoreFormatted = _formatKgToTonnes(scoreKg, decimals: 1);
 
-  Widget _buildHeroScore(int score, int target, BuildContext context) {
-    final size = MediaQuery.of(context).size;
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(size.width * 0.07),
@@ -171,14 +144,14 @@ class ResultsPage extends StatelessWidget {
         children: [
           const Text("Ton empreinte annuelle", style: TextStyle(color: Colors.grey)),
           Text(
-            "$score",
+            scoreFormatted,
             style: TextStyle(
               fontSize: size.width * 0.14,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w900, // Corrigé : FontWeight.black n'existe pas
               color: AppColors.lightTextPrimary,
             ),
           ),
-          const Text("kg CO₂e / an", style: TextStyle(color: Colors.grey)),
+          const Text("tonnes CO₂e / an", style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w500)),
           SizedBox(height: size.height * 0.02),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -192,7 +165,7 @@ class ResultsPage extends StatelessWidget {
                 const Icon(LucideIcons.target, size: 18, color: AppColors.gradientGreenEnd),
                 const SizedBox(width: 8),
                 Text(
-                  "Objectif 2050 : $target kg/an",
+                  "Objectif 2050 : 2 t/an",
                   style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.gradientGreenEnd),
                 ),
               ],
@@ -203,177 +176,101 @@ class ResultsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildCategoryChart(BuildContext context, Map<String, double> scores) {
-    final size = MediaQuery.of(context).size;
-    final colors = [
-      const Color(0xFFE8914A),
-      const Color(0xFF65BA74),
-      const Color(0xFFBDEE63),
-      const Color(0xFF8DB654),
-      const Color(0xFF4A9960),
-    ];
+  // --- NOUVEAUX ÉQUIVALENTS (Style épuré) ---
 
+  Widget _buildEquivalentsGrid(BuildContext context, List<dynamic>? equivalents, double scoreKg) {
+    if (equivalents == null || equivalents.isEmpty) return const SizedBox();
+    final items = equivalents.take(4).toList();
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 1.3,
+      ),
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        final item = items[index] as CarboneEquivalentEntity;
+        final double finalValue = (scoreKg / 1000.0) * item.valeur1Tonne;
+
+        return Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppColors.lightBackground.withOpacity(0.5),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.lightBorder.withOpacity(0.5)),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(item.icone ?? '💡', style: const TextStyle(fontSize: 26)),
+              const SizedBox(height: 6),
+              Text(
+                finalValue > 10 ? finalValue.round().toString() : finalValue.toStringAsFixed(1).replaceAll('.', ','),
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.lightTextPrimary),
+              ),
+              Text(
+                item.equivalentLabel,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: AppColors.lightTextPrimary.withOpacity(0.6), fontSize: 10),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // --- AUTRES COMPOSANTS ---
+
+  Widget _buildHeaderTitle(BuildContext context) {
+    return Column(
+      children: [
+        const Text("Mon bilan carbone", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: AppColors.lightTextPrimary)),
+        const SizedBox(height: 4),
+        Container(height: 3, width: 40, decoration: BoxDecoration(color: AppColors.gradientGreenEnd, borderRadius: BorderRadius.circular(2))),
+      ],
+    );
+  }
+
+  Widget _buildCategoryChart(BuildContext context, Map<String, double> scoresKg) {
+    final colors = [const Color(0xFFFF6B6B), const Color(0xFF4ECDC4), const Color(0xFFFFD93D), const Color(0xFF6BCB77), const Color(0xFF4D96FF)];
     List<PieChartSectionData> sections = [];
     List<Widget> legendItems = [];
-    double total = scores.values.fold(0, (sum, item) => sum + item);
-
     int i = 0;
-    scores.forEach((key, value) {
-      if (value > 0) {
+    scoresKg.forEach((key, valueKg) {
+      if (valueKg > 0) {
         final color = colors[i % colors.length];
-        sections.add(PieChartSectionData(
-          color: color,
-          value: value,
-          radius: 35,
-          title: '',
+        sections.add(PieChartSectionData(color: color, value: valueKg, radius: 30, title: ''));
+        legendItems.add(Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+            const SizedBox(width: 6),
+            Text(key, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+          ],
         ));
-        legendItems.add(_buildLegendItem(color, key, value));
         i++;
       }
     });
 
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(25),
-        border: Border.all(color: AppColors.lightBorder),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 1,
-            child: SizedBox(
-              height: 120,
-              child: PieChart(PieChartData(sections: sections, centerSpaceRadius: 25)),
-            ),
-          ),
-          const SizedBox(width: 20),
-          Expanded(
-            flex: 1,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: legendItems,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLegendItem(Color color, String label, double value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        children: [
-          Container(width: 10, height: 10, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              label,
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          Text("${value.round()}kg", style: const TextStyle(fontSize: 10, color: Colors.grey)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEquivalentsGrid(BuildContext context, List<dynamic>? equivalents, double score) {
-    if (equivalents == null || equivalents.isEmpty) return const SizedBox();
-    final size = MediaQuery.of(context).size;
-
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 15,
-        mainAxisSpacing: 15,
-        childAspectRatio: size.width < 360 ? 0.85 : 1.1,
-      ),
-      itemCount: equivalents.length > 4 ? 4 : equivalents.length,
-      itemBuilder: (context, index) {
-        final item = equivalents[index] as CarboneEquivalentEntity;
-        final double finalValue = (score / 1000.0) * item.valeur1Tonne;
-
-        return _buildEquivalentCard(
-          icon: _getIconData(item.equivalentLabel.toLowerCase()),
-          label: item.equivalentLabel,
-          value: finalValue > 10 ? finalValue.round().toString() : finalValue.toStringAsFixed(1),
-          gradient: index % 2 == 0
-              ? [const Color(0xFF65BA74), const Color(0xFF8DB654)]
-              : null, // Pas de gradient pour les impairs (fond blanc)
-          textColor: index % 2 == 0 ? Colors.white : AppColors.lightTextPrimary,
-        );
-      },
-    );
-  }
-
-  Widget _buildEquivalentCard({
-    required IconData icon,
-    required String label,
-    required String value,
-    List<Color>? gradient,
-    required Color textColor,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: gradient == null ? Colors.white : null,
-        gradient: gradient != null ? LinearGradient(colors: gradient) : null,
-        borderRadius: BorderRadius.circular(20),
-        border: gradient == null ? Border.all(color: AppColors.lightBorder) : null,
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10)],
-      ),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(25), border: Border.all(color: AppColors.lightBorder)),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: textColor, size: 28),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: textColor.withOpacity(0.7), fontSize: 11),
-          ),
-          Text(
-            value,
-            style: TextStyle(color: textColor, fontSize: 22, fontWeight: FontWeight.bold),
-          ),
+          SizedBox(height: 140, child: PieChart(PieChartData(sections: sections, centerSpaceRadius: 35))),
+          const SizedBox(height: 20),
+          Wrap(spacing: 15, runSpacing: 10, alignment: WrapAlignment.center, children: legendItems),
         ],
       ),
     );
   }
 
   Widget _buildFooter(BuildContext context, VoidCallback onContinue) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(15),
-          decoration: BoxDecoration(
-            color: AppColors.gradientGreenEnd.withOpacity(0.05),
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: AppColors.gradientGreenEnd.withOpacity(0.1)),
-          ),
-          child: const Text(
-            "Prêt à faire la différence ?\nDécouvre des actions simples pour réduire ton impact",
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13, height: 1.4),
-          ),
-        ),
-        const SizedBox(height: 25),
-        GradientButton(label: "Continuer", onPressed: onContinue),
-      ],
-    );
-  }
-
-  IconData _getIconData(String label) {
-    if (label.contains('avion')) return LucideIcons.plane;
-    if (label.contains('voiture')) return LucideIcons.car;
-    if (label.contains('arbre')) return LucideIcons.treePine;
-    if (label.contains('steak') || label.contains('beef')) return LucideIcons.beef;
-    return LucideIcons.info;
+    return GradientButton(label: "Continuer", onPressed: onContinue);
   }
 }

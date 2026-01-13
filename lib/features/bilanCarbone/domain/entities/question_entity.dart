@@ -1,6 +1,7 @@
 import 'dart:collection';
-import 'type_widget.dart';
+import 'package:oikos/core/common/util.dart';
 
+import 'type_widget.dart';
 class QuestionBilanEntity {
   final int id;
   final String slug;
@@ -22,7 +23,7 @@ class QuestionBilanEntity {
     required this.ordre,
   });
 
-  // Récupère la liste des choix possibles (ex: ["maison", "appartement"])
+  // Récupère la liste des choix possibles (ex: ["maison", "appartement"]) et renvoie une liste de maps {'label':..., 'value':...} ou le label est une version lisible et le value est la valeur slug
 List<Map<String, dynamic>> get options {
   final list = config['options'];
   
@@ -38,6 +39,7 @@ List<Map<String, dynamic>> get options {
         else{
           element['label'] = e.toString().toLowerCase().split('.').first;
         }
+        element['label'] = element['label'].toString().capitalize();
         element['value'] = e.toString();
         return element;
 
