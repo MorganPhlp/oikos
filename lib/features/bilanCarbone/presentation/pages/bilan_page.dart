@@ -41,6 +41,13 @@ class _BilanPageState extends State<BilanPage> {
       body: SafeArea(
         child: BlocConsumer<BilanBloc, BilanState>(
           buildWhen: (previous, current) => current is BilanQuestionDisplayed || current is BilanLoading,
+          listenWhen: (previous, current) {
+
+          if (current is BilanChoixCategories && previous is BilanQuestionDisplayed) {
+            return true;
+          }
+          return false; 
+        },
           listener: (context, state) {
             // Initialisation locale des valeurs quand une question arrive
             if (state is BilanQuestionDisplayed) {
