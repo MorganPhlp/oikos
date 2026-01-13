@@ -52,9 +52,7 @@ class _ChoixCategoriesPageState extends State<ChoixCategoriesPage> {
             
           }
           if (state is BilanChoixObjectifs) {
-            Navigator.of(context).pushReplacement(
-              PersonalGoalPage.route(context.read<BilanBloc>())
-            );
+            Navigator.of(context).pushNamed('objectifs');
           }
         },
         child: BlocBuilder<BilanBloc, BilanState>(

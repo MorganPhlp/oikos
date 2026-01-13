@@ -55,11 +55,7 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
       child: BlocConsumer<BilanBloc, BilanState>(
         listener: (context, state) {
           if (state is BilanResultats) {
-            
-            Navigator.of(context).pushAndRemoveUntil(
-              ResultsPage.route(context.read<BilanBloc>()),
-              (route) => false,
-            );
+            Navigator.of(context).pushNamed('resultats');
       
           } else if (state is BilanError) {
             ScaffoldMessenger.of(context).showSnackBar(

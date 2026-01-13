@@ -4,7 +4,6 @@ import 'package:oikos/core/presentation/widgets/gradient_button.dart';
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/type_widget.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_bloc.dart';
-import 'package:oikos/features/bilanCarbone/presentation/pages/choix_categories_page.dart';
 import 'package:oikos/features/bilanCarbone/presentation/widgets/question_widget_factory.dart';
 import 'package:oikos/features/bilanCarbone/presentation/widgets/suggestions_widget.dart';
 import 'package:oikos/init_dependencies.dart';
@@ -32,14 +31,16 @@ class _BilanPageState extends State<BilanPage> {
   dynamic _currentAnswer;
   bool _isAnswerValid = false;
   String? _selectedSuggestion;
-  ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController();
 
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.lightBackground,
       body: SafeArea(
         child: BlocConsumer<BilanBloc, BilanState>(
+          buildWhen: (previous, current) => current is BilanQuestionDisplayed || current is BilanLoading,
           listener: (context, state) {
             // Initialisation locale des valeurs quand une question arrive
             if (state is BilanQuestionDisplayed) {
@@ -48,10 +49,7 @@ class _BilanPageState extends State<BilanPage> {
             
             // Navigation vers le choix des catégories
             if (state is BilanChoixCategories) {
-              final bloc = context.read<BilanBloc>();
-              Navigator.of(context).push(
-                ChoixCategoriesPage.route(bloc),
-              );
+              Navigator.of(context).pushNamed('categories');
             }
           },
           builder: (context, state) {

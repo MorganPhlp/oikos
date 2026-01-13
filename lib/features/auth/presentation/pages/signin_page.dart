@@ -70,6 +70,9 @@ class _SignInPageState extends State<SignInPage> {
       body: SafeArea(
         child: BlocConsumer<AuthBloc, AuthState>(
           listener: (context, state) {
+            if (state is AuthSuccess) {
+              Navigator.popUntil(context, (route) => route.isFirst);
+            } else
             if (state is AuthFailure) {
               showSnackBar(context, state.message);
             }
