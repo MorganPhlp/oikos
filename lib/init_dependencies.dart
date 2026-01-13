@@ -44,10 +44,8 @@ import 'features/auth/domain/usecases/validate_pseudo.dart';
 final serviceLocator = GetIt.instance;
 
 Future<void> initDependencies() async {
-  _initAuth();
-  _initBilan();
+  // Initialize Supabase FIRST before other dependencies
   final supabase = await Supabase.initialize(
-    // Initialize Supabase
     url: AppSecrets.supabaseUrl,
     anonKey: AppSecrets.supabaseAnonKey,
   );
@@ -55,6 +53,10 @@ Future<void> initDependencies() async {
 
   // core
   serviceLocator.registerLazySingleton(() => AppUserCubit());
+
+  // Then initialize auth and bilan after Supabase is ready
+  _initAuth();
+  _initBilan();
 }
 
 void _initAuth() {

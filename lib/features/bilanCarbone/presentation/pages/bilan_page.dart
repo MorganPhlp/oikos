@@ -81,9 +81,10 @@ class _BilanPageState extends State<BilanPage> {
                     SizedBox(height: size.height * 0.02),
                     
                     // Icône et Question restent fixes
-                    Text(
-                      state.question.icone ?? '',
-                      style: TextStyle(fontSize: size.width * 0.12),
+                    Icon(
+                      _getIconFromName(state.question.icone ?? 'help'),
+                      size: size.width * 0.12,
+                      color: AppColors.lightTextGreen,
                     ),
                     SizedBox(height: size.height * 0.01),
                     Text(
@@ -108,14 +109,19 @@ class _BilanPageState extends State<BilanPage> {
                           child: Column(
                             children: [
                               // Suggestions (si présentes)
-                              if (state.question.suggestions != null) ...[
+                              if (state.question.suggestions != null && state.question.suggestions!.isNotEmpty) ...[
                                 SuggestionsWidget(
-                                  suggestions: List<String>.from(state.question.suggestions!.keys),
+                                  suggestions: state.question.suggestions!.map((s) => s['label'] as String).toList(),
                                   selectedSuggestion: _selectedSuggestion,
-                                  onLocalChange: (key) {
+                                  onLocalChange: (label) {
                                     setState(() {
-                                      _selectedSuggestion = key;
-                                      _currentAnswer = state.question.suggestions![key];
+                                      _selectedSuggestion = label;
+                                      // Trouver la valeur correspondant au label
+                                      final suggestion = state.question.suggestions!.firstWhere(
+                                        (s) => s['label'] == label,
+                                        orElse: () => {'value': null},
+                                      );
+                                      _currentAnswer = suggestion['value'];
                                       _isAnswerValid = true;
                                     });
                                   },
@@ -273,4 +279,29 @@ class _BilanPageState extends State<BilanPage> {
       ),
     );
   }
+
+  /// Convertit un nom d'icône (string) en IconData Material
+  IconData _getIconFromName(String iconName) {
+    final iconMap = {
+      'home': Icons.home,
+      'square_foot': Icons.square_foot,
+      'key': Icons.key,
+      'group': Icons.group,
+      'local_fire_department': Icons.local_fire_department,
+      'thermostat': Icons.thermostat,
+      'directions_car': Icons.directions_car,
+      'speed': Icons.speed,
+      'ev_station': Icons.ev_station,
+      'pedal_bike': Icons.pedal_bike,
+      'flight': Icons.flight,
+      'schedule': Icons.schedule,
+      'restaurant': Icons.restaurant,
+      'water_drop': Icons.water_drop,
+      'devices': Icons.devices,
+      'shopping_bag': Icons.shopping_bag,
+    };
+
+    return iconMap[iconName] ?? Icons.help_outline;
+  }
 }
+

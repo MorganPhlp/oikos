@@ -11,31 +11,36 @@ INSERT INTO categorie_empreinte (nom, icone, couleurHEX, description) VALUES
 ('Consommation & Dechets', '🛍️', '#8BC34A', 'Consommation et déchets')
 ON CONFLICT (nom) DO NOTHING;
 
--- 2. Communauté
-INSERT INTO communaute (nom, description, logo, couleurHEX) VALUES
-('Viveris', 'Le sang', 'logo', '#4CAF50')
-ON CONFLICT (nom) DO NOTHING;
+-- 2. Entreprise
+INSERT INTO entreprise (nom, description, domaine_email, logo_url) VALUES
+('Viveris', 'Entreprise de services du numérique', 'viveris.fr', 'viveris_logo.png')
+ON CONFLICT DO NOTHING;
 
--- 3. Equivalent Carbone
+-- 3. Communauté
+INSERT INTO communaute (code, nom, entreprise_id, description, couleurHEX) VALUES
+('VIV123', 'Service Informatique Viveris', (SELECT id FROM entreprise WHERE nom = 'Viveris'), 'Service du meilleur métier', '#4CAF50')
+ON CONFLICT (code) DO NOTHING;
+
+-- 4. Equivalent Carbone
 INSERT INTO carbone_equivalent (equivalent_label, valeur_1_tonne) VALUES
 ('A/R Paris-New York en avion', 0.49),
 ('A/R Paris-Marseille en TGV', 227),
 ('kg de baguette tradition', 1287)
+ON CONFLICT DO NOTHING;
 
 -- =============================================
--- 3. UTILISATEUR FICTIF (Lien Auth + Profil)
+-- 4. QUESTIONS DU BILAN
 -- =============================================
 
-/*
--- 4. Questions du bilan
-INSERT INTO questionBilan (categorieEmpreinte, question, icone, type_widget, config_json, ordre_affichage) VALUES
+-- Questions du bilan
+INSERT INTO question_bilan (slug, categorie_empreinte, question, icone, type_widget, config_json, ordre_affichage) VALUES
 
 -- =============================================
 -- 1. LOGEMENT
 -- =============================================
 
 -- Q1 Type de logement
-('Logement', 'Dans quel type de logement vivez-vous principalement ?', 'home', 'CHOIX_UNIQUE', 
+('logement.type', 'Logement', 'Dans quel type de logement vivez-vous principalement ?', 'home', 'CHOIX_UNIQUE',
  '{
    "options": [
      {"label": "Maison", "value": "maison"},
@@ -45,12 +50,12 @@ INSERT INTO questionBilan (categorieEmpreinte, question, icone, type_widget, con
  }', 1),
 
 -- Q2 Surface (SLIDER avec SUGGESTIONS)
-('Logement', 'Quelle est la surface de votre logement ?', 'square_foot', 'SLIDER', 
+('logement.surface', 'Logement', 'Quelle est la surface de votre logement ?', 'square_foot', 'SLIDER',
  '{
-   "min": 9, 
-   "max": 300, 
-   "step": 1, 
-   "unit": "m²", 
+   "min": 9,
+   "max": 300,
+   "step": 1,
+   "unit": "m²",
    "defaultValue": 40,
    "suggestions": [
      {"label": "Studio (20m²)", "value": 20},
@@ -60,7 +65,7 @@ INSERT INTO questionBilan (categorieEmpreinte, question, icone, type_widget, con
  }', 2),
 
 -- Q3 Statut
-('Logement', 'Êtes-vous propriétaire ou locataire ?', 'key', 'CHOIX_UNIQUE', 
+('logement.statut', 'Logement', 'Êtes-vous propriétaire ou locataire ?', 'key', 'CHOIX_UNIQUE',
  '{
    "options": [
      {"label": "Propriétaire", "value": "proprietaire"},
@@ -70,12 +75,11 @@ INSERT INTO questionBilan (categorieEmpreinte, question, icone, type_widget, con
  }', 3),
 
 -- Q4 Habitants (TYPE NOMBRE avec SUGGESTIONS)
--- L''utilisateur tape le chiffre exact, ou clique sur un bouton rapide.
-('Logement', 'Combien de personnes composent votre foyer ?', 'group', 'NOMBRE', 
+('logement.habitants', 'Logement', 'Combien de personnes composent votre foyer ?', 'group', 'NOMBRE',
  '{
-   "min": 1, 
-   "max": 15, 
-   "unit": "pers", 
+   "min": 1,
+   "max": 15,
+   "unit": "pers",
    "defaultValue": 1,
    "suggestions": [
      {"label": "Seul(e)", "value": 1},
@@ -86,7 +90,7 @@ INSERT INTO questionBilan (categorieEmpreinte, question, icone, type_widget, con
  }', 4),
 
 -- Q5 Énergie
-('Logement', 'Quelle(s) énergie(s) utilisez-vous ?', 'local_fire_department', 'CHOIX_MULTIPLE', 
+('logement.energie', 'Logement', 'Quelle(s) énergie(s) utilisez-vous ?', 'local_fire_department', 'CHOIX_MULTIPLE',
  '{
    "options": [
     {"label": "Électricité", "value": "electricite", "hidden": false},
@@ -94,7 +98,7 @@ INSERT INTO questionBilan (categorieEmpreinte, question, icone, type_widget, con
     {"label": "Bois ou granules", "value": "bois_granules", "hidden": false},
     {"label": "Climatiseurs", "value": "climatiseurs", "hidden": false},
     {"label": "Panneaux photovoltaïques", "value": "panneaux_photovoltaiques", "hidden": false},
-    {"label": "Gaz naturel", "value": "gaz_naturel", hidden": false},
+    {"label": "Gaz naturel", "value": "gaz_naturel", "hidden": false},
     {"label": "Chauffe-eau solaire", "value": "chauffe_eau_solaire", "hidden": true},
     {"label": "Réseau de chaleur", "value": "reseau_chaleur", "hidden": true},
     {"label": "Bouteille de gaz", "value": "bouteille_gaz", "hidden": true},
@@ -105,7 +109,7 @@ INSERT INTO questionBilan (categorieEmpreinte, question, icone, type_widget, con
  }', 5),
 
 -- Q6 Confort
-('Logement', 'Comment ressentez-vous la température chez vous en hiver ?', 'thermostat', 'CHOIX_UNIQUE', 
+('logement.confort', 'Logement', 'Comment ressentez-vous la température chez vous en hiver ?', 'thermostat', 'CHOIX_UNIQUE',
  '{
    "options": [
      {"label": "Froid", "value": "froid"},
@@ -120,24 +124,24 @@ INSERT INTO questionBilan (categorieEmpreinte, question, icone, type_widget, con
 -- =============================================
 
 -- Q7 Voiture (Bool)
-('Transport', 'Vous arrive-t-il de vous déplacer en voiture ?', 'directions_car', 'CHOIX_UNIQUE', 
-    '{ 
-    "options": [ 
-        {"label": "Oui, avec ma voiture", "value": "oui_propre"}, 
+('transport.voiture', 'Transport', 'Vous arrive-t-il de vous déplacer en voiture ?', 'directions_car', 'CHOIX_UNIQUE',
+    '{
+    "options": [
+        {"label": "Oui, avec ma voiture", "value": "oui_propre"},
         {"label": "Oui, avec le véhicule de un proche", "value": "oui_proche"},
         {"label": "Oui, avec des voitures différentes (covoiturage, location...)", "value": "oui_divers"},
-        {"label": "Non", "value": "non"} 
-    ] 
+        {"label": "Non", "value": "non"}
+    ]
     }'
 , 7),
 
 -- Q8 Distance (SLIDER avec SUGGESTIONS de profils)
-('Transport', 'Quelle distance parcourez-vous par an en voiture ?', 'speed', 'SLIDER', 
+('transport.distance', 'Transport', 'Quelle distance parcourez-vous par an en voiture ?', 'speed', 'SLIDER',
  '{
-   "min": 0, 
-   "max": 50000, 
-   "step": 500, 
-   "unit": "km", 
+   "min": 0,
+   "max": 50000,
+   "step": 500,
+   "unit": "km",
    "defaultValue": 5000,
    "suggestions": [
      {"label": "Occasionnel (3000 km)", "value": 3000},
@@ -147,7 +151,7 @@ INSERT INTO questionBilan (categorieEmpreinte, question, icone, type_widget, con
  }', 8),
 
 -- Q9 Type moteur
-('Transport', 'Type de motorisation principal ?', 'ev_station', 'CHOIX_UNIQUE', 
+('transport.motorisation', 'Transport', 'Type de motorisation principal ?', 'ev_station', 'CHOIX_UNIQUE',
  '{
    "options": [
      {"label": "Thermique", "value": "thermique"},
@@ -158,25 +162,25 @@ INSERT INTO questionBilan (categorieEmpreinte, question, icone, type_widget, con
  }', 9),
 
 -- Q10 Alternatifs
-('Transport', 'Autres modes de transport ?', 'pedal_bike', 'CHOIX_MULTIPLE', 
+('transport.alternatif', 'Transport', 'Autres modes de transport ?', 'pedal_bike', 'CHOIX_MULTIPLE',
  '{
    "options": [
      {"label": "Marche/Vélo", "value": "actif"},
      {"label": "Petit véhicule électrique", "value": "pve"},
-     {"label": "Vélo électrique", "value": "vae"},
+     {"label": "Vélo électrique", "value": "vae"}
    ]
  }', 10),
 
 -- Q11 Avion (Bool)
-('Transport', 'Avez-vous pris l''avion au moins une fois ces 3 dernières années ?', 'flight', 'BOOLEEN', 
+('transport.avion', 'Transport', 'Avez-vous pris l''avion au moins une fois ces 3 dernières années ?', 'flight', 'BOOLEEN',
  '{"label_true": "Oui", "label_false": "Non"}', 11),
 
 -- Q12 Heures vol (SLIDER avec SUGGESTIONS)
-('Transport', 'Si oui, sur une année le nombre d''heures de vol long, moyen et court-courrier (>6h, 2-6h, <2h)', 'schedule', 'NO?MBRE', 
+('transport.heures_vol', 'Transport', 'Si oui, sur une année le nombre d''heures de vol long, moyen et court-courrier (>6h, 2-6h, <2h)', 'schedule', 'NOMBRE',
     '{
-    "min": 0, 
-    "max": 200, 
-    "unit": "heures", 
+    "min": 0,
+    "max": 200,
+    "unit": "heures",
     "defaultValue": 0,
     "suggestions": [
         {"label": "Occasionnel (10h)", "value": 10},
@@ -191,7 +195,7 @@ INSERT INTO questionBilan (categorieEmpreinte, question, icone, type_widget, con
 -- =============================================
 
 -- Q13 Régime
-('Alimentation', 'Choisissez les 14 types de repas (déjeuners et dîners) de votre semaine-type :', 'restaurant', 'COMPTEUR', 
+('alimentation.regime', 'Alimentation', 'Choisissez les 14 types de repas (déjeuners et dîners) de votre semaine-type :', 'restaurant', 'COMPTEUR',
  '{
     "min": 0,
     "max": 21,
@@ -207,7 +211,7 @@ INSERT INTO questionBilan (categorieEmpreinte, question, icone, type_widget, con
  }', 13),
 
 -- Q14 Eau
-('Alimentation', 'Buvez-vous votre eau en bouteille ?', 'water_drop', 'CHOIX_UNIQUE', 
+('alimentation.eau', 'Alimentation', 'Buvez-vous votre eau en bouteille ?', 'water_drop', 'CHOIX_UNIQUE',
  '{
    "options": [
      {"label": "Oui", "value": "alimentation . boisson . eau en bouteille"},
@@ -221,8 +225,7 @@ INSERT INTO questionBilan (categorieEmpreinte, question, icone, type_widget, con
 -- =============================================
 
 -- Q15 Équipements (COMPTEUR)
--- L''interface affichera chaque label avec un bouton [-] 0 [+] à côté.
-('Numérique', 'Indiquez le nombre d''appareils que vous possédez (achetés neufs) :', 'devices', 'COMPTEUR', 
+('numerique.appareils', 'Numérique', 'Indiquez le nombre d''appareils que vous possédez (achetés neufs) :', 'devices', 'COMPTEUR',
  '{
    "options": [
      {"label": "Téléphone", "value": "divers . numérique . appareils . téléphone . nombre"},
@@ -244,13 +247,12 @@ INSERT INTO questionBilan (categorieEmpreinte, question, icone, type_widget, con
 -- =============================================
 
 -- Q16 Vêtements
-('Consommation_Dechets', 'Pour quelle raison achetez-vous de nouveaux vêtements ?​', 'shopping_bag', 'CHOIX_UNIQUE', 
+('consommation.vetements', 'Consommation_Dechets', 'Pour quelle raison achetez-vous de nouveaux vêtements ?​', 'shopping_bag', 'CHOIX_UNIQUE',
  '{
    "options": [
      {"label": "Je n''achète que le strict nécessaire", "value": "divers . textile . volume . minimum"},
      {"label": "J''achète par besoin mais je peux céder à des achats coup-de-coeur", "value": "divers . textile . volume . renouvellement occasionnel"},
-     {"label": "Je fais plus souvent des achats par plaisir que besoin", "value": "divers . textile . volume . accro au shopping
-     "}
+     {"label": "Je fais plus souvent des achats par plaisir que besoin", "value": "divers . textile . volume . accro au shopping"}
    ]
- }', 16);
- */
+ }', 16)
+ON CONFLICT (slug) DO NOTHING;

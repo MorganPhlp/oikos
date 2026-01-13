@@ -32,7 +32,7 @@ class _SignUpPageState extends State<SignUpPage> {
   void initState() {
     super.initState();
     _emailController.addListener(() {
-      if(_backendEmailError != null){
+      if (_backendEmailError != null) {
         setState(() {
           _backendEmailError = null;
         });
@@ -92,7 +92,7 @@ class _SignUpPageState extends State<SignUpPage> {
             });
             _formKey.currentState?.validate();
           }
-          if(state is AuthEmailPasswordVerified) {
+          if (state is AuthEmailPasswordVerified) {
             Navigator.push(
               context,
               PseudoPage.route(
@@ -103,21 +103,23 @@ class _SignUpPageState extends State<SignUpPage> {
           }
         },
         builder: (context, state) {
-          if (state is AuthLoading) {
-            return const Loader();
-          }
           return SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Form(
-                key: _formKey,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+            child: Stack(
+              children: [
+                SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: Form(
+                    key: _formKey,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                     // Logo Oîkos
                     Center(
-                      child: Image.asset('assets/logos/oikos_logo.png', height: 60),
+                      child: Image.asset(
+                        'assets/logos/oikos_logo.png',
+                        height: 60,
+                      ),
                     ),
                     const SizedBox(height: 20),
 
@@ -152,7 +154,9 @@ class _SignUpPageState extends State<SignUpPage> {
                     Text(
                       'Email professionnel',
                       style: AppTypography.body.copyWith(
-                        color: AppColors.lightTextPrimary.withValues(alpha: 0.7),
+                        color: AppColors.lightTextPrimary.withValues(
+                          alpha: 0.7,
+                        ),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -165,13 +169,15 @@ class _SignUpPageState extends State<SignUpPage> {
                         controller: _emailController,
                         prefixIcon: Icons.mail_outlined,
                         validator: (value) {
-                          final regexError = AuthValidators.validateEmail(value); // Erreur si le format est invalide
+                          final regexError = AuthValidators.validateEmail(
+                            value,
+                          ); // Erreur si le format est invalide
                           if (regexError != null) {
                             return regexError;
                           }
                           // Afficher l'erreur du backend si elle existe
                           return _backendEmailError;
-                        }
+                        },
                       ),
                     ),
 
@@ -181,7 +187,9 @@ class _SignUpPageState extends State<SignUpPage> {
                     Text(
                       'Mot de passe',
                       style: AppTypography.body.copyWith(
-                        color: AppColors.lightTextPrimary.withValues(alpha: 0.7),
+                        color: AppColors.lightTextPrimary.withValues(
+                          alpha: 0.7,
+                        ),
                         fontWeight: FontWeight.w500,
                       ),
                       textAlign: TextAlign.left,
@@ -202,7 +210,9 @@ class _SignUpPageState extends State<SignUpPage> {
                           });
                         },
                         validator: (value) {
-                          final regexError = AuthValidators.passwordErrorText(value); // Erreur si le format est invalide
+                          final regexError = AuthValidators.passwordErrorText(
+                            value,
+                          ); // Erreur si le format est invalide
                           if (regexError != null) {
                             return regexError;
                           }
@@ -294,14 +304,22 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
 
                     const SizedBox(height: 40),
-                    AuthPrimaryButton(text: "C'est parti !", onPressed: _submit),
+                    AuthPrimaryButton(
+                      text: "C'est parti !",
+                      onPressed: _submit,
+                      isLoading: state is AuthLoading,
+                    ),
                   ],
                 ),
               ),
             ),
-          );
-        },
-      ),
+            // Loader par-dessus le formulaire si en chargement
+            if (state is AuthLoading) const Loader(),
+          ],
+        ),
+      );
+    },
+  ),
     );
   }
 }

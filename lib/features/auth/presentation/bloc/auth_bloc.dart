@@ -39,9 +39,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
        _validateEmailPassword = validateEmailPassword,
        _validatePseudo = validatePseudo,
        super(AuthInitial()) {
-    on<AuthEvent>(
-      (_, emit) => emit(AuthLoading()),
-    ); // Appliquer un état de chargement par défaut pour tous les événements
+    // Suppression du handler global qui causait les bugs de chargement et d'erreurs
     on<AuthSignUp>(_onAuthSignUp);
     on<AuthSignIn>(_onAuthSignIn);
     on<AuthIsUserLoggedIn>(_onAuthIsUserLoggedIn);
@@ -55,6 +53,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthIsUserLoggedIn event,
     Emitter<AuthState> emit,
   ) async {
+    emit(AuthLoading());
     final res = await _currentUser(NoParams());
 
     res.fold(
@@ -64,6 +63,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   void _onAuthSignUp(AuthSignUp event, Emitter<AuthState> emit) async {
+    emit(AuthLoading());
     final res = await _userSignup(
       UserSignupParams(
         email: event.email,
@@ -80,6 +80,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   void _onAuthSignIn(AuthSignIn event, Emitter<AuthState> emit) async {
+    emit(AuthLoading());
     final res = await _userSignin(
       UserSigninParams(email: event.email, password: event.password),
     );
@@ -111,6 +112,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthVerifyCommunity event,
     Emitter<AuthState> emit,
   ) async {
+    emit(AuthLoading());
     final res = await _authRepository.verifyCommunityCode(
       communityCode: event.communityCode,
     );
@@ -126,7 +128,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthValidateEmailPassword event,
     Emitter<AuthState> emit,
   ) async {
-    emit (AuthLoading());
+    emit(AuthLoading());
 
     final res = await _validateEmailPassword(
       ValidateEmailPasswordParams(
@@ -145,6 +147,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthValidatePseudo event,
     Emitter<AuthState> emit,
   ) async {
+    emit(AuthLoading());
     final res = await _validatePseudo(event.pseudo);
 
     res.fold(

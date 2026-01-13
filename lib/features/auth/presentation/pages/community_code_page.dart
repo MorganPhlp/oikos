@@ -100,13 +100,17 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
         if (state is AuthCommunityVerified) {
           showDialog(
             context: context,
-            builder: (context) => ConfirmCommunityModal(
+            barrierDismissible: false,
+            builder: (dialogContext) => ConfirmCommunityModal(
               communityName: state.communityName,
               communityIcon:
                   _companyLogoUrl ??
                   '', // Utilise le logo de l'entreprise si disponible
               onConfirm: () {
-                // Déclenche l'événement d'inscription
+                // Ferme la modale
+                Navigator.pop(dialogContext);
+
+                // Déclenche l'événement d'inscription avec le context de la page
                 context.read<AuthBloc>().add(
                   AuthSignUp(
                     email: widget.email,
@@ -115,25 +119,19 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
                     communityCode: _pinController.text.toUpperCase(),
                   ),
                 );
-                Navigator.popUntil(
-                  context,
-                  (route) => route.isFirst,
-                ); // Ferme toutes les modales et revient à la page principale
               },
               onCancel: () {
-                Navigator.pop(context); // Ferme la modale
+                Navigator.pop(dialogContext); // Ferme la modale
                 _pinController.clear(); // Réinitialise le champ de saisie
               },
             ),
           );
         }
+
+        // L'inscription est réussie - la navigation est gérée automatiquement par main.dart
+        // Le BlocSelector détecte AppUserLoggedIn et affiche BilanPage
       },
       builder: (context, state) {
-        // Afficher un loader si l'état est en cours de chargement et que le PIN n'est pas complet
-        if (state is AuthLoading) {
-          // Afficher un indicateur de chargement
-          return const Loader();
-        }
 
         return Scaffold(
           backgroundColor: AppColors.lightBackground,
@@ -216,15 +214,18 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
                         ),
                         child: _companyLogoUrl != null
                             ? ClipOval(
-                                child: Image.network(
-                                  _companyLogoUrl!,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      const Icon(
-                                        Icons.business,
-                                        color: AppColors.lightTextPrimary,
-                                        size: 40,
-                                      ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Image.network(
+                                    _companyLogoUrl!,
+                                    fit: BoxFit.contain,
+                                    errorBuilder: (context, error, stackTrace) =>
+                                        const Icon(
+                                          Icons.business,
+                                          color: AppColors.lightTextPrimary,
+                                          size: 40,
+                                        ),
+                                  ),
                                 ),
                               )
                             : const Icon(
@@ -337,6 +338,9 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
                   ),
                 ),
               ),
+
+              // Loader par-dessus le contenu si en chargement
+              if (state is AuthLoading) const Loader(),
             ],
           ),
         );

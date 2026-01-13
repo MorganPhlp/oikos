@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:oikos/core/common/widgets/loader.dart';
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/core/theme/app_typography.dart';
 import 'package:oikos/features/auth/presentation/bloc/auth_bloc.dart';
@@ -98,11 +99,13 @@ class _PseudoPageState extends State<PseudoPage> {
         },
         builder: (context, state) {
           return SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Form(
-                key: _formKey,
-                child: Column(
+            child: Stack(
+              children: [
+                SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
                   children: [
                     // Logo
                     Image.asset('assets/logos/oikos_logo.png', height: 60),
@@ -174,6 +177,7 @@ class _PseudoPageState extends State<PseudoPage> {
                     AuthPrimaryButton(
                       text: "Valider mon pseudo !",
                       onPressed: _submit,
+                      isLoading: state is AuthLoading,
                     ),
 
                     const SizedBox(height: 30),
@@ -197,9 +201,14 @@ class _PseudoPageState extends State<PseudoPage> {
                 ),
               ),
             ),
-          );
-        },
-      )
-    );
-  }
+
+            // Loader par-dessus le formulaire si en chargement
+            if (state is AuthLoading) const Loader(),
+          ],
+        ),
+      );
+    },
+  )
+);
+}
 }
