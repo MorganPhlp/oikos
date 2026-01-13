@@ -8,7 +8,7 @@ import 'dotenv/config'
 
 // --- CONFIGURATION ---
 const SUPABASE_URL = process.env.SUPABASE_URL
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
 const __filename = fileURLToPath(import.meta.url)
@@ -174,7 +174,6 @@ async function run() {
         const raw = rule.rawNode
 
         records.push({
-            id:index,
             slug: slug,
             categorie_empreinte: category,
             question: raw.question || raw.titre || slug,

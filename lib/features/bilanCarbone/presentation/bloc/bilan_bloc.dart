@@ -68,12 +68,6 @@ class BilanBloc extends Bloc<BilanEvent, BilanState> {
     emit(BilanLoading());
     _allQuestions = await demarrerBilanUseCase();
     
-    // Vérifier qu'il y a des questions disponibles
-    if (_allQuestions.isEmpty) {
-      emit(BilanError('Aucune question disponible. Veuillez vérifier que les questions sont bien chargées dans la base de données.'));
-      return;
-    }
-
     // On s'assure que la première question est pertinente
     if (!getNextUseCase.applicabilityChecker.isQuestionApplicable(_allQuestions[_currentIndex])) {
       _currentIndex = await getNextUseCase(allQuestions: _allQuestions, currentIndex: -1);

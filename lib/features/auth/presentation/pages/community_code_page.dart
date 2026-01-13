@@ -108,7 +108,7 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
                   '', // Utilise le logo de l'entreprise si disponible
               onConfirm: () {
                 // Ferme la modale
-                Navigator.pop(dialogContext);
+                Navigator.popUntil(dialogContext, (route) => route.isFirst);
 
                 // Déclenche l'événement d'inscription avec le context de la page
                 context.read<AuthBloc>().add(
@@ -132,7 +132,6 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
         // Le BlocSelector détecte AppUserLoggedIn et affiche BilanPage
       },
       builder: (context, state) {
-
         return Scaffold(
           backgroundColor: AppColors.lightBackground,
           body: Stack(
@@ -147,7 +146,7 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
                       const SizedBox(height: 20),
 
                       // Carte Entreprise (Facultatif, selon la maquette)
-                      if(_companyName != null)
+                      if (_companyName != null)
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
@@ -157,7 +156,8 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
                                   alpha: 0.3,
                                 ),
                                 AppColors.gradientGreenEnd.withValues(
-                                    alpha: 0.3),
+                                  alpha: 0.3,
+                                ),
                               ],
                             ),
                             borderRadius: BorderRadius.circular(15),
@@ -219,12 +219,13 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
                                   child: Image.network(
                                     _companyLogoUrl!,
                                     fit: BoxFit.contain,
-                                    errorBuilder: (context, error, stackTrace) =>
-                                        const Icon(
-                                          Icons.business,
-                                          color: AppColors.lightTextPrimary,
-                                          size: 40,
-                                        ),
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            const Icon(
+                                              Icons.business,
+                                              color: AppColors.lightTextPrimary,
+                                              size: 40,
+                                            ),
                                   ),
                                 ),
                               )

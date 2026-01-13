@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'type_widget.dart';
 
 class QuestionBilanEntity {
@@ -22,35 +23,28 @@ class QuestionBilanEntity {
   });
 
   // Récupère la liste des choix possibles (ex: ["maison", "appartement"])
-  List<Map<String, dynamic>> get options {
-    final list = config['options'];
-
-    if (list is List) {
-      return list.map((e) {
-        // Si e est déjà un Map (JSON object avec label/value)
-        if (e is Map<String, dynamic>) {
-          return Map<String, dynamic>.from(e);
-        }
-
-        // Si e est une String (ancien format)
+List<Map<String, dynamic>> get options {
+  final list = config['options'];
+  
+  if (list is List) {
+    return list.map((e) {
         final Map<String, dynamic> element = {};
-        final String stringValue = e.toString();
-
-        if (stringValue.contains('présent')){
-          var parts = stringValue.toLowerCase().split('.');
+        if (e.contains('présent')){
+          var parts = e.toString().toLowerCase().split('.');
           if (parts.length >= 2) {
             element['label'] = parts[parts.length - 2];
           }
         }
         else{
-          element['label'] = stringValue.toLowerCase().split('.').first;
+          element['label'] = e.toString().toLowerCase().split('.').first;
         }
-        element['value'] = stringValue;
+        element['value'] = e.toString();
         return element;
-      }).toList();
-    }
-    return [];
+
+    }).toList();
   }
+  return [];
+}
 
   // Récupère l'unité (ex: "km", "m2", "kg")
   String? get unit => config['unit'] as String?;
@@ -66,15 +60,13 @@ class QuestionBilanEntity {
   String? get description => config['description'] as String?;
 
   // Suggestions de réponses rapides
-  List<Map<String, dynamic>>? get suggestions {
-    final sugg = config['suggestions'];
-    if (sugg is List) {
-      return List<Map<String, dynamic>>.from(
-        sugg.map((e) => Map<String, dynamic>.from(e as Map))
-      );
-    }
-    return null;
+  HashMap<String, dynamic>? get suggestions {
+  final sugg = config['suggestions'];
+  if (sugg is Map) {
+    return HashMap<String, dynamic>.from(sugg);
   }
+  return null;
+}
 
   /// Retourne la valeur par défaut à utiliser pour l'initialisation de la réponse
   /// en fonction du type de widget
