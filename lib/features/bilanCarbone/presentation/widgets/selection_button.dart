@@ -34,7 +34,7 @@ class OikosSelectionButton extends StatelessWidget {
             border: Border.all(
               color: isSelected 
                   ? AppColors.gradientGreenEnd 
-                  : AppColors.lightInputBorder,
+                  : Theme.of(context).colorScheme.outline,
               width: isSelected ? 2.0 : 1.0,
             ),
             borderRadius: BorderRadius.circular(50),
@@ -48,7 +48,7 @@ class OikosSelectionButton extends StatelessWidget {
                     Text(
                       label,
                       style: TextStyle(
-                        color: AppColors.lightTextPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 16,
                         fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                       ),
@@ -57,7 +57,7 @@ class OikosSelectionButton extends StatelessWidget {
                       Text(
                         sublabel!, 
                         style: TextStyle(
-                          color: AppColors.lightTextPrimary.withOpacity(0.6),
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                           fontSize: 14
                         )
                       ),

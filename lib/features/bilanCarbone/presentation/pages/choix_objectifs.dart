@@ -71,7 +71,7 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
           final isSmallScreen = size.width < 360;
           
           return Scaffold(
-            backgroundColor: AppColors.lightBackground,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             body: SafeArea(
               child: SingleChildScrollView(
                 padding: EdgeInsets.all(horizontalPadding),
@@ -88,7 +88,7 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
                       "Fixe-toi un objectif personnel",
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: AppColors.lightTextPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: isSmallScreen ? 20 : size.width * 0.06,
                         fontWeight: FontWeight.bold,
                       ),
@@ -98,7 +98,7 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
                       "En plus de l'objectif des Accords de Paris (2 tonnes CO₂/an), choisis ton propre défi !",
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: AppColors.lightTextPrimary.withOpacity(0.7), 
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7), 
                         fontSize: isSmallScreen ? 14 : size.width * 0.04,
                       ),
                     ),
@@ -172,7 +172,7 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
           Text(
             "Ton empreinte : ${score.toStringAsFixed(1)} tonnes CO₂/an",
             style: TextStyle(
-              color: AppColors.lightTextPrimary,
+              color: Theme.of(context).colorScheme.onSurface,
               fontWeight: FontWeight.bold,
               fontSize: isSmallScreen ? 14 : size.width * 0.04,
             ),
@@ -195,10 +195,10 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
         margin: EdgeInsets.only(bottom: size.height * 0.016),
         padding: EdgeInsets.all(size.width * 0.05),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.transparent : Colors.white,
+          color: isSelected ? Colors.transparent : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(size.width * 0.05),
           border: Border.all(
-            color: isSelected ? AppColors.gradientGreenEnd : AppColors.lightBorder,
+            color: isSelected ? AppColors.gradientGreenEnd : Theme.of(context).colorScheme.outline,
             width: 2,
           ),
           gradient: isSelected
@@ -211,7 +211,7 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
               : null,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(isSelected ? 0.08 : 0.04),
+              color: (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black).withOpacity(isSelected ? 0.08 : 0.04),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -228,7 +228,7 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
                   Text(
                     objectif.label, 
                     style: TextStyle(
-                      color: AppColors.lightTextPrimary, 
+                      color: Theme.of(context).colorScheme.onSurface, 
                       fontWeight: FontWeight.bold, 
                       fontSize: isSmallScreen ? 15 : size.width * 0.04,
                     ),
@@ -236,7 +236,7 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
                   Text(
                     objectif.description, 
                     style: TextStyle(
-                      color: AppColors.lightTextPrimary.withOpacity(0.6),
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                       fontSize: isSmallScreen ? 13 : size.width * 0.035,
                     ),
                   ),
@@ -245,7 +245,7 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
                     "${targetValue.toStringAsFixed(1)} tonnes CO₂/an",
                     style: TextStyle(
                       fontWeight: FontWeight.bold, 
-                      color: AppColors.lightTextPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: isSmallScreen ? 13 : size.width * 0.035,
                     ),
                   ),
@@ -271,10 +271,10 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
         duration: const Duration(milliseconds: 200),
         padding: EdgeInsets.all(size.width * 0.05),
         decoration: BoxDecoration(
-          color: _isCustomMode ? Colors.transparent : Colors.white,
+          color: _isCustomMode ? Colors.transparent : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(size.width * 0.05),
           border: Border.all(
-            color: _isCustomMode ? AppColors.gradientGreenEnd : AppColors.lightBorder,
+            color: _isCustomMode ? AppColors.gradientGreenEnd : Theme.of(context).colorScheme.outline,
             width: 2,
           ),
           gradient: _isCustomMode
@@ -295,7 +295,7 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
                 Text(
                   "Personnalisé", 
                   style: TextStyle(
-                    color: AppColors.lightTextPrimary, 
+                    color: Theme.of(context).colorScheme.onSurface, 
                     fontWeight: FontWeight.bold, 
                     fontSize: isSmallScreen ? 15 : size.width * 0.04,
                   ),
@@ -308,15 +308,17 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
                 controller: _customController,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 cursorColor: AppColors.lightIconPrimary,
-                style: TextStyle(fontSize: isSmallScreen ? 14 : size.width * 0.04),
+                style: TextStyle(fontSize: isSmallScreen ? 14 : size.width * 0.04, color: Theme.of(context).colorScheme.onSurface),
                 decoration: InputDecoration(
                   hintText: "Ex: 5.5",
+                  hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5)),
                   suffixText: "tonnes CO₂/an",
-                  fillColor: AppColors.lightInput,
+                  suffixStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+                  fillColor: Theme.of(context).colorScheme.surface,
                   filled: true,
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(size.width * 0.03),
-                    borderSide: const BorderSide(color: AppColors.lightInputBorder),
+                    borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(size.width * 0.03),
@@ -350,11 +352,11 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: isSelected ? LinearGradient(colors: colors) : null,
-        color: isSelected ? null : AppColors.lightSecondary,
+        color: isSelected ? null : Theme.of(context).colorScheme.surface,
       ),
       child: Icon(
         icon, 
-        color: isSelected ? AppColors.lightPrimaryForeground : AppColors.lightMutedForeground, 
+        color: isSelected ? AppColors.lightPrimaryForeground : Theme.of(context).colorScheme.onSurface.withOpacity(0.6), 
         size: iconSize,
       ),
     );
@@ -367,15 +369,15 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
     return Container(
       padding: EdgeInsets.all(size.width * 0.04),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(size.width * 0.04),
-        border: Border.all(color: AppColors.lightBorder),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: Text(
         "💡 Tu pourras modifier ton objectif à tout moment dans ton profil.",
         textAlign: TextAlign.center,
         style: TextStyle(
-          color: AppColors.lightTextPrimary.withOpacity(0.6), 
+          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), 
           fontSize: isSmallScreen ? 12 : size.width * 0.033,
         ),
       ),

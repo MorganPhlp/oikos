@@ -26,7 +26,7 @@ class SuggestionsWidget extends StatelessWidget {
           label: Text(
             suggestion,
             style: TextStyle(
-              color: isSelected ? Colors.white : AppColors.lightTextPrimary,
+              color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurface,
             ),
           ),
           selected: isSelected,
@@ -36,10 +36,10 @@ class SuggestionsWidget extends StatelessWidget {
             }
           },
           selectedColor: AppColors.lightTextGreen.withOpacity(0.7),
-          backgroundColor: AppColors.lightBackground,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           shape: StadiumBorder(
             side: BorderSide(
-              color: isSelected ? Colors.transparent : Colors.grey.shade300,
+              color: isSelected ? Colors.transparent : Theme.of(context).colorScheme.outline,
             ),
           ),
         );

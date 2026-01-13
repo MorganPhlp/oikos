@@ -34,6 +34,7 @@ class ResultsPage extends StatelessWidget {
         final String totalTonnesFormatted = _formatKgToTonnes(scoreKg, decimals: 1);
 
         return Scaffold(
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: Stack(
             children: [
               _buildBackgroundDecorations(context),
@@ -67,12 +68,12 @@ class ResultsPage extends StatelessWidget {
                         style: TextStyle(
                           fontSize: isSmallScreen ? 18 : size.width * 0.055,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.lightTextPrimary,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
-                      const Text(
+                      Text(
                         "C'est l'équivalent de :",
-                        style: TextStyle(color: Colors.grey),
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
                       ),
                       SizedBox(height: size.height * 0.02),
 
@@ -129,29 +130,30 @@ class ResultsPage extends StatelessWidget {
     final size = MediaQuery.of(context).size;
     final String scoreFormatted = _formatKgToTonnes(scoreKg, decimals: 1);
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(size.width * 0.07),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(30),
         border: Border.all(color: AppColors.gradientGreenEnd.withOpacity(0.1), width: 2),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, 10))
+          BoxShadow(color: (isDark ? Colors.white : Colors.black).withOpacity(0.05), blurRadius: 20, offset: const Offset(0, 10))
         ],
       ),
       child: Column(
         children: [
-          const Text("Ton empreinte annuelle", style: TextStyle(color: Colors.grey)),
+          Text("Ton empreinte annuelle", style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
           Text(
             scoreFormatted,
             style: TextStyle(
               fontSize: size.width * 0.14,
-              fontWeight: FontWeight.w900, // Corrigé : FontWeight.black n'existe pas
-              color: AppColors.lightTextPrimary,
+              fontWeight: FontWeight.w900,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
-          const Text("tonnes CO₂e / an", style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w500)),
+          Text("tonnes CO₂e / an", style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), fontWeight: FontWeight.w500)),
           SizedBox(height: size.height * 0.02),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -199,9 +201,9 @@ class ResultsPage extends StatelessWidget {
         return Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppColors.lightBackground.withOpacity(0.5),
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.lightBorder.withOpacity(0.5)),
+            border: Border.all(color: Theme.of(context).colorScheme.outline.withOpacity(0.5)),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -210,12 +212,12 @@ class ResultsPage extends StatelessWidget {
               const SizedBox(height: 6),
               Text(
                 finalValue > 10 ? finalValue.round().toString() : finalValue.toStringAsFixed(1).replaceAll('.', ','),
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.lightTextPrimary),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
               ),
               Text(
                 item.equivalentLabel,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.lightTextPrimary.withOpacity(0.6), fontSize: 10),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), fontSize: 10),
               ),
             ],
           ),
@@ -229,7 +231,7 @@ class ResultsPage extends StatelessWidget {
   Widget _buildHeaderTitle(BuildContext context) {
     return Column(
       children: [
-        const Text("Mon bilan carbone", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: AppColors.lightTextPrimary)),
+        Text("Mon bilan carbone", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
         const SizedBox(height: 4),
         Container(height: 3, width: 40, decoration: BoxDecoration(color: AppColors.gradientGreenEnd, borderRadius: BorderRadius.circular(2))),
       ],
@@ -245,13 +247,15 @@ class ResultsPage extends StatelessWidget {
       if (valueKg > 0) {
         final color = colors[i % colors.length];
         sections.add(PieChartSectionData(color: color, value: valueKg, radius: 30, title: ''));
-        legendItems.add(Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
-            const SizedBox(width: 6),
-            Text(key, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-          ],
+        legendItems.add(Builder(
+          builder: (context) => Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+              const SizedBox(width: 6),
+              Text(key, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
+            ],
+          ),
         ));
         i++;
       }
@@ -259,7 +263,7 @@ class ResultsPage extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(25), border: Border.all(color: AppColors.lightBorder)),
+      decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(25), border: Border.all(color: Theme.of(context).colorScheme.outline)),
       child: Column(
         children: [
           SizedBox(height: 140, child: PieChart(PieChartData(sections: sections, centerSpaceRadius: 35))),

@@ -72,10 +72,10 @@ class _OikosNumberInputState extends State<OikosNumberInput> {
         controller: _controller,
         keyboardType: TextInputType.number,
         textAlign: TextAlign.center,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.bold,
-          color: AppColors.lightTextPrimary,
+          color: Theme.of(context).colorScheme.onSurface,
         ),
         inputFormatters: [
           FilteringTextInputFormatter.digitsOnly,
@@ -98,19 +98,19 @@ class _OikosNumberInputState extends State<OikosNumberInput> {
         },
         decoration: InputDecoration(
           filled: true,
-          fillColor: AppColors.lightInput,
+          fillColor: Theme.of(context).colorScheme.surface,
           hintText: '0',
-          hintStyle: TextStyle(color: AppColors.lightTextPrimary.withOpacity(0.3)),
+          hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3)),
           suffixText: widget.unit,
-          suffixStyle: const TextStyle(
+          suffixStyle: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w500,
-            color: AppColors.lightTextPrimary,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
           contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: AppColors.lightInputBorder, width: 1.5),
+            borderSide: BorderSide(color: Theme.of(context).colorScheme.outline, width: 1.5),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),

@@ -64,17 +64,17 @@ class OikosSlider extends StatelessWidget {
           width: 100,
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: AppColors.lightInput,
-            border: Border.all(color: AppColors.lightInputBorder),
+            color: Theme.of(context).colorScheme.surface,
+            border: Border.all(color: Theme.of(context).colorScheme.outline),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Center(
             child: Text(
               "${value.round()}",
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: AppColors.lightTextPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ),

@@ -38,7 +38,7 @@ class _BilanPageState extends State<BilanPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.lightBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: BlocConsumer<BilanBloc, BilanState>(
           buildWhen: (previous, current) => current is BilanQuestionDisplayed || current is BilanLoading,
@@ -96,7 +96,7 @@ class _BilanPageState extends State<BilanPage> {
                       state.question.question,
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: AppColors.lightTextPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: size.width < 360 ? 20 : size.width * 0.055,
                         fontWeight: FontWeight.bold,
                         height: 1.2,
@@ -198,7 +198,7 @@ class _BilanPageState extends State<BilanPage> {
             Text(
               "Dis-nous comment tu vis",
               style: TextStyle(
-                color: AppColors.lightTextPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: isSmallScreen ? 14 : size.width * 0.04,
                 fontWeight: FontWeight.bold,
               ),
@@ -217,7 +217,7 @@ class _BilanPageState extends State<BilanPage> {
         Text(
           "Question ${state.index} sur ${state.totalQuestions}",
           style: TextStyle(
-            color: AppColors.lightTextPrimary.withOpacity(0.6),
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
             fontSize: isSmallScreen ? 11 : size.width * 0.03,
           ),
         ),
@@ -234,7 +234,7 @@ class _BilanPageState extends State<BilanPage> {
           children: [
             IconButton(
               onPressed: () => context.read<BilanBloc>().add(RevenirQuestionPrecedenteEvent()),
-              icon: const Icon(Icons.chevron_left),
+              icon: Icon(Icons.chevron_left, color: Theme.of(context).colorScheme.onSurface),
               style: IconButton.styleFrom(
                 side: const BorderSide(color: AppColors.gradientGreenEnd, width: 2),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -258,7 +258,7 @@ class _BilanPageState extends State<BilanPage> {
             _buildTextLink("Je ne sais pas", () => context.read<BilanBloc>().add(RepondreQuestionEvent(null)), size),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: size.width * 0.02),
-              child: const Text("•", style: TextStyle(color: Colors.grey)),
+              child: Text("•", style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5))),
             ),
             _buildTextLink("Pas concerné", () => context.read<BilanBloc>().add(RepondreQuestionEvent(null)), size),
           ],
@@ -270,12 +270,14 @@ class _BilanPageState extends State<BilanPage> {
   Widget _buildTextLink(String text, VoidCallback onTap, Size size) {
     return InkWell(
       onTap: onTap,
-      child: Text(
-        text,
-        style: TextStyle(
-          color: AppColors.lightTextPrimary.withOpacity(0.6),
-          decoration: TextDecoration.underline,
-          fontSize: size.width < 360 ? 13 : size.width * 0.035,
+      child: Builder(
+        builder: (context) => Text(
+          text,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+            decoration: TextDecoration.underline,
+            fontSize: size.width < 360 ? 13 : size.width * 0.035,
+          ),
         ),
       ),
     );

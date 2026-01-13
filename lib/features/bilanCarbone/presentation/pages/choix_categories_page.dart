@@ -78,12 +78,12 @@ class _ChoixCategoriesPageState extends State<ChoixCategoriesPage> {
             }
 
             return Scaffold(
-              backgroundColor: AppColors.lightBackground,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               appBar: AppBar(
                 backgroundColor: Colors.transparent,
                 elevation: 0,
                 leading: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: AppColors.lightTextPrimary),
+                  icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
                   onPressed: () {
                     // On gère manuellement le retour pour le bouton visuel
                     context.read<BilanBloc>().add(RetourVersQuestionsFromObjectifsEvent());
@@ -107,7 +107,7 @@ class _ChoixCategoriesPageState extends State<ChoixCategoriesPage> {
                                 "Quels sujets t'intéressent ?",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  color: AppColors.lightTextPrimary,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                   fontSize: MediaQuery.of(context).size.width < 360 
                                     ? 22 
                                     : MediaQuery.of(context).size.width * 0.065,
@@ -119,7 +119,7 @@ class _ChoixCategoriesPageState extends State<ChoixCategoriesPage> {
                                 "Sélectionne toutes les catégories qui te parlent pour recevoir des suggestions personnalisées.",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  color: AppColors.lightTextPrimary.withOpacity(0.7),
+                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                                   fontSize: MediaQuery.of(context).size.width < 360 
                                     ? 14 
                                     : MediaQuery.of(context).size.width * 0.04,
@@ -173,7 +173,7 @@ class _ChoixCategoriesPageState extends State<ChoixCategoriesPage> {
             child: Text(
               "Tu ne recevras pas d'actions proposées dans les catégories non cochées.",
               style: TextStyle(
-                color: AppColors.lightTextPrimary, 
+                color: Theme.of(context).colorScheme.onSurface, 
                 fontSize: isSmallScreen ? 13 : size.width * 0.035,
               ),
             ),
@@ -254,10 +254,10 @@ class _CategoryCard extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: EdgeInsets.all(padding),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(size.width * 0.04),
           border: Border.all(
-            color: isSelected ? AppColors.lightIconPrimary : AppColors.lightBorder,
+            color: isSelected ? AppColors.lightIconPrimary : Theme.of(context).colorScheme.outline,
             width: 2,
           ),
           gradient: isSelected
@@ -270,7 +270,7 @@ class _CategoryCard extends StatelessWidget {
               : null,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(isSelected ? 0.08 : 0.04),
+              color: (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black).withOpacity(isSelected ? 0.08 : 0.04),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -283,7 +283,7 @@ class _CategoryCard extends StatelessWidget {
               height: iconSize,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: isSelected ? null : const Color(0xFFF5F5F5),
+                color: isSelected ? null : Theme.of(context).colorScheme.surface.withOpacity(0.5),
                 gradient: isSelected
                     ? const LinearGradient(
                         colors: [AppColors.gradientGreenStart, AppColors.gradientGreenEnd],
@@ -307,7 +307,7 @@ class _CategoryCard extends StatelessWidget {
                   Text(
                     label,
                     style: TextStyle(
-                      color: AppColors.lightTextPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
                       fontSize: isSmallScreen ? 15 : size.width * 0.04,
                     ),
@@ -318,7 +318,7 @@ class _CategoryCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: AppColors.lightTextPrimary.withOpacity(0.5),
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                         fontSize: isSmallScreen ? 12 : size.width * 0.033,
                       ),
                     ),

@@ -22,7 +22,7 @@ class SuggestionContainer extends StatelessWidget {
             child: Text(
               'Vous pouvez répondre à l\'aide des suggestions ou bien entrer sélectionner des valeurs personnalisées.',
               style: TextStyle(
-                color: AppColors.lightTextPrimary.withValues(alpha: 0.7),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 13,
                 fontStyle: FontStyle.italic,
               ),
