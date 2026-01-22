@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS utilisateur (
     entreprise_id UUID,
     code_communaute TEXT,
     objectif FLOAT DEFAULT 0.1,
+    a_complete_bilan BOOLEAN DEFAULT FALSE,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     
     -- Foreign Keys

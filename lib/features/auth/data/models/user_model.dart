@@ -6,6 +6,7 @@ class UserModel extends User {
     required super.email,
     required super.pseudo,
     required super.communityCode,
+    super.hasCompletedBilan = false,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> map) {
@@ -13,7 +14,8 @@ class UserModel extends User {
       id: map['id'] ?? '',
       email: map['email'] ?? '',
       pseudo: map['pseudo'] ?? '',
-      communityCode: map['community_code'] ?? '',
+      communityCode: map['code_communaute'] ?? '',
+      hasCompletedBilan: map['a_complete_bilan'] ?? false,
     );
   }
 }

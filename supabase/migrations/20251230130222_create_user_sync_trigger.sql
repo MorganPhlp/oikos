@@ -44,3 +44,23 @@ DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+
+-- Maj status bilan carbone
+CREATE OR REPLACE FUNCTION sync_user_bilan_status()
+RETURNS TRIGGER AS $$
+BEGIN
+  -- Si le bilan passe à complet = true
+  IF (NEW.complet = true) THEN
+    UPDATE public.utilisateur
+    SET a_complete_bilan = true
+    WHERE id = NEW.utilisateur_id;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 2. Créer le trigger qui se déclenche à chaque mise à jour de bilan_carbone
+CREATE TRIGGER on_bilan_completed
+AFTER UPDATE ON public.bilan_carbone
+FOR EACH ROW
+EXECUTE FUNCTION sync_user_bilan_status();

@@ -26,13 +26,17 @@ import 'package:oikos/features/bilanCarbone/domain/use_cases/calculer_bilan_use_
 import 'package:oikos/features/bilanCarbone/domain/use_cases/choix_categories_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/definir_objectif_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/demarrer_approfondissement_use_case.dart';
-import 'package:oikos/features/bilanCarbone/domain/use_cases/demarrer_bilan_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/enregistrer_reponse_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/obtenir_objectifs_disponibles_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/precedente_question_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/preparer_choix_objectifs_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/prochaine_question_use_case.dart';
+import 'package:oikos/features/bilanCarbone/domain/use_cases/recommencer_bilan_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/recuperer_equivalents_carbone_use_case.dart';
+import 'package:oikos/features/bilanCarbone/domain/use_cases/recuperer_questions_use_case.dart';
+import 'package:oikos/features/bilanCarbone/domain/use_cases/recuperer_reponses_use_case.dart';
+import 'package:oikos/features/bilanCarbone/domain/use_cases/reprendre_bilan_use_case.dart';
+import 'package:oikos/features/bilanCarbone/domain/use_cases/verifier_bilan_en_cours_use_case.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -81,9 +85,9 @@ void _initAuth() {
 
   serviceLocator.registerFactory(() => CurrentUser(serviceLocator()));
 
-  serviceLocator.registerFactory(() => ValidateEmailPassword(serviceLocator(),));
+  serviceLocator.registerFactory(() => ValidateEmailPassword(serviceLocator()));
 
-  serviceLocator.registerFactory(() => ValidatePseudo(serviceLocator(),));
+  serviceLocator.registerFactory(() => ValidatePseudo(serviceLocator()));
 
   // Bloc
   serviceLocator.registerLazySingleton(
@@ -135,13 +139,6 @@ void _initBilan() {
     () => ApplicabilityChecker(serviceLocator()),
   );
 
-  serviceLocator.registerLazySingleton(
-    () => DemarrerBilanUseCase(
-      simulationRepo: serviceLocator(),
-      questionRepo: serviceLocator(),
-      bilanSessionRepo: serviceLocator(),
-    ),
-  );
 
   serviceLocator.registerLazySingleton(
     () => EnregistrerReponseUseCase(
@@ -190,13 +187,45 @@ void _initBilan() {
       obtenirObjectifsUseCase: serviceLocator(),
     ),
   );
+  serviceLocator.registerLazySingleton(
+    () => VerifierBilanEnCoursUseCase(bilanSessionRepo: serviceLocator()),
+  );
+
+  serviceLocator.registerLazySingleton(
+    () => RecommencerBilanUseCase(
+      bilanSessionRepository: serviceLocator(),
+      questionRepository: serviceLocator(),
+      simulationRepository: serviceLocator(),
+    ),
+  );
+
+  serviceLocator.registerLazySingleton(
+  () => RecupererReponsesUseCase(
+    reponseRepository: serviceLocator(),   // Déjà présent
+    bilanRepository: serviceLocator(),     // AJOUTÉ
+    questionRepository: serviceLocator(),   // AJOUTÉ
+  ),
+);
+
+  serviceLocator.registerLazySingleton(
+    () => ReprendreBilanUseCase(
+      reponseRepository: serviceLocator(),
+      bilanRepository: serviceLocator(),
+      simulationRepository: serviceLocator(),
+    ),
+  );
+
+  serviceLocator.registerLazySingleton(
+    () => RecupererQuestionsUseCase(
+      questionRepository: serviceLocator(),
+    ),
+  );
 
   // ==========================================================
   // PRESENTATION (Bloc)
   // ==========================================================
   serviceLocator.registerFactory(
     () => BilanBloc(
-      demarrerBilanUseCase: serviceLocator(),
       repondreUseCase: serviceLocator(),
       getNextUseCase: serviceLocator(),
       getPrevUseCase: serviceLocator(),
@@ -207,6 +236,11 @@ void _initBilan() {
       calculerBilanCategoriesUseCase: serviceLocator(),
       recupererEquivalentsCarboneUseCase: serviceLocator(),
       preparerChoixObjectifsUseCase: serviceLocator(),
+      verifierBilanEnCoursUseCase: serviceLocator(),
+      recupererReponsesUseCase: serviceLocator(),
+      recommencerBilanUseCase: serviceLocator(),
+      reprendreBilanUseCase: serviceLocator(),
+      recupererQuestionsUseCase: serviceLocator(),
     ),
   );
 }

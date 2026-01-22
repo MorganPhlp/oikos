@@ -11,6 +11,9 @@ abstract class BilanState extends Equatable {
 // 1. État de chargement (au lancement ou calcul long)
 class BilanLoading extends BilanState {}
 
+// 1.5. État de reprise détectée : Un bilan est en cours
+class BilanRepriseDetectee extends BilanState {}
+
 // 2. État principal : Une question est affichée
 class BilanQuestionDisplayed extends BilanState {
   final QuestionBilanEntity question; // La question

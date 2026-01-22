@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:oikos/app_router.dart';
 import 'package:oikos/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:oikos/features/auth/presentation/pages/intro_page.dart';
-import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_bloc.dart';
-import 'package:oikos/features/bilanCarbone/presentation/pages/bilan_flow.dart';
-import 'package:oikos/features/bilanCarbone/presentation/pages/bilan_page.dart';
 import 'package:oikos/init_dependencies.dart';
+// Importe ici le fichier où tu as mis ton createRouter (ex: core/navigation/app_router.dart)
+// import 'package:oikos/core/navigation/app_router.dart'; 
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Ensure that plugin services are initialized
+  WidgetsFlutterBinding.ensureInitialized();
   await initDependencies();
   runApp(
     MultiBlocProvider(
@@ -23,7 +23,6 @@ void main() async {
   );
 }
 
-// Passage de StatelessWidget à StatefulWidget pour gérer l'état
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -32,35 +31,30 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  // On déclare le router en late pour l'initialiser une seule fois
+  late final GoRouter _router;
+
   @override
   void initState() {
     super.initState();
+    // 1. On vérifie si l'utilisateur est déjà loggé
     context.read<AuthBloc>().add(AuthIsUserLoggedIn());
+    
+    // 2. On initialise le router en lui passant le Cubit
+    // On utilise context.read car on a juste besoin de la référence
+    _router = createRouter(context.read<AppUserCubit>());
   }
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Oîkos',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      home: BlocSelector<AppUserCubit, AppUserState, bool>(
-        selector: (state) {
-          return state is AppUserLoggedIn;
-        },
-        builder: (context, state) {
-          if (state) {
-            // Si l'utilisateur est connecté, afficher le bilan
-            return const BilanFlow();
-          } else {
-            // Sinon, afficher la page d'introduction ou de connexion
-            return const IntroPage(); // Remplacez par votre page d'introduction
-          }
-        },
-      ),
+      // On utilise routerConfig pour brancher GoRouter
+      routerConfig: _router, 
     );
   }
 }

@@ -24,6 +24,7 @@ _UtilisateurEntity _$UtilisateurEntityFromJson(Map<String, dynamic> json) =>
           (json['co2_economise_total'] as num?)?.toDouble() ?? 0.0,
       aAccepteCgu: json['a_accepte_cgu'] as bool? ?? false,
       communauteNom: json['communaute_nom'] as String? ?? '',
+      hasCompletedBilan: json['a_complete_bilan'] as bool? ?? false,
       objectif: (json['objectif'] as num?)?.toInt() ?? -10,
     );
 
@@ -40,6 +41,7 @@ Map<String, dynamic> _$UtilisateurEntityToJson(_UtilisateurEntity instance) =>
       'co2_economise_total': instance.co2EconomiseTotal,
       'a_accepte_cgu': instance.aAccepteCgu,
       'communaute_nom': instance.communauteNom,
+      'a_complete_bilan': instance.hasCompletedBilan,
       'objectif': instance.objectif,
     };
 

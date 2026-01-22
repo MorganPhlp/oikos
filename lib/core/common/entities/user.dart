@@ -6,11 +6,13 @@ class User {
   final String email;
   final String pseudo;
   final String communityCode;
+  final bool hasCompletedBilan;
 
   User({
     required this.id,
     required this.email,
     required this.pseudo,
     required this.communityCode,
+    this.hasCompletedBilan = false,
   });
 }

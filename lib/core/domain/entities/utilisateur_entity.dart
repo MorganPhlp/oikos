@@ -49,6 +49,9 @@ sealed class UtilisateurEntity with _$UtilisateurEntity {
     @JsonKey(name: 'communaute_nom')
     @Default('') String communauteNom,
 
+    @JsonKey(name: 'a_complete_bilan')
+    @Default(false) bool hasCompletedBilan,
+
     // Ce champ n'existe pas dans ta table SQL 'utilisateur'. 
     // S'il vient d'une jointure ou d'un calcul, garde-le, sinon il sera ignoré par Supabase.
     @Default(-10) int objectif, 

@@ -49,6 +49,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (response.user == null) {
         throw ServerException('User is null');
       }
+      //on ajoute les donnees supplementaires de l'utilisateur dans la table utilisateur
+      await supabaseClient.from('utilisateur').update({
+        'code_communaute': communityCode,
+      }).eq("id" , response.user!.id);
+      
       return UserModel.fromJson(response.user!.toJson());
     } catch (e) {
       throw ServerException(e.toString());
@@ -68,7 +73,17 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (response.user == null) {
         throw ServerException('User is null');
       }
-      return UserModel.fromJson(response.user!.toJson());
+      // on recupere les donnees supplementaires de l'utilisateur
+      final userData = await supabaseClient
+          .from('utilisateur')
+          .select()
+          .eq('id', response.user!.id).single();
+      // on merge les deux maps
+      final mergedData = {
+        ...userData,
+        ...response.user!.toJson(),
+      };
+      return UserModel.fromJson(mergedData);
     } catch (e) {
       throw ServerException(e.toString());
     }

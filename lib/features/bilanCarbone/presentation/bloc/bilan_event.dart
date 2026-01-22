@@ -11,6 +11,10 @@ abstract class BilanEvent extends Equatable {
 
 class DemarrerBilanEvent extends BilanEvent {}
 
+class ReprendreBilanEvent extends BilanEvent {}
+
+class RedemarrerBilanEvent extends BilanEvent {}
+
 class RepondreQuestionEvent extends BilanEvent {
   final dynamic valeur;
 

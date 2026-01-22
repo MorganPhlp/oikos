@@ -8,6 +8,7 @@ import 'package:oikos/features/bilanCarbone/presentation/widgets/question_widget
 import 'package:oikos/features/bilanCarbone/presentation/widgets/suggestion_container.dart';
 import 'package:oikos/features/bilanCarbone/presentation/widgets/suggestions_widget.dart';
 import 'package:oikos/init_dependencies.dart';
+import 'package:oikos/features/bilanCarbone/presentation/widgets/resume_bilan_dialog.dart';
 
 import '../../../../core/common/widgets/loader.dart';
 
@@ -43,18 +44,28 @@ class _BilanPageState extends State<BilanPage> {
         child: BlocConsumer<BilanBloc, BilanState>(
           buildWhen: (previous, current) => current is BilanQuestionDisplayed || current is BilanLoading,
           listenWhen: (previous, current) {
-
-          if (current is BilanChoixCategories && previous is BilanQuestionDisplayed) {
-            return true;
-          }
-          return false; 
-        },
+            // On veut écouter les transitions vers le choix des catégories
+            // et l'état indiquant qu'une reprise est possible
+            if (current is BilanChoixCategories) return true;
+            if (current is BilanRepriseDetectee) return true;
+            return false;
+          },
           listener: (context, state) {
+            // Si reprise détectée, afficher la popup de reprise
+            if (state is BilanRepriseDetectee) {
+              ResumeBilanDialog.show(
+                context: context,
+                onResume: () => context.read<BilanBloc>().add(ReprendreBilanEvent()),
+                onRestart: () => context.read<BilanBloc>().add(RedemarrerBilanEvent()),
+              );
+              return;
+            }
+
             // Initialisation locale des valeurs quand une question arrive
             if (state is BilanQuestionDisplayed) {
               _initialiserValeurParDefaut(state);
             }
-            
+
             // Navigation vers le choix des catégories
             if (state is BilanChoixCategories) {
               Navigator.of(context).pushNamed('categories');
