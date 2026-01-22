@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_bloc.dart';
 import 'package:oikos/features/bilanCarbone/presentation/pages/bilan_page.dart';
 import 'package:oikos/features/bilanCarbone/presentation/pages/choix_categories_page.dart';
@@ -16,15 +17,17 @@ class BilanFlow extends StatefulWidget {
 
 class _BilanFlowState extends State<BilanFlow> {
   // 1. On crée une clé pour contrôler le Navigator interne
-  final GlobalKey<NavigatorState> _innerNavigatorKey = GlobalKey<NavigatorState>();
+  final GlobalKey<NavigatorState> _innerNavigatorKey =
+      GlobalKey<NavigatorState>();
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => serviceLocator<BilanBloc>()..add(DemarrerBilanEvent()),
+      create: (context) =>
+          serviceLocator<BilanBloc>()..add(DemarrerBilanEvent()),
       child: PopScope(
         // 2. On empêche la fermeture de l'app SI le navigator interne peut faire "back"
-        canPop: false, 
+        canPop: false,
         onPopInvokedWithResult: (didPop, result) async {
           if (didPop) return;
 
@@ -34,7 +37,7 @@ class _BilanFlowState extends State<BilanFlow> {
             navigator.pop(); // On fait le retour arrière interne
           } else {
             // S'il n'y a plus de pages (on est sur BilanPage), on quitte le Flow
-            Navigator.of(context).pop(); 
+            context.go('/');
           }
         },
         child: Navigator(
@@ -44,11 +47,16 @@ class _BilanFlowState extends State<BilanFlow> {
             return MaterialPageRoute(
               builder: (context) {
                 switch (settings.name) {
-                  case 'questions': return const BilanPage();
-                  case 'categories': return const ChoixCategoriesPage();
-                  case 'objectifs': return const PersonalGoalPage();
-                  case 'resultats': return const ResultsPage();
-                  default: return const BilanPage();
+                  case 'questions':
+                    return const BilanPage();
+                  case 'categories':
+                    return const ChoixCategoriesPage();
+                  case 'objectifs':
+                    return const PersonalGoalPage();
+                  case 'resultats':
+                    return const ResultsPage();
+                  default:
+                    return const BilanPage();
                 }
               },
             );

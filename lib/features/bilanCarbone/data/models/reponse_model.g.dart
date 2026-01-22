@@ -12,7 +12,7 @@ _ReponseUtilisateurModel _$ReponseUtilisateurModelFromJson(
   id: (json['id'] as num?)?.toInt(),
   bilanId: (json['bilan_id'] as num?)?.toInt() ?? 0,
   questionId: (json['question_id'] as num?)?.toInt() ?? 0,
-  valeur: json['valeur'],
+  valeur: _parseValeur(json['valeur']),
 );
 
 Map<String, dynamic> _$ReponseUtilisateurModelToJson(

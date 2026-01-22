@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ReponseUtilisateurModel {
 
-@JsonKey(includeIfNull: false) int? get id;@JsonKey(name: 'bilan_id') int get bilanId;@JsonKey(name: 'question_id') int get questionId; dynamic get valeur;
+@JsonKey(includeIfNull: false) int? get id;@JsonKey(name: 'bilan_id') int get bilanId;@JsonKey(name: 'question_id') int get questionId;@JsonKey(fromJson: _parseValeur) dynamic get valeur;
 /// Create a copy of ReponseUtilisateurModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $ReponseUtilisateurModelCopyWith<$Res>  {
   factory $ReponseUtilisateurModelCopyWith(ReponseUtilisateurModel value, $Res Function(ReponseUtilisateurModel) _then) = _$ReponseUtilisateurModelCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(includeIfNull: false) int? id,@JsonKey(name: 'bilan_id') int bilanId,@JsonKey(name: 'question_id') int questionId, dynamic valeur
+@JsonKey(includeIfNull: false) int? id,@JsonKey(name: 'bilan_id') int bilanId,@JsonKey(name: 'question_id') int questionId,@JsonKey(fromJson: _parseValeur) dynamic valeur
 });
 
 
@@ -153,7 +153,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(includeIfNull: false)  int? id, @JsonKey(name: 'bilan_id')  int bilanId, @JsonKey(name: 'question_id')  int questionId,  dynamic valeur)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(includeIfNull: false)  int? id, @JsonKey(name: 'bilan_id')  int bilanId, @JsonKey(name: 'question_id')  int questionId, @JsonKey(fromJson: _parseValeur)  dynamic valeur)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ReponseUtilisateurModel() when $default != null:
 return $default(_that.id,_that.bilanId,_that.questionId,_that.valeur);case _:
@@ -174,7 +174,7 @@ return $default(_that.id,_that.bilanId,_that.questionId,_that.valeur);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(includeIfNull: false)  int? id, @JsonKey(name: 'bilan_id')  int bilanId, @JsonKey(name: 'question_id')  int questionId,  dynamic valeur)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(includeIfNull: false)  int? id, @JsonKey(name: 'bilan_id')  int bilanId, @JsonKey(name: 'question_id')  int questionId, @JsonKey(fromJson: _parseValeur)  dynamic valeur)  $default,) {final _that = this;
 switch (_that) {
 case _ReponseUtilisateurModel():
 return $default(_that.id,_that.bilanId,_that.questionId,_that.valeur);}
@@ -191,7 +191,7 @@ return $default(_that.id,_that.bilanId,_that.questionId,_that.valeur);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(includeIfNull: false)  int? id, @JsonKey(name: 'bilan_id')  int bilanId, @JsonKey(name: 'question_id')  int questionId,  dynamic valeur)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(includeIfNull: false)  int? id, @JsonKey(name: 'bilan_id')  int bilanId, @JsonKey(name: 'question_id')  int questionId, @JsonKey(fromJson: _parseValeur)  dynamic valeur)?  $default,) {final _that = this;
 switch (_that) {
 case _ReponseUtilisateurModel() when $default != null:
 return $default(_that.id,_that.bilanId,_that.questionId,_that.valeur);case _:
@@ -206,13 +206,13 @@ return $default(_that.id,_that.bilanId,_that.questionId,_that.valeur);case _:
 @JsonSerializable()
 
 class _ReponseUtilisateurModel extends ReponseUtilisateurModel {
-  const _ReponseUtilisateurModel({@JsonKey(includeIfNull: false) this.id, @JsonKey(name: 'bilan_id') this.bilanId = 0, @JsonKey(name: 'question_id') this.questionId = 0, this.valeur}): super._();
+  const _ReponseUtilisateurModel({@JsonKey(includeIfNull: false) this.id, @JsonKey(name: 'bilan_id') this.bilanId = 0, @JsonKey(name: 'question_id') this.questionId = 0, @JsonKey(fromJson: _parseValeur) this.valeur}): super._();
   factory _ReponseUtilisateurModel.fromJson(Map<String, dynamic> json) => _$ReponseUtilisateurModelFromJson(json);
 
 @override@JsonKey(includeIfNull: false) final  int? id;
 @override@JsonKey(name: 'bilan_id') final  int bilanId;
 @override@JsonKey(name: 'question_id') final  int questionId;
-@override final  dynamic valeur;
+@override@JsonKey(fromJson: _parseValeur) final  dynamic valeur;
 
 /// Create a copy of ReponseUtilisateurModel
 /// with the given fields replaced by the non-null parameter values.
@@ -247,7 +247,7 @@ abstract mixin class _$ReponseUtilisateurModelCopyWith<$Res> implements $Reponse
   factory _$ReponseUtilisateurModelCopyWith(_ReponseUtilisateurModel value, $Res Function(_ReponseUtilisateurModel) _then) = __$ReponseUtilisateurModelCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(includeIfNull: false) int? id,@JsonKey(name: 'bilan_id') int bilanId,@JsonKey(name: 'question_id') int questionId, dynamic valeur
+@JsonKey(includeIfNull: false) int? id,@JsonKey(name: 'bilan_id') int bilanId,@JsonKey(name: 'question_id') int questionId,@JsonKey(fromJson: _parseValeur) dynamic valeur
 });
 
 

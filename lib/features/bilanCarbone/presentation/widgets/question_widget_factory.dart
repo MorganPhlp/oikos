@@ -24,7 +24,9 @@ class QuestionWidgetFactory extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // On récupère les options déjà transformées par ton getter complexe
-    final List<Map<String, dynamic>> options = List<Map<String, dynamic>>.from(question.options);
+    final List<Map<String, dynamic>> options = List<Map<String, dynamic>>.from(
+      question.options,
+    );
 
     switch (question.typeWidget) {
       // =========================================================
@@ -68,7 +70,9 @@ class QuestionWidgetFactory extends StatelessWidget {
       // CAS 3 : NOMBRE (Input Texte)
       // =========================================================
       case TypeWidget.nombre:
-        final int val = (currentValue is num) ? (currentValue as num).toInt() : 0;
+        final int val = (currentValue is num)
+            ? (currentValue as num).toInt()
+            : 0;
 
         return QuestionNumberWrapper(
           key: ValueKey(question.slug),
@@ -101,7 +105,6 @@ class QuestionWidgetFactory extends StatelessWidget {
         final Map<String, dynamic> currentCounts = (currentValue is Map)
             ? Map<String, dynamic>.from(currentValue)
             : {};
-        
         //verifier si on a atteint la limite de reponses
         final int totalCount = currentCounts.values.fold<int>(0, (sum, item) {
           if (item is num) {

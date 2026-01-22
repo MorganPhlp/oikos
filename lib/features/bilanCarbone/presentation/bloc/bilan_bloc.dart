@@ -63,7 +63,7 @@ class BilanBloc extends Bloc<BilanEvent, BilanState> {
     required this.recommencerBilanUseCase,
     required this.reprendreBilanUseCase,
     required this.recupererQuestionsUseCase,
-    }) : super(BilanLoading()) {
+  }) : super(BilanLoading()) {
     on<DemarrerBilanEvent>(_onDemarrerBilan);
     on<ReprendreBilanEvent>(_onReprendreBilan);
     on<RedemarrerBilanEvent>(_onRedemarrerBilan);
@@ -111,7 +111,8 @@ class BilanBloc extends Bloc<BilanEvent, BilanState> {
     emit(BilanLoading());
 
     try {
-      List<ReponseUtilisateurEntity> allResponses = await recupererReponsesUseCase.call();
+      List<ReponseUtilisateurEntity> allResponses =
+          await recupererReponsesUseCase.call();
       _allQuestions = await recupererQuestionsUseCase.call();
 
       // reconstruire la map des réponses
@@ -141,7 +142,6 @@ class BilanBloc extends Bloc<BilanEvent, BilanState> {
 
       // 5. Afficher la question
       _emitQuestion(emit);
-
     } catch (e) {
       print("❌ Erreur Reprise Bilan : $e");
       emit(BilanError("Erreur lors de la récupération : $e"));
@@ -228,9 +228,6 @@ class BilanBloc extends Bloc<BilanEvent, BilanState> {
 
   void _emitQuestion(Emitter<BilanState> emit) {
     final q = _allQuestions[_currentIndex];
-    print(reponses);
-    print(reponses[q.slug]);
-    print(q.slug);
     emit(
       BilanQuestionDisplayed(
         question: q,
