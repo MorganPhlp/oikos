@@ -10,7 +10,7 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
     initialLocation: '/',
     // On écoute le stream du Cubit pour relancer le redirect à chaque changement d'état
     refreshListenable: GoRouterRefreshStream(appUserCubit.stream),
-    
+
     routes: [
       GoRoute(
         path: '/',
@@ -36,6 +36,10 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
       final authState = appUserCubit.state;
       final String location = state.matchedLocation;
 
+      if (authState is AppUserInitial) {
+        // On ne redirige pas tant que l'état n'est pas connu
+        return null;
+      }
       // 1. CAS : UTILISATEUR CONNECTÉ
       if (authState is AppUserLoggedIn) {
         // Si l'utilisateur est sur l'intro (/) ou les pages auth, on le redirige
@@ -63,8 +67,8 @@ class GoRouterRefreshStream extends ChangeNotifier {
   GoRouterRefreshStream(Stream<dynamic> stream) {
     notifyListeners();
     _subscription = stream.asBroadcastStream().listen(
-          (dynamic _) => notifyListeners(),
-        );
+      (dynamic _) => notifyListeners(),
+    );
   }
 
   @override
