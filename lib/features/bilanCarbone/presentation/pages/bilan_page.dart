@@ -3,27 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/presentation/widgets/gradient_button.dart';
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/type_widget.dart';
-import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_bloc.dart';
+import 'package:oikos/features/bilanCarbone/presentation/bloc/questionnaire_bloc.dart';
+import 'package:oikos/features/bilanCarbone/presentation/bloc/questionnaire_event.dart';
+import 'package:oikos/features/bilanCarbone/presentation/bloc/questionnaire_state.dart';
 import 'package:oikos/features/bilanCarbone/presentation/widgets/question_widget_factory.dart';
-import 'package:oikos/features/bilanCarbone/presentation/widgets/suggestion_container.dart';
 import 'package:oikos/features/bilanCarbone/presentation/widgets/suggestions_widget.dart';
-import 'package:oikos/init_dependencies.dart';
-import 'package:oikos/features/bilanCarbone/presentation/widgets/resume_bilan_dialog.dart';
 import '../../../../core/common/widgets/loader.dart';
 
 class BilanPage extends StatefulWidget {
   const BilanPage({super.key});
-
-  static MaterialPageRoute route() {
-    return MaterialPageRoute(
-      builder: (context) => BlocProvider(
-        // On injecte le Bloc ici, à la source
-        create: (context) =>
-            serviceLocator<BilanBloc>()..add(DemarrerBilanEvent()),
-        child: const BilanPage(),
-      ),
-    );
-  }
 
   @override
   State<BilanPage> createState() => _BilanPageState();
@@ -40,68 +28,37 @@ class _BilanPageState extends State<BilanPage> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
-        child: BlocConsumer<BilanBloc, BilanState>(
-          buildWhen: (previous, current) =>
-              current is BilanQuestionDisplayed || current is BilanLoading,
-          listenWhen: (previous, current) {
-            if (current is BilanQuestionDisplayed) return true;
-            if (current is BilanChoixCategories &&
-                previous is BilanQuestionDisplayed) {
-              return true;
-            }
-            if (current is BilanRepriseDetectee) return true;
-            return false;
-          },
+        child: BlocConsumer<QuestionnaireBloc, QuestionnaireState>(
+          buildWhen: (p, c) =>
+              c is QuestionnaireAffiche || c is QuestionnaireLoading,
           listener: (context, state) {
-            // Si reprise détectée, afficher la popup de reprise
-            if (state is BilanRepriseDetectee) {
-              ResumeBilanDialog.show(
-                context: context,
-                onResume: () =>
-                    context.read<BilanBloc>().add(ReprendreBilanEvent()),
-                onRestart: () =>
-                    context.read<BilanBloc>().add(RedemarrerBilanEvent()),
-              );
-              return;
-            }
-
-            // Initialisation locale des valeurs quand une question arrive
-            if (state is BilanQuestionDisplayed) {
+            if (state is QuestionnaireAffiche) {
               _initialiserValeurParDefaut(state);
-            }
-
-            // Navigation vers le choix des catégories
-            if (state is BilanChoixCategories) {
-              Navigator.of(context).pushNamed('categories');
             }
           },
           builder: (context, state) {
-            if (state is BilanLoading) {
+            if (state is QuestionnaireLoading ||
+                state is QuestionnaireInitial) {
               return const Loader();
             }
 
-            if (state is BilanQuestionDisplayed) {
-              final double progress = state.index / state.totalQuestions;
+            if (state is QuestionnaireAffiche) {
+              final double progress = state.index / state.total;
               final size = MediaQuery.of(context).size;
-              final horizontalPadding = size.width * 0.05;
-              final verticalPadding = size.height * 0.012;
 
               return Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: horizontalPadding,
-                  vertical: verticalPadding,
+                  horizontal: size.width * 0.05,
+                  vertical: size.height * 0.012,
                 ),
                 child: Column(
                   children: [
-                    // --- ÉLÉMENTS FIXES (Haut) ---
                     Image.asset(
                       'assets/logos/oikos_logo.png',
                       width: size.width * 0.4,
                     ),
                     _buildHeader(progress, state, context),
                     SizedBox(height: size.height * 0.02),
-
-                    // Icône et Question restent fixes
                     Text(
                       state.question.icone ?? '',
                       style: TextStyle(fontSize: size.width * 0.12),
@@ -114,96 +71,68 @@ class _BilanPageState extends State<BilanPage> {
                         color: Theme.of(context).colorScheme.onSurface,
                         fontSize: size.width < 360 ? 20 : size.width * 0.055,
                         fontWeight: FontWeight.bold,
-                        height: 1.2,
                       ),
                     ),
                     SizedBox(height: size.height * 0.02),
-
-                    // --- ZONE SCROLLABLE (Uniquement pour les réponses) ---
                     Expanded(
-                      child: Scrollbar(
+                      child: SingleChildScrollView(
                         controller: _scrollController,
-                        thumbVisibility: true,
-                        child: SingleChildScrollView(
-                          controller: _scrollController,
-                          child: Column(
-                            children: [
-                              // Suggestions (si présentes)
-                              if (state.question.suggestions != null) ...[
-                                SuggestionsWidget(
-                                  suggestions: List<String>.from(
-                                    state.question.suggestions!.keys,
-                                  ),
-                                  selectedSuggestion: _selectedSuggestion,
-                                  onLocalChange: (key) {
-                                    setState(() {
-                                      _selectedSuggestion = key;
-                                      _currentAnswer =
-                                          state.question.suggestions![key];
-                                      _isAnswerValid = true;
-                                    });
-                                  },
+                        child: Column(
+                          children: [
+                            if (state.question.suggestions != null)
+                              SuggestionsWidget(
+                                suggestions: List<String>.from(
+                                  state.question.suggestions!.keys,
                                 ),
-                                SizedBox(height: size.height * 0.02),
-                              ],
-
-                              // Le Widget Factory
-                              QuestionWidgetFactory(
-                                key: ValueKey(
-                                  '${state.question.slug}_$_currentAnswer',
-                                ),
-                                question: state.question,
-                                currentValue: _currentAnswer,
-                                onLocalChange: (newValue) {
+                                selectedSuggestion: _selectedSuggestion,
+                                onLocalChange: (key) {
                                   setState(() {
-                                    _currentAnswer = newValue;
-                                    _selectedSuggestion = null;
+                                    _selectedSuggestion = key;
+                                    _currentAnswer =
+                                        state.question.suggestions![key];
+                                    _isAnswerValid = true;
                                   });
                                 },
-                                onValidityChange: (isValid) {
-                                  setState(() => _isAnswerValid = isValid);
-                                },
                               ),
-                              //Expliquation des suggestions
-                              if (state.question.suggestions != null)
-                                SuggestionContainer(),
-                            ],
-                          ),
+                            QuestionWidgetFactory(
+                              key: ValueKey(
+                                '${state.question.slug}_$_currentAnswer',
+                              ),
+                              question: state.question,
+                              currentValue: _currentAnswer,
+                              onLocalChange: (v) => setState(() {
+                                _currentAnswer = v;
+                                _selectedSuggestion = null;
+                              }),
+                              onValidityChange: (v) =>
+                                  setState(() => _isAnswerValid = v),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-
-                    // --- ÉLÉMENTS FIXES (Bas) ---
                     _buildFooterActions(context, state, size),
                   ],
                 ),
               );
             }
-
-            return const Center(child: Text("Initialisation du bilan..."));
+            return const Center(child: Text("Prêt à commencer..."));
           },
         ),
       ),
     );
   }
 
-  void _initialiserValeurParDefaut(BilanQuestionDisplayed state) {
-    if (state.valeurPrecedente == null) {
-      setState(() {
-        _currentAnswer = state.question.getInitialValue();
-        _isAnswerValid = state.question.isAlwaysValid();
-      });
-    } else {
-      setState(() {
-        _isAnswerValid = true;
-        _currentAnswer = state.valeurPrecedente;
-      });
-    }
+  void _initialiserValeurParDefaut(QuestionnaireAffiche state) {
+    _currentAnswer = state.valeurActuelle ?? state.question.getInitialValue();
+    _isAnswerValid =
+        state.valeurActuelle != null || state.question.isAlwaysValid();
+    setState(() {});
   }
 
   Widget _buildHeader(
     double progress,
-    BilanQuestionDisplayed state,
+    QuestionnaireAffiche state,
     BuildContext context,
   ) {
     final size = MediaQuery.of(context).size;
@@ -240,7 +169,7 @@ class _BilanPageState extends State<BilanPage> {
         ),
         SizedBox(height: size.height * 0.01),
         Text(
-          "Question ${state.index} sur ${state.totalQuestions}",
+          "Question ${state.index} sur ${state.total}",
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
             fontSize: isSmallScreen ? 11 : size.width * 0.03,
@@ -252,7 +181,7 @@ class _BilanPageState extends State<BilanPage> {
 
   Widget _buildFooterActions(
     BuildContext context,
-    BilanQuestionDisplayed state,
+    QuestionnaireAffiche state,
     Size size,
   ) {
     final buttonSize = size.width * 0.14;
@@ -262,8 +191,8 @@ class _BilanPageState extends State<BilanPage> {
         Row(
           children: [
             IconButton(
-              onPressed: () => context.read<BilanBloc>().add(
-                RevenirQuestionPrecedenteEvent(),
+              onPressed: () => context.read<QuestionnaireBloc>().add(
+                QuestionPrecedenteEvent(),
               ),
               icon: Icon(
                 Icons.chevron_left,
@@ -283,13 +212,13 @@ class _BilanPageState extends State<BilanPage> {
             SizedBox(width: size.width * 0.03),
             Expanded(
               child: GradientButton(
-                label: state.index == state.totalQuestions
+                label: state.index == state.total
                     ? "Terminer"
                     : "Question suivante >",
                 disabled:
                     !_isAnswerValid &&
                     state.question.typeWidget != TypeWidget.slider,
-                onPressed: () => context.read<BilanBloc>().add(
+                onPressed: () => context.read<QuestionnaireBloc>().add(
                   RepondreQuestionEvent(_currentAnswer),
                 ),
               ),
@@ -302,7 +231,9 @@ class _BilanPageState extends State<BilanPage> {
           children: [
             _buildTextLink(
               "Je ne sais pas",
-              () => context.read<BilanBloc>().add(RepondreQuestionEvent(null)),
+              () => context.read<QuestionnaireBloc>().add(
+                RepondreQuestionEvent(null),
+              ),
               size,
             ),
             Padding(
@@ -318,7 +249,9 @@ class _BilanPageState extends State<BilanPage> {
             ),
             _buildTextLink(
               "Pas concerné",
-              () => context.read<BilanBloc>().add(RepondreQuestionEvent(null)),
+              () => context.read<QuestionnaireBloc>().add(
+                RepondreQuestionEvent(null),
+              ),
               size,
             ),
           ],

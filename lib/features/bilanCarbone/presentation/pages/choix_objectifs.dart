@@ -1,43 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:oikos/core/common/widgets/loader.dart';
 import 'package:oikos/core/presentation/widgets/gradient_button.dart';
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/objectif_entity.dart';
-import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_bloc.dart';
-import 'package:oikos/features/bilanCarbone/presentation/pages/resultats_page.dart';
+import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_resultat_bloc.dart';
+import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_resultat_event.dart';
+import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_resultat_state.dart';
 
 class PersonalGoalPage extends StatefulWidget {
-  const PersonalGoalPage({
-    super.key,
-  });
-
-  static MaterialPageRoute route(BilanBloc existingBloc) {
-    return MaterialPageRoute(
-      builder: (context) => BlocProvider.value(
-        value: existingBloc,
-        child: const PersonalGoalPage(),
-      ),
-    );
-  }
+  const PersonalGoalPage({super.key});
 
   @override
   State<PersonalGoalPage> createState() => _PersonalGoalPageState();
 }
 
 class _PersonalGoalPageState extends State<PersonalGoalPage> {
-  double? _selectedRatio;
+  ObjectifEntity? _selectedGoal;
   bool _isCustomMode = false;
   final TextEditingController _customController = TextEditingController();
-  //les icones pour les objectifs
-  final List<IconData> goalIcons = [
-    Icons.eco, // Objectif 1
-    Icons.directions_bike,    // Objectif 2
-    Icons.rocket_launch,      // Objectif 3
-];
 
-  void _handlePresetSelect(double ratio) {
+  // Variables persistantes pour éviter le flash à "0"
+  double _persistedScore = 0.0;
+  List<ObjectifEntity> _persistedObjectifs = [];
+
+  final List<IconData> goalIcons = [
+    Icons.eco,
+    Icons.directions_bike,
+    Icons.rocket_launch,
+  ];
+
+  void _handlePresetSelect(ObjectifEntity goal) {
     setState(() {
-      _selectedRatio = ratio;
+      _selectedGoal = goal;
       _isCustomMode = false;
       _customController.clear();
     });
@@ -47,95 +42,127 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: true,
-      onPopInvokedWithResult: (didPop, result)  {
+      onPopInvokedWithResult: (didPop, result) {
         if (didPop) {
-          context.read<BilanBloc>().add(RetourVersChoixCategoriesFromObjectifsEvent());
+          context.read<BilanResultatBloc>().add(RetourAuChoixCategoriesEvent());
         }
       },
-      child: BlocConsumer<BilanBloc, BilanState>(
+      child: BlocConsumer<BilanResultatBloc, ResultatState>(
         listener: (context, state) {
-          if (state is BilanResultats) {
-            Navigator.of(context).pushNamedAndRemoveUntil('resultats', (route) => false);
-      
-          } else if (state is BilanError) {
+          if (state is ResultatFinal) {
+            Navigator.of(
+              context,
+            ).pushNamedAndRemoveUntil('resultats', (route) => false);
+          } else if (state is ResultatError) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message), backgroundColor: AppColors.lightDestructive),
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: AppColors.lightDestructive,
+              ),
             );
           }
         },
         builder: (context, state) {
-          final double score = state is BilanChoixObjectifs ? state.scoreActuel/1000 : 0.0;
-          final objectifs = state is BilanChoixObjectifs ? state.objectifs : [];
+          if (state is ResultatChoixObjectifs) {
+            _persistedScore = state.scoreActuel / 1000;
+            _persistedObjectifs = state.objectifs;
+          }
+
           final size = MediaQuery.of(context).size;
-          final horizontalPadding = size.width * 0.05;
           final isSmallScreen = size.width < 360;
-          
+
           return Scaffold(
             backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            body: SafeArea(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.all(horizontalPadding),
-                child: Column(
-                  children: [
-                    Center(
-                      child: Image.asset(
-                        'assets/logos/oikos_logo.png', 
-                        height: isSmallScreen ? size.height * 0.06 : size.height * 0.065,
-                      ),
+            body: Stack(
+              children: [
+                SafeArea(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: size.width * 0.05,
                     ),
-                    SizedBox(height: size.height * 0.03),
-                    Text(
-                      "Fixe-toi un objectif personnel",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        fontSize: isSmallScreen ? 20 : size.width * 0.06,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    child: Column(
+                      children: [
+                        SizedBox(height: size.height * 0.02),
+                        Center(
+                          child: Image.asset(
+                            'assets/logos/oikos_logo.png',
+                            height: isSmallScreen ? 45 : 55,
+                          ),
+                        ),
+                        SizedBox(height: size.height * 0.03),
+                        const Text(
+                          "Fixe-toi un objectif personnel",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: size.height * 0.03),
+
+                        // Utilisation du score persisté
+                        _buildCurrentEmpreinteBox(_persistedScore, context),
+                        SizedBox(height: size.height * 0.024),
+
+                        // Utilisation des objectifs persistés
+                        ..._persistedObjectifs.asMap().entries.map((entry) {
+                          return _buildGoalCard(
+                            entry.value,
+                            _persistedScore,
+                            context,
+                            goalIcons[entry.key % goalIcons.length],
+                          );
+                        }),
+
+                        _buildCustomGoalCard(_persistedScore, context),
+
+                        SizedBox(height: size.height * 0.024),
+                        _buildHintBox(context),
+                        SizedBox(height: size.height * 0.03),
+
+                        GradientButton(
+                          label: state is ResultatLoading
+                              ? "Sauvegarde..."
+                              : "Valider mon objectif",
+                          disabled:
+                              _selectedGoal == null || state is ResultatLoading,
+                          onPressed: () {
+                            if (_selectedGoal != null) {
+                              context.read<BilanResultatBloc>().add(
+                                ValiderObjectifEvent(_selectedGoal!),
+                              );
+                            }
+                          },
+                        ),
+                        SizedBox(height: size.height * 0.02),
+                      ],
                     ),
-                    SizedBox(height: size.height * 0.015),
-                    Text(
-                      "En plus de l'objectif des Accords de Paris (2 tonnes CO₂/an), choisis ton propre défi !",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7), 
-                        fontSize: isSmallScreen ? 14 : size.width * 0.04,
-                      ),
-                    ),
-                    SizedBox(height: size.height * 0.03),
-      
-                    _buildCurrentEmpreinteBox(score, context),
-                    SizedBox(height: size.height * 0.024),
-      
-                    ...objectifs.asMap().entries.map((entry) {
-                      int idx = entry.key;
-                      var obj = entry.value;
-                      return _buildGoalCard(
-                        obj, 
-                        score, 
-                        context, 
-                        goalIcons[idx % goalIcons.length],
-                      );
-                    }).toList(),
-      
-                    _buildCustomGoalCard(score, context),
-      
-                    SizedBox(height: size.height * 0.024),
-                    _buildHintBox(context),
-                    SizedBox(height: size.height * 0.03),
-      
-                    GradientButton(
-                      label: state is BilanLoading ? "Sauvegarde..." : "Valider mon objectif",
-                      disabled: _selectedRatio == null || state is BilanLoading,
-                      onPressed: () {
-                        if (_selectedRatio != null) {
-                          context.read<BilanBloc>().add(ValiderObjectifEvent(_selectedRatio!));
-                        }
-                      },
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+
+                // Overlay de chargement (Z-index supérieur)
+                if (state is ResultatLoading)
+                  Container(
+                    color: Colors.black.withOpacity(0.5),
+                    child: const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Loader(),
+                          SizedBox(height: 20),
+                          Text(
+                            "Sauvegarde en cours...",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
             ),
           );
         },
@@ -143,62 +170,57 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
     );
   }
 
+  // Les méthodes privées (_build...) utilisent maintenant le score passé en paramètre
   Widget _buildCurrentEmpreinteBox(double score, BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final isSmallScreen = size.width < 360;
-    final padding = size.width * 0.05;
-    
     return Container(
-      padding: EdgeInsets.all(padding),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.gradientGreenStart.withOpacity(0.2),
-            AppColors.gradientGreenEnd.withOpacity(0.2),
-          ],
+        color: AppColors.gradientGreenEnd.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: AppColors.gradientGreenEnd.withOpacity(0.2),
+          width: 2,
         ),
-        borderRadius: BorderRadius.circular(size.width * 0.05),
-        border: Border.all(color: AppColors.gradientGreenEnd.withOpacity(0.3), width: 2),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.eco, 
-            color: AppColors.lightIconPrimary,
-            size: isSmallScreen ? 20 : size.width * 0.055,
-          ),
-          SizedBox(width: size.width * 0.03),
+          const Icon(Icons.eco, color: AppColors.lightIconPrimary, size: 22),
+          const SizedBox(width: 10),
           Text(
             "Ton empreinte : ${score.toStringAsFixed(1)} tonnes CO₂/an",
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface,
-              fontWeight: FontWeight.bold,
-              fontSize: isSmallScreen ? 14 : size.width * 0.04,
-            ),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildGoalCard( ObjectifEntity objectif, double score, BuildContext context, IconData icon) {
-    final size = MediaQuery.of(context).size;
-    final isSmallScreen = size.width < 360;
-    final bool isSelected = !_isCustomMode && _selectedRatio == objectif.valeur;
-    final double targetValue = score * objectif.valeur;
+  Widget _buildGoalCard(
+    ObjectifEntity objectif,
+    double score,
+    BuildContext context,
+    IconData icon,
+  ) {
+    final bool isSelected =
+        !_isCustomMode && _selectedGoal?.valeur == objectif.valeur;
+    final double targetValue = score * (objectif.valeur);
 
     return GestureDetector(
-      onTap: () => _handlePresetSelect(objectif.valeur),
+      onTap: () => _handlePresetSelect(objectif),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        margin: EdgeInsets.only(bottom: size.height * 0.016),
-        padding: EdgeInsets.all(size.width * 0.05),
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.transparent : Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(size.width * 0.05),
+          color: isSelected
+              ? Colors.transparent
+              : Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? AppColors.gradientGreenEnd : Theme.of(context).colorScheme.outline,
+            color: isSelected
+                ? AppColors.gradientGreenEnd
+                : Theme.of(context).colorScheme.outline,
             width: 2,
           ),
           gradient: isSelected
@@ -209,45 +231,40 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
                   ],
                 )
               : null,
-          boxShadow: [
-            BoxShadow(
-              color: (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black).withOpacity(isSelected ? 0.08 : 0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
         ),
         child: Row(
           children: [
-            _buildIconCircle(icon, objectif.gradientColors, isSelected, context),
-            SizedBox(width: size.width * 0.04),
+            _buildIconCircle(
+              icon,
+              objectif.colors.map((c) => Color(c)).toList(),
+              isSelected,
+              context,
+            ),
+            const SizedBox(width: 15),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    objectif.label, 
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface, 
-                      fontWeight: FontWeight.bold, 
-                      fontSize: isSmallScreen ? 15 : size.width * 0.04,
+                    objectif.label,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
                     ),
                   ),
                   Text(
-                    objectif.description, 
+                    objectif.description,
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                      fontSize: isSmallScreen ? 13 : size.width * 0.035,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withOpacity(0.6),
+                      fontSize: 13,
                     ),
                   ),
-                  SizedBox(height: size.height * 0.005),
+                  const SizedBox(height: 4),
                   Text(
                     "${targetValue.toStringAsFixed(1)} tonnes CO₂/an",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold, 
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontSize: isSmallScreen ? 13 : size.width * 0.035,
-                    ),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -259,22 +276,23 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
   }
 
   Widget _buildCustomGoalCard(double score, BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final isSmallScreen = size.width < 360;
-    
     return GestureDetector(
       onTap: () => setState(() {
         _isCustomMode = true;
-        _selectedRatio = null;
+        _selectedGoal = null;
       }),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: EdgeInsets.all(size.width * 0.05),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: _isCustomMode ? Colors.transparent : Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(size.width * 0.05),
+          color: _isCustomMode
+              ? Colors.transparent
+              : Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: _isCustomMode ? AppColors.gradientGreenEnd : Theme.of(context).colorScheme.outline,
+            color: _isCustomMode
+                ? AppColors.gradientGreenEnd
+                : Theme.of(context).colorScheme.outline,
             width: 2,
           ),
           gradient: _isCustomMode
@@ -290,47 +308,50 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
           children: [
             Row(
               children: [
-                _buildIconCircle(Icons.edit, [AppColors.lightMutedForeground, AppColors.lightForeground], _isCustomMode, context),
-                SizedBox(width: size.width * 0.04),
-                Text(
-                  "Personnalisé", 
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface, 
-                    fontWeight: FontWeight.bold, 
-                    fontSize: isSmallScreen ? 15 : size.width * 0.04,
-                  ),
+                _buildIconCircle(
+                  Icons.edit,
+                  [Colors.grey, Colors.blueGrey],
+                  _isCustomMode,
+                  context,
+                ),
+                const SizedBox(width: 15),
+                const Text(
+                  "Personnalisé",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
               ],
             ),
             if (_isCustomMode) ...[
-              SizedBox(height: size.height * 0.016),
+              const SizedBox(height: 15),
               TextField(
                 controller: _customController,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                cursorColor: AppColors.lightIconPrimary,
-                style: TextStyle(fontSize: isSmallScreen ? 14 : size.width * 0.04, color: Theme.of(context).colorScheme.onSurface),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 decoration: InputDecoration(
                   hintText: "Ex: 5.5",
-                  hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5)),
                   suffixText: "tonnes CO₂/an",
-                  suffixStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
-                  fillColor: Theme.of(context).colorScheme.surface,
                   filled: true,
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(size.width * 0.03),
-                    borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(size.width * 0.03),
-                    borderSide: const BorderSide(color: AppColors.lightInputBorderFocused),
+                  fillColor: Theme.of(context).colorScheme.surface,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
                 onChanged: (val) {
-                  final double? input = double.tryParse(val);
+                  final double? input = double.tryParse(
+                    val.replaceAll(',', '.'),
+                  );
                   if (input != null && input > 0) {
-                    setState(() => _selectedRatio = input / score);
+                    setState(() {
+                      _selectedGoal = ObjectifEntity(
+                        label: "Objectif personnalisé",
+                        description: "Défini manuellement",
+                        valeur: input / (score > 0 ? score : 1),
+                        colors: const [0xFF9E9E9E, 0xFF607D8B],
+                      );
+                    });
                   } else {
-                    setState(() => _selectedRatio = null);
+                    setState(() => _selectedGoal = null);
                   }
                 },
               ),
@@ -341,46 +362,47 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
     );
   }
 
-  Widget _buildIconCircle(IconData icon, List<Color> colors, bool isSelected, BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final circleSize = size.width * 0.125;
-    final iconSize = size.width * 0.06;
-    
+  Widget _buildIconCircle(
+    IconData icon,
+    List<Color> colors,
+    bool isSelected,
+    BuildContext context,
+  ) {
     return Container(
-      width: circleSize,
-      height: circleSize,
+      width: 48,
+      height: 48,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: isSelected ? LinearGradient(colors: colors) : null,
         color: isSelected ? null : Theme.of(context).colorScheme.surface,
       ),
       child: Icon(
-        icon, 
-        color: isSelected ? AppColors.lightPrimaryForeground : Theme.of(context).colorScheme.onSurface.withOpacity(0.6), 
-        size: iconSize,
+        icon,
+        color: isSelected ? Colors.white : Colors.grey,
+        size: 24,
       ),
     );
   }
 
   Widget _buildHintBox(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final isSmallScreen = size.width < 360;
-    
     return Container(
-      padding: EdgeInsets.all(size.width * 0.04),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(size.width * 0.04),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
-      child: Text(
+      child: const Text(
         "💡 Tu pourras modifier ton objectif à tout moment dans ton profil.",
         textAlign: TextAlign.center,
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), 
-          fontSize: isSmallScreen ? 12 : size.width * 0.033,
-        ),
+        style: TextStyle(fontSize: 12, color: Colors.grey),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _customController.dispose();
+    super.dispose();
   }
 }

@@ -37,8 +37,10 @@ import 'package:oikos/features/bilanCarbone/domain/use_cases/recuperer_questions
 import 'package:oikos/features/bilanCarbone/domain/use_cases/recuperer_reponses_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/reprendre_bilan_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/verifier_bilan_en_cours_use_case.dart';
-import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_session_bloc.dart';
+import 'package:oikos/features/bilanCarbone/presentation/bloc/questionnaire_bloc.dart';
+import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_resultat_bloc.dart';
 
 import 'core/common/cubits/app_user/app_user_cubit.dart';
 import 'core/secrets/app_secrets.dart';
@@ -139,7 +141,6 @@ void _initBilan() {
     () => ApplicabilityChecker(serviceLocator()),
   );
 
-
   serviceLocator.registerLazySingleton(
     () => EnregistrerReponseUseCase(
       simulationRepo: serviceLocator(),
@@ -200,12 +201,12 @@ void _initBilan() {
   );
 
   serviceLocator.registerLazySingleton(
-  () => RecupererReponsesUseCase(
-    reponseRepository: serviceLocator(),   // Déjà présent
-    bilanRepository: serviceLocator(),     // AJOUTÉ
-    questionRepository: serviceLocator(),   // AJOUTÉ
-  ),
-);
+    () => RecupererReponsesUseCase(
+      reponseRepository: serviceLocator(), // Déjà présent
+      bilanRepository: serviceLocator(), // AJOUTÉ
+      questionRepository: serviceLocator(), // AJOUTÉ
+    ),
+  );
 
   serviceLocator.registerLazySingleton(
     () => ReprendreBilanUseCase(
@@ -216,31 +217,41 @@ void _initBilan() {
   );
 
   serviceLocator.registerLazySingleton(
-    () => RecupererQuestionsUseCase(
-      questionRepository: serviceLocator(),
-    ),
+    () => RecupererQuestionsUseCase(questionRepository: serviceLocator()),
   );
 
   // ==========================================================
   // PRESENTATION (Bloc)
   // ==========================================================
+  // 1. Gestion du cycle de vie (Reprise / Nouveau)
   serviceLocator.registerFactory(
-    () => BilanBloc(
+    () => BilanSessionBloc(
+      verifierBilanUseCase: serviceLocator(),
+      recupererQuestionsUseCase: serviceLocator(),
+      recupererReponsesUseCase: serviceLocator(),
+      recommencerBilanUseCase: serviceLocator(),
+    ),
+  );
+
+  // 2. Moteur du questionnaire (Navigation questions)
+  serviceLocator.registerFactory(
+    () => QuestionnaireBloc(
       repondreUseCase: serviceLocator(),
       getNextUseCase: serviceLocator(),
       getPrevUseCase: serviceLocator(),
-      choixCategoriesUseCase: serviceLocator(),
-      demarrerApprofondissementUseCase: serviceLocator(),
-      definirObjectifUseCase: serviceLocator(),
-      calculerBilanUseCase: serviceLocator(),
-      calculerBilanCategoriesUseCase: serviceLocator(),
-      recupererEquivalentsCarboneUseCase: serviceLocator(),
-      preparerChoixObjectifsUseCase: serviceLocator(),
-      verifierBilanEnCoursUseCase: serviceLocator(),
-      recupererReponsesUseCase: serviceLocator(),
-      recommencerBilanUseCase: serviceLocator(),
       reprendreBilanUseCase: serviceLocator(),
-      recupererQuestionsUseCase: serviceLocator(),
+    ),
+  );
+
+  // 3. Phase de résultats (Approfondissement / Objectifs)
+  serviceLocator.registerFactory(
+    () => BilanResultatBloc(
+      demarrerApproUseCase: serviceLocator(),
+      choixCategoriesUseCase: serviceLocator(),
+      preparerObjectifsUseCase: serviceLocator(),
+      definirObjectifUseCase: serviceLocator(),
+      calculerCategoriesUseCase: serviceLocator(),
+      equivalentsUseCase: serviceLocator(),
     ),
   );
 }
