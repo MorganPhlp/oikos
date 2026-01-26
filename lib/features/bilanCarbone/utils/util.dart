@@ -27,7 +27,6 @@ Map<String, dynamic> formaterPourSimulation(
       }
       return situation;
     } catch (e) {
-      print("Erreur parsing Liste pour $parentSlug");
     }
   }
   // --- CAS 2 : COMPTEUR (Map JSON) ---
@@ -44,7 +43,6 @@ Map<String, dynamic> formaterPourSimulation(
       });
       return situation;
     } catch (e) {
-      print("Erreur parsing Map pour $parentSlug");
     }
   }
   // --- CAS 3 : VALEURS CLASSIQUES (Nombre ou Texte) ---

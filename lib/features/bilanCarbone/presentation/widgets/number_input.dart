@@ -100,7 +100,7 @@ class _OikosNumberInputState extends State<OikosNumberInput> {
           filled: true,
           fillColor: Theme.of(context).colorScheme.surface,
           hintText: '0',
-          hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3)),
+          hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3)),
           suffixText: widget.unit,
           suffixStyle: TextStyle(
             fontSize: 18,

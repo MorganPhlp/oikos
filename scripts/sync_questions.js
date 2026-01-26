@@ -8,7 +8,7 @@ import 'dotenv/config'
 
 // --- CONFIGURATION ---
 const SUPABASE_URL = process.env.SUPABASE_URL
-const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
 const __filename = fileURLToPath(import.meta.url)
@@ -17,22 +17,38 @@ const rulesPath = path.join(__dirname, '..', 'assets', 'data', 'rules.json')
 
 
 const TARGET_QUESTIONS = [
-    ["logement . type", '🏠'],
-    ["logement . surface", '📏'],
-    ["logement . propriétaire", '🔑'],
-    ["logement . habitants", '👥'],
-    ["logement . chauffage", '🔥'],
-    ["logement . chauffage . précision consommation . ressenti", '🌡️'],
-    ["transport . voiture . utilisateur", '🚗'],
-    ["transport . voiture . km", '⛽'],
-    ["transport . voiture . motorisation", '🔧'],
-    ["transport . mobilité douce", '🚲'],
-    ["transport . avion . usager", '✈️'],
-    ["transport . avion . moyen courrier . heures de vol", '🕒'],
-    ["alimentation . plats", '🍽️'],
-    ["alimentation . boisson . eau en bouteille . consommateur", '💧'],
-    ["divers . numérique . appareils", '💻'],
-    ["divers . textile . volume", '🛍️'],
+    ["logement . type", '🏠','obligatoire'],
+    ["logement . surface", '📏', 'obligatoire'],
+    ["logement . propriétaire", '🔑', 'obligatoire'],
+    ["logement . habitants", '👥','obligatoire'],
+    ["logement . chauffage", '🔥','obligatoire'],
+    ["logement . chauffage . précision consommation . ressenti", '🌡️','obligatoire'],
+    ["transport . voiture . utilisateur", '🚗','obligatoire'],
+    ["transport . voiture . km", '⛽','obligatoire'],
+    ["transport . voiture . motorisation", '🔧','obligatoire'],
+    ["transport . mobilité douce", '🚲','obligatoire'],
+    ["transport . avion . usager", '✈️','obligatoire'],
+    ["transport . avion . moyen courrier . heures de vol", '🕒','obligatoire'],
+    ["alimentation . plats", '🍽️','obligatoire'],
+    ["alimentation . boisson . eau en bouteille . consommateur", '💧','obligatoire'],
+    ["divers . numérique . appareils", '💻','obligatoire'],
+    ["divers . textile . volume", '🛍️','obligatoire'],
+    ["logement . âge", '🎂','optionnelle'],
+    ["logement . vacances", '🏖️','optionnelle'],
+    ["alimentation . petit déjeuner . type", '🥐','optionnelle'],
+    ["alimentation . local . consommation", '🌍','optionnelle'],
+    ["alimentation . de saison . consommation", '🍓','optionnelle'],
+    ["alimentation . boisson . chaudes . consommation", '☕','optionnelle'],
+    ["alimentation . boisson . sucrées . litres", '🥤','optionnelle'],
+    ["alimentation . boisson . alcool . litres", '🍷','optionnelle'],
+    ["alimentation . déchets . quantité jetée", '🗑️','optionnelle'],
+    ["transport . voiture . gabarit", '🚙','optionnelle'],
+    ["transport . voiture . thermique . carburant", '⛽','optionnelle'],
+    ["divers . animaux domestiques . empreinte", '🐶','optionnelle'],
+    ["divers . loisirs . culture", '🎭','optionnelle'],
+    ["divers . loisirs . sports", '⚽','optionnelle'],
+    ["divers . numérique . appareils . renouvellement téléphone", '📱','optionnelle'],
+    ["divers . tabac . consommation par semaine", '🚬','optionnelle'],
 ];
 
 const dependancies = {
@@ -58,6 +74,22 @@ const dependancies = {
             key: "transport . avion . usager",
             value: "oui",
             type: "EQUAL",
+        },
+    ],
+
+    "transport . voiture . thermique . carburant": [
+        {
+            key: "transport . voiture . motorisation",
+            value: "thermique",
+            type: "EQUAL",
+        },
+    ],
+
+    "transport . voiture . gabarit": [
+        {
+            key: "transport . voiture . utilisateur",
+            value: ["propriétaire", "régulier non propriétaire"],
+            type: "IN",
         },
     ],
 };
@@ -161,7 +193,7 @@ async function run() {
     const records = []
 
     for (const [index,item] of TARGET_QUESTIONS.entries()) {
-        const [slug, icon] = item
+        const [slug, icon, obligatoire] = item
         const rule = parsedRules[slug]
         
         if (!rule) {
@@ -180,6 +212,8 @@ async function run() {
             icone: icon || raw.icone || null,
             type_widget: widgetType,
             config_json: buildConfigJson(slug,rule, widgetType),
+            ordre_affichage: index + 1,
+            est_obligatoire: obligatoire === 'obligatoire',
         })
         
         // Affichage log

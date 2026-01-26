@@ -22,6 +22,7 @@ _QuestionBilanModel _$QuestionBilanModelFromJson(Map<String, dynamic> json) =>
           TypeWidget.nombre,
       config: json['config_json'] as Map<String, dynamic>? ?? const {},
       ordre: (json['ordre_affichage'] as num?)?.toInt() ?? 0,
+      estObligatoire: json['est_obligatoire'] as bool? ?? true,
     );
 
 Map<String, dynamic> _$QuestionBilanModelToJson(_QuestionBilanModel instance) =>
@@ -34,6 +35,7 @@ Map<String, dynamic> _$QuestionBilanModelToJson(_QuestionBilanModel instance) =>
       'type_widget': _$TypeWidgetEnumMap[instance.typeWidget]!,
       'config_json': instance.config,
       'ordre_affichage': instance.ordre,
+      'est_obligatoire': instance.estObligatoire,
     };
 
 const _$TypeWidgetEnumMap = {

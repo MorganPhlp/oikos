@@ -109,7 +109,6 @@ class ReponseRepositoryImpl implements ReponseRepository {
             continue;
           } catch (e) {
              // En cas d'erreur de parsing, on ne bloque pas la boucle
-             print("Erreur parsing Liste JSON pour $parentSlug");
           }
         }
 
@@ -123,8 +122,8 @@ class ReponseRepositoryImpl implements ReponseRepository {
               }
             });
             continue;
+          // ignore: empty_catches
           } catch (e) {
-            print("Erreur parsing Map JSON pour $parentSlug");
           }
         }
 
@@ -140,7 +139,6 @@ class ReponseRepositoryImpl implements ReponseRepository {
 
       return situation;
     } catch (e) {
-      print("❌ Erreur lors du chargement de la situation: $e");
       return {};
     }
   }

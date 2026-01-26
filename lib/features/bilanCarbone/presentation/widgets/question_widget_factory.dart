@@ -108,7 +108,7 @@ class QuestionWidgetFactory extends StatelessWidget {
         //verifier si on a atteint la limite de reponses
         final int totalCount = currentCounts.values.fold<int>(0, (sum, item) {
           if (item is num) {
-            return sum + (item as num).toInt();
+            return sum + (item).toInt();
           }
           return sum;
         });
@@ -149,8 +149,6 @@ class QuestionWidgetFactory extends StatelessWidget {
           }).toList(),
         );
 
-      default:
-        return Text("Widget non supporté : ${question.typeWidget}");
-    }
+      }
   }
 }

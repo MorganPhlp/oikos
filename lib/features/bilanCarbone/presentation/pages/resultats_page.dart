@@ -84,7 +84,7 @@ class ResultsPage extends StatelessWidget {
                         style: TextStyle(
                           color: Theme.of(
                             context,
-                          ).colorScheme.onSurface.withOpacity(0.6),
+                          ).colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                       ),
                       SizedBox(height: size.height * 0.02),
@@ -122,13 +122,13 @@ class ResultsPage extends StatelessWidget {
           right: -size.width * 0.1,
           child: _blurCircle(
             size.width * 0.4,
-            AppColors.gradientGreenEnd.withOpacity(0.15),
+            AppColors.gradientGreenEnd.withValues(alpha: 0.15),
           ),
         ),
         Positioned(
           top: size.height * 0.1,
           left: -size.width * 0.15,
-          child: _blurCircle(size.width * 0.5, Colors.green.withOpacity(0.1)),
+          child: _blurCircle(size.width * 0.5, Colors.green.withValues(alpha: 0.1)),
         ),
       ],
     );
@@ -162,12 +162,12 @@ class ResultsPage extends StatelessWidget {
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(30),
         border: Border.all(
-          color: AppColors.gradientGreenEnd.withOpacity(0.1),
+          color: AppColors.gradientGreenEnd.withValues(alpha: 0.1),
           width: 2,
         ),
         boxShadow: [
           BoxShadow(
-            color: (isDark ? Colors.white : Colors.black).withOpacity(0.05),
+            color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -178,7 +178,7 @@ class ResultsPage extends StatelessWidget {
           Text(
             "Ton empreinte annuelle",
             style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
             ),
           ),
           Text(
@@ -192,7 +192,7 @@ class ResultsPage extends StatelessWidget {
           Text(
             "tonnes CO₂e / an",
             style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -200,7 +200,7 @@ class ResultsPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: AppColors.gradientGreenEnd.withOpacity(0.1),
+              color: AppColors.gradientGreenEnd.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
             ),
             child: const Row(
@@ -255,7 +255,7 @@ class ResultsPage extends StatelessWidget {
             color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
             ),
           ),
           child: Column(
@@ -279,7 +279,7 @@ class ResultsPage extends StatelessWidget {
                 style: TextStyle(
                   color: Theme.of(
                     context,
-                  ).colorScheme.onSurface.withOpacity(0.6),
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
                   fontSize: 10,
                 ),
               ),
@@ -355,7 +355,7 @@ class ResultsPage extends StatelessWidget {
                   fontSize: 12,
                   color: Theme.of(
                     context,
-                  ).colorScheme.onSurface.withOpacity(0.6),
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
             ],

@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$QuestionBilanModel {
 
- int get id; String get slug; String get question;@JsonKey(name: 'categorie_empreinte') String get categorieEmpreinte; String? get icone;@JsonKey(name: 'type_widget', unknownEnumValue: TypeWidget.nombre) TypeWidget get typeWidget;@JsonKey(name: 'config_json') Map<String, dynamic> get config;@JsonKey(name: 'ordre_affichage') int get ordre;
+ int get id; String get slug; String get question;@JsonKey(name: 'categorie_empreinte') String get categorieEmpreinte; String? get icone;@JsonKey(name: 'type_widget', unknownEnumValue: TypeWidget.nombre) TypeWidget get typeWidget;@JsonKey(name: 'config_json') Map<String, dynamic> get config;@JsonKey(name: 'ordre_affichage') int get ordre;@JsonKey(name: 'est_obligatoire') bool get estObligatoire;
 /// Create a copy of QuestionBilanModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $QuestionBilanModelCopyWith<QuestionBilanModel> get copyWith => _$QuestionBilanM
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is QuestionBilanModel&&(identical(other.id, id) || other.id == id)&&(identical(other.slug, slug) || other.slug == slug)&&(identical(other.question, question) || other.question == question)&&(identical(other.categorieEmpreinte, categorieEmpreinte) || other.categorieEmpreinte == categorieEmpreinte)&&(identical(other.icone, icone) || other.icone == icone)&&(identical(other.typeWidget, typeWidget) || other.typeWidget == typeWidget)&&const DeepCollectionEquality().equals(other.config, config)&&(identical(other.ordre, ordre) || other.ordre == ordre));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is QuestionBilanModel&&(identical(other.id, id) || other.id == id)&&(identical(other.slug, slug) || other.slug == slug)&&(identical(other.question, question) || other.question == question)&&(identical(other.categorieEmpreinte, categorieEmpreinte) || other.categorieEmpreinte == categorieEmpreinte)&&(identical(other.icone, icone) || other.icone == icone)&&(identical(other.typeWidget, typeWidget) || other.typeWidget == typeWidget)&&const DeepCollectionEquality().equals(other.config, config)&&(identical(other.ordre, ordre) || other.ordre == ordre)&&(identical(other.estObligatoire, estObligatoire) || other.estObligatoire == estObligatoire));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,slug,question,categorieEmpreinte,icone,typeWidget,const DeepCollectionEquality().hash(config),ordre);
+int get hashCode => Object.hash(runtimeType,id,slug,question,categorieEmpreinte,icone,typeWidget,const DeepCollectionEquality().hash(config),ordre,estObligatoire);
 
 @override
 String toString() {
-  return 'QuestionBilanModel(id: $id, slug: $slug, question: $question, categorieEmpreinte: $categorieEmpreinte, icone: $icone, typeWidget: $typeWidget, config: $config, ordre: $ordre)';
+  return 'QuestionBilanModel(id: $id, slug: $slug, question: $question, categorieEmpreinte: $categorieEmpreinte, icone: $icone, typeWidget: $typeWidget, config: $config, ordre: $ordre, estObligatoire: $estObligatoire)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $QuestionBilanModelCopyWith<$Res>  {
   factory $QuestionBilanModelCopyWith(QuestionBilanModel value, $Res Function(QuestionBilanModel) _then) = _$QuestionBilanModelCopyWithImpl;
 @useResult
 $Res call({
- int id, String slug, String question,@JsonKey(name: 'categorie_empreinte') String categorieEmpreinte, String? icone,@JsonKey(name: 'type_widget', unknownEnumValue: TypeWidget.nombre) TypeWidget typeWidget,@JsonKey(name: 'config_json') Map<String, dynamic> config,@JsonKey(name: 'ordre_affichage') int ordre
+ int id, String slug, String question,@JsonKey(name: 'categorie_empreinte') String categorieEmpreinte, String? icone,@JsonKey(name: 'type_widget', unknownEnumValue: TypeWidget.nombre) TypeWidget typeWidget,@JsonKey(name: 'config_json') Map<String, dynamic> config,@JsonKey(name: 'ordre_affichage') int ordre,@JsonKey(name: 'est_obligatoire') bool estObligatoire
 });
 
 
@@ -65,7 +65,7 @@ class _$QuestionBilanModelCopyWithImpl<$Res>
 
 /// Create a copy of QuestionBilanModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? slug = null,Object? question = null,Object? categorieEmpreinte = null,Object? icone = freezed,Object? typeWidget = null,Object? config = null,Object? ordre = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? slug = null,Object? question = null,Object? categorieEmpreinte = null,Object? icone = freezed,Object? typeWidget = null,Object? config = null,Object? ordre = null,Object? estObligatoire = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,slug: null == slug ? _self.slug : slug // ignore: cast_nullable_to_non_nullable
@@ -75,7 +75,8 @@ as String,icone: freezed == icone ? _self.icone : icone // ignore: cast_nullable
 as String?,typeWidget: null == typeWidget ? _self.typeWidget : typeWidget // ignore: cast_nullable_to_non_nullable
 as TypeWidget,config: null == config ? _self.config : config // ignore: cast_nullable_to_non_nullable
 as Map<String, dynamic>,ordre: null == ordre ? _self.ordre : ordre // ignore: cast_nullable_to_non_nullable
-as int,
+as int,estObligatoire: null == estObligatoire ? _self.estObligatoire : estObligatoire // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -157,10 +158,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String slug,  String question, @JsonKey(name: 'categorie_empreinte')  String categorieEmpreinte,  String? icone, @JsonKey(name: 'type_widget', unknownEnumValue: TypeWidget.nombre)  TypeWidget typeWidget, @JsonKey(name: 'config_json')  Map<String, dynamic> config, @JsonKey(name: 'ordre_affichage')  int ordre)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String slug,  String question, @JsonKey(name: 'categorie_empreinte')  String categorieEmpreinte,  String? icone, @JsonKey(name: 'type_widget', unknownEnumValue: TypeWidget.nombre)  TypeWidget typeWidget, @JsonKey(name: 'config_json')  Map<String, dynamic> config, @JsonKey(name: 'ordre_affichage')  int ordre, @JsonKey(name: 'est_obligatoire')  bool estObligatoire)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _QuestionBilanModel() when $default != null:
-return $default(_that.id,_that.slug,_that.question,_that.categorieEmpreinte,_that.icone,_that.typeWidget,_that.config,_that.ordre);case _:
+return $default(_that.id,_that.slug,_that.question,_that.categorieEmpreinte,_that.icone,_that.typeWidget,_that.config,_that.ordre,_that.estObligatoire);case _:
   return orElse();
 
 }
@@ -178,10 +179,10 @@ return $default(_that.id,_that.slug,_that.question,_that.categorieEmpreinte,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String slug,  String question, @JsonKey(name: 'categorie_empreinte')  String categorieEmpreinte,  String? icone, @JsonKey(name: 'type_widget', unknownEnumValue: TypeWidget.nombre)  TypeWidget typeWidget, @JsonKey(name: 'config_json')  Map<String, dynamic> config, @JsonKey(name: 'ordre_affichage')  int ordre)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String slug,  String question, @JsonKey(name: 'categorie_empreinte')  String categorieEmpreinte,  String? icone, @JsonKey(name: 'type_widget', unknownEnumValue: TypeWidget.nombre)  TypeWidget typeWidget, @JsonKey(name: 'config_json')  Map<String, dynamic> config, @JsonKey(name: 'ordre_affichage')  int ordre, @JsonKey(name: 'est_obligatoire')  bool estObligatoire)  $default,) {final _that = this;
 switch (_that) {
 case _QuestionBilanModel():
-return $default(_that.id,_that.slug,_that.question,_that.categorieEmpreinte,_that.icone,_that.typeWidget,_that.config,_that.ordre);}
+return $default(_that.id,_that.slug,_that.question,_that.categorieEmpreinte,_that.icone,_that.typeWidget,_that.config,_that.ordre,_that.estObligatoire);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -195,10 +196,10 @@ return $default(_that.id,_that.slug,_that.question,_that.categorieEmpreinte,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String slug,  String question, @JsonKey(name: 'categorie_empreinte')  String categorieEmpreinte,  String? icone, @JsonKey(name: 'type_widget', unknownEnumValue: TypeWidget.nombre)  TypeWidget typeWidget, @JsonKey(name: 'config_json')  Map<String, dynamic> config, @JsonKey(name: 'ordre_affichage')  int ordre)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String slug,  String question, @JsonKey(name: 'categorie_empreinte')  String categorieEmpreinte,  String? icone, @JsonKey(name: 'type_widget', unknownEnumValue: TypeWidget.nombre)  TypeWidget typeWidget, @JsonKey(name: 'config_json')  Map<String, dynamic> config, @JsonKey(name: 'ordre_affichage')  int ordre, @JsonKey(name: 'est_obligatoire')  bool estObligatoire)?  $default,) {final _that = this;
 switch (_that) {
 case _QuestionBilanModel() when $default != null:
-return $default(_that.id,_that.slug,_that.question,_that.categorieEmpreinte,_that.icone,_that.typeWidget,_that.config,_that.ordre);case _:
+return $default(_that.id,_that.slug,_that.question,_that.categorieEmpreinte,_that.icone,_that.typeWidget,_that.config,_that.ordre,_that.estObligatoire);case _:
   return null;
 
 }
@@ -210,7 +211,7 @@ return $default(_that.id,_that.slug,_that.question,_that.categorieEmpreinte,_tha
 @JsonSerializable()
 
 class _QuestionBilanModel extends QuestionBilanModel {
-  const _QuestionBilanModel({this.id = 0, this.slug = '', this.question = '', @JsonKey(name: 'categorie_empreinte') this.categorieEmpreinte = '', this.icone = '', @JsonKey(name: 'type_widget', unknownEnumValue: TypeWidget.nombre) this.typeWidget = TypeWidget.nombre, @JsonKey(name: 'config_json') final  Map<String, dynamic> config = const {}, @JsonKey(name: 'ordre_affichage') this.ordre = 0}): _config = config,super._();
+  const _QuestionBilanModel({this.id = 0, this.slug = '', this.question = '', @JsonKey(name: 'categorie_empreinte') this.categorieEmpreinte = '', this.icone = '', @JsonKey(name: 'type_widget', unknownEnumValue: TypeWidget.nombre) this.typeWidget = TypeWidget.nombre, @JsonKey(name: 'config_json') final  Map<String, dynamic> config = const {}, @JsonKey(name: 'ordre_affichage') this.ordre = 0, @JsonKey(name: 'est_obligatoire') this.estObligatoire = true}): _config = config,super._();
   factory _QuestionBilanModel.fromJson(Map<String, dynamic> json) => _$QuestionBilanModelFromJson(json);
 
 @override@JsonKey() final  int id;
@@ -227,6 +228,7 @@ class _QuestionBilanModel extends QuestionBilanModel {
 }
 
 @override@JsonKey(name: 'ordre_affichage') final  int ordre;
+@override@JsonKey(name: 'est_obligatoire') final  bool estObligatoire;
 
 /// Create a copy of QuestionBilanModel
 /// with the given fields replaced by the non-null parameter values.
@@ -241,16 +243,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _QuestionBilanModel&&(identical(other.id, id) || other.id == id)&&(identical(other.slug, slug) || other.slug == slug)&&(identical(other.question, question) || other.question == question)&&(identical(other.categorieEmpreinte, categorieEmpreinte) || other.categorieEmpreinte == categorieEmpreinte)&&(identical(other.icone, icone) || other.icone == icone)&&(identical(other.typeWidget, typeWidget) || other.typeWidget == typeWidget)&&const DeepCollectionEquality().equals(other._config, _config)&&(identical(other.ordre, ordre) || other.ordre == ordre));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _QuestionBilanModel&&(identical(other.id, id) || other.id == id)&&(identical(other.slug, slug) || other.slug == slug)&&(identical(other.question, question) || other.question == question)&&(identical(other.categorieEmpreinte, categorieEmpreinte) || other.categorieEmpreinte == categorieEmpreinte)&&(identical(other.icone, icone) || other.icone == icone)&&(identical(other.typeWidget, typeWidget) || other.typeWidget == typeWidget)&&const DeepCollectionEquality().equals(other._config, _config)&&(identical(other.ordre, ordre) || other.ordre == ordre)&&(identical(other.estObligatoire, estObligatoire) || other.estObligatoire == estObligatoire));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,slug,question,categorieEmpreinte,icone,typeWidget,const DeepCollectionEquality().hash(_config),ordre);
+int get hashCode => Object.hash(runtimeType,id,slug,question,categorieEmpreinte,icone,typeWidget,const DeepCollectionEquality().hash(_config),ordre,estObligatoire);
 
 @override
 String toString() {
-  return 'QuestionBilanModel(id: $id, slug: $slug, question: $question, categorieEmpreinte: $categorieEmpreinte, icone: $icone, typeWidget: $typeWidget, config: $config, ordre: $ordre)';
+  return 'QuestionBilanModel(id: $id, slug: $slug, question: $question, categorieEmpreinte: $categorieEmpreinte, icone: $icone, typeWidget: $typeWidget, config: $config, ordre: $ordre, estObligatoire: $estObligatoire)';
 }
 
 
@@ -261,7 +263,7 @@ abstract mixin class _$QuestionBilanModelCopyWith<$Res> implements $QuestionBila
   factory _$QuestionBilanModelCopyWith(_QuestionBilanModel value, $Res Function(_QuestionBilanModel) _then) = __$QuestionBilanModelCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String slug, String question,@JsonKey(name: 'categorie_empreinte') String categorieEmpreinte, String? icone,@JsonKey(name: 'type_widget', unknownEnumValue: TypeWidget.nombre) TypeWidget typeWidget,@JsonKey(name: 'config_json') Map<String, dynamic> config,@JsonKey(name: 'ordre_affichage') int ordre
+ int id, String slug, String question,@JsonKey(name: 'categorie_empreinte') String categorieEmpreinte, String? icone,@JsonKey(name: 'type_widget', unknownEnumValue: TypeWidget.nombre) TypeWidget typeWidget,@JsonKey(name: 'config_json') Map<String, dynamic> config,@JsonKey(name: 'ordre_affichage') int ordre,@JsonKey(name: 'est_obligatoire') bool estObligatoire
 });
 
 
@@ -278,7 +280,7 @@ class __$QuestionBilanModelCopyWithImpl<$Res>
 
 /// Create a copy of QuestionBilanModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? slug = null,Object? question = null,Object? categorieEmpreinte = null,Object? icone = freezed,Object? typeWidget = null,Object? config = null,Object? ordre = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? slug = null,Object? question = null,Object? categorieEmpreinte = null,Object? icone = freezed,Object? typeWidget = null,Object? config = null,Object? ordre = null,Object? estObligatoire = null,}) {
   return _then(_QuestionBilanModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,slug: null == slug ? _self.slug : slug // ignore: cast_nullable_to_non_nullable
@@ -288,7 +290,8 @@ as String,icone: freezed == icone ? _self.icone : icone // ignore: cast_nullable
 as String?,typeWidget: null == typeWidget ? _self.typeWidget : typeWidget // ignore: cast_nullable_to_non_nullable
 as TypeWidget,config: null == config ? _self._config : config // ignore: cast_nullable_to_non_nullable
 as Map<String, dynamic>,ordre: null == ordre ? _self.ordre : ordre // ignore: cast_nullable_to_non_nullable
-as int,
+as int,estObligatoire: null == estObligatoire ? _self.estObligatoire : estObligatoire // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

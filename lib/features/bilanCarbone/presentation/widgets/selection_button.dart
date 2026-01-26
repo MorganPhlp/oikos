@@ -29,7 +29,7 @@ class OikosSelectionButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
           decoration: BoxDecoration(
             color: isSelected 
-                ? AppColors.gradientGreenEnd.withOpacity(0.1) 
+                ? AppColors.gradientGreenEnd.withValues(alpha: 0.1) 
                 : Colors.transparent,
             border: Border.all(
               color: isSelected 
@@ -57,7 +57,7 @@ class OikosSelectionButton extends StatelessWidget {
                       Text(
                         sublabel!, 
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                           fontSize: 14
                         )
                       ),

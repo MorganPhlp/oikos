@@ -162,7 +162,7 @@ class _BilanPageState extends State<BilanPage> {
         SizedBox(height: size.height * 0.018),
         LinearProgressIndicator(
           value: progress,
-          backgroundColor: AppColors.gradientGreenEnd.withOpacity(0.2),
+          backgroundColor: AppColors.gradientGreenEnd.withValues(alpha:0.2),
           color: AppColors.gradientGreenEnd,
           minHeight: 8,
           borderRadius: BorderRadius.circular(4),
@@ -171,7 +171,7 @@ class _BilanPageState extends State<BilanPage> {
         Text(
           "Question ${state.index} sur ${state.total}",
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha:0.6),
             fontSize: isSmallScreen ? 11 : size.width * 0.03,
           ),
         ),
@@ -243,7 +243,7 @@ class _BilanPageState extends State<BilanPage> {
                 style: TextStyle(
                   color: Theme.of(
                     context,
-                  ).colorScheme.onSurface.withOpacity(0.5),
+                  ).colorScheme.onSurface.withValues(alpha:0.5),
                 ),
               ),
             ),
@@ -267,7 +267,7 @@ class _BilanPageState extends State<BilanPage> {
         builder: (context) => Text(
           text,
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha:0.6),
             decoration: TextDecoration.underline,
             fontSize: size.width < 360 ? 13 : size.width * 0.035,
           ),

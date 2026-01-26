@@ -96,9 +96,7 @@ class BilanResultatBloc extends Bloc<ResultatEvent, ResultatState> {
           equivalents: equivalents,
         ),
       );
-    } catch (e, stacktrace) {
-      print("❌ Erreur Finalisation Bilan : $e");
-      print(stacktrace);
+    } catch (e) {
 
       emit(
         const ResultatError(

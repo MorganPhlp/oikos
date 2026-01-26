@@ -38,9 +38,8 @@ class PublicodesService implements SimulationRepository {
 
     if (success == true) {
       _initialized = true;
-      print("✅ Publicodes Isolate prêt et persistant");
     } else {
-      print("❌ Échec de l'initialisation de l'Isolate Publicodes");
+      throw Exception("Échec de l'initialisation de Publicodes");
     }
   }
 
@@ -89,8 +88,7 @@ class PublicodesService implements SimulationRepository {
       // On combine les noms des catégories avec leurs scores respectifs
       return Map.fromIterables(categories, results);
     } catch (e) {
-      print("❌ Erreur lors du calcul global : $e");
-      return {};
+      throw Exception("❌ Erreur lors du calcul global : $e");
     }
   }
 
@@ -109,14 +107,12 @@ class PublicodesService implements SimulationRepository {
     return await responsePort.first.timeout(
       const Duration(seconds: 10),
       onTimeout: () {
-        print("⚠️ Timeout sur la commande : $type");
         responsePort.close();
         return null;
       },
     );
   }
 
-  @override
   Future<void> dispose() async {
     _isolate?.kill(priority: Isolate.immediate);
     _isolate = null;
@@ -198,7 +194,6 @@ void _publicodesIsolateEntry(SendPort mainSendPort) {
           replyTo.send(null);
       }
     } catch (e) {
-      print("❌ Erreur dans l'Isolate Publicodes: $e");
       replyTo.send(null);
     }
   });

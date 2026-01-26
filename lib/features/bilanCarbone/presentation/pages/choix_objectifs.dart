@@ -143,7 +143,7 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
                 // Overlay de chargement (Z-index supérieur)
                 if (state is ResultatLoading)
                   Container(
-                    color: Colors.black.withOpacity(0.5),
+                    color: Colors.black.withValues(alpha: 0.5),
                     child: const Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -175,10 +175,10 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.gradientGreenEnd.withOpacity(0.1),
+        color: AppColors.gradientGreenEnd.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: AppColors.gradientGreenEnd.withOpacity(0.2),
+          color: AppColors.gradientGreenEnd.withValues(alpha: 0.2),
           width: 2,
         ),
       ),
@@ -226,8 +226,8 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
           gradient: isSelected
               ? LinearGradient(
                   colors: [
-                    AppColors.gradientGreenStart.withOpacity(0.1),
-                    AppColors.gradientGreenEnd.withOpacity(0.1),
+                    AppColors.gradientGreenStart.withValues(alpha: 0.1),
+                    AppColors.gradientGreenEnd.withValues(alpha: 0.1),
                   ],
                 )
               : null,
@@ -257,7 +257,7 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
                     style: TextStyle(
                       color: Theme.of(
                         context,
-                      ).colorScheme.onSurface.withOpacity(0.6),
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
                       fontSize: 13,
                     ),
                   ),
@@ -298,8 +298,8 @@ class _PersonalGoalPageState extends State<PersonalGoalPage> {
           gradient: _isCustomMode
               ? LinearGradient(
                   colors: [
-                    AppColors.gradientGreenStart.withOpacity(0.1),
-                    AppColors.gradientGreenEnd.withOpacity(0.1),
+                    AppColors.gradientGreenStart.withValues(alpha: 0.1),
+                    AppColors.gradientGreenEnd.withValues(alpha: 0.1),
                   ],
                 )
               : null,

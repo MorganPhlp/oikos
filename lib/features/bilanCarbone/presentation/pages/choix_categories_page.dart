@@ -118,7 +118,7 @@ class _ChoixCategoriesPageState extends State<ChoixCategoriesPage> {
                               style: TextStyle(
                                 color: Theme.of(
                                   context,
-                                ).colorScheme.onSurface.withOpacity(0.7),
+                                ).colorScheme.onSurface.withValues(alpha:0.7),
                                 fontSize:
                                     MediaQuery.of(context).size.width < 360
                                     ? 14
@@ -160,10 +160,10 @@ class _ChoixCategoriesPageState extends State<ChoixCategoriesPage> {
     return Container(
       padding: EdgeInsets.all(size.width * 0.03),
       decoration: BoxDecoration(
-        color: AppColors.lightIconPrimary.withOpacity(0.1),
+        color: AppColors.lightIconPrimary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(size.width * 0.03),
         border: Border.all(
-          color: AppColors.lightIconPrimary.withOpacity(0.3),
+          color: AppColors.lightIconPrimary.withValues(alpha: 0.3),
           width: 2,
         ),
       ),
@@ -197,7 +197,7 @@ class _ChoixCategoriesPageState extends State<ChoixCategoriesPage> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: categories.length,
-      separatorBuilder: (_, __) => SizedBox(height: spacing),
+      separatorBuilder: (_, _) => SizedBox(height: spacing),
       itemBuilder: (context, index) {
         final cat = categories[index];
         final isSelected = _selectedNames.contains(cat.nom);
@@ -281,8 +281,8 @@ class _CategoryCard extends StatelessWidget {
           gradient: isSelected
               ? LinearGradient(
                   colors: [
-                    AppColors.gradientGreenStart.withOpacity(0.15),
-                    AppColors.gradientGreenEnd.withOpacity(0.15),
+                    AppColors.gradientGreenStart.withValues(alpha: 0.15),
+                    AppColors.gradientGreenEnd.withValues(alpha: 0.15),
                   ],
                 )
               : null,
@@ -292,7 +292,7 @@ class _CategoryCard extends StatelessWidget {
                   (Theme.of(context).brightness == Brightness.dark
                           ? Colors.white
                           : Colors.black)
-                      .withOpacity(isSelected ? 0.08 : 0.04),
+                      .withValues(alpha: isSelected ? 0.08 : 0.04),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -307,7 +307,7 @@ class _CategoryCard extends StatelessWidget {
                 shape: BoxShape.circle,
                 color: isSelected
                     ? null
-                    : Theme.of(context).colorScheme.surface.withOpacity(0.5),
+                    : Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
                 gradient: isSelected
                     ? const LinearGradient(
                         colors: [
@@ -351,7 +351,7 @@ class _CategoryCard extends StatelessWidget {
                       style: TextStyle(
                         color: Theme.of(
                           context,
-                        ).colorScheme.onSurface.withOpacity(0.5),
+                        ).colorScheme.onSurface.withValues(alpha: 0.5),
                         fontSize: isSmallScreen ? 12 : size.width * 0.033,
                       ),
                     ),

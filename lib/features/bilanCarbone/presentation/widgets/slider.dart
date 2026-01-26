@@ -41,9 +41,9 @@ class OikosSlider extends StatelessWidget {
         SliderTheme(
           data: SliderTheme.of(context).copyWith(
             activeTrackColor: AppColors.gradientGreenEnd,
-            inactiveTrackColor: AppColors.gradientGreenEnd.withOpacity(0.2),
+            inactiveTrackColor: AppColors.gradientGreenEnd.withValues(alpha: 0.2),
             thumbColor: AppColors.gradientGreenEnd,
-            overlayColor: AppColors.gradientGreenEnd.withOpacity(0.1),
+            overlayColor: AppColors.gradientGreenEnd.withValues(alpha: 0.1),
             trackHeight: 8.0, // Épaisseur de la barre
             thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12.0),
             overlayShape: const RoundSliderOverlayShape(overlayRadius: 24.0),

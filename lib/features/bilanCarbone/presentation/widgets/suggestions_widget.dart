@@ -35,7 +35,7 @@ class SuggestionsWidget extends StatelessWidget {
               onLocalChange(suggestion);
             }
           },
-          selectedColor: AppColors.lightTextGreen.withOpacity(0.7),
+          selectedColor: AppColors.lightTextGreen.withValues(alpha: 0.7),
           backgroundColor: Theme.of(context).colorScheme.surface,
           shape: StadiumBorder(
             side: BorderSide(

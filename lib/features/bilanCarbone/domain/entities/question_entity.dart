@@ -11,6 +11,7 @@ class QuestionBilanEntity {
   final TypeWidget typeWidget;
   final Map<String, dynamic> config;
   final int ordre;
+  final bool estObligatoire;
 
   const QuestionBilanEntity({
     required this.id,
@@ -21,6 +22,7 @@ class QuestionBilanEntity {
     required this.typeWidget,
     required this.config,
     required this.ordre,
+    required this.estObligatoire,
   });
 
   // Récupère la liste des choix possibles (ex: ["maison", "appartement"]) et renvoie une liste de maps {'label':..., 'value':...} ou le label est une version lisible et le value est la valeur slug

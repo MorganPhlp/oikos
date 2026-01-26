@@ -28,7 +28,7 @@ class ResumeBilanDialog extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.gradientGreenEnd.withOpacity(0.1),
+                color: AppColors.gradientGreenEnd.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -57,7 +57,7 @@ class ResumeBilanDialog extends StatelessWidget {
               "Souhaites-tu le reprendre ?",
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: isSmallScreen ? 14 : size.width * 0.038,
                 height: 1.3,
               ),
@@ -128,7 +128,7 @@ class ResumeBilanDialog extends StatelessWidget {
         boxShadow: isPrimary
             ? [
                 BoxShadow(
-                  color: AppColors.gradientGreenEnd.withOpacity(0.3),
+                  color: AppColors.gradientGreenEnd.withValues(alpha: 0.3),
                   spreadRadius: -2,
                   blurRadius: 10,
                   offset: const Offset(0, 6),

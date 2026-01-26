@@ -33,7 +33,7 @@ class CounterItem extends StatelessWidget {
         // Ombre subtile comme sur le design
         boxShadow: [
           BoxShadow(
-            color: (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black).withOpacity(0.05),
+            color: (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black).withValues(alpha: 0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -116,12 +116,12 @@ class _CounterButton extends StatelessWidget {
         width: 36,
         height: 36,
         decoration: BoxDecoration(
-          color: isActive ? AppColors.gradientGreenEnd : Theme.of(context).colorScheme.surface.withOpacity(0.5),
+          color: isActive ? AppColors.gradientGreenEnd : Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
           shape: BoxShape.circle,
         ),
         child: Icon(
           icon,
-          color: isActive ? Colors.white : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+          color: isActive ? Colors.white : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
           size: 20,
         ),
       ),
