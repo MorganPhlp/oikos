@@ -27,7 +27,6 @@ class QuestionnaireBloc extends Bloc<QuestionnaireEvent, QuestionnaireState> {
     on<RepondreQuestionEvent>(_onRepondre);
     on<QuestionPrecedenteEvent>(_onPrecedente);
     on<RetourVersQuestionnaireEvent>((event, emit) {
-      print('RetourVersQuestionnaireEvent reçu');
       _emitCurrent(emit);
     });
   }
