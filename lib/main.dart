@@ -5,6 +5,7 @@ import 'package:oikos/app_router.dart';
 import 'package:oikos/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:oikos/features/dashboard/presentation/bloc/home_bloc.dart';
 import 'package:oikos/init_dependencies.dart';
 // Importe ici le fichier où tu as mis ton createRouter (ex: core/navigation/app_router.dart)
 // import 'package:oikos/core/navigation/app_router.dart'; 
@@ -17,6 +18,7 @@ void main() async {
       providers: [
         BlocProvider(create: (_) => serviceLocator<AppUserCubit>()),
         BlocProvider(create: (_) => serviceLocator<AuthBloc>()),
+        BlocProvider(create: (_) => serviceLocator<HomeBloc>()),
       ],
       child: const MyApp(),
     ),

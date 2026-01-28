@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:oikos/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/features/auth/presentation/pages/intro_page.dart';
 import 'package:oikos/features/bilanCarbone/presentation/pages/bilan_flow.dart';
+import 'package:oikos/features/dashboard/presentation/pages/home_page.dart';
 
 GoRouter createRouter(AppUserCubit appUserCubit) {
   return GoRouter(
@@ -22,6 +23,11 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
         name: 'bilan',
         builder: (context, state) => const BilanFlow(),
       ),
+      GoRoute(
+        path: '/home',
+        name: 'home',
+        builder: (context, state) => const HomePage(),
+      ), 
       // TO DO : ajouter les autres routes ici quand elles seront prêtes
       /*
       GoRoute(
@@ -45,7 +51,7 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
         // Si l'utilisateur est sur l'intro (/) ou les pages auth, on le redirige
         if (location == '/') {
           //TO DO : rediriger vers la home quand elle sera prête
-          return authState.user.hasCompletedBilan ? '/' : '/bilan';
+          return authState.user.hasCompletedBilan ? '/home' : '/bilan';
         }
       }
 
