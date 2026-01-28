@@ -126,10 +126,7 @@ void _initBilan() {
     () => ReponseRepositoryImpl(supabaseClient: serviceLocator()),
   );
   serviceLocator.registerLazySingleton<BilanSessionRepository>(
-    () => BilanSessionRepositoryImpl(
-      supabaseClient: serviceLocator(),
-      authRepo: serviceLocator(),
-    ),
+    () => BilanSessionRepositoryImpl(supabaseClient: serviceLocator()),
   );
   serviceLocator.registerLazySingleton<CategorieEmpreinteRepository>(
     () => CategorieEmpreinteRepositoryImpl(supabaseClient: serviceLocator()),
@@ -153,6 +150,7 @@ void _initBilan() {
       simulationRepo: serviceLocator(),
       reponseRepo: serviceLocator(),
       bilanSessionRepo: serviceLocator(),
+      authRepository: serviceLocator(),
     ),
   );
 
@@ -175,6 +173,7 @@ void _initBilan() {
     () => CalculerBilanUseCase(
       simulationRepository: serviceLocator(),
       bilanRepository: serviceLocator(),
+      authRepository: serviceLocator(),
     ),
   );
   serviceLocator.registerLazySingleton(
@@ -196,7 +195,10 @@ void _initBilan() {
     ),
   );
   serviceLocator.registerLazySingleton(
-    () => VerifierBilanEnCoursUseCase(bilanSessionRepo: serviceLocator()),
+    () => VerifierBilanEnCoursUseCase(
+      bilanSessionRepo: serviceLocator(),
+      authRepository: serviceLocator(),
+    ),
   );
 
   serviceLocator.registerLazySingleton(
@@ -204,14 +206,16 @@ void _initBilan() {
       bilanSessionRepository: serviceLocator(),
       questionRepository: serviceLocator(),
       simulationRepository: serviceLocator(),
+      authRepository: serviceLocator(),
     ),
   );
 
   serviceLocator.registerLazySingleton(
     () => RecupererReponsesUseCase(
-      reponseRepository: serviceLocator(), // Déjà présent
-      bilanRepository: serviceLocator(), // AJOUTÉ
-      questionRepository: serviceLocator(), // AJOUTÉ
+      reponseRepository: serviceLocator(),
+      bilanRepository: serviceLocator(),
+      questionRepository: serviceLocator(),
+      authRepository: serviceLocator(),
     ),
   );
 
@@ -220,6 +224,7 @@ void _initBilan() {
       reponseRepository: serviceLocator(),
       bilanRepository: serviceLocator(),
       simulationRepository: serviceLocator(),
+      authRepository: serviceLocator(),
     ),
   );
 
