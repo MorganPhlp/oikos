@@ -1,5 +1,6 @@
 // features/bilanCarbone/data/repositories/bilan_session_repository_impl.dart
 
+import 'package:oikos/features/bilanCarbone/domain/entities/detail_bilan_entity.dart';
 import 'package:oikos/features/bilanCarbone/domain/repositories/bilan_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -71,5 +72,17 @@ class BilanSessionRepositoryImpl implements BilanSessionRepository {
       // On peut logger l'erreur ici si besoin
       return false;
     }
+  }
+
+  @override
+  Future<void> saveDetailBilan(DetailBilanEntity detailBilan) async {
+    await supabaseClient.from('detail_bilan').upsert({
+      'id': detailBilan.id,
+      'transport': detailBilan.transport,
+      'alimentation': detailBilan.alimentation,
+      'logement': detailBilan.logement,
+      'divers': detailBilan.divers,
+      'services_societaux': detailBilan.servicesSocietaux,
+    });
   }
 }

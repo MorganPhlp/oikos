@@ -1,4 +1,3 @@
-
 abstract class SimulationRepository {
   /// Initialise le moteur de simulation (charge le JS et les règles)
   Future<void> init();
@@ -10,7 +9,7 @@ abstract class SimulationRepository {
   Future<bool> isQuestionApplicable(String questionSlug);
 
   Map<String, dynamic> getAccumulatedSituation();
-  Future<double> getScore( {String objective = "bilan"} );
+  Future<double> getScore({String objective = "bilan"});
 
-  Future<Map<String, double>> getScoresByCategory();
+  Future<Map<String, double>> computeScoresByCategory();
 }

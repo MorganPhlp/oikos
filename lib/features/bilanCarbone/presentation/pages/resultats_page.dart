@@ -8,7 +8,7 @@ import 'dart:ui';
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/core/presentation/widgets/gradient_button.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/carbone_equivalent_entity.dart';
-// Changement : Importation du nouveau Bloc et de ses états
+import 'package:oikos/features/bilanCarbone/domain/entities/detail_bilan_entity.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_resultat_bloc.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_resultat_state.dart';
 
@@ -29,7 +29,7 @@ class ResultsPage extends StatelessWidget {
         }
 
         final double scoreKg = state.scoreTotal;
-        final Map<String, double> scoresParCategorie = state.scoresParCategorie;
+        final DetailBilanEntity scoresParCategorie = state.scoresParCategorie;
 
         final List<dynamic> equivalents = state.equivalents is Map
             ? (state.equivalents as Map).values.toList()
@@ -68,7 +68,7 @@ class ResultsPage extends StatelessWidget {
                       _buildHeroScore(scoreKg, 2000.0, context),
                       SizedBox(height: size.height * 0.03),
 
-                      _buildCategoryChart(context, scoresParCategorie),
+                      _buildCategoryChart(context, scoresParCategorie.toMap()),
                       SizedBox(height: size.height * 0.04),
 
                       Text(
@@ -93,12 +93,9 @@ class ResultsPage extends StatelessWidget {
                       _buildEquivalentsGrid(context, equivalents, scoreKg),
 
                       SizedBox(height: size.height * 0.04),
-                      _buildFooter(
-                        context,
-                        () {
-                          context.go('/home');
-                        },
-                      ),
+                      _buildFooter(context, () {
+                        context.go('/home');
+                      }),
                       SizedBox(height: size.height * 0.02),
                     ],
                   ),
@@ -129,7 +126,10 @@ class ResultsPage extends StatelessWidget {
         Positioned(
           top: size.height * 0.1,
           left: -size.width * 0.15,
-          child: _blurCircle(size.width * 0.5, Colors.green.withValues(alpha: 0.1)),
+          child: _blurCircle(
+            size.width * 0.5,
+            Colors.green.withValues(alpha: 0.1),
+          ),
         ),
       ],
     );
@@ -168,7 +168,9 @@ class ResultsPage extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
+            color: (isDark ? Colors.white : Colors.black).withValues(
+              alpha: 0.05,
+            ),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -179,7 +181,9 @@ class ResultsPage extends StatelessWidget {
           Text(
             "Ton empreinte annuelle",
             style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.6),
             ),
           ),
           Text(
@@ -193,7 +197,9 @@ class ResultsPage extends StatelessWidget {
           Text(
             "tonnes CO₂e / an",
             style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.6),
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -256,7 +262,9 @@ class ResultsPage extends StatelessWidget {
             color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
+              color: Theme.of(
+                context,
+              ).colorScheme.outline.withValues(alpha: 0.5),
             ),
           ),
           child: Column(

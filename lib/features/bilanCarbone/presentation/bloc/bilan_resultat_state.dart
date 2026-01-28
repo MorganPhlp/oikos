@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:oikos/core/domain/entities/categorie_empreinte_entity.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/carbone_equivalent_entity.dart';
+import 'package:oikos/features/bilanCarbone/domain/entities/detail_bilan_entity.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/objectif_entity.dart';
 
 abstract class ResultatState extends Equatable {
@@ -37,7 +38,7 @@ class ResultatChoixObjectifs extends ResultatState {
 // État : Affichage final des résultats
 class ResultatFinal extends ResultatState {
   final double scoreTotal;
-  final Map<String, double> scoresParCategorie;
+  final DetailBilanEntity scoresParCategorie;
   final List<CarboneEquivalentEntity> equivalents;
 
   const ResultatFinal({

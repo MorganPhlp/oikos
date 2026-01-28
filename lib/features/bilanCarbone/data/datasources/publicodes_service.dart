@@ -67,7 +67,7 @@ class PublicodesService implements SimulationRepository {
   }
 
   @override
-  Future<Map<String, double>> getScoresByCategory() async {
+  Future<Map<String, double>> computeScoresByCategory() async {
     List<String> categories = [
       "alimentation",
       "logement",
