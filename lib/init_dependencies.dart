@@ -41,6 +41,12 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_session_bloc.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/questionnaire_bloc.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_resultat_bloc.dart';
+import 'package:oikos/features/dashboard/data/datasources/home_remote_data_source.dart';
+import 'package:oikos/features/dashboard/data/repositories/home_repository_impl.dart';
+import 'package:oikos/features/dashboard/domain/repository/home_repository.dart';
+import 'package:oikos/features/dashboard/domain/usecases/get_my_profile.dart';
+import 'package:oikos/features/dashboard/presentation/bloc/home_bloc.dart';
+
 
 import 'core/common/cubits/app_user/app_user_cubit.dart';
 import 'core/secrets/app_secrets.dart';
@@ -63,6 +69,7 @@ Future<void> initDependencies() async {
   // Then initialize auth and bilan after Supabase is ready
   _initAuth();
   _initBilan();
+  _initHome();
 }
 
 void _initAuth() {
@@ -119,10 +126,7 @@ void _initBilan() {
     () => ReponseRepositoryImpl(supabaseClient: serviceLocator()),
   );
   serviceLocator.registerLazySingleton<BilanSessionRepository>(
-    () => BilanSessionRepositoryImpl(
-      supabaseClient: serviceLocator(),
-      authRepo: serviceLocator(),
-    ),
+    () => BilanSessionRepositoryImpl(supabaseClient: serviceLocator()),
   );
   serviceLocator.registerLazySingleton<CategorieEmpreinteRepository>(
     () => CategorieEmpreinteRepositoryImpl(supabaseClient: serviceLocator()),
@@ -146,6 +150,7 @@ void _initBilan() {
       simulationRepo: serviceLocator(),
       reponseRepo: serviceLocator(),
       bilanSessionRepo: serviceLocator(),
+      authRepository: serviceLocator(),
     ),
   );
 
@@ -168,6 +173,7 @@ void _initBilan() {
     () => CalculerBilanUseCase(
       simulationRepository: serviceLocator(),
       bilanRepository: serviceLocator(),
+      authRepository: serviceLocator(),
     ),
   );
   serviceLocator.registerLazySingleton(
@@ -189,7 +195,10 @@ void _initBilan() {
     ),
   );
   serviceLocator.registerLazySingleton(
-    () => VerifierBilanEnCoursUseCase(bilanSessionRepo: serviceLocator()),
+    () => VerifierBilanEnCoursUseCase(
+      bilanSessionRepo: serviceLocator(),
+      authRepository: serviceLocator(),
+    ),
   );
 
   serviceLocator.registerLazySingleton(
@@ -197,14 +206,16 @@ void _initBilan() {
       bilanSessionRepository: serviceLocator(),
       questionRepository: serviceLocator(),
       simulationRepository: serviceLocator(),
+      authRepository: serviceLocator(),
     ),
   );
 
   serviceLocator.registerLazySingleton(
     () => RecupererReponsesUseCase(
-      reponseRepository: serviceLocator(), // Déjà présent
-      bilanRepository: serviceLocator(), // AJOUTÉ
-      questionRepository: serviceLocator(), // AJOUTÉ
+      reponseRepository: serviceLocator(),
+      bilanRepository: serviceLocator(),
+      questionRepository: serviceLocator(),
+      authRepository: serviceLocator(),
     ),
   );
 
@@ -213,6 +224,7 @@ void _initBilan() {
       reponseRepository: serviceLocator(),
       bilanRepository: serviceLocator(),
       simulationRepository: serviceLocator(),
+      authRepository: serviceLocator(),
     ),
   );
 
@@ -255,3 +267,30 @@ void _initBilan() {
     ),
   );
 }
+
+void _initHome() {
+  // Data source
+  serviceLocator.registerFactory<HomeRemoteDataSource>(
+    () => HomeRemoteDataSourceImpl(
+      serviceLocator<SupabaseClient>(),
+    ),
+  );
+
+  // Repository
+  serviceLocator.registerFactory<HomeRepository>(
+    () => HomeRepositoryImpl(
+      serviceLocator<HomeRemoteDataSource>(),
+    ),
+  );
+
+  // Use case
+  serviceLocator.registerFactory(
+    () => GetMyPseudo(serviceLocator<HomeRepository>()),
+  );
+
+  // Bloc
+  serviceLocator.registerFactory(
+    () => HomeBloc(getMyPseudo: serviceLocator()),
+  );
+}
+

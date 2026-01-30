@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/domain/entities/categorie_empreinte_entity.dart';
+import 'package:oikos/features/bilanCarbone/domain/entities/detail_bilan_entity.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/calculer_bilan_categories_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/choix_categories_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/definir_objectif_use_case.dart';
@@ -19,6 +20,7 @@ class BilanResultatBloc extends Bloc<ResultatEvent, ResultatState> {
   final RecupererEquivalentsCarboneUseCase equivalentsUseCase;
 
   double? _scoreTotalCached;
+  DetailBilanEntity? _detailBilanCached;
   List<CategorieEmpreinteEntity> _categoriesDisponibles = [];
 
   BilanResultatBloc({
@@ -66,6 +68,7 @@ class BilanResultatBloc extends Bloc<ResultatEvent, ResultatState> {
 
       // On met le score en cache pour l'écran final
       _scoreTotalCached = resultat.scoreActuel;
+      _detailBilanCached = resultat.detailBilan;
 
       emit(
         ResultatChoixObjectifs(
@@ -87,18 +90,16 @@ class BilanResultatBloc extends Bloc<ResultatEvent, ResultatState> {
       definirObjectifUseCase.call(event.objectif.valeur);
 
       // Récupération des données finales pour l'affichage
-      final scoresMap = await calculerCategoriesUseCase.call();
       final equivalents = await equivalentsUseCase.call();
 
       emit(
         ResultatFinal(
           scoreTotal: _scoreTotalCached ?? 0.0,
-          scoresParCategorie: scoresMap,
+          scoresParCategorie: _detailBilanCached ?? DetailBilanEntity.empty(),
           equivalents: equivalents,
         ),
       );
     } catch (e) {
-
       emit(
         const ResultatError(
           "Erreur lors de la génération des résultats finaux.",
