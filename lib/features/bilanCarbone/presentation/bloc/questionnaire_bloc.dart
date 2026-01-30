@@ -15,6 +15,8 @@ class QuestionnaireBloc extends Bloc<QuestionnaireEvent, QuestionnaireState> {
 
   List<QuestionBilanEntity> _questions = [];
   int _currentIndex = 0;
+  bool _isDeepening = false;
+  int _indexLastQuestionObligatoire = 0;
   final Map<String, dynamic> _reponsesLocal = {};
 
   QuestionnaireBloc({
@@ -29,6 +31,9 @@ class QuestionnaireBloc extends Bloc<QuestionnaireEvent, QuestionnaireState> {
     on<RetourVersQuestionnaireEvent>((event, emit) {
       _emitCurrent(emit);
     });
+    on<TerminerQuestionnaireEvent>((event, emit) {
+      emit(QuestionnaireTermine());
+    });
   }
 
   Future<void> _onInit(
@@ -38,6 +43,7 @@ class QuestionnaireBloc extends Bloc<QuestionnaireEvent, QuestionnaireState> {
     _questions = event.questions;
     _reponsesLocal.clear();
 
+    // Charger les réponses initiales dans le map local
     for (var r in event.reponsesInitiales) {
       try {
         final q = _questions.firstWhere(
@@ -47,10 +53,22 @@ class QuestionnaireBloc extends Bloc<QuestionnaireEvent, QuestionnaireState> {
       } catch (_) {}
     }
 
+    // Reprendre le bilan pour retrouver l'index de la dernière question répondue
     _currentIndex = await reprendreBilanUseCase.call(
       _questions,
       _reponsesLocal,
     );
+
+    //  Stocker l'index de la dernière question obligatoire
+    _indexLastQuestionObligatoire = _questions.lastIndexWhere(
+      (q) => q.estObligatoire,
+    ); 
+
+    // Détecter si on est en approfondissement
+    if (_currentIndex > _indexLastQuestionObligatoire) {
+      _isDeepening = true;
+    }
+
     _emitCurrent(emit);
   }
 
@@ -88,13 +106,16 @@ class QuestionnaireBloc extends Bloc<QuestionnaireEvent, QuestionnaireState> {
 
   void _emitCurrent(Emitter<QuestionnaireState> emit) {
     if (_questions.isEmpty) return;
+    _isDeepening = _currentIndex > _indexLastQuestionObligatoire; // Met à jour le flag d'approfondissement
     final q = _questions[_currentIndex];
     emit(
       QuestionnaireAffiche(
         question: q,
         index: _currentIndex + 1,
         total: _questions.length,
+        totalObligatoire: _indexLastQuestionObligatoire + 1,
         valeurActuelle: _reponsesLocal[q.slug],
+        isDeepening: _isDeepening,
       ),
     );
   }

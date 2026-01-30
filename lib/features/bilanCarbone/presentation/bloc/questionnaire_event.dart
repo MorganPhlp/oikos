@@ -36,4 +36,6 @@ class RepondreQuestionEvent extends QuestionnaireEvent {
 /// Revient à la question précédente (géré par le UseCase de navigation)
 class QuestionPrecedenteEvent extends QuestionnaireEvent {}
 
+class TerminerQuestionnaireEvent extends QuestionnaireEvent {}
+
 class RetourVersQuestionnaireEvent extends QuestionnaireEvent {}

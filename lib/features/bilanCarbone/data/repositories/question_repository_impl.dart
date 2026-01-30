@@ -14,7 +14,6 @@ class QuestionRepositoryImpl implements QuestionRepository {
       final response = await supabaseClient
           .from('question_bilan')
           .select()
-          .eq('est_obligatoire', true)
           .order('id', ascending: true);
       final data = response as List<dynamic>;
       return data
@@ -23,5 +22,5 @@ class QuestionRepositoryImpl implements QuestionRepository {
     } catch (e) {
       throw Exception('Erreur lors de la récupération des questions : $e');
     }
-  }
+  } 
 }

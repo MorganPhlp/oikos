@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:oikos/core/theme/app_typography.dart';
-import '../../../../../core/theme/app_colors.dart';
+import 'package:oikos/core/theme/oikos_button_theme.dart';
 
 class GradientButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
   final bool disabled;
   final bool isLoading;
+  final bool isTertiary; // Pour switcher entre Vert et Orange
   final Widget? icon;
   final double? width;
 
@@ -16,80 +16,68 @@ class GradientButton extends StatelessWidget {
     required this.onPressed,
     this.disabled = false,
     this.isLoading = false,
+    this.isTertiary = false,
     this.icon,
     this.width,
   });
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final theme = Theme.of(context);
+    final buttonTheme = theme.extension<OikosButtonTheme>();
     
-    // Le bouton est inactif si : désactivé manuellement, en chargement, ou pas de fonction fournie
     final bool effectivelyDisabled = disabled || isLoading || onPressed == null;
 
     return Container(
-      width: width ?? screenWidth * 0.93,
+      width: width ?? double.infinity,
       decoration: BoxDecoration(
-        gradient: effectivelyDisabled
-            ? null
-            : const LinearGradient(
-                colors: [
-                  AppColors.gradientGreenStart,
-                  AppColors.gradientGreenEnd,
-                ],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-        // Couleur de remplacement si désactivé
-        color: effectivelyDisabled ? Colors.grey.shade300 : null,
+        gradient: effectivelyDisabled 
+            ? null 
+            : (isTertiary ? buttonTheme?.tertiaryGradient : buttonTheme?.primaryGradient),
+        
+        color: effectivelyDisabled 
+            ? (buttonTheme?.disabledColor ?? Colors.grey.shade300) 
+            : null,
+        
         borderRadius: BorderRadius.circular(15),
-        boxShadow: effectivelyDisabled
-            ? []
-            : [
-                BoxShadow(
-                  color: AppColors.gradientGreenEnd.withValues(alpha: 0.4),
-                  spreadRadius: -2,
-                  blurRadius: 15,
-                  offset: const Offset(0, 8),
-                ),
-              ],
+        boxShadow: effectivelyDisabled ? [] : [
+          BoxShadow(
+            color: isTertiary 
+                ? (buttonTheme?.tertiaryGradient?.colors.last.withValues(alpha: 0.2) ?? Colors.orange.withValues(alpha: 0.2))
+                : (buttonTheme?.shadowColor ?? Colors.black12),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: ElevatedButton(
         onPressed: effectivelyDisabled ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          // On garde la hauteur de 55px pour un look premium
-          fixedSize: Size(width ?? screenWidth * 0.93, 55),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
+          fixedSize: const Size(double.infinity, 55),
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
           elevation: 0,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         ),
         child: isLoading
             ? const SizedBox(
-                height: 24,
-                width: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  color: Colors.white,
-                ),
+                height: 24, width: 24,
+                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
               )
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
                 children: [
                   if (icon != null) ...[
-                    icon!,
-                    const SizedBox(width: 10),
+                    icon!, 
+                    const SizedBox(width: 10)
                   ],
                   Text(
                     label,
-                    style: AppTypography.body.copyWith(
+                    style: theme.textTheme.labelLarge?.copyWith(
                       color: effectivelyDisabled 
                           ? Colors.grey.shade600 
-                          : AppColors.lightTextPrimary,
-                      fontWeight: FontWeight.w600,
+                          : Colors.white,
+                      fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
                   ),

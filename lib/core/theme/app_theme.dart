@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:oikos/core/theme/oikos_button_theme.dart';
 import 'app_colors.dart';
 import 'app_typography.dart';
 
@@ -21,6 +22,23 @@ class AppTheme {
       fontFamily: 'Outfit', // Fallback si GoogleFonts ne charge pas
       textTheme: AppTypography.textTheme,
 
+      extensions: <ThemeExtension<dynamic>>[
+      OikosButtonTheme(
+        primaryGradient: const LinearGradient(
+          colors: [AppColors.gradientGreenStart, AppColors.gradientGreenEnd],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        tertiaryGradient: const LinearGradient(
+          colors: [Colors.orangeAccent, Colors.orange],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        shadowColor: AppColors.gradientGreenEnd.withValues(alpha: 0.4),
+        disabledColor: Colors.grey.shade300,
+      ),
+    ],
+
       // Configuration des couleurs sémantiques
       colorScheme: const ColorScheme.light(
         primary: AppColors.lightPrimary,
@@ -32,6 +50,10 @@ class AppTheme {
         surface: AppColors.lightBackground, // ou AppColors.lightCard
         onSurface: AppColors.lightForeground,
         outline: AppColors.lightBorder,
+        tertiary: AppColors.orange,
+        onTertiary: AppColors.lightPrimaryForeground, 
+        tertiaryContainer: Color(0xFFFFF3E0),
+
       ),
 
       // Exemple d'adaptation des composants globaux (Scaffold, AppBar)

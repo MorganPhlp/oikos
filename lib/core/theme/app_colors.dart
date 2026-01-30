@@ -8,7 +8,7 @@ class AppColors {
   static const Color lightBackground = Color(0xFFF9FDF0);
   static const Color lightForeground = Color(0xFF252525); // oklch(0.145 0 0) approx
 
-  static const Color lightPrimary = Color(0xFF030213);
+  static const Color lightPrimary = Color(0xFF65BA74);
   static const Color lightPrimaryForeground = Color(0xFFFFFFFF);
 
   static const Color gradientGreenStart = Color(0xFFBDEE63);
@@ -16,6 +16,8 @@ class AppColors {
 
   static const Color lightSecondary = Color(0xFFF2F2F2); // oklch(0.95...) approx
   static const Color lightSecondaryForeground = Color(0xFF030213);
+
+  static const Color orange = Colors.orange;
 
   static const Color lightMuted = Color(0xFFECECF0);
   static const Color lightMutedForeground = Color(0xFF717182);
