@@ -93,10 +93,6 @@ class _BilanFlowState extends State<BilanFlow> {
                     _innerNavigatorKey.currentState;
                 if (navigator != null && navigator.canPop()) {
                   navigator.pop();
-                  // Reset du bloc questionnaire lors d'un retour physique/gestuel
-                  innerContext.read<QuestionnaireBloc>().add(
-                    RetourVersQuestionnaireEvent(),
-                  );
                 } else {
                   context.go('/');
                 }
@@ -104,10 +100,14 @@ class _BilanFlowState extends State<BilanFlow> {
               child: Navigator(
                 key: _innerNavigatorKey,
                 initialRoute: 'questions',
+
+                // Gestion du retour en arrière dans le flow si on repasse de catégories aux questions
                 onDidRemovePage: (page) {
-                  innerContext.read<QuestionnaireBloc>().add(
-                    RetourVersQuestionnaireEvent(),
-                  );
+                  if (page.name == 'categories') {
+                    innerContext.read<QuestionnaireBloc>().add(
+                      RetourVersQuestionnaireEvent(),
+                    );
+                  }
                 },
                 onGenerateRoute: (settings) {
                   return MaterialPageRoute(
