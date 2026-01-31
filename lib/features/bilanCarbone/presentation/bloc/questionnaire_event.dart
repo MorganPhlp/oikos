@@ -39,3 +39,7 @@ class QuestionPrecedenteEvent extends QuestionnaireEvent {}
 class TerminerQuestionnaireEvent extends QuestionnaireEvent {}
 
 class RetourVersQuestionnaireEvent extends QuestionnaireEvent {}
+
+class AfficherNoticeApprofondissementEvent extends QuestionnaireEvent {}
+
+class NoticeApprofondissementApprovedEvent extends QuestionnaireEvent {}

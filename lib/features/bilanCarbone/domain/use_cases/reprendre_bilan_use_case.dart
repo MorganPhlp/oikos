@@ -55,7 +55,7 @@ class ReprendreBilanUseCase {
     final List<ReponseUtilisateurEntity> reponses = await reponseRepository
         .getReponses(bilanId);
     //on retourne l'index de la derniere question repondue
-    int id = reponses.fold<int>(0, (prev, e) => max(prev, e.questionId)) - 1;
+    int id = reponses.fold<int>(0, (prev, e) => max(prev, e.questionId));
     int index = allQuestions.indexWhere((q) => q.id == id);
     return index > 0
         ? index < allQuestions.length

@@ -34,6 +34,15 @@ class QuestionnaireBloc extends Bloc<QuestionnaireEvent, QuestionnaireState> {
     on<TerminerQuestionnaireEvent>((event, emit) {
       emit(QuestionnaireTermine());
     });
+    // pour afficher le message d'approfondissement
+    on<AfficherNoticeApprofondissementEvent>((event, emit) {
+      emit(QuestionnaireApprofondissementNotice());
+    });
+    // après approbation de la notice, revenir à la question courante
+    on<NoticeApprofondissementApprovedEvent>((event, emit) {
+      _isDeepening = true;
+      _emitCurrent(emit);
+    });
   }
 
   Future<void> _onInit(
@@ -106,7 +115,18 @@ class QuestionnaireBloc extends Bloc<QuestionnaireEvent, QuestionnaireState> {
 
   void _emitCurrent(Emitter<QuestionnaireState> emit) {
     if (_questions.isEmpty) return;
-    _isDeepening = _currentIndex > _indexLastQuestionObligatoire; // Met à jour le flag d'approfondissement
+
+    // transition vers l'approfondissement
+    if (!_isDeepening && _currentIndex > _indexLastQuestionObligatoire) {
+      emit(QuestionnaireApprofondissementNotice());
+    return;
+  }
+
+  // transition approfondissement vers normal
+    if (_isDeepening && _currentIndex <= _indexLastQuestionObligatoire) {
+      _isDeepening = false;
+    }
+
     final q = _questions[_currentIndex];
     emit(
       QuestionnaireAffiche(

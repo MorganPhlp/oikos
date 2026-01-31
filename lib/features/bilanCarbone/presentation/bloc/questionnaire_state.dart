@@ -12,6 +12,8 @@ class QuestionnaireLoading extends QuestionnaireState {}
 
 class QuestionnaireRepriseDetectee extends QuestionnaireState {}
 
+class QuestionnaireApprofondissementNotice extends QuestionnaireState {}
+
 class QuestionnaireAffiche extends QuestionnaireState {
   final QuestionBilanEntity question;
   final int index;

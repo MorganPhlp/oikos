@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/presentation/widgets/gradient_button.dart';
-import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/type_widget.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/questionnaire_bloc.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/questionnaire_event.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/questionnaire_state.dart';
+import 'package:oikos/features/bilanCarbone/presentation/widgets/bilan_notice_dialog.dart';
 import 'package:oikos/features/bilanCarbone/presentation/widgets/question_widget_factory.dart';
-import 'package:oikos/features/bilanCarbone/presentation/widgets/skip_approfondissement_dialog.dart';
 import 'package:oikos/features/bilanCarbone/presentation/widgets/suggestions_widget.dart';
 import '../../../../core/common/widgets/loader.dart';
 
@@ -36,6 +35,12 @@ class _BilanPageState extends State<BilanPage> {
           listener: (context, state) {
             if (state is QuestionnaireAffiche) {
               _initialiserValeurParDefaut(state);
+            }
+            if (state is QuestionnaireApprofondissementNotice) {
+              BilanNoticeDialog.showNotice(
+                context: context, 
+                onStart: () => context.read<QuestionnaireBloc>().add(NoticeApprofondissementApprovedEvent()),
+              );
             }
           },
           builder: (context, state) {
@@ -308,11 +313,9 @@ class _BilanPageState extends State<BilanPage> {
   }
 
   void _confirmSkip(BuildContext context) {
-    // On capture le bloc
-    final bloc = context.read<QuestionnaireBloc>();
-
-    // On affiche le nouveau widget stylisé
-    SkipApprofondissementDialog.show(
+  final bloc = context.read<QuestionnaireBloc>();
+  
+    BilanNoticeDialog.showSkip(
       context: context,
       onSkip: () => bloc.add(TerminerQuestionnaireEvent()),
     );

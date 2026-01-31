@@ -9,7 +9,6 @@ import 'package:oikos/features/bilanCarbone/domain/use_cases/preparer_choix_obje
 import 'package:oikos/features/bilanCarbone/domain/use_cases/recuperer_equivalents_carbone_use_case.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_resultat_event.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_resultat_state.dart';
-import 'package:oikos/features/bilanCarbone/presentation/bloc/questionnaire_event.dart';
 
 class BilanResultatBloc extends Bloc<ResultatEvent, ResultatState> {
   final DemarrerApprofondissementUseCase demarrerApproUseCase;
