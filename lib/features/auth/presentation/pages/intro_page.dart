@@ -43,8 +43,9 @@ class _IntroPageState extends State<IntroPage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const SizedBox(height: 20 + 49), // Espace pour descendre le logo
-
+                      
                       // Logo Oîkos
+                                
                       ConstrainedBox(
                         constraints: const BoxConstraints(
                           maxWidth: 368, // Largeur maximale de 368px

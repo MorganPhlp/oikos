@@ -1,4 +1,4 @@
-import 'package:oikos/core/domain/repositories/utilisateur_repository.dart';
+import 'package:oikos/core/domain/interfaces/utilisateur_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UtilisateurRepositoryImpl implements UtilisateurRepository {

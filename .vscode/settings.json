@@ -1,0 +1,41 @@
+{
+    "workbench.colorCustomizations": {
+        "activityBar.activeBackground": "#be3a1a",
+        "activityBar.background": "#be3a1a",
+        "activityBar.foreground": "#e7e7e7",
+        "activityBar.inactiveForeground": "#e7e7e799",
+        "activityBarBadge.background": "#1bc43c",
+        "activityBarBadge.foreground": "#15202b",
+        "commandCenter.border": "#e7e7e799",
+        "editorGroup.border": "#be3a1a",
+        "panel.border": "#be3a1a",
+        "sash.hoverBorder": "#be3a1a",
+        "sideBar.border": "#be3a1a",
+        "statusBar.background": "#912c14",
+        "statusBar.border": "#912c14",
+        "statusBar.foreground": "#e7e7e7",
+        "statusBarItem.hoverBackground": "#be3a1a",
+        "statusBarItem.remoteBackground": "#912c14",
+        "statusBarItem.remoteForeground": "#e7e7e7",
+        "tab.activeBorder": "#be3a1a",
+        "titleBar.activeBackground": "#912c14",
+        "titleBar.activeForeground": "#e7e7e7",
+        "titleBar.border": "#912c14",
+        "titleBar.inactiveBackground": "#912c1499",
+        "titleBar.inactiveForeground": "#e7e7e799"
+    },
+    "peacock.color": "#912c14",
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "**/flutter/ephemeral": true,
+        "**/Flutter/ephemeral": true,
+        "**/.symlinks": true,
+        "**/.plugin_symlinks": true,
+        "**/*.g.dart":true,
+        "**/*.freezed.dart":true
+    }
+}
