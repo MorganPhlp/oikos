@@ -6,6 +6,7 @@ class BilanNoticeDialog extends StatelessWidget {
   final String description;
   final String buttonLabel;
   final String? secondaryButtonLabel;
+  final String? hintText;
   final IconData icon;
   final VoidCallback onConfirm;
   final VoidCallback? onSecondary;
@@ -19,6 +20,7 @@ class BilanNoticeDialog extends StatelessWidget {
     required this.onConfirm,
     this.secondaryButtonLabel,
     this.onSecondary,
+    this.hintText,
   });
 
   @override
@@ -62,7 +64,38 @@ class BilanNoticeDialog extends StatelessWidget {
                 color: colorScheme.onSurface.withValues(alpha: 0.7),
               ),
             ),
-            SizedBox(height: size.height * 0.03),
+            if (hintText != null) ...[
+              SizedBox(height: size.height * 0.03),
+              Container(
+                padding: EdgeInsets.all(size.width * 0.04),
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: colorScheme.tertiary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: colorScheme.onSurface.withValues(alpha: 0.1),
+                    width: 1,
+                  ),
+                ),
+                child: Row(children: [
+                  Icon(Icons.lightbulb_outline_rounded,size: 20, color: colorScheme.tertiary.withValues(alpha: 0.8),),
+                  SizedBox(width: size.width * 0.03),
+                  Expanded(
+                    child: 
+                      Text(
+                        hintText!,
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurface.withValues(alpha: 0.8),
+                          fontStyle: FontStyle.italic,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                ],),
+              ),
+              SizedBox(height: size.height * 0.03),
+            ],
             GradientButton(
               label: buttonLabel,
               isTertiary: true,
@@ -93,9 +126,10 @@ class BilanNoticeDialog extends StatelessWidget {
       context: context,
       barrierDismissible: false, // On force l'utilisateur à cliquer sur le bouton
       builder: (context) => BilanNoticeDialog(
-        title: "C'est parti !",
-        description: "Tu as terminé les questions de base. On approfondit pour plus de précision ?",
-        buttonLabel: "C'est parti !",
+        title: "Bien joué!",
+        description: "Nous allons maintenant approfondir ensemble ton bilan.",
+        hintText: "Tu peux choisir de passer cette étape à tout moment si tu le souhaites.",
+        buttonLabel: "J'y vais !",
         icon: Icons.add_chart,
         onConfirm: () {
           Navigator.of(context).pop(); // Ferme la popup

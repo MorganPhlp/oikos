@@ -33,7 +33,7 @@ const TARGET_QUESTIONS = [
     ["alimentation . boisson . eau en bouteille . consommateur", '💧','obligatoire'],
     ["divers . numérique . appareils", '💻','obligatoire'],
     ["divers . textile . volume", '🛍️','obligatoire'],
-    ["logement . âge", '🎂','optionnelle'],
+    ["logement . âge", '🏚️','optionnelle'],
     ["logement . vacances", '🏖️','optionnelle'],
     ["alimentation . petit déjeuner . type", '🥐','optionnelle'],
     ["alimentation . local . consommation", '🌍','optionnelle'],
