@@ -1,8 +1,8 @@
 import 'package:get_it/get_it.dart';
 import 'package:oikos/core/data/category_empreinte_repository_impl.dart';
 import 'package:oikos/core/data/utilisateur_repository_impl.dart';
-import 'package:oikos/core/domain/repositories/categorie_empreinte_repository.dart';
-import 'package:oikos/core/domain/repositories/utilisateur_repository.dart';
+// import 'package:oikos/core/domain/repositories/categorie_empreinte_repository.dart';
+// import 'package:oikos/core/domain/repositories/utilisateur_repository.dart';
 import 'package:oikos/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:oikos/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
@@ -128,12 +128,12 @@ void _initBilan() {
   serviceLocator.registerLazySingleton<BilanSessionRepository>(
     () => BilanSessionRepositoryImpl(supabaseClient: serviceLocator()),
   );
-  serviceLocator.registerLazySingleton<CategorieEmpreinteRepository>(
-    () => CategorieEmpreinteRepositoryImpl(supabaseClient: serviceLocator()),
-  );
-  serviceLocator.registerLazySingleton<UtilisateurRepository>(
-    () => UtilisateurRepositoryImpl(supabaseClient: serviceLocator()),
-  );
+  // serviceLocator.registerLazySingleton<CategorieEmpreinteRepository>(
+  //   () => CategorieEmpreinteRepositoryImpl(supabaseClient: serviceLocator()),
+  // );
+  // serviceLocator.registerLazySingleton<UtilisateurRepository>(
+  //   () => UtilisateurRepositoryImpl(supabaseClient: serviceLocator()),
+  // );
   serviceLocator.registerLazySingleton<CarboneEquivalentRepository>(
     () => CarboneEquivalentRepositoryImpl(supabaseClient: serviceLocator()),
   );
