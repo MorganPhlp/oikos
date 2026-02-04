@@ -58,8 +58,7 @@ import 'package:oikos/features/codeBarre/data/datasources/code_barre_remote_data
 import 'package:oikos/features/codeBarre/data/repositories/aliment_repository_impl.dart';
 import 'package:oikos/features/codeBarre/domain/repositories/aliment_repository.dart';
 import 'package:oikos/features/codeBarre/domain/usecases/get_aliment_by_code.dart';
-// TODO : A decommenter une fois codé
-//import 'package:oikos/features/codeBarre/presentation/bloc/scan_bloc.dart';
+import 'package:oikos/features/codeBarre/presentation/bloc/scan_bloc.dart';
 
 final serviceLocator = GetIt.instance;
 
@@ -308,7 +307,7 @@ void _initCodeBarre() {
   // On enregistre l'implémentation. Elle a besoin de 'http.Client' qui doit déjà être enregistré
   serviceLocator.registerFactory<CodeBarreRemoteDataSource>(
         () => CodeBarreRemoteDataSourceImpl(
-      client: serviceLocator(), // injection  auto de http.Client
+      client: serviceLocator(),
     ),
   );
 
