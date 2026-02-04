@@ -6,6 +6,8 @@ import 'package:oikos/features/auth/presentation/pages/intro_page.dart';
 import 'package:oikos/features/bilanCarbone/presentation/pages/bilan_flow.dart';
 import 'package:oikos/features/dashboard/presentation/pages/home_page.dart';
 
+import 'features/codeBarre/presentation/pages/scan_page.dart';
+
 GoRouter createRouter(AppUserCubit appUserCubit) {
   return GoRouter(
     initialLocation: '/',
@@ -27,7 +29,13 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
         path: '/home',
         name: 'home',
         builder: (context, state) => const HomePage(),
-      ), 
+      ),
+
+      // route pour la page de scan de code-barres
+      GoRoute(
+        path: '/scan',
+        builder: (context, state) => const ScanPage(),
+      ),
       // TO DO : ajouter les autres routes ici quand elles seront prêtes
       /*
       GoRoute(
