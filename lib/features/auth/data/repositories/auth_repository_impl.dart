@@ -133,13 +133,23 @@ class AuthRepositoryImpl implements AuthRepository {
       final response = await remoteDataSource.client
           .from('utilisateur')
           .select('pseudo')
-          .eq('pseudo', pseudo)
+          .ilike('pseudo', pseudo.toLowerCase())
           .count(CountOption.exact);
 
       final count = response.count;
       return right(count == 0);
     } on AuthException catch (e) {
       return left(Failure(e.message));
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> verifyEmailUniqueness({required String email}) async {
+    try {
+      final response = await remoteDataSource.doesEmailExist(email.toLowerCase());
+      return right(response);
     } on ServerException catch (e) {
       return left(Failure(e.message));
     }

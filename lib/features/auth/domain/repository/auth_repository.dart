@@ -31,4 +31,8 @@ abstract interface class AuthRepository {
   Future<Either<Failure, bool>> isPseudoUnique({
     required String pseudo,
   });
+
+  Future<Either<Failure, bool>> verifyEmailUniqueness({
+    required String email,
+  });
 }

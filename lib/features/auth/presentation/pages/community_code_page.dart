@@ -271,6 +271,7 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
                         length: 6,
                         defaultPinTheme: defaultPinTheme,
                         focusedPinTheme: focusedPinTheme,
+                        keyboardType: TextInputType.text,
                         textCapitalization: TextCapitalization.characters,
                         onCompleted: _validateCode,
                         onChanged: (_) {

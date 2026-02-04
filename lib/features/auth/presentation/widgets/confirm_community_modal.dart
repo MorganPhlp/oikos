@@ -117,7 +117,6 @@ class ConfirmCommunityModal extends StatelessWidget {
               text: "Oui, confirmer",
               icon: Icons.check,
               onPressed: onConfirm,
-              // TODO: Ajouter isLoading si nécessaire
             ),
 
             AuthSecondaryButton(

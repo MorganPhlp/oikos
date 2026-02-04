@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:oikos/core/common/widgets/loader.dart';
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/core/theme/app_typography.dart';
@@ -247,7 +248,11 @@ class _SignUpPageState extends State<SignUpPage> {
                               ),
                               InkWell(
                                 onTap: () {
-                                  // TODO : Ouvrir les CGU
+                                  // Ouvrir les CGU
+                                  context.pushNamed('pdf_viewer', extra: {
+                                    'title': 'Conditions Générales d\'Utilisation',
+                                    'assetPath': 'assets/documents/cgu.pdf',
+                                  });
                                 },
                                 child: Text(
                                   "CGU",
@@ -269,7 +274,11 @@ class _SignUpPageState extends State<SignUpPage> {
                               ),
                               InkWell(
                                 onTap: () {
-                                  // TODO : Ouvrir la politique de confidentialité
+                                  // Ouvrir la politique de confidentialité
+                                  context.pushNamed('pdf_viewer', extra: {
+                                    'title': 'Politique de Confidentialité',
+                                    'assetPath': 'assets/documents/politique_confidentialite.pdf',
+                                  });
                                 },
                                 child: Text(
                                   "politique de confidentialité",

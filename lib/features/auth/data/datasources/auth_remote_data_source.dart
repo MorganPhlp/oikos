@@ -19,6 +19,8 @@ abstract interface class AuthRemoteDataSource {
   });
 
   Future<UserModel?> getCurrentUserData();
+
+  Future<bool> doesEmailExist(String email);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -100,6 +102,21 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           .select()
           .eq('id', currentUserSession!.user.id);
       return UserModel.fromJson(userData.first);
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+  }
+
+  @override
+  Future<bool> doesEmailExist(String email) async {
+    try {
+      final response = await supabaseClient
+          .from('utilisateur')
+          .select()
+          .ilike('email', email)
+          .maybeSingle(); // Null si pas trouvé
+
+      return response != null; // True si l'utilisateur existe, false sinon
     } catch (e) {
       throw ServerException(e.toString());
     }

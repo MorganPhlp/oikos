@@ -11,8 +11,10 @@ class ValidateEmailPassword implements UseCase<bool, ValidateEmailPasswordParams
 
   @override
   Future<Either<Failure, bool>> call(ValidateEmailPasswordParams params) async {
-    if(!AuthValidators.isValidEmail(params.email)){
-      return left(Failure("Format d'email invalide"));
+    // Validation Regex
+    final emailError = AuthValidators.validateEmail(params.email);
+    if(emailError != null){
+      return left(Failure(emailError));
     }
 
     final passwordError = AuthValidators.passwordErrorText(params.password);
@@ -20,11 +22,23 @@ class ValidateEmailPassword implements UseCase<bool, ValidateEmailPasswordParams
       return left(Failure(passwordError));
     }
 
-    final companyCheck = await authRepository.getCompanyByEmail(email: params.email);
+    // Vérification de l'existence de l'email
+    final emailCheck = await authRepository.verifyEmailUniqueness(email: params.email);
+    
+    return emailCheck.fold(
+        (failure) => left(failure),
+        (exists) async {
+          if(exists){
+            return left(Failure("L'adresse email existe déjà"));
+          }
 
-    return companyCheck.fold(
-        (failure) => left(Failure("Votre email ne correspond à aucune entreprise inscrite.")),
-        (_) => right(true),
+          final companyCheck = await authRepository.getCompanyByEmail(email: params.email);
+
+          return companyCheck.fold(
+              (failure) => left(Failure("L'entreprise n'existe pas")),
+              (companyInfo) => right(true)
+          );
+        }
     );
   }
 }
