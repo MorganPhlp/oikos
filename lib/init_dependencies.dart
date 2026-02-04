@@ -53,6 +53,14 @@ import 'core/secrets/app_secrets.dart';
 import 'features/auth/domain/usecases/validate_email_password.dart';
 import 'features/auth/domain/usecases/validate_pseudo.dart';
 
+//Imports Code barre
+import 'package:oikos/features/codeBarre/data/datasources/code_barre_remote_data_source.dart';
+import 'package:oikos/features/codeBarre/data/repositories/aliment_repository_impl.dart';
+import 'package:oikos/features/codeBarre/domain/repositories/aliment_repository.dart';
+import 'package:oikos/features/codeBarre/domain/usecases/get_aliment_by_code.dart';
+// TODO : A decommenter une fois codé
+//import 'package:oikos/features/codeBarre/presentation/bloc/scan_bloc.dart';
+
 final serviceLocator = GetIt.instance;
 
 Future<void> initDependencies() async {
@@ -70,6 +78,7 @@ Future<void> initDependencies() async {
   _initAuth();
   _initBilan();
   _initHome();
+  _initCodeBarre();
 }
 
 void _initAuth() {
@@ -294,3 +303,34 @@ void _initHome() {
   );
 }
 
+void _initCodeBarre() {
+  // Data Source
+  // On enregistre l'implémentation. Elle a besoin de 'http.Client' qui doit déjà être enregistré
+  serviceLocator.registerFactory<CodeBarreRemoteDataSource>(
+        () => CodeBarreRemoteDataSourceImpl(
+      client: serviceLocator(), // injection  auto de http.Client
+    ),
+  );
+
+  // Repository
+  serviceLocator.registerFactory<AlimentRepository>(
+        () => AlimentRepositoryImpl(
+      serviceLocator(),
+    ),
+  );
+
+  // UseCase
+  serviceLocator.registerFactory(
+        () => GetAlimentByCode(
+      serviceLocator(),
+    ),
+  );
+
+  // Bloc
+  // Vu que c'est un scan, on utilise registerFactory (nouvel état à chaque ouverture)
+  serviceLocator.registerFactory(
+        () => ScanBloc(
+      getAlimentByCode: serviceLocator(),
+    ),
+  );
+}
