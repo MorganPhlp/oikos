@@ -34,6 +34,7 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
       // route pour la page de scan de code-barres
       GoRoute(
         path: '/scan',
+        name: 'scan',
         builder: (context, state) => const ScanPage(),
       ),
       GoRoute(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart'; //TODO : A RETIRER
 import '../bloc/home_bloc.dart';
 
 class HomePage extends StatefulWidget {
@@ -22,6 +23,16 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      //TODO : A RETIRER
+      /********** A RETIRER **********/
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          context.push('/scan'); // Navigue vers la page Scan
+        },
+        backgroundColor: Colors.green,
+        child: const Icon(Icons.qr_code_scanner, color: Colors.white),
+      ),
+      /********** A RETIRER **********/
       body: Center(
         child: BlocBuilder<HomeBloc, HomeState>(
           builder: (context, state) {
