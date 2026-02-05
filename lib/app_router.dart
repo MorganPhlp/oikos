@@ -53,26 +53,28 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
       final authState = appUserCubit.state;
       final String location = state.matchedLocation;
 
+      // 0. Si l'état n'est pas encore chargé, on attend
       if (authState is AppUserInitial) {
-        // On ne redirige pas tant que l'état n'est pas connu
         return null;
       }
-      // 1. CAS : UTILISATEUR CONNECTÉ
-      if (authState is AppUserLoggedIn) {
-        // Si l'utilisateur est sur l'intro (/) ou les pages auth, on le redirige
-        if (location == '/') {
-          //TO DO : rediriger vers la home quand elle sera prête
-          return authState.user.hasCompletedBilan ? '/home' : '/bilan';
-        }
+
+      final bool isLoggedIn = authState is AppUserLoggedIn;
+
+      // 1. CAS : UTILISATEUR NON CONNECTÉ
+      // S'il n'est pas connecté et qu'il essaie d'aller ailleurs que sur l'intro
+      if (!isLoggedIn) {
+        return location == '/' ? null : '/';
       }
 
-      // 2. CAS : UTILISATEUR NON CONNECTÉ
-      // S'il n'est pas sur l'intro (/), on le force à y aller
-      if (location != '/') {
-        return '/';
+      // 2. CAS : UTILISATEUR CONNECTÉ
+      // S'il est connecté mais qu'il est sur la page d'intro, on l'envoie vers l'appli
+      if (isLoggedIn && location == '/') {
+        return authState.user.hasCompletedBilan ? '/home' : '/bilan';
       }
 
-      return null; // Il est sur '/' et n'est pas connecté, c'est OK.
+      // L'utilisateur est connecté et va vers /home, /scan, /bilan... on laisse passer
+      return null;
+
     },
   );
 }

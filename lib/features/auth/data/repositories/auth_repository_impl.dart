@@ -9,6 +9,7 @@ import '../datasources/auth_remote_data_source.dart';
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
 
+
   const AuthRepositoryImpl({required this.remoteDataSource});
 
   @override
@@ -165,6 +166,18 @@ class AuthRepositoryImpl implements AuthRepository {
       return left(Failure(e.message));
     } on ServerException catch (e) {
       return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> signOut() async {
+    try {
+      // On utilise le client accessible via la remoteDataSource
+      await remoteDataSource.client.auth.signOut();
+
+      return const Right(null);
+    } catch (e) {
+      return Left(Failure(e.toString()));
     }
   }
 }

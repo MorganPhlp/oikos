@@ -39,12 +39,13 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    // 1. On vérifie si l'utilisateur est déjà loggé
-    context.read<AuthBloc>().add(AuthIsUserLoggedIn());
-    
-    // 2. On initialise le router en lui passant le Cubit
-    // On utilise context.read car on a juste besoin de la référence
-    _router = createRouter(context.read<AppUserCubit>());
+    // 1. On lance la vérification de connexion
+    // (Utiliser serviceLocator ici garantit qu'on parle au même AuthBloc que celui qui a le UserSignOut)
+    serviceLocator<AuthBloc>().add(AuthIsUserLoggedIn());
+
+    // 2. On initialise le router avec le singleton AppUserCubit DIRECTEMENT
+    // C'est la source de vérité unique
+    _router = createRouter(serviceLocator<AppUserCubit>());
   }
 
   @override

@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:http/http.dart' as http;
 import 'package:oikos/core/data/category_empreinte_repository_impl.dart';
 import 'package:oikos/core/data/utilisateur_repository_impl.dart';
 import 'package:oikos/core/domain/repositories/categorie_empreinte_repository.dart';
@@ -50,6 +51,7 @@ import 'package:oikos/features/dashboard/presentation/bloc/home_bloc.dart';
 
 import 'core/common/cubits/app_user/app_user_cubit.dart';
 import 'core/secrets/app_secrets.dart';
+import 'features/auth/domain/usecases/user_signout.dart';
 import 'features/auth/domain/usecases/validate_email_password.dart';
 import 'features/auth/domain/usecases/validate_pseudo.dart';
 
@@ -69,6 +71,9 @@ Future<void> initDependencies() async {
     anonKey: AppSecrets.supabaseAnonKey,
   );
   serviceLocator.registerLazySingleton<SupabaseClient>(() => supabase.client);
+
+  // Enregistrement du Client HTTP (Indispensable pour le Scanner Code Barre)
+  serviceLocator.registerLazySingleton(() => http.Client());
 
   // core
   serviceLocator.registerLazySingleton(() => AppUserCubit());
@@ -106,6 +111,8 @@ void _initAuth() {
 
   serviceLocator.registerFactory(() => ValidatePseudo(serviceLocator()));
 
+  serviceLocator.registerFactory(() => UserSignOut(serviceLocator()));
+
   // Bloc
   serviceLocator.registerLazySingleton(
     () => AuthBloc(
@@ -116,6 +123,7 @@ void _initAuth() {
       authRepository: serviceLocator(),
       validateEmailPassword: serviceLocator(),
       validatePseudo: serviceLocator(),
+      userSignOut: serviceLocator(),
     ),
   );
 }
@@ -304,7 +312,6 @@ void _initHome() {
 
 void _initCodeBarre() {
   // Data Source
-  // On enregistre l'implémentation. Elle a besoin de 'http.Client' qui doit déjà être enregistré
   serviceLocator.registerFactory<CodeBarreRemoteDataSource>(
         () => CodeBarreRemoteDataSourceImpl(
       client: serviceLocator(),
