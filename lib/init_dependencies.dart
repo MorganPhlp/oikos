@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:oikos/core/data/category_empreinte_repository_impl.dart';
@@ -51,6 +52,7 @@ import 'package:oikos/features/dashboard/presentation/bloc/home_bloc.dart';
 
 import 'core/common/cubits/app_user/app_user_cubit.dart';
 import 'core/secrets/app_secrets.dart';
+import 'features/auth/domain/usecases/reset_password.dart';
 import 'features/auth/domain/usecases/user_signout.dart';
 import 'features/auth/domain/usecases/validate_email_password.dart';
 import 'features/auth/domain/usecases/validate_pseudo.dart';
@@ -69,6 +71,9 @@ Future<void> initDependencies() async {
   final supabase = await Supabase.initialize(
     url: AppSecrets.supabaseUrl,
     anonKey: AppSecrets.supabaseAnonKey,
+    authOptions: FlutterAuthClientOptions(
+      authFlowType: AuthFlowType.implicit, // Pour éviter les problèmes de redirection sur le web, on utilise le flow implicite qui gère tout côté client. C'est plus simple et sécurisé pour une application Flutter.
+    ),
   );
   serviceLocator.registerLazySingleton<SupabaseClient>(() => supabase.client);
 
@@ -113,6 +118,10 @@ void _initAuth() {
 
   serviceLocator.registerFactory(() => UserSignOut(serviceLocator()));
 
+  serviceLocator.registerFactory(() => ResetPassword(serviceLocator()));
+
+
+
   // Bloc
   serviceLocator.registerLazySingleton(
     () => AuthBloc(
@@ -124,6 +133,7 @@ void _initAuth() {
       validateEmailPassword: serviceLocator(),
       validatePseudo: serviceLocator(),
       userSignOut: serviceLocator(),
+      resetPassword: serviceLocator(),
     ),
   );
 }

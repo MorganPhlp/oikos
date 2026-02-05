@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:oikos/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/core/presentation/pages/pdf_viewer_page.dart';
 import 'package:oikos/features/auth/presentation/pages/intro_page.dart';
+import 'package:oikos/features/auth/presentation/pages/update_password_page.dart';
 import 'package:oikos/features/bilanCarbone/presentation/pages/bilan_flow.dart';
 import 'package:oikos/features/home/presentation/pages/home_page.dart';
 
@@ -48,20 +50,32 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
           );
         },
       ),
+      GoRoute(
+        path: '/reset-password',
+        name: 'reset-password',
+        builder: (context, state) => const UpdatePasswordPage(),
+      )
     ],
 
     redirect: (context, state) {
-      final authState = appUserCubit.state;
-      final String location = state.matchedLocation;
+      final authState = context.read<AppUserCubit>().state; // On récupère l'état de l'utilisateur
+      final String location = state.uri.path;
 
       // 0. Si l'état n'est pas encore chargé, on attend
       if (authState is AppUserInitial) {
         return null;
       }
 
-      final bool isLoggedIn = authState is AppUserLoggedIn;
+      final bool isResettingPassword = location.startsWith('/reset-password');
 
       // 1. CAS : UTILISATEUR NON CONNECTÉ
+      // S'il essaye de réinitialiser le mot de passe
+      if (isResettingPassword) {
+        return null;
+      }
+
+      final bool isLoggedIn = authState is AppUserLoggedIn;
+
       // S'il n'est pas connecté et qu'il essaie d'aller ailleurs que sur l'intro
       if (!isLoggedIn) {
         return location == '/' ? null : '/';
@@ -75,7 +89,6 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
 
       // L'utilisateur est connecté et va vers /home, /scan, /bilan... on laisse passer
       return null;
-
     },
   );
 }

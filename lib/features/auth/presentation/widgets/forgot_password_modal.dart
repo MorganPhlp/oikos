@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:oikos/core/utils/show_snackbar.dart';
 import 'package:oikos/features/auth/presentation/widgets/auth_field.dart';
 import 'package:oikos/features/auth/presentation/widgets/auth_primary_button.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../bloc/auth_bloc.dart';
 
 class ForgotPasswordModal extends StatefulWidget {
   final String email;
@@ -26,15 +29,26 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
 
   void _resetPassword() {
     if(_formKey.currentState!.validate()) {
-      setState(() {
-        _isSuccess = true;
-      });
-      // TODO : Appel API reset password
+      context.read<AuthBloc>().add(
+          AuthResetPassword(email: _emailController.text.trim())
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    return BlocConsumer<AuthBloc, AuthState>(
+  listener: (context, state) {
+    if (state is AuthFailure){
+      showSnackBar(context, state.message);
+    }
+    if (state is AuthPasswordResetSent) {
+      setState(() {
+        _isSuccess = true;
+      });
+    }
+  },
+  builder: (context, state) {
     return Dialog(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -83,6 +97,7 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
                 child: const Center(
                   child: Text(
                     "✅ Un email de réinitialisation a été envoyé !",
+                    textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.green),
                   ),
                 ),
@@ -91,6 +106,7 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
               Form(
                 key: _formKey,
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Ton email pro',
@@ -106,6 +122,12 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
                       hintText: "prenom.nom@entreprise.fr",
                       controller: _emailController,
                       prefixIcon: Icons.mail_outline,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Veuillez entrer votre email';
+                        }
+                        return null;
+                      }
                     ),
 
                     const SizedBox(height: 20),
@@ -113,6 +135,7 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
                     AuthPrimaryButton(
                       text: "Réinitialiser le mot de passe",
                       onPressed: _resetPassword,
+                      isLoading: state is AuthLoading,
                     ),
                   ],
                 ),
@@ -121,5 +144,7 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
         ),
       ),
     );
+  },
+);
   }
 }

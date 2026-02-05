@@ -35,5 +35,10 @@ abstract interface class AuthRepository {
   Future<Either<Failure, bool>> verifyEmailUniqueness({
     required String email,
   });
+
   Future<Either<Failure, void>> signOut();
+
+  Future<Either<Failure, void>> resetPassword({
+    required String email
+  });
 }
