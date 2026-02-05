@@ -4,6 +4,7 @@ import 'package:oikos/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/core/common/entities/user.dart';
 import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
 import 'package:oikos/features/auth/domain/usecases/current_user.dart';
+import 'package:oikos/features/auth/domain/usecases/reset_password.dart';
 import 'package:oikos/features/auth/domain/usecases/user_signin.dart';
 import 'package:oikos/features/auth/domain/usecases/user_signout.dart';
 import 'package:oikos/features/auth/domain/usecases/user_signup.dart';
@@ -24,6 +25,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final ValidateEmailPassword _validateEmailPassword;
   final ValidatePseudo _validatePseudo;
   final UserSignOut _userSignOut;
+  final ResetPassword _resetPassword;
 
   AuthBloc({
     required UserSignup userSignup,
@@ -34,6 +36,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required ValidateEmailPassword validateEmailPassword,
     required ValidatePseudo validatePseudo,
     required UserSignOut userSignOut,
+    required ResetPassword resetPassword,
   }) : _userSignin = userSignin,
        _userSignup = userSignup,
        _currentUser = currentUser,
@@ -41,7 +44,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
        _authRepository = authRepository,
        _validateEmailPassword = validateEmailPassword,
        _validatePseudo = validatePseudo,
-        _userSignOut = userSignOut,
+       _userSignOut = userSignOut,
+       _resetPassword = resetPassword,
        super(AuthInitial()) {
     // Suppression du handler global qui causait les bugs de chargement et d'erreurs
     on<AuthSignUp>(_onAuthSignUp);
@@ -52,6 +56,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthValidateEmailPassword>(_onAuthValidateEmailPassword);
     on<AuthValidatePseudo>(_onAuthValidatePseudo);
     on<AuthSignOut>(_onAuthSignOut);
+    on<AuthResetPassword>(_onAuthResetPassword);
   }
 
   void _onAuthIsUserLoggedIn(
@@ -171,6 +176,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     res.fold(
       (failure) => emit(AuthFailure(failure.message)),
       (_) => emit(AuthPseudoVerified()),
+    );
+  }
+
+  void _onAuthResetPassword(
+    AuthResetPassword event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+    final res = await _resetPassword(event.email);
+
+    res.fold(
+      (failure) => emit(AuthFailure(failure.message)),
+      (_) => emit(AuthPasswordResetSent()),
     );
   }
 

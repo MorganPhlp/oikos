@@ -21,6 +21,10 @@ abstract interface class AuthRemoteDataSource {
   Future<UserModel?> getCurrentUserData();
 
   Future<bool> doesEmailExist(String email);
+
+  Future<void> resetPassword({
+    required String email
+  });
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -117,6 +121,20 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           .maybeSingle(); // Null si pas trouvé
 
       return response != null; // True si l'utilisateur existe, false sinon
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+  }
+
+  @override
+  Future<void> resetPassword({
+    required String email
+  }) async {
+    try {
+      await supabaseClient.auth.resetPasswordForEmail(
+        email,
+        redirectTo: 'https://oikos-reset.vercel.app/reset-password'
+      );
     } catch (e) {
       throw ServerException(e.toString());
     }

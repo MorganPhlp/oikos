@@ -33,3 +33,5 @@ final class AuthCommunityVerified extends AuthState {
 final class AuthEmailPasswordVerified extends AuthState {}
 
 final class AuthPseudoVerified extends AuthState {}
+
+final class AuthPasswordResetSent extends AuthState {}
