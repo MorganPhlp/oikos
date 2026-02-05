@@ -49,7 +49,6 @@ class _QuestionNumberWrapperState extends State<QuestionNumberWrapper> {
       child: Column(
         children: [
           OikosNumberInput(
-            key: ValueKey(widget.question.slug), 
             
             value: _currentValue,
             unit: widget.question.unit ?? '',

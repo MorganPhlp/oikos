@@ -97,7 +97,7 @@ class _BilanPageState extends State<BilanPage> {
                                 },
                               ),
                             QuestionWidgetFactory(
-                              key: ValueKey('${state.question.slug}_$_currentAnswer'),
+                              key: ValueKey(state.question.slug),
                               question: state.question,
                               currentValue: _currentAnswer,
                               onLocalChange: (v) => setState(() {

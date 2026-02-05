@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:oikos/core/common/widgets/loader.dart';
 import 'dart:ui';
@@ -95,7 +96,7 @@ class ResultsPage extends StatelessWidget {
                       // Bouton de sortie (utilise ton GradientButton thémé)
                       GradientButton(
                         label: "Retour à l'accueil", 
-                        onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
+                        onPressed: () => context.go('/home'),
                       ),
                       
                       SizedBox(height: size.height * 0.03),
