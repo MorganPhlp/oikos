@@ -5,7 +5,7 @@ import 'package:oikos/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/core/presentation/pages/pdf_viewer_page.dart';
 import 'package:oikos/features/auth/presentation/pages/intro_page.dart';
 import 'package:oikos/features/bilanCarbone/presentation/pages/bilan_flow.dart';
-import 'package:oikos/features/dashboard/presentation/pages/home_page.dart';
+import 'package:oikos/features/home/presentation/pages/home_page.dart';
 
 import 'features/codeBarre/presentation/pages/scan_page.dart';
 
