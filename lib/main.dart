@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:oikos/app_router.dart';
-import 'package:oikos/core/common/cubits/app_user/app_user_cubit.dart';
+import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:oikos/features/dashboard/presentation/bloc/home_bloc.dart';

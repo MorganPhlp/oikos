@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/presentation/widgets/gradient_button.dart';
+import 'package:oikos/core/common/presentation/widgets/gradient_button.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/type_widget.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/questionnaire_bloc.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/questionnaire_event.dart';
@@ -8,7 +8,7 @@ import 'package:oikos/features/bilanCarbone/presentation/bloc/questionnaire_stat
 import 'package:oikos/features/bilanCarbone/presentation/widgets/bilan_notice_dialog.dart';
 import 'package:oikos/features/bilanCarbone/presentation/widgets/question_widget_factory.dart';
 import 'package:oikos/features/bilanCarbone/presentation/widgets/suggestions_widget.dart';
-import '../../../../core/common/widgets/loader.dart';
+import '../../../../core/common/presentation/widgets/loader.dart';
 
 class BilanPage extends StatefulWidget {
   const BilanPage({super.key});

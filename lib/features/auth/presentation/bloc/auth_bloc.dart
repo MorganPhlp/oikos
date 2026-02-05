@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/common/cubits/app_user/app_user_cubit.dart';
+import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/core/common/entities/user.dart';
 import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
 import 'package:oikos/features/auth/domain/usecases/current_user.dart';

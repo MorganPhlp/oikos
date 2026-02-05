@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
-import 'package:oikos/core/data/category_empreinte_repository_impl.dart';
-import 'package:oikos/core/data/utilisateur_repository_impl.dart';
-import 'package:oikos/core/domain/repositories/categorie_empreinte_repository.dart';
-import 'package:oikos/core/domain/repositories/utilisateur_repository.dart';
+import 'package:oikos/core/common/data/category_empreinte_repository_impl.dart';
+import 'package:oikos/core/common/data/utilisateur_repository_impl.dart';
+import 'package:oikos/core/common/domain/repositories/categorie_empreinte_repository.dart';
+import 'package:oikos/core/common/domain/repositories/utilisateur_repository.dart';
 import 'package:oikos/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:oikos/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
@@ -50,7 +50,7 @@ import 'package:oikos/features/dashboard/domain/usecases/get_my_profile.dart';
 import 'package:oikos/features/dashboard/presentation/bloc/home_bloc.dart';
 
 
-import 'core/common/cubits/app_user/app_user_cubit.dart';
+import 'core/common/presentation/cubits/app_user/app_user_cubit.dart';
 import 'core/secrets/app_secrets.dart';
 import 'features/auth/domain/usecases/reset_password.dart';
 import 'features/auth/domain/usecases/user_signout.dart';
