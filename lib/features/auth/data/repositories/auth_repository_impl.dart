@@ -2,13 +2,12 @@ import 'package:fpdart/fpdart.dart';
 import 'package:oikos/core/error/exceptions.dart';
 import 'package:oikos/core/error/failures.dart';
 import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
-import 'package:oikos/core/common/entities/user.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide User;
 import '../datasources/auth_remote_data_source.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
-
 
   const AuthRepositoryImpl({required this.remoteDataSource});
 
@@ -147,9 +146,13 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, bool>> verifyEmailUniqueness({required String email}) async {
+  Future<Either<Failure, bool>> verifyEmailUniqueness({
+    required String email,
+  }) async {
     try {
-      final response = await remoteDataSource.doesEmailExist(email.toLowerCase());
+      final response = await remoteDataSource.doesEmailExist(
+        email.toLowerCase(),
+      );
       return right(response);
     } on ServerException catch (e) {
       return left(Failure(e.message));
@@ -182,9 +185,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, void>> resetPassword({
-    required String email
-  }) async {
+  Future<Either<Failure, void>> resetPassword({required String email}) async {
     try {
       await remoteDataSource.resetPassword(email: email);
       return const Right(null);

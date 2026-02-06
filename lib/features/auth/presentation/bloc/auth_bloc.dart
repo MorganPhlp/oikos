@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
-import 'package:oikos/core/common/entities/user.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
 import 'package:oikos/features/auth/domain/usecases/current_user.dart';
 import 'package:oikos/features/auth/domain/usecases/reset_password.dart';
@@ -91,15 +91,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   void _onAuthSignOut(AuthSignOut event, Emitter<AuthState> emit) async {
     final res = await _userSignOut(NoParams());
-    res.fold(
-      (l) => emit(AuthFailure(l.message)),
-      (r) {
+    res.fold((l) => emit(AuthFailure(l.message)), (r) {
       //on vide le Cubit Utilisateur
       // Le Router va détecter le changement et rediriger vers '/'
       _appUserCubit.updateUser(null);
       emit(AuthInitial());
-      },
-    );
+    });
   }
 
   void _onAuthSignIn(AuthSignIn event, Emitter<AuthState> emit) async {
@@ -154,10 +151,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
 
     final res = await _validateEmailPassword(
-      ValidateEmailPasswordParams(
-        email: event.email,
-        password: event.password,
-      ),
+      ValidateEmailPasswordParams(email: event.email, password: event.password),
     );
 
     res.fold(
