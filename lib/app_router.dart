@@ -10,6 +10,7 @@ import 'package:oikos/features/auth/presentation/pages/update_password_page.dart
 import 'package:oikos/features/bilanCarbone/presentation/pages/bilan_flow.dart';
 import 'package:oikos/features/home/presentation/pages/home_page.dart';
 
+import 'features/codeBarre/presentation/pages/home_scan_page.dart';
 import 'features/codeBarre/presentation/pages/scan_page.dart';
 
 GoRouter createRouter(AppUserCubit appUserCubit) {
@@ -53,6 +54,11 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
             path: '/home',
             name: 'home',
             builder: (context, state) => const HomePage(),
+          ),
+          // route pour la page d'accueil du scan
+          GoRoute(
+            path: '/scan_intro',
+            builder: (context, state) => const HomeScanPage(),
           ),
           // route pour la page de scan de code-barres
           GoRoute(
