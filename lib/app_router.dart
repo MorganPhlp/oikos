@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/core/common/presentation/pages/pdf_viewer_page.dart';
+import 'package:oikos/core/common/presentation/widgets/navbar.dart';
 import 'package:oikos/features/auth/presentation/pages/intro_page.dart';
 import 'package:oikos/features/auth/presentation/pages/update_password_page.dart';
 import 'package:oikos/features/bilanCarbone/presentation/pages/bilan_flow.dart';
@@ -19,25 +20,14 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
 
     routes: [
       GoRoute(
-        path: '/',
-        name: 'intro',
-        builder: (context, state) => const IntroPage(),
-      ),
-      GoRoute(
         path: '/bilan',
         name: 'bilan',
         builder: (context, state) => const BilanFlow(),
       ),
       GoRoute(
-        path: '/home',
-        name: 'home',
-        builder: (context, state) => const HomePage(),
-      ),
-      // route pour la page de scan de code-barres
-      GoRoute(
-        path: '/scan',
-        name: 'scan',
-        builder: (context, state) => const ScanPage(),
+        path: '/',
+        name: 'intro',
+        builder: (context, state) => const IntroPage(),
       ),
       GoRoute(
         path: '/pdf',
@@ -54,11 +44,35 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
         path: '/reset-password',
         name: 'reset-password',
         builder: (context, state) => const UpdatePasswordPage(),
-      )
+      ),
+      ShellRoute(
+        builder: (context, state, child) =>
+            Scaffold(body: child, bottomNavigationBar: const OikosNavBar()),
+        routes: [
+          GoRoute(
+            path: '/home',
+            name: 'home',
+            builder: (context, state) => const HomePage(),
+          ),
+          // route pour la page de scan de code-barres
+          GoRoute(
+            path: '/scan',
+            name: 'scan',
+            builder: (context, state) => const ScanPage(),
+          ),
+          GoRoute(
+            path: '/dashboard',
+            name: 'dashboard',
+            builder: (context, state) => const Placeholder(),
+          ),
+        ],
+      ),
     ],
 
     redirect: (context, state) {
-      final authState = context.read<AppUserCubit>().state; // On récupère l'état de l'utilisateur
+      final authState = context
+          .read<AppUserCubit>()
+          .state; // On récupère l'état de l'utilisateur
       final String location = state.uri.path;
 
       // 0. Si l'état n'est pas encore chargé, on attend

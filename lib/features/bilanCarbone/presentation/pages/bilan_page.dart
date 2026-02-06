@@ -26,25 +26,29 @@ class _BilanPageState extends State<BilanPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: BlocConsumer<QuestionnaireBloc, QuestionnaireState>(
-          buildWhen: (p, c) => c is QuestionnaireAffiche || c is QuestionnaireLoading,
+          buildWhen: (p, c) =>
+              c is QuestionnaireAffiche || c is QuestionnaireLoading,
           listener: (context, state) {
             if (state is QuestionnaireAffiche) {
               _initialiserValeurParDefaut(state);
             }
             if (state is QuestionnaireApprofondissementNotice) {
               BilanNoticeDialog.showNotice(
-                context: context, 
-                onStart: () => context.read<QuestionnaireBloc>().add(NoticeApprofondissementApprovedEvent()),
+                context: context,
+                onStart: () => context.read<QuestionnaireBloc>().add(
+                  NoticeApprofondissementApprovedEvent(),
+                ),
               );
             }
           },
           builder: (context, state) {
-            if (state is QuestionnaireLoading || state is QuestionnaireInitial) {
+            if (state is QuestionnaireLoading ||
+                state is QuestionnaireInitial) {
               return const Loader();
             }
 
@@ -86,12 +90,15 @@ class _BilanPageState extends State<BilanPage> {
                           children: [
                             if (state.question.suggestions != null)
                               SuggestionsWidget(
-                                suggestions: List<String>.from(state.question.suggestions!.keys),
+                                suggestions: List<String>.from(
+                                  state.question.suggestions!.keys,
+                                ),
                                 selectedSuggestion: _selectedSuggestion,
                                 onLocalChange: (key) {
                                   setState(() {
                                     _selectedSuggestion = key;
-                                    _currentAnswer = state.question.suggestions![key];
+                                    _currentAnswer =
+                                        state.question.suggestions![key];
                                     _isAnswerValid = true;
                                   });
                                 },
@@ -104,7 +111,8 @@ class _BilanPageState extends State<BilanPage> {
                                 _currentAnswer = v;
                                 _selectedSuggestion = null;
                               }),
-                              onValidityChange: (v) => setState(() => _isAnswerValid = v),
+                              onValidityChange: (v) =>
+                                  setState(() => _isAnswerValid = v),
                             ),
                           ],
                         ),
@@ -124,7 +132,8 @@ class _BilanPageState extends State<BilanPage> {
 
   void _initialiserValeurParDefaut(QuestionnaireAffiche state) {
     _currentAnswer = state.valeurActuelle ?? state.question.getInitialValue();
-    _isAnswerValid = state.valeurActuelle != null || state.question.isAlwaysValid();
+    _isAnswerValid =
+        state.valeurActuelle != null || state.question.isAlwaysValid();
     setState(() {});
   }
 
@@ -136,14 +145,21 @@ class _BilanPageState extends State<BilanPage> {
 
     // Couleurs : Thème pour l'obligatoire, Orange pour l'approfondissement
     final mandatoryColor = colorScheme.primary;
-    final deepeningColor = colorScheme.tertiary; // Forcé en orange comme demandé
+    final deepeningColor =
+        colorScheme.tertiary; // Forcé en orange comme demandé
 
-    final int localIndex = state.isDeepening ? (state.index - state.totalObligatoire) : state.index;
-    final int localTotal = state.isDeepening ? (state.total - state.totalObligatoire) : state.totalObligatoire;
-    final String phaseLabel = state.isDeepening ? "Approfondissement" : "Question";
+    final int localIndex = state.isDeepening
+        ? (state.index - state.totalObligatoire)
+        : state.index;
+    final int localTotal = state.isDeepening
+        ? (state.total - state.totalObligatoire)
+        : state.totalObligatoire;
+    final String phaseLabel = state.isDeepening
+        ? "Approfondissement"
+        : "Question";
 
-    final double targetGreenRatio = state.isDeepening 
-        ? (state.totalObligatoire / state.total) 
+    final double targetGreenRatio = state.isDeepening
+        ? (state.totalObligatoire / state.total)
         : 1.0;
 
     return Column(
@@ -164,7 +180,9 @@ class _BilanPageState extends State<BilanPage> {
                   ),
                   SizedBox(width: size.width * 0.02),
                   Text(
-                    state.isDeepening ? "Approfondissons" : "Dis-nous comment tu vis",
+                    state.isDeepening
+                        ? "Approfondissons"
+                        : "Dis-nous comment tu vis",
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: colorScheme.onSurface,
                       fontWeight: FontWeight.bold,
@@ -178,61 +196,77 @@ class _BilanPageState extends State<BilanPage> {
               Positioned(
                 right: 0,
                 child: _buildTextLink(
-                  "Passer", 
-                  () => _confirmSkip(context), 
-                  size, 
+                  "Terminer Maintenant",
+                  () => _confirmSkip(context),
+                  size,
                   color: deepeningColor,
-                  underlined: true,
                 ),
               ),
           ],
         ),
         SizedBox(height: size.height * 0.015),
-        LayoutBuilder(builder: (context, constraints) {
-          final fullWidth = constraints.maxWidth;
-          return TweenAnimationBuilder<double>(
-            duration: const Duration(milliseconds: 800),
-            curve: Curves.easeInOutCubic,
-            tween: Tween<double>(begin: 1.0, end: targetGreenRatio),
-            builder: (context, ratio, child) {
-              final double gap = state.isDeepening ? 6.0 : 0.0;
-              final double greenPart = ((fullWidth * ratio) - (gap / 2)).clamp(0.0, fullWidth);
-              final double orangePart = ((fullWidth * (1 - ratio)) - (gap / 2)).clamp(0.0, fullWidth);
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final fullWidth = constraints.maxWidth;
+            return TweenAnimationBuilder<double>(
+              duration: const Duration(milliseconds: 800),
+              curve: Curves.easeInOutCubic,
+              tween: Tween<double>(begin: 1.0, end: targetGreenRatio),
+              builder: (context, ratio, child) {
+                final double gap = state.isDeepening ? 6.0 : 0.0;
+                final double greenPart = ((fullWidth * ratio) - (gap / 2))
+                    .clamp(0.0, fullWidth);
+                final double orangePart =
+                    ((fullWidth * (1 - ratio)) - (gap / 2)).clamp(
+                      0.0,
+                      fullWidth,
+                    );
 
-              return Row(
-                children: [
-                  if (greenPart > 0)
-                    SizedBox(
-                      width: greenPart,
-                      child: LinearProgressIndicator(
-                        value: state.isDeepening ? 1.0 : (state.index / state.totalObligatoire),
-                        backgroundColor: mandatoryColor.withValues(alpha: 0.1),
-                        color: mandatoryColor,
-                        minHeight: 8,
-                        borderRadius: BorderRadius.horizontal(
-                          left: const Radius.circular(4),
-                          right: Radius.circular(state.isDeepening ? 0 : 4),
+                return Row(
+                  children: [
+                    if (greenPart > 0)
+                      SizedBox(
+                        width: greenPart,
+                        child: LinearProgressIndicator(
+                          value: state.isDeepening
+                              ? 1.0
+                              : (state.index / state.totalObligatoire),
+                          backgroundColor: mandatoryColor.withValues(
+                            alpha: 0.1,
+                          ),
+                          color: mandatoryColor,
+                          minHeight: 8,
+                          borderRadius: BorderRadius.horizontal(
+                            left: const Radius.circular(4),
+                            right: Radius.circular(state.isDeepening ? 0 : 4),
+                          ),
                         ),
                       ),
-                    ),
-                  if (state.isDeepening && orangePart > 0) ...[
-                    SizedBox(width: gap),
-                    SizedBox(
-                      width: orangePart,
-                      child: LinearProgressIndicator(
-                        value: (state.index - state.totalObligatoire) / (state.total - state.totalObligatoire),
-                        backgroundColor: deepeningColor.withValues(alpha: 0.1),
-                        color: deepeningColor,
-                        minHeight: 8,
-                        borderRadius: const BorderRadius.horizontal(right: Radius.circular(4)),
+                    if (state.isDeepening && orangePart > 0) ...[
+                      SizedBox(width: gap),
+                      SizedBox(
+                        width: orangePart,
+                        child: LinearProgressIndicator(
+                          value:
+                              (state.index - state.totalObligatoire) /
+                              (state.total - state.totalObligatoire),
+                          backgroundColor: deepeningColor.withValues(
+                            alpha: 0.1,
+                          ),
+                          color: deepeningColor,
+                          minHeight: 8,
+                          borderRadius: const BorderRadius.horizontal(
+                            right: Radius.circular(4),
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ],
-                ],
-              );
-            },
-          );
-        }),
+                );
+              },
+            );
+          },
+        ),
         SizedBox(height: size.height * 0.008),
         Text(
           "$phaseLabel $localIndex sur $localTotal",
@@ -245,7 +279,11 @@ class _BilanPageState extends State<BilanPage> {
     );
   }
 
-  Widget _buildFooterActions(BuildContext context, QuestionnaireAffiche state, Size size) {
+  Widget _buildFooterActions(
+    BuildContext context,
+    QuestionnaireAffiche state,
+    Size size,
+  ) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final buttonSize = size.width * 0.14;
@@ -255,11 +293,15 @@ class _BilanPageState extends State<BilanPage> {
         Row(
           children: [
             IconButton(
-              onPressed: () => context.read<QuestionnaireBloc>().add(QuestionPrecedenteEvent()),
+              onPressed: () => context.read<QuestionnaireBloc>().add(
+                QuestionPrecedenteEvent(),
+              ),
               icon: Icon(Icons.chevron_left, color: colorScheme.onSurface),
               style: IconButton.styleFrom(
                 side: BorderSide(color: colorScheme.primary, width: 2),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 fixedSize: Size(buttonSize, buttonSize),
               ),
             ),
@@ -267,8 +309,12 @@ class _BilanPageState extends State<BilanPage> {
             Expanded(
               child: GradientButton(
                 label: state.index == state.total ? "Terminer" : "Suivant >",
-                disabled: !_isAnswerValid && state.question.typeWidget != TypeWidget.slider,
-                onPressed: () => context.read<QuestionnaireBloc>().add(RepondreQuestionEvent(_currentAnswer)),
+                disabled:
+                    !_isAnswerValid &&
+                    state.question.typeWidget != TypeWidget.slider,
+                onPressed: () => context.read<QuestionnaireBloc>().add(
+                  RepondreQuestionEvent(_currentAnswer),
+                ),
               ),
             ),
           ],
@@ -278,18 +324,27 @@ class _BilanPageState extends State<BilanPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _buildTextLink(
-              "Je ne sais pas", 
-              () => context.read<QuestionnaireBloc>().add(RepondreQuestionEvent(null)), 
-              size
+              "Je ne sais pas",
+              () => context.read<QuestionnaireBloc>().add(
+                RepondreQuestionEvent(null),
+              ),
+              size,
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: size.width * 0.02),
-              child: Text("•", style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.5))),
+              child: Text(
+                "•",
+                style: TextStyle(
+                  color: colorScheme.onSurface.withValues(alpha: 0.5),
+                ),
+              ),
             ),
             _buildTextLink(
-              "Pas concerné", 
-              () => context.read<QuestionnaireBloc>().add(RepondreQuestionEvent(null)), 
-              size
+              "Pas concerné",
+              () => context.read<QuestionnaireBloc>().add(
+                RepondreQuestionEvent(null),
+              ),
+              size,
             ),
           ],
         ),
@@ -297,14 +352,24 @@ class _BilanPageState extends State<BilanPage> {
     );
   }
 
-  Widget _buildTextLink(String text, VoidCallback onTap, Size size, {Color? color, bool underlined = true}) {
+  Widget _buildTextLink(
+    String text,
+    VoidCallback onTap,
+    Size size, {
+    Color? color,
+    bool underlined = true,
+  }) {
     return InkWell(
       onTap: onTap,
       child: Text(
         text,
         style: TextStyle(
-          color: color ?? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-          decoration: underlined ? TextDecoration.underline : TextDecoration.none,
+          color:
+              color ??
+              Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+          decoration: underlined
+              ? TextDecoration.underline
+              : TextDecoration.none,
           fontSize: size.width < 360 ? 13 : size.width * 0.035,
           fontWeight: color != null ? FontWeight.bold : FontWeight.normal,
         ),
@@ -313,8 +378,8 @@ class _BilanPageState extends State<BilanPage> {
   }
 
   void _confirmSkip(BuildContext context) {
-  final bloc = context.read<QuestionnaireBloc>();
-  
+    final bloc = context.read<QuestionnaireBloc>();
+
     BilanNoticeDialog.showSkip(
       context: context,
       onSkip: () => bloc.add(TerminerQuestionnaireEvent()),

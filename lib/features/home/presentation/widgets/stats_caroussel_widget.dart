@@ -6,10 +6,7 @@ import 'package:oikos/features/home/domain/entities/stats_cards_entitie.dart';
 class StatsCarousselWidget extends StatefulWidget {
   final List<StatsCardsEntitie> allStatsCards;
 
-  const StatsCarousselWidget({
-    super.key,
-    required this.allStatsCards,
-    });
+  const StatsCarousselWidget({super.key, required this.allStatsCards});
 
   @override
   State<StatsCarousselWidget> createState() => _StatsCarousselWidgetState();
@@ -33,7 +30,7 @@ class _StatsCarousselWidgetState extends State<StatsCarousselWidget> {
 
   void _onArrowTap(bool next) {
     int targetPage = next ? _currentPage + 1 : _currentPage - 1;
-    
+
     // pour pas sortir des limites
     if (targetPage >= 0 && targetPage < widget.allStatsCards.length) {
       _pageController.animateToPage(
@@ -55,12 +52,12 @@ class _StatsCarousselWidgetState extends State<StatsCarousselWidget> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             _NavArrow(
-              icon: LucideIcons.chevronLeft, 
+              icon: LucideIcons.chevronLeft,
               onTap: () => _onArrowTap(false),
             ),
             const SizedBox(width: 8),
             _NavArrow(
-              icon: LucideIcons.chevronRight, 
+              icon: LucideIcons.chevronRight,
               onTap: () => _onArrowTap(true),
             ),
           ],
@@ -85,7 +82,10 @@ class _StatsCarousselWidgetState extends State<StatsCarousselWidget> {
         // 3. Indicateurs de page (Dots)
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(widget.allStatsCards.length, (index) => _buildDot(index)),
+          children: List.generate(
+            widget.allStatsCards.length,
+            (index) => _buildDot(index),
+          ),
         ),
       ],
     );
@@ -93,13 +93,16 @@ class _StatsCarousselWidgetState extends State<StatsCarousselWidget> {
 
   Widget _buildDot(int index) {
     bool isActive = _currentPage == index;
+    ThemeData theme = Theme.of(context);
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       margin: const EdgeInsets.symmetric(horizontal: 4),
       height: 8,
       width: isActive ? 20 : 8, // S'allonge quand actif
       decoration: BoxDecoration(
-        color: isActive ? AppColors.lightPrimary : AppColors.lightBorder,
+        color: isActive
+            ? theme.colorScheme.primary
+            : theme.colorScheme.onSurface.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(4),
       ),
     );
@@ -115,25 +118,23 @@ class _NavArrow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Colors.white, // Fond blanc pour détacher la flèche
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08), 
-              blurRadius: 8, 
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Icon(
-          icon, 
-          size: 16, 
-          color: theme.colorScheme.primary, // Icône de la couleur du thème
+
+    return Material(
+      // 1. Le Material doit être transparent ou porter la couleur du fond
+      color: theme.colorScheme.surface,
+      shape: const CircleBorder(),
+      elevation: 2, // L'élévation gère l'ombre plus proprement que BoxShadow
+      shadowColor: Colors.black.withValues(alpha: 0.2),
+      clipBehavior:
+          Clip.antiAlias, // Important : coupe le ripple pour qu'il reste rond
+      child: InkWell(
+        onTap: onTap,
+        // 2. On peut personnaliser la couleur de l'onde
+        splashColor: theme.colorScheme.primary.withValues(alpha: 0.1),
+        highlightColor: theme.colorScheme.primary.withValues(alpha: 0.05),
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Icon(icon, size: 16, color: theme.colorScheme.primary),
         ),
       ),
     );
@@ -153,14 +154,16 @@ class _StatCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.lightPrimaryForeground,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.lightPrimary.withValues(alpha: 0.1)),
+        border: Border.all(
+          color: theme.colorScheme.primary.withValues(alpha: 0.1),
+        ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.darkBackground.withValues(alpha: 0.04), 
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.04),
             blurRadius: 10,
-          )
+          ),
         ],
       ),
       child: Column(
@@ -177,18 +180,20 @@ class _StatCard extends StatelessWidget {
                 textBaseline: TextBaseline.alphabetic,
                 children: [
                   Text(
-                    card.value.toStringAsFixed(card.value.truncateToDouble() == card.value ? 0 : 1),
+                    card.value.toStringAsFixed(
+                      card.value.truncateToDouble() == card.value ? 0 : 1,
+                    ),
                     style: TextStyle(
-                      color: theme.colorScheme.primary, 
-                      fontSize: 26, 
+                      color: theme.colorScheme.primary,
+                      fontSize: 26,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    card.unit, 
+                    card.unit,
                     style: TextStyle(
-                      color: theme.colorScheme.primary, 
+                      color: theme.colorScheme.primary,
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),
@@ -199,10 +204,10 @@ class _StatCard extends StatelessWidget {
                 card.text1,
                 style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.lightMutedForeground,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                 ),
               ),
-          
+
               if (card.text2 != null) ...[
                 const SizedBox(width: 6),
                 Text(
@@ -217,7 +222,7 @@ class _StatCard extends StatelessWidget {
             ],
           ),
         ],
-      )
+      ),
     );
   }
 }

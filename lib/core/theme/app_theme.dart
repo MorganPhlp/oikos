@@ -6,13 +6,12 @@ import 'app_typography.dart';
 class AppTheme {
   const AppTheme._();
 
-  static OutlineInputBorder _border([Color color = AppColors.lightInputBorder]) => OutlineInputBorder(
-      borderRadius: BorderRadius.circular(10),
-      borderSide: BorderSide(
-        color: color,
-        width: 2,
-      ),
-    );
+  static OutlineInputBorder _border([
+    Color color = AppColors.lightInputBorder,
+  ]) => OutlineInputBorder(
+    borderRadius: BorderRadius.circular(10),
+    borderSide: BorderSide(color: color, width: 2),
+  );
 
   // --- Thème Clair ---
   static ThemeData get lightTheme {
@@ -23,21 +22,21 @@ class AppTheme {
       textTheme: AppTypography.textTheme,
 
       extensions: <ThemeExtension<dynamic>>[
-      OikosButtonTheme(
-        primaryGradient: const LinearGradient(
-          colors: [AppColors.gradientGreenStart, AppColors.gradientGreenEnd],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
+        OikosButtonTheme(
+          primaryGradient: const LinearGradient(
+            colors: [AppColors.gradientGreenStart, AppColors.gradientGreenEnd],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+          tertiaryGradient: const LinearGradient(
+            colors: [Colors.orangeAccent, Colors.orange],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+          shadowColor: AppColors.gradientGreenEnd.withValues(alpha: 0.4),
+          disabledColor: const Color.fromARGB(255, 47, 41, 41),
         ),
-        tertiaryGradient: const LinearGradient(
-          colors: [Colors.orangeAccent, Colors.orange],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
-        shadowColor: AppColors.gradientGreenEnd.withValues(alpha: 0.4),
-        disabledColor: Colors.grey.shade300,
-      ),
-    ],
+      ],
 
       // Configuration des couleurs sémantiques
       colorScheme: const ColorScheme.light(
@@ -51,9 +50,8 @@ class AppTheme {
         onSurface: AppColors.lightForeground,
         outline: AppColors.lightBorder,
         tertiary: AppColors.orange,
-        onTertiary: AppColors.lightPrimaryForeground, 
+        onTertiary: AppColors.lightPrimaryForeground,
         tertiaryContainer: Color(0xFFFFF3E0),
-
       ),
 
       // Exemple d'adaptation des composants globaux (Scaffold, AppBar)
@@ -77,7 +75,9 @@ class AppTheme {
         enabledBorder: _border(),
         focusedBorder: _border(AppColors.lightInputBorderFocused),
         errorBorder: _border(AppColors.lightDestructive),
-        hintStyle: TextStyle(color: AppColors.lightTextPrimary.withValues(alpha: 0.4)), // Texte d'indication avec opacité à 40%
+        hintStyle: TextStyle(
+          color: AppColors.lightTextPrimary.withValues(alpha: 0.4),
+        ), // Texte d'indication avec opacité à 40%
       ),
 
       // button Theme
@@ -85,7 +85,7 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           // Au lieu de screenWidth * 0.93, on utilise infinity
           // Le bouton remplira son parent, tu n'auras qu'à mettre un Padding autour
-          minimumSize: const Size(double.infinity, 25), 
+          minimumSize: const Size(double.infinity, 25),
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
           elevation: 0,
@@ -93,7 +93,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
-          ),
+        ),
       ),
     );
   }

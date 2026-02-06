@@ -19,12 +19,12 @@ class StreakWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.gradientGreenStart.withValues(alpha: 0.2),
+        color: theme.colorScheme.primary.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
@@ -41,14 +41,17 @@ class StreakWidget extends StatelessWidget {
           _CountdownBadge(
             targetDate: endSeasonDate,
             prefix: "avant fin de saison",
-            style: TextStyle(color: theme.primaryColor, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: theme.primaryColor,
+              fontWeight: FontWeight.bold,
+            ),
             icon: const Text("⏳", style: TextStyle(fontSize: 16)),
             backgroundColor: theme.primaryColor.withValues(alpha: 0.1),
             borderColor: theme.primaryColor.withValues(alpha: 0.3),
             // TODO : quand timer finit appel au bloc verifier et update UI
             onFinished: () {},
-            ),
-  
+          ),
+
           const SizedBox(height: 6),
           const _DecorativeSeparator(), // Constante : Rebuild = 0
           const SizedBox(height: 6),
@@ -57,8 +60,15 @@ class StreakWidget extends StatelessWidget {
           _CountdownBadge(
             targetDate: timeLeftBeforeLosingStreak,
             prefix: "",
-            style: TextStyle(color: theme.primaryColor, fontWeight: FontWeight.bold),
-            icon: Icon(LucideIcons.clock, size: 16, color: theme.colorScheme.tertiary),
+            style: TextStyle(
+              color: theme.primaryColor,
+              fontWeight: FontWeight.bold,
+            ),
+            icon: Icon(
+              LucideIcons.clock,
+              size: 16,
+              color: theme.colorScheme.tertiary,
+            ),
             backgroundColor: theme.colorScheme.tertiary.withValues(alpha: 0.05),
             borderColor: theme.colorScheme.tertiary.withValues(alpha: 0.2),
             // TODO : quand timer finit appel au bloc verifier et update UI
@@ -95,7 +105,7 @@ class _DecorativeSeparator extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(2),
                 gradient: LinearGradient(
-                  colors: [Colors.transparent, color.withValues(alpha:0.3)],
+                  colors: [Colors.transparent, color.withValues(alpha: 0.3)],
                 ),
               ),
             ),
@@ -106,7 +116,7 @@ class _DecorativeSeparator extends StatelessWidget {
             width: 6,
             height: 6,
             decoration: BoxDecoration(
-              color: color.withValues(alpha:0.4),
+              color: color.withValues(alpha: 0.4),
               shape: BoxShape.circle,
             ),
           ),
@@ -118,7 +128,7 @@ class _DecorativeSeparator extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(2),
                 gradient: LinearGradient(
-                  colors: [color.withValues(alpha:0.3), Colors.transparent],
+                  colors: [color.withValues(alpha: 0.3), Colors.transparent],
                 ),
               ),
             ),
@@ -128,7 +138,6 @@ class _DecorativeSeparator extends StatelessWidget {
     );
   }
 }
-
 
 class _CountdownBadge extends StatefulWidget {
   final DateTime targetDate;
@@ -161,7 +170,10 @@ class _CountdownBadgeState extends State<_CountdownBadge> {
   void initState() {
     super.initState();
     _calculateDuration();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _calculateDuration());
+    _timer = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) => _calculateDuration(),
+    );
   }
 
   void _calculateDuration() {

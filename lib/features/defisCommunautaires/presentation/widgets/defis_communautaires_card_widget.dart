@@ -17,7 +17,7 @@ class DefisCommunautairesCardWidget extends StatelessWidget {
             Text(
               "Actions Collectives",
               style: theme.textTheme.titleLarge?.copyWith(
-                color: AppColors.lightTextPrimary,
+                color: theme.colorScheme.onSecondary,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -38,7 +38,7 @@ class DefisCommunautairesCardWidget extends StatelessWidget {
           deadline: "4 jours",
           categories: ["Vélo"],
         ),
-        const SizedBox(height:12),
+        const SizedBox(height: 12),
         const _ChallengeCard(
           title: "Repas végé collectif",
           description: "Mange végétarien au moins 2 fois cette semaine",
@@ -93,12 +93,12 @@ class _ChallengeCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: theme.colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: goldColor, width: 2),
               boxShadow: [
                 BoxShadow(
-                  color: goldColor.withValues(alpha:0.1),
+                  color: goldColor.withValues(alpha: 0.1),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -115,54 +115,99 @@ class _ChallengeCard extends StatelessWidget {
                       height: 48,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [goldColor, goldColor.withValues(alpha:0.7)],
+                          colors: [goldColor, goldColor.withValues(alpha: 0.7)],
                         ),
                         shape: BoxShape.circle,
                       ),
-                      child: Center(child: Text(icon, style: const TextStyle(fontSize: 24))),
+                      child: Center(
+                        child: Text(icon, style: const TextStyle(fontSize: 24)),
+                      ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+                          Text(
+                            title,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                           const SizedBox(height: 4),
-                          Text(description, style: TextStyle(fontSize: 12, color: AppColors.lightTextPrimary.withValues(alpha:0.7))),
+                          Text(
+                            description,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.lightTextPrimary.withValues(
+                                alpha: 0.7,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                    Text("+$points pts", style: const TextStyle(color: AppColors.lightPrimary, fontWeight: FontWeight.bold)),
+                    Text(
+                      "+$points pts",
+                      style: const TextStyle(
+                        color: AppColors.lightPrimary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 12),
-      
+
                 Wrap(
                   spacing: 6,
-                  children: categories.map((cat) => _CategoryBadge(label: cat)).toList(),
+                  children: categories
+                      .map((cat) => _CategoryBadge(label: cat))
+                      .toList(),
                 ),
                 const SizedBox(height: 12),
-      
-                _ProgressBar(current: currentProgress, target: requiredPercentage),
+
+                _ProgressBar(
+                  current: currentProgress,
+                  target: requiredPercentage,
+                ),
                 const SizedBox(height: 12),
-      
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
                       children: [
-                        const Icon(LucideIcons.users, size: 12, color: Colors.grey),
+                        const Icon(
+                          LucideIcons.users,
+                          size: 12,
+                          color: Colors.grey,
+                        ),
                         const SizedBox(width: 4),
-                        Text("$activeUsers participants", style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                        Text(
+                          "$activeUsers participants",
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey,
+                          ),
+                        ),
                       ],
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
-                        color: AppColors.lightPrimary.withValues(alpha:0.1),
+                        color: AppColors.lightPrimary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: Text("$deadline restants", style: const TextStyle(fontSize: 11, color: AppColors.lightPrimary)),
+                      child: Text(
+                        "$deadline restants",
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppColors.lightPrimary,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -179,7 +224,10 @@ class _ChallengeCard extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topRight,
                   end: Alignment.bottomLeft,
-                  colors: [goldColor.withValues(alpha:0.2), Colors.transparent],
+                  colors: [
+                    goldColor.withValues(alpha: 0.2),
+                    Colors.transparent,
+                  ],
                 ),
                 borderRadius: const BorderRadius.only(
                   topRight: Radius.circular(16),
@@ -206,8 +254,14 @@ class _ProgressBar extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("$current% de participation", style: const TextStyle(fontSize: 11, color: Colors.grey)),
-            Text("Objectif: $target%", style: const TextStyle(fontSize: 11, color: Colors.grey)),
+            Text(
+              "$current% de participation",
+              style: const TextStyle(fontSize: 11, color: Colors.grey),
+            ),
+            Text(
+              "Objectif: $target%",
+              style: const TextStyle(fontSize: 11, color: Colors.grey),
+            ),
           ],
         ),
         const SizedBox(height: 4),
@@ -216,7 +270,7 @@ class _ProgressBar extends StatelessWidget {
           child: LinearProgressIndicator(
             value: current / 100,
             minHeight: 6,
-            backgroundColor: AppColors.lightTextPrimary.withValues(alpha:0.1),
+            backgroundColor: AppColors.lightTextPrimary.withValues(alpha: 0.1),
             color: AppColors.lightPrimary,
           ),
         ),
@@ -231,18 +285,24 @@ class _CategoryBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     final theme = Theme.of(context);
-    Color color = theme.colorScheme.primary; 
+    Color color = theme.colorScheme.primary;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withValues(alpha:0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha:0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
-      child: Text(label, style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.w500)),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 11,
+          color: color,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
     );
   }
 }
