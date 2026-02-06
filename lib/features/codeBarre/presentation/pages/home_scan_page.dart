@@ -42,7 +42,7 @@ class HomeScanPage extends StatelessWidget {
             const SizedBox(height: 16),
 
             const Text(
-              'Scan le code-barre de ton produit pour découvrir son impact carbone et son imapct nutritionnel.',
+              'Scan le code-barre de ton produit pour découvrir son impact carbone et son impact nutritionnel.',
               style: TextStyle(fontSize: 16, color: Colors.grey, height: 1.5),
               textAlign: TextAlign.center,
             ),
