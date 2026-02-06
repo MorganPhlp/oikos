@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lottie/lottie.dart';
+import 'package:oikos/core/theme/app_colors.dart';
 
 class HomeScanPage extends StatelessWidget {
   const HomeScanPage({super.key});
@@ -7,17 +10,14 @@ class HomeScanPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Scanner'),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        // Le bouton retour (<) est ajouté automatiquement par Flutter
-      ),
+
+
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            SizedBox(height: 60),
             // Une icône ou une image illustrative
             Container(
               padding: const EdgeInsets.all(30),
@@ -25,19 +25,24 @@ class HomeScanPage extends StatelessWidget {
                 color: Colors.green.shade50,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.qr_code_2, size: 100, color: Colors.green.shade700),
+              child: Lottie.asset(
+                'assets/animations/scan_animation.json', // <--- 2. VOTRE FICHIER JSON
+                fit: BoxFit.contain,
+                // Optionnel : contrôleurs pour répéter l'anim
+                repeat: true,
+              ),
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 20),
 
             const Text(
-              'Ajoutez vos aliments',
+              'Scan un aliment',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
 
             const Text(
-              'Scannez le code-barres de votre produit pour découvrir son impact carbone et l\'ajouter à votre bilan.',
+              'Scan le code-barre de ton produit pour découvrir son impact carbone et son imapct nutritionnel.',
               style: TextStyle(fontSize: 16, color: Colors.grey, height: 1.5),
               textAlign: TextAlign.center,
             ),
@@ -51,14 +56,14 @@ class HomeScanPage extends StatelessWidget {
                   context.push('/scan'); // On navigue vers la page caméra existante
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
+                  backgroundColor: AppColors.gradientGreenEnd,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
                 child: const Text(
-                  'Lancer le scan',
+                  'Lance le scan',
                   style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
                 ),
               ),

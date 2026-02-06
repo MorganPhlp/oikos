@@ -49,6 +49,8 @@ dependencies:
   mobile_scanner: ^6.0.4 #For QR code scanning
   http: ^1.2.0 #For making HTTP requests
   flutter_dotenv: ^6.0.0
+  font_awesome_flutter: ^10.12.0 #icons supplementaires
+  lottie: ^3.3.2  #Pour animations
 
 
 dev_dependencies:
@@ -89,6 +91,7 @@ flutter:
       - assets/streak/streak_spring1.png
       - .env
       - assets/logos/oikos_home.png
+      - assets/animations/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
