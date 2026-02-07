@@ -10,7 +10,9 @@ import 'package:oikos/features/auth/presentation/pages/update_password_page.dart
 import 'package:oikos/features/bilanCarbone/presentation/pages/bilan_flow.dart';
 import 'package:oikos/features/home/presentation/pages/home_page.dart';
 
+import 'features/codeBarre/domain/entities/aliment_entity.dart';
 import 'features/codeBarre/presentation/pages/home_scan_page.dart';
+import 'features/codeBarre/presentation/pages/product_details_page.dart';
 import 'features/codeBarre/presentation/pages/scan_page.dart';
 
 GoRouter createRouter(AppUserCubit appUserCubit) {
@@ -65,6 +67,14 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
             path: '/scan',
             name: 'scan',
             builder: (context, state) => const ScanPage(),
+          ),
+          GoRoute( //Page de resultats d'un scan
+            path: '/product_details',
+            builder: (context, state) {
+              // On récupère l'aliment passé en paramètre "extra"
+              final aliment = state.extra as AlimentEntity;
+              return ProductDetailsPage(aliment: aliment);
+            },
           ),
           GoRoute(
             path: '/dashboard',

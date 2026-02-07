@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:oikos/core/utils/show_snackbar.dart';
 import 'package:oikos/features/codeBarre/presentation/bloc/scan_bloc.dart';
@@ -47,15 +48,27 @@ class _ScanPageState extends State<ScanPage> {
       create: (_) => serviceLocator<ScanBloc>(),
       child: Scaffold(
         backgroundColor: Colors.black, // Fond noir pour éviter les flashs blancs
+
         body: BlocConsumer<ScanBloc, ScanState>(
-          listener: (context, state) {
+          listener: (context, state) async {
+
             if (state is ScanFailure) {
               showSnackBar(context, state.message);
               // On attend 2 secondes avant de relancer après une erreur
               Future.delayed(const Duration(seconds: 2), _resetScan);
-            } else if (state is ScanSuccess) {
+            }
+            else if (state is ScanSuccess) {
               controller.stop(); // On fige la caméra
-              _showProductBottomSheet(context, state);
+
+              // On navigue vers la page de détails en passant l'aliment trouvé
+              await context.push('/product_details', extra: state.aliment);
+
+              // Quand on revient de la page détails (après le "pop"), on relance le scan
+              if (mounted) {
+                context.read<ScanBloc>().add(ScanReset());
+                controller.start();
+              }
+
             }
           },
           builder: (context, state) {

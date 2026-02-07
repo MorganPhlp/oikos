@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
+import 'package:oikos/core/common/presentation/widgets/gradient_button.dart';
 import 'package:oikos/core/theme/app_colors.dart';
 
 class HomeScanPage extends StatelessWidget {
@@ -32,7 +33,7 @@ class HomeScanPage extends StatelessWidget {
                 repeat: true,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 5),
 
             const Text(
               'Scan un aliment',
@@ -43,32 +44,20 @@ class HomeScanPage extends StatelessWidget {
 
             const Text(
               'Scan le code-barre de ton produit pour découvrir son impact carbone et son impact nutritionnel.',
-              style: TextStyle(fontSize: 16, color: Colors.grey, height: 1.5),
+              style: TextStyle(fontSize: 17, color: Colors.grey, height: 1.5),
               textAlign: TextAlign.center,
             ),
-            const Spacer(),
 
-            // Le bouton qui ouvre VRAIMENT la caméra
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
+            Padding(
+              padding: const EdgeInsets.all(7.0),
+              child: GradientButton(
+                label: 'Lance le scan',
                 onPressed: () {
                   context.push('/scan'); // On navigue vers la page caméra existante
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.gradientGreenEnd,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  'Lance le scan',
-                  style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
-                ),
               ),
             ),
-            const SizedBox(height: 40),
+
           ],
         ),
       ),
