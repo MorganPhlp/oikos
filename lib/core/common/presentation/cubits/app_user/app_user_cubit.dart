@@ -10,7 +10,7 @@ class AppUserCubit extends Cubit<AppUserState> {
 
   void updateUser(User? user) {
     if (user == null) {
-      emit(AppUserInitial()); // Pour gérer la déconnexion de l'utilisateur
+      emit(AppUserUnauthenticated()); // Pour gérer la déconnexion de l'utilisateur
     } else {
       emit(
         AppUserLoggedIn(user),
