@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/common/presentation/widgets/loader.dart';
 import 'package:oikos/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pinput/pinput.dart';
-import 'package:oikos/core/theme/app_colors.dart';
+import 'package:oikos/core/theme/app_colors.dart'; // Juste pour les gradients constants
 import 'package:oikos/core/theme/app_typography.dart';
 import '../widgets/confirm_community_modal.dart';
 
@@ -42,35 +42,39 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
   @override
   void initState() {
     super.initState();
-    // Récupération du nom de l'entreprise et du logo si nécessaire
     context.read<AuthBloc>().add(AuthLoadCompanyInfo(email: widget.email));
   }
 
-  // Fonction pour valider le code communauté
   void _validateCode(String code) {
     setState(() => _errorText = null);
-
     final upperCode = code.toUpperCase();
-
-    // Déclenche l'événement pour vérifier le code communauté
     context.read<AuthBloc>().add(AuthVerifyCommunity(communityCode: upperCode));
   }
 
   @override
   Widget build(BuildContext context) {
-    // Style par défaut des cases du PIN
+    // Récupération du thème actuel
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    // Style PIN Adaptatif
     final defaultPinTheme = PinTheme(
       width: 45,
       height: 55,
-      textStyle: const TextStyle(
+      textStyle: TextStyle(
         fontSize: 20,
-        color: AppColors.lightTextPrimary,
+        // Couleur du texte dans les cases (Blanc en Dark, Noir en Light)
+        color: colorScheme.onSurface,
         fontWeight: FontWeight.w600,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        // Couleur de fond des cases (récupérée du inputDecorationTheme défini dans AppTheme)
+        color: theme.inputDecorationTheme.fillColor,
         border: Border.all(
-          color: AppColors.lightInputBorderFocused.withValues(alpha: 0.3),
+          // Bordure subtile
+          color:
+              theme.inputDecorationTheme.enabledBorder?.borderSide.color ??
+              colorScheme.outline.withValues(alpha: 0.3),
           width: 2,
         ),
         borderRadius: BorderRadius.circular(12),
@@ -78,17 +82,18 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
     );
 
     final focusedPinTheme = defaultPinTheme.copyDecorationWith(
-      border: Border.all(color: AppColors.lightInputBorderFocused, width: 2),
+      border: Border.all(
+        color: colorScheme.primary,
+        width: 2,
+      ), // Bordure verte au focus
     );
 
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
-        // Gérer les états de succès ou d'erreur ici si nécessaire
         if (state is AuthFailure) {
           setState(() => _errorText = state.message);
         }
 
-        // L'entreprise a été chargée avec succès
         if (state is AuthCompanyInfoLoaded) {
           setState(() {
             _companyName = state.companyName;
@@ -96,21 +101,15 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
           });
         }
 
-        // Le code communauté a été vérifié avec succès
         if (state is AuthCommunityVerified) {
           showDialog(
             context: context,
             barrierDismissible: false,
             builder: (dialogContext) => ConfirmCommunityModal(
               communityName: state.communityName,
-              communityIcon:
-                  _companyLogoUrl ??
-                  '', // Utilise le logo de l'entreprise si disponible
+              communityIcon: _companyLogoUrl ?? '',
               onConfirm: () {
-                // Ferme la modale
                 Navigator.popUntil(dialogContext, (route) => route.isFirst);
-
-                // Déclenche l'événement d'inscription avec le context de la page
                 context.read<AuthBloc>().add(
                   AuthSignUp(
                     email: widget.email,
@@ -121,19 +120,16 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
                 );
               },
               onCancel: () {
-                Navigator.pop(dialogContext); // Ferme la modale
-                _pinController.clear(); // Réinitialise le champ de saisie
+                Navigator.pop(dialogContext);
+                _pinController.clear();
               },
             ),
           );
         }
-
-        // L'inscription est réussie - la navigation est gérée automatiquement par main.dart
-        // Le BlocSelector détecte AppUserLoggedIn et affiche BilanPage
       },
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: AppColors.lightBackground,
+          // Utilise le fond par défaut du thème (darkBackground ou lightBackground)
           body: Stack(
             children: [
               SafeArea(
@@ -145,7 +141,7 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
                       Image.asset('assets/logos/oikos_logo.png', height: 60),
                       const SizedBox(height: 20),
 
-                      // Carte Entreprise (Facultatif, selon la maquette)
+                      // Carte Entreprise
                       if (_companyName != null)
                         Container(
                           padding: const EdgeInsets.all(16),
@@ -153,14 +149,17 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
                             gradient: LinearGradient(
                               colors: [
                                 AppColors.gradientGreenStart.withValues(
-                                  alpha: 0.3,
-                                ),
+                                  alpha: 0.2,
+                                ), // Transparence pour blending
                                 AppColors.gradientGreenEnd.withValues(
-                                  alpha: 0.3,
+                                  alpha: 0.2,
                                 ),
                               ],
                             ),
                             borderRadius: BorderRadius.circular(15),
+                            border: Border.all(
+                              color: colorScheme.primary.withValues(alpha: 0.3),
+                            ),
                           ),
                           child: Row(
                             children: [
@@ -170,16 +169,18 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
                                   Text(
                                     "Entreprise détectée",
                                     style: TextStyle(
-                                      color: AppColors.lightTextPrimary
-                                          .withValues(alpha: 0.6),
+                                      color: colorScheme.onSurface.withValues(
+                                        alpha: 0.6,
+                                      ),
                                       fontSize: 12,
                                     ),
                                   ),
                                   Text(
                                     _companyName!,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16,
+                                      color: colorScheme.onSurface,
                                     ),
                                   ),
                                 ],
@@ -190,7 +191,7 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
 
                       const SizedBox(height: 40),
 
-                      // Icône Sparkles (si pas logo) ou logo entreprise
+                      // Icône centrale
                       Container(
                         width: 80,
                         height: 80,
@@ -204,10 +205,11 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
                               AppColors.gradientGreenEnd,
                             ],
                           ),
+                          // Ombre plus discrète en dark mode (optionnel)
                           boxShadow: [
                             BoxShadow(
                               blurRadius: 10,
-                              color: Colors.black12,
+                              color: Colors.black26,
                               offset: Offset(0, 4),
                             ),
                           ],
@@ -223,7 +225,7 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
                                         (context, error, stackTrace) =>
                                             const Icon(
                                               Icons.business,
-                                              color: AppColors.lightTextPrimary,
+                                              color: Colors.white,
                                               size: 40,
                                             ),
                                   ),
@@ -240,7 +242,9 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
 
                       Text(
                         "Rejoignez votre communauté",
-                        style: AppTypography.h2,
+                        style: AppTypography.h2.copyWith(
+                          color: colorScheme.onSurface,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 10),
@@ -248,9 +252,7 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
                         "Saisissez le code fourni par votre administrateur pour rejoindre votre équipe",
                         textAlign: TextAlign.center,
                         style: AppTypography.body.copyWith(
-                          color: AppColors.lightTextPrimary.withValues(
-                            alpha: 0.7,
-                          ),
+                          color: colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
                       ),
 
@@ -260,7 +262,7 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
                         "Code communauté",
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
-                          color: AppColors.lightTextPrimary,
+                          color: colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -281,27 +283,31 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
                         },
                       ),
 
+                      // Zone d'erreur adaptative
                       if (_errorText != null) ...[
                         const SizedBox(height: 20),
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Colors.red.shade50,
-                            border: Border.all(color: Colors.red.shade200),
+                            // Utilise errorContainer pour un fond rouge adapté (clair ou sombre)
+                            color: colorScheme.errorContainer,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
                             children: [
                               Icon(
                                 Icons.error_outline,
-                                color: Colors.red.shade500,
+                                // Texte sur le container d'erreur
+                                color: colorScheme.onErrorContainer,
                                 size: 20,
                               ),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   _errorText!,
-                                  style: TextStyle(color: Colors.red.shade700),
+                                  style: TextStyle(
+                                    color: colorScheme.onErrorContainer,
+                                  ),
                                 ),
                               ),
                             ],
@@ -315,22 +321,26 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: AppColors.gradientGreenStart.withValues(
-                            alpha: 0.2,
-                          ),
+                          // Fond subtil basé sur la couleur primaire
+                          color: colorScheme.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.info_outline,
-                              color: AppColors.lightIconPrimary,
+                              color: colorScheme.primary,
                             ),
                             const SizedBox(width: 12),
-                            const Expanded(
+                            Expanded(
                               child: Text(
                                 "Vous n'avez pas de code ? Contactez l'administrateur de votre entreprise.",
-                                style: TextStyle(fontSize: 13),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: colorScheme.onSurface.withValues(
+                                    alpha: 0.8,
+                                  ),
+                                ),
                               ),
                             ),
                           ],
@@ -341,7 +351,6 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
                 ),
               ),
 
-              // Loader par-dessus le contenu si en chargement
               if (state is AuthLoading) const Loader(),
             ],
           ),

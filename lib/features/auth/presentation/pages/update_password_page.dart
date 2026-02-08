@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/core/theme/app_typography.dart';
 import 'package:oikos/features/auth/presentation/widgets/auth_field.dart';
 import 'package:oikos/features/auth/presentation/widgets/auth_primary_button.dart';
@@ -24,7 +23,6 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
   String? _message;
   bool _isSuccess = false;
 
-  // Gestion de la visibilité des mots de passe (caché par défaut)
   bool _isObscured1 = true;
   bool _isObscured2 = true;
 
@@ -35,8 +33,9 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
     super.initState();
     _checkInitialSession();
 
-    // Écoute des changements (pour le lien magique)
-    _authSubscription = Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+    _authSubscription = Supabase.instance.client.auth.onAuthStateChange.listen((
+      data,
+    ) {
       if (data.session != null && mounted) {
         setState(() {
           _isSessionValid = true;
@@ -45,7 +44,6 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
       }
     });
 
-    // Timeout de sécurité (5s)
     Timer(const Duration(seconds: 5), () {
       if (mounted && _isCheckingSession) {
         setState(() => _isCheckingSession = false);
@@ -87,7 +85,9 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
         _message = "Votre mot de passe a été mis à jour avec succès !";
       });
     } catch (e) {
-      setState(() => _message = "Erreur : Impossible de modifier le mot de passe.");
+      setState(
+        () => _message = "Erreur : Impossible de modifier le mot de passe.",
+      );
     } finally {
       setState(() => _isLoading = false);
     }
@@ -95,33 +95,45 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      // Le scaffold prend la couleur de fond par défaut du thème
       body: Center(
         child: SingleChildScrollView(
           child: Container(
             constraints: const BoxConstraints(maxWidth: 450),
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+            margin: const EdgeInsets.all(20), // Marge pour petits écrans
             decoration: BoxDecoration(
-              color: Colors.white,
+              // Couleur de la "carte" : Surface (Blanc en Light, Gris sombre en Dark)
+              color: colorScheme.surface,
               borderRadius: BorderRadius.circular(20),
-              // Petite ombre légère pour le style carte
+              // Ombre légère, surtout utile en mode Light
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
-                )
+                ),
               ],
+              // Bordure subtile en mode Dark pour détacher la carte du fond
+              border: Theme.of(context).brightness == Brightness.dark
+                  ? Border.all(
+                      color: colorScheme.outline.withValues(alpha: 0.2),
+                    )
+                  : null,
             ),
-            child: _buildContent(),
+            child: _buildContent(context),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     // 1. CAS : SUCCÈS
     if (_isSuccess) {
       return Column(
@@ -130,28 +142,33 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.lightPrimary.withValues(alpha: 0.1),
+              color: colorScheme.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.check, color: AppColors.lightPrimary, size: 40),
+            child: Icon(Icons.check, color: colorScheme.primary, size: 40),
           ),
           const SizedBox(height: 24),
           Text(
             "C'est tout bon !",
-            style: AppTypography.h2.copyWith(color: AppColors.lightPrimary),
+            style: AppTypography.h2.copyWith(color: colorScheme.primary),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
           Text(
             _message!,
             textAlign: TextAlign.center,
-            style: AppTypography.body.copyWith(color: Colors.grey[600]),
+            style: AppTypography.body.copyWith(
+              color: colorScheme.onSurface.withValues(alpha: 0.7),
+            ),
           ),
           const SizedBox(height: 30),
-          const Text(
+          Text(
             "Vous pouvez fermer cette page et retourner sur l'application.",
             textAlign: TextAlign.center,
-            style: TextStyle(fontWeight: FontWeight.w500),
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+              color: colorScheme.onSurface,
+            ),
           ),
         ],
       );
@@ -162,11 +179,13 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const CircularProgressIndicator(color: AppColors.lightPrimary),
+          CircularProgressIndicator(color: colorScheme.primary),
           const SizedBox(height: 24),
           Text(
             "Vérification du lien...",
-            style: AppTypography.body.copyWith(color: Colors.grey),
+            style: AppTypography.body.copyWith(
+              color: colorScheme.onSurface.withValues(alpha: 0.6),
+            ),
           ),
         ],
       );
@@ -177,26 +196,27 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.link_off, color: Colors.redAccent, size: 50),
+          Icon(Icons.link_off, color: colorScheme.error, size: 50),
           const SizedBox(height: 20),
           Text(
             "Lien expiré",
-            style: AppTypography.h2.copyWith(color: Colors.redAccent),
+            style: AppTypography.h2.copyWith(color: colorScheme.error),
           ),
           const SizedBox(height: 12),
           Text(
             "Ce lien de réinitialisation n'est plus valide ou a déjà été utilisé.",
             textAlign: TextAlign.center,
-            style: AppTypography.body.copyWith(color: Colors.grey[600]),
+            style: AppTypography.body.copyWith(
+              color: colorScheme.onSurface.withValues(alpha: 0.7),
+            ),
           ),
           const SizedBox(height: 20),
           OutlinedButton(
             onPressed: () {
-              // Redirection optionnelle vers la racine ou intro
-              // context.go('/');
+              // Action
             },
             child: const Text("Refaire une demande sur l'app"),
-          )
+          ),
         ],
       );
     }
@@ -212,32 +232,43 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
             child: Image.asset(
               'assets/logos/oikos_logo.png',
               height: 50,
-              errorBuilder: (c, o, s) => Text("Oîkos", style: AppTypography.h1.copyWith(color: AppColors.lightPrimary)),
+              // Fallback texte si l'image foire
+              errorBuilder: (c, o, s) => Text(
+                "Oîkos",
+                style: AppTypography.h1.copyWith(color: colorScheme.primary),
+              ),
             ),
           ),
           const SizedBox(height: 40),
 
           Text(
             "Nouveau mot de passe",
-            style: AppTypography.h2.copyWith(fontSize: 24),
+            style: AppTypography.h2.copyWith(
+              fontSize: 24,
+              color: colorScheme.onSurface,
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
             "Choisissez un mot de passe sécurisé pour protéger votre compte.",
-            style: AppTypography.body.copyWith(color: Colors.grey[600]),
+            style: AppTypography.body.copyWith(
+              color: colorScheme.onSurface.withValues(alpha: 0.6),
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 30),
 
-          // Champ 1 : Mot de passe
-          Text("Mot de passe", style: AppTypography.body),
+          // Champ 1
+          Text(
+            "Mot de passe",
+            style: AppTypography.body.copyWith(color: colorScheme.onSurface),
+          ),
           const SizedBox(height: 8),
           AuthField(
             controller: _passwordController,
             hintText: "6 caractères minimum",
             prefixIcon: Icons.lock_outline,
-            // Configuration identique à SignInPage
             isPassword: true,
             isObscured: _isObscured1,
             onToggleVisibility: () {
@@ -246,21 +277,25 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
               });
             },
             validator: (val) {
-              if (val == null || val.length < 6) return "Le mot de passe est trop court";
+              if (val == null || val.length < 6){
+                return "Le mot de passe est trop court";
+              }
               return null;
             },
           ),
 
           const SizedBox(height: 20),
 
-          // Champ 2 : Confirmation
-          Text("Confirmer le mot de passe", style: AppTypography.body),
+          // Champ 2
+          Text(
+            "Confirmer le mot de passe",
+            style: AppTypography.body.copyWith(color: colorScheme.onSurface),
+          ),
           const SizedBox(height: 8),
           AuthField(
             controller: _confirmPasswordController,
             hintText: "Répétez le mot de passe",
             prefixIcon: Icons.lock_outline,
-            // Configuration identique à SignInPage
             isPassword: true,
             isObscured: _isObscured2,
             onToggleVisibility: () {
@@ -269,7 +304,9 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
               });
             },
             validator: (val) {
-              if (val != _passwordController.text) return "Les mots de passe ne correspondent pas";
+              if (val != _passwordController.text){
+                return "Les mots de passe ne correspondent pas";
+              }
               return null;
             },
           ),
@@ -280,14 +317,24 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.red.shade50,
+                color: colorScheme.errorContainer,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.red.shade200),
               ),
-              child: Text(
-                _message!,
-                style: const TextStyle(color: Colors.red),
-                textAlign: TextAlign.center,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    color: colorScheme.onErrorContainer,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      _message!,
+                      style: TextStyle(color: colorScheme.onErrorContainer),
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 20),

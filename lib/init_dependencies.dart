@@ -72,7 +72,7 @@ Future<void> initDependencies() async {
     url: AppSecrets.supabaseUrl,
     anonKey: AppSecrets.supabaseAnonKey,
     authOptions: FlutterAuthClientOptions(
-      authFlowType: AuthFlowType.implicit, // Pour éviter les problèmes de redirection sur le web, on utilise le flow implicite qui gère tout côté client. C'est plus simple et sécurisé pour une application Flutter.
+      authFlowType: kIsWeb ? AuthFlowType.implicit : AuthFlowType.pkce, // Pour éviter les problèmes de redirection sur le web, on utilise le flow implicite qui gère tout côté client. C'est plus simple et sécurisé pour une application Flutter.
     ),
   );
   serviceLocator.registerLazySingleton<SupabaseClient>(() => supabase.client);

@@ -47,7 +47,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
        _userSignOut = userSignOut,
        _resetPassword = resetPassword,
        super(AuthInitial()) {
-    // Suppression du handler global qui causait les bugs de chargement et d'erreurs
+
+    on<AuthResetState>((event, emit) => emit(AuthInitial()));
     on<AuthSignUp>(_onAuthSignUp);
     on<AuthSignIn>(_onAuthSignIn);
     on<AuthIsUserLoggedIn>(_onAuthIsUserLoggedIn);

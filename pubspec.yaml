@@ -89,7 +89,6 @@ flutter:
       - assets/data/rules.json
       - assets/documents/
       - assets/streak/streak_spring1.png
-      - .env
       - assets/logos/oikos_home.png
       - assets/animations/
 

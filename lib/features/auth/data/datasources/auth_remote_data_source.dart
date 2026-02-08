@@ -91,6 +91,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       };
       return UserModel.fromJson(mergedData);
     } catch (e) {
+      await supabaseClient.auth.signOut(); // On s'assure de se déconnecter en cas d'erreur pour éviter les sessions fantômes
       throw ServerException(e.toString());
     }
   }

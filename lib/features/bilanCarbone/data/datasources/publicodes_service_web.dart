@@ -9,8 +9,7 @@ class PublicodesService implements SimulationRepository {
 
   @override
   Future<void> init() async {
-    // On log juste pour le debug, mais on ne charge rien.
-    print('⚠️ PublicodesService (Web): Moteur désactivé. Mode Web détecté.');
+    // On ne charge rien.
     return;
   }
 

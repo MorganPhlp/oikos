@@ -26,6 +26,8 @@ final class AuthSignIn extends AuthEvent {
 
 final class AuthIsUserLoggedIn extends AuthEvent {}
 
+final class AuthResetState extends AuthEvent {}
+
 final class AuthLoadCompanyInfo extends AuthEvent {
   final String email;
 
