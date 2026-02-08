@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:oikos/core/common/presentation/widgets/gradient_button.dart';
 import 'package:oikos/core/theme/app_colors.dart';
 
 class ResumeBilanDialog extends StatelessWidget {
@@ -67,95 +68,28 @@ class ResumeBilanDialog extends StatelessWidget {
             // Boutons
             Column(
               children: [
-                // Bouton "Oui, reprendre"
-                _buildActionButton(
-                  context: context,
+                GradientButton(
                   label: "Oui, reprendre",
-                  isPrimary: true,
                   onPressed: () {
                     Navigator.of(context).pop();
                     onResume();
                   },
-                  size: size,
                 ),
+                
                 SizedBox(height: size.height * 0.015),
 
-                // Bouton "Non, recommencer"
-                _buildActionButton(
-                  context: context,
+                // Bouton "Non, recommencer" (Passage en Orange/Tertiaire)
+                GradientButton(
                   label: "Non, recommencer",
-                  isPrimary: false,
+                  isSecondary: true,
                   onPressed: () {
                     Navigator.of(context).pop();
                     onRestart();
                   },
-                  size: size,
                 ),
               ],
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionButton({
-    required BuildContext context,
-    required String label,
-    required bool isPrimary,
-    required VoidCallback onPressed,
-    required Size size,
-  }) {
-    final isSmallScreen = size.width < 360;
-
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: isPrimary
-            ? const LinearGradient(
-                colors: [
-                  AppColors.gradientGreenStart,
-                  AppColors.gradientGreenEnd,
-                ],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              )
-            : null,
-        border: isPrimary
-            ? null
-            : Border.all(color: AppColors.gradientGreenEnd, width: 2),
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: isPrimary
-            ? [
-                BoxShadow(
-                  color: AppColors.gradientGreenEnd.withValues(alpha: 0.3),
-                  spreadRadius: -2,
-                  blurRadius: 10,
-                  offset: const Offset(0, 6),
-                ),
-              ]
-            : [],
-      ),
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          fixedSize: Size(double.infinity, isSmallScreen ? 48 : 55),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-          backgroundColor: isPrimary ? Colors.transparent : Colors.transparent,
-          shadowColor: Colors.transparent,
-          elevation: 0,
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isPrimary
-                ? AppColors.lightTextPrimary
-                : AppColors.gradientGreenEnd,
-            fontWeight: FontWeight.w600,
-            fontSize: isSmallScreen ? 14 : 16,
-          ),
         ),
       ),
     );

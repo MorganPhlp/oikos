@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:oikos/core/common/presentation/widgets/gradient_button.dart';
-import 'package:oikos/core/theme/app_colors.dart';
 
 class HomeScanPage extends StatelessWidget {
   const HomeScanPage({super.key});

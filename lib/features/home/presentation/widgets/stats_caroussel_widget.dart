@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/features/home/domain/entities/stats_cards_entitie.dart';
 
 class StatsCarousselWidget extends StatefulWidget {
@@ -43,7 +42,7 @@ class _StatsCarousselWidgetState extends State<StatsCarousselWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    Theme.of(context);
 
     return Column(
       children: [

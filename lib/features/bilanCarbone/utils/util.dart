@@ -27,6 +27,8 @@ Map<String, dynamic> formaterPourSimulation(
       }
       return situation;
     } catch (e) {
+      throw FormatException(
+          'Valeur pour choix multiple doit être une liste ou un JSON de liste');
     }
   }
   // --- CAS 2 : COMPTEUR (Map JSON) ---
@@ -43,6 +45,8 @@ Map<String, dynamic> formaterPourSimulation(
       });
       return situation;
     } catch (e) {
+      throw FormatException(
+          'Valeur pour compteur doit être une map ou un JSON de map');
     }
   }
   // --- CAS 3 : VALEURS CLASSIQUES (Nombre ou Texte) ---

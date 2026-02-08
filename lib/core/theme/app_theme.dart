@@ -30,13 +30,15 @@ class AppTheme {
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
+          secondaryGradient: Colors.transparent, // Pas de gradient pour les boutons secondaires, juste une couleur unie
           tertiaryGradient: const LinearGradient(
             colors: [Colors.orangeAccent, Colors.orange],
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
           shadowColor: AppColors.gradientGreenEnd.withValues(alpha: 0.4),
-          disabledColor: const Color.fromARGB(255, 47, 41, 41),
+          tertiaryShadowColor: Colors.orange.withValues(alpha: 0.4), 
+          disabledColor: Colors.grey.shade300,
         ),
       ],
 
@@ -104,13 +106,15 @@ class AppTheme {
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
+          secondaryGradient: Colors.transparent, // Pas de gradient pour les boutons secondaires, juste une couleur unie
           tertiaryGradient: const LinearGradient(
             colors: [Colors.orangeAccent, Colors.orange],
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
 
-          shadowColor: Colors.black.withValues(alpha: 0.5),
+          shadowColor: Colors.black.withValues(alpha: 0.2),
+          tertiaryShadowColor: Colors.orange.withValues(alpha: 0.2),
           disabledColor: AppColors.darkMuted,
         ),
       ],

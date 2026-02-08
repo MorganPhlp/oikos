@@ -196,7 +196,7 @@ class _BilanPageState extends State<BilanPage> {
               Positioned(
                 right: 0,
                 child: _buildTextLink(
-                  "Terminer Maintenant",
+                  "Terminer",
                   () => _confirmSkip(context),
                   size,
                   color: deepeningColor,
@@ -298,7 +298,7 @@ class _BilanPageState extends State<BilanPage> {
               ),
               icon: Icon(Icons.chevron_left, color: colorScheme.onSurface),
               style: IconButton.styleFrom(
-                side: BorderSide(color: colorScheme.primary, width: 2),
+                side: BorderSide(color: !state.isDeepening ? colorScheme.primary : colorScheme.tertiary, width: 2),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -309,6 +309,7 @@ class _BilanPageState extends State<BilanPage> {
             Expanded(
               child: GradientButton(
                 label: state.index == state.total ? "Terminer" : "Suivant >",
+                isTertiary: state.isDeepening,
                 disabled:
                     !_isAnswerValid &&
                     state.question.typeWidget != TypeWidget.slider,

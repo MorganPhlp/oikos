@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:oikos/core/theme/app_colors.dart';
 
 class OikosSelectionButton extends StatelessWidget {
   final String label;
@@ -29,11 +28,11 @@ class OikosSelectionButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
           decoration: BoxDecoration(
             color: isSelected 
-                ? AppColors.gradientGreenEnd.withValues(alpha: 0.1) 
+                ? Theme.of(context).colorScheme.primary.withAlpha(25) 
                 : Colors.transparent,
             border: Border.all(
               color: isSelected 
-                  ? AppColors.gradientGreenEnd 
+                  ? Theme.of(context).colorScheme.primary 
                   : Theme.of(context).colorScheme.outline,
               width: isSelected ? 2.0 : 1.0,
             ),
@@ -65,9 +64,9 @@ class OikosSelectionButton extends StatelessWidget {
                 ),
               ),
               if (isSelected)
-                const Padding(
-                  padding: EdgeInsets.only(left: 12.0),
-                  child: Icon(Icons.check_circle, color: AppColors.gradientGreenEnd, size: 24),
+                Padding(
+                  padding: const EdgeInsets.only(left: 12.0),
+                  child: Icon(Icons.check_circle, color: Theme.of(context).colorScheme.primary, size: 24),
                 ),
             ],
           ),

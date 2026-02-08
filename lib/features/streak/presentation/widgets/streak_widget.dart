@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:oikos/core/theme/app_colors.dart';
 
 class StreakWidget extends StatelessWidget {
   final DateTime endSeasonDate;
