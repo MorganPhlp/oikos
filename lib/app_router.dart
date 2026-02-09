@@ -8,7 +8,6 @@ import 'package:oikos/core/common/presentation/widgets/navbar.dart';
 import 'package:oikos/features/auth/presentation/pages/intro_page.dart';
 import 'package:oikos/features/auth/presentation/pages/update_password_page.dart';
 import 'package:oikos/features/bilanCarbone/presentation/pages/bilan_flow.dart';
-import 'package:oikos/features/dashboard/presentation/pages/home_page.dart' hide HomePage;
 import 'package:oikos/features/community/presentation/pages/community_dashboard_screen.dart';
 
 import 'package:oikos/features/home/presentation/pages/home_page.dart';

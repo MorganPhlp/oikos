@@ -6,7 +6,6 @@ import 'package:oikos/app_router.dart';
 import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:oikos/features/dashboard/presentation/bloc/home_bloc.dart';
 import 'package:oikos/init_dependencies.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -21,7 +20,6 @@ void main() async {
       providers: [
         BlocProvider(create: (_) => serviceLocator<AppUserCubit>()),
         BlocProvider(create: (_) => serviceLocator<AuthBloc>()),
-        BlocProvider(create: (_) => serviceLocator<HomeBloc>()),
       ],
       child: const MyApp(),
     ),
