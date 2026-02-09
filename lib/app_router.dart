@@ -8,7 +8,11 @@ import 'package:oikos/core/common/presentation/widgets/navbar.dart';
 import 'package:oikos/features/auth/presentation/pages/intro_page.dart';
 import 'package:oikos/features/auth/presentation/pages/update_password_page.dart';
 import 'package:oikos/features/bilanCarbone/presentation/pages/bilan_flow.dart';
+import 'package:oikos/features/dashboard/presentation/pages/home_page.dart' hide HomePage;
+import 'package:oikos/features/community/presentation/pages/community_dashboard_screen.dart';
+
 import 'package:oikos/features/home/presentation/pages/home_page.dart';
+import 'package:oikos/features/profile/presentation/pages/profile_page.dart';
 
 import 'features/codeBarre/domain/entities/aliment_entity.dart';
 import 'features/codeBarre/presentation/pages/home_scan_page.dart';
@@ -33,6 +37,11 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
         builder: (context, state) => const IntroPage(),
       ),
       GoRoute(
+        path: '/profile',
+        name: 'profile',
+        builder: (context, state) => const ProfilePage(),
+      ),
+      GoRoute(
         path: '/pdf',
         name: 'pdf_viewer',
         builder: (context, state) {
@@ -48,6 +57,7 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
         name: 'reset-password',
         builder: (context, state) => const UpdatePasswordPage(),
       ),
+
       ShellRoute(
         builder: (context, state, child) =>
             Scaffold(body: child, bottomNavigationBar: const OikosNavBar()),
@@ -81,6 +91,11 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
             name: 'dashboard',
             builder: (context, state) => const Placeholder(),
           ),
+            GoRoute(
+          path: '/community',
+          name: 'community',
+          builder: (context, state) => const CommunityDashboardScreen(),
+        ),
         ],
       ),
     ],

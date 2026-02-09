@@ -60,3 +60,12 @@ final class AuthResetPassword extends AuthEvent {
 
   AuthResetPassword({required this.email});
 }
+
+final class AuthUpdateUser extends AuthEvent {
+  final String? pseudo;
+  final String? avatar;
+
+  AuthUpdateUser({this.pseudo, this.avatar});
+}
+
+final class AuthDeleteAccount extends AuthEvent {}

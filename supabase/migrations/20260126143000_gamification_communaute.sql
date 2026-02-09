@@ -1,0 +1,28 @@
+-- Ajout des colonnes Gamification à la table Utilisateur
+alter table utilisateur 
+add column if not exists impact_stats text default '-0kg',                 -- ex: "-89kg"
+add column if not exists actions_count int default 0,                      -- ex: 45
+add column if not exists streak_days int default 0;                        -- ex: 12
+
+-- Mise à jour de la Vue Classement
+create or replace view vue_user_ranking as
+select 
+  u.id as user_id,
+  u.pseudo as username,
+  u.impact_score_xp as total_xp,
+  u.code_communaute,
+  u.impact_stats,
+  u.actions_count,
+  u.streak_days,
+  rank() over (partition by u.code_communaute order by u.impact_score_xp desc) as rank
+from utilisateur u;
+
+-- Mise à jour de la Vue classement de communauté
+create or replace view vue_community_ranking as
+select
+  c.code as community_code,
+  c.nom as community_name,
+  c.plant_xp as total_xp,
+  c.entreprise_id as entreprise_id,
+  rank() over (PARTITION BY entreprise_id order by c.plant_xp desc) as rank
+from communaute c;

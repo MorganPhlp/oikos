@@ -4,6 +4,8 @@ CREATE TABLE IF NOT EXISTS communaute (
     entreprise_id UUID,
     description TEXT,
     couleurHEX VARCHAR(7) NOT NULL,
+    plant_xp INT DEFAULT 0,
+    total_carbon_saved FLOAT DEFAULT 0,
 
     CONSTRAINT fk_entreprise
         FOREIGN KEY (entreprise_id)

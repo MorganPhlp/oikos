@@ -15,6 +15,9 @@ ON CONFLICT (nom) DO NOTHING;
 INSERT INTO entreprise (nom, description, domaine_email, logo_url) VALUES
 ('Viveris', 'Entreprise de services du numérique', 'viveris.fr', 'viveris_logo.png')
 ON CONFLICT DO NOTHING;
+INSERT INTO entreprise (id, nom, description, domaine_email, logo_url) VALUES 
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'Oîkos Demo Corp', 'Entreprise fictive pour démonstration', 'oikos-demo.com', 'oikos_demo_logo.png')
+ON CONFLICT (id) DO NOTHING;
 
 -- 3. Communauté
 INSERT INTO communaute (code, nom, entreprise_id, description, couleurHEX) VALUES

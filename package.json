@@ -3,7 +3,9 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.95.2",
     "dotenv": "^17.2.3",
-    "publicodes": "^1.9.1",
-    "supabase": "^2.72.4"
+    "publicodes": "^1.9.1"
+  },
+  "devDependencies": {
+    "supabase": "^2.75.3"
   }
 }
