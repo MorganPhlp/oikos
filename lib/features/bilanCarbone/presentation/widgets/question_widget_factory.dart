@@ -75,7 +75,6 @@ class QuestionWidgetFactory extends StatelessWidget {
             : 0;
 
         return QuestionNumberWrapper(
-          key: ValueKey(question.slug),
           question: question,
           initialValue: val,
           onValidSubmit: (newValue) => onLocalChange(newValue),

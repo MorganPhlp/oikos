@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/common/cubits/app_user/app_user_cubit.dart';
-import 'package:oikos/core/common/entities/user.dart';
+import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
 import 'package:oikos/features/auth/domain/usecases/current_user.dart';
+import 'package:oikos/features/auth/domain/usecases/delete_account.dart';
+import 'package:oikos/features/auth/domain/usecases/reset_password.dart';
+import 'package:oikos/features/auth/domain/usecases/update_user.dart';
 import 'package:oikos/features/auth/domain/usecases/user_signin.dart';
+import 'package:oikos/features/auth/domain/usecases/user_signout.dart';
 import 'package:oikos/features/auth/domain/usecases/user_signup.dart';
 import 'package:oikos/features/auth/domain/usecases/validate_email_password.dart';
 import 'package:oikos/features/auth/domain/usecases/validate_pseudo.dart';
@@ -22,6 +26,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository _authRepository;
   final ValidateEmailPassword _validateEmailPassword;
   final ValidatePseudo _validatePseudo;
+  final UserSignOut _userSignOut;
+  final ResetPassword _resetPassword;
+  final UpdateUser _updateUser;
+  final DeleteAccount _deleteAccount;
 
   AuthBloc({
     required UserSignup userSignup,
@@ -31,6 +39,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required AuthRepository authRepository,
     required ValidateEmailPassword validateEmailPassword,
     required ValidatePseudo validatePseudo,
+    required UserSignOut userSignOut,
+    required ResetPassword resetPassword,
+    required UpdateUser updateUser,
+    required DeleteAccount deleteAccount,
   }) : _userSignin = userSignin,
        _userSignup = userSignup,
        _currentUser = currentUser,
@@ -38,8 +50,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
        _authRepository = authRepository,
        _validateEmailPassword = validateEmailPassword,
        _validatePseudo = validatePseudo,
+       _userSignOut = userSignOut,
+       _resetPassword = resetPassword,
+       _updateUser = updateUser,
+       _deleteAccount = deleteAccount,
        super(AuthInitial()) {
-    // Suppression du handler global qui causait les bugs de chargement et d'erreurs
+
+    on<AuthResetState>((event, emit) => emit(AuthInitial()));
     on<AuthSignUp>(_onAuthSignUp);
     on<AuthSignIn>(_onAuthSignIn);
     on<AuthIsUserLoggedIn>(_onAuthIsUserLoggedIn);
@@ -47,6 +64,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthLoadCompanyInfo>(_onAuthLoadCompanyInfo);
     on<AuthValidateEmailPassword>(_onAuthValidateEmailPassword);
     on<AuthValidatePseudo>(_onAuthValidatePseudo);
+    on<AuthSignOut>(_onAuthSignOut);
+    on<AuthResetPassword>(_onAuthResetPassword);
+    on<AuthUpdateUser>(_onAuthUpdateUser);
+    on<AuthDeleteAccount>(_onAuthDeleteAccount);
   }
 
   void _onAuthIsUserLoggedIn(
@@ -77,6 +98,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (failure) => emit(AuthFailure(failure.message)),
       (user) => _emitAuthSuccess(user, emit),
     );
+  }
+
+  void _onAuthSignOut(AuthSignOut event, Emitter<AuthState> emit) async {
+    final res = await _userSignOut(NoParams());
+    res.fold((l) => emit(AuthFailure(l.message)), (r) {
+      //on vide le Cubit Utilisateur
+      // Le Router va détecter le changement et rediriger vers '/'
+      _appUserCubit.updateUser(null);
+      emit(AuthInitial());
+    });
   }
 
   void _onAuthSignIn(AuthSignIn event, Emitter<AuthState> emit) async {
@@ -131,10 +162,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
 
     final res = await _validateEmailPassword(
-      ValidateEmailPasswordParams(
-        email: event.email,
-        password: event.password,
-      ),
+      ValidateEmailPasswordParams(email: event.email, password: event.password),
     );
 
     res.fold(
@@ -153,6 +181,52 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     res.fold(
       (failure) => emit(AuthFailure(failure.message)),
       (_) => emit(AuthPseudoVerified()),
+    );
+  }
+
+  void _onAuthResetPassword(
+    AuthResetPassword event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+    final res = await _resetPassword(event.email);
+
+    res.fold(
+      (failure) => emit(AuthFailure(failure.message)),
+      (_) => emit(AuthPasswordResetSent()),
+    );
+  }
+
+  void _onAuthUpdateUser(
+    AuthUpdateUser event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+    final res = await _updateUser(
+      UpdateUserParams(pseudo: event.pseudo, avatar: event.avatar),
+    );
+
+    res.fold(
+      (failure) => emit(AuthFailure(failure.message)),
+      (user) => _emitAuthSuccess(user, emit),
+    );
+  }
+
+  void _onAuthDeleteAccount(
+    AuthDeleteAccount event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+    final res = await _deleteAccount(NoParams());
+
+    res.fold(
+      (failure) => emit(AuthFailure(failure.message)),
+      (_) {
+        // On vide le Cubit Utilisateur comme lors d'une déconnexion normale
+        // Le Router va détecter le changement et rediriger vers '/'
+        _appUserCubit.updateUser(null);
+        emit(AuthInitial());
+      },
     );
   }
 

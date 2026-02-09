@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:oikos/core/domain/entities/categorie_empreinte_entity.dart';
+import 'package:oikos/core/common/domain/entities/categorie_empreinte_entity.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/carbone_equivalent_entity.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/detail_bilan_entity.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/objectif_entity.dart';

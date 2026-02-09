@@ -1,4 +1,4 @@
-import 'package:oikos/core/domain/repositories/utilisateur_repository.dart';
+import 'package:oikos/core/common/domain/repositories/utilisateur_repository.dart';
 
 class DefinirObjectifUseCase {
   final UtilisateurRepository utilisateurRepo;

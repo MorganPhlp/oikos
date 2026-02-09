@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
-import 'package:oikos/core/data/category_empreinte_repository_impl.dart';
-import 'package:oikos/core/data/utilisateur_repository_impl.dart';
-import 'package:oikos/core/domain/repositories/categorie_empreinte_repository.dart';
-import 'package:oikos/core/domain/repositories/utilisateur_repository.dart';
+import 'package:http/http.dart' as http;
+import 'package:oikos/core/common/data/category_empreinte_repository_impl.dart';
+import 'package:oikos/core/common/data/utilisateur_repository_impl.dart';
+import 'package:oikos/core/common/domain/repositories/categorie_empreinte_repository.dart';
+import 'package:oikos/core/common/domain/repositories/utilisateur_repository.dart';
 import 'package:oikos/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:oikos/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
@@ -48,10 +50,21 @@ import 'package:oikos/features/dashboard/domain/usecases/get_my_profile.dart';
 import 'package:oikos/features/dashboard/presentation/bloc/home_bloc.dart';
 
 
-import 'core/common/cubits/app_user/app_user_cubit.dart';
+import 'core/common/presentation/cubits/app_user/app_user_cubit.dart';
 import 'core/secrets/app_secrets.dart';
+import 'features/auth/domain/usecases/delete_account.dart';
+import 'features/auth/domain/usecases/reset_password.dart';
+import 'features/auth/domain/usecases/update_user.dart';
+import 'features/auth/domain/usecases/user_signout.dart';
 import 'features/auth/domain/usecases/validate_email_password.dart';
 import 'features/auth/domain/usecases/validate_pseudo.dart';
+
+//Imports Code barre
+import 'package:oikos/features/codeBarre/data/datasources/code_barre_remote_data_source.dart';
+import 'package:oikos/features/codeBarre/data/repositories/aliment_repository_impl.dart';
+import 'package:oikos/features/codeBarre/domain/repositories/aliment_repository.dart';
+import 'package:oikos/features/codeBarre/domain/usecases/get_aliment_by_code.dart';
+import 'package:oikos/features/codeBarre/presentation/bloc/scan_bloc.dart';
 
 final serviceLocator = GetIt.instance;
 
@@ -60,8 +73,14 @@ Future<void> initDependencies() async {
   final supabase = await Supabase.initialize(
     url: AppSecrets.supabaseUrl,
     anonKey: AppSecrets.supabaseAnonKey,
+    authOptions: FlutterAuthClientOptions(
+      authFlowType: kIsWeb ? AuthFlowType.implicit : AuthFlowType.pkce, // Pour éviter les problèmes de redirection sur le web, on utilise le flow implicite qui gère tout côté client. C'est plus simple et sécurisé pour une application Flutter.
+    ),
   );
   serviceLocator.registerLazySingleton<SupabaseClient>(() => supabase.client);
+
+  // Enregistrement du Client HTTP (Indispensable pour le Scanner Code Barre)
+  serviceLocator.registerLazySingleton(() => http.Client());
 
   // core
   serviceLocator.registerLazySingleton(() => AppUserCubit());
@@ -70,6 +89,7 @@ Future<void> initDependencies() async {
   _initAuth();
   _initBilan();
   _initHome();
+  _initCodeBarre();
 }
 
 void _initAuth() {
@@ -98,6 +118,16 @@ void _initAuth() {
 
   serviceLocator.registerFactory(() => ValidatePseudo(serviceLocator()));
 
+  serviceLocator.registerFactory(() => UserSignOut(serviceLocator()));
+
+  serviceLocator.registerFactory(() => ResetPassword(serviceLocator()));
+
+  serviceLocator.registerLazySingleton(() => UpdateUser(serviceLocator()));
+
+  serviceLocator.registerLazySingleton(() => DeleteAccount(serviceLocator()));
+
+
+
   // Bloc
   serviceLocator.registerLazySingleton(
     () => AuthBloc(
@@ -108,6 +138,10 @@ void _initAuth() {
       authRepository: serviceLocator(),
       validateEmailPassword: serviceLocator(),
       validatePseudo: serviceLocator(),
+      userSignOut: serviceLocator(),
+      resetPassword: serviceLocator(),
+      updateUser: serviceLocator(),
+      deleteAccount: serviceLocator(),
     ),
   );
 }
@@ -294,3 +328,33 @@ void _initHome() {
   );
 }
 
+void _initCodeBarre() {
+  // Data Source
+  serviceLocator.registerFactory<CodeBarreRemoteDataSource>(
+        () => CodeBarreRemoteDataSourceImpl(
+      client: serviceLocator(),
+    ),
+  );
+
+  // Repository
+  serviceLocator.registerFactory<AlimentRepository>(
+        () => AlimentRepositoryImpl(
+      serviceLocator(),
+    ),
+  );
+
+  // UseCase
+  serviceLocator.registerFactory(
+        () => GetAlimentByCode(
+      serviceLocator(),
+    ),
+  );
+
+  // Bloc
+  // Vu que c'est un scan, on utilise registerFactory (nouvel état à chaque ouverture)
+  serviceLocator.registerFactory(
+        () => ScanBloc(
+      getAlimentByCode: serviceLocator(),
+    ),
+  );
+}

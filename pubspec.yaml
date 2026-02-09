@@ -45,8 +45,12 @@ dependencies:
   fl_chart: ^0.70.0
   lucide_icons: ^0.257.0
   go_router: ^17.0.1
+  syncfusion_flutter_pdfviewer: ^32.1.24
   mobile_scanner: ^6.0.4 #For QR code scanning
   http: ^1.2.0 #For making HTTP requests
+  flutter_dotenv: ^6.0.0
+  font_awesome_flutter: ^10.12.0 #icons supplementaires
+  lottie: ^3.3.2  #Pour animations
 
 
 dev_dependencies:
@@ -83,6 +87,11 @@ flutter:
       - assets/logos/viveris_logo.png
       - assets/js/publicodes_bundle.js
       - assets/data/rules.json
+      - assets/documents/
+      - assets/streak/streak_spring1.png
+      - assets/logos/oikos_home.png
+      - assets/animations/
+      - assets/avatars/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

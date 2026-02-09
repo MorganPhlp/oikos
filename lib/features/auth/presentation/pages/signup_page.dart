@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/common/widgets/loader.dart';
-import 'package:oikos/core/theme/app_colors.dart';
+import 'package:go_router/go_router.dart';
 import 'package:oikos/core/theme/app_typography.dart';
 import 'package:oikos/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:oikos/features/auth/presentation/pages/pseudo_page.dart';
@@ -31,6 +30,11 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   void initState() {
     super.initState();
+
+    context.read<AuthBloc>().add(AuthResetState());
+
+    context.read<AuthBloc>().add(AuthSignOut());
+
     _emailController.addListener(() {
       if (_backendEmailError != null) {
         setState(() {
@@ -47,7 +51,7 @@ class _SignUpPageState extends State<SignUpPage> {
       if (!_acceptedCGU) {
         setState(() {
           _cguError =
-              "Vous devez accepter les CGU et la politique de confidentialité pour continuer.";
+          "Vous devez accepter les CGU et la politique de confidentialité pour continuer.";
         });
         return;
       }
@@ -70,20 +74,20 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Récupération du thème
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      // AppBar avec bouton de retour
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.chevron_left,
-            color: AppColors.lightIconPrimary,
+            color: colorScheme.onSurface,
             size: 32,
           ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
-
-      // Corps de la page
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthFailure) {
@@ -103,17 +107,17 @@ class _SignUpPageState extends State<SignUpPage> {
           }
         },
         builder: (context, state) {
+          // CORRECTION : On a retiré le Stack et le Loader global
+          // Le chargement est maintenant indiqué uniquement par le bouton
           return SafeArea(
-            child: Stack(
-              children: [
-                SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
-                  child: Form(
-                    key: _formKey,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Form(
+                key: _formKey,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     // Logo Oîkos
                     Center(
                       child: Image.asset(
@@ -127,7 +131,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     Center(
                       child: Text(
                         'Bienvenue parmi nous !',
-                        style: AppTypography.h2,
+                        style: AppTypography.h2.copyWith(color: colorScheme.onSurface),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -139,9 +143,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       child: Text(
                         'Entre ton email pro pour retrouver tes collègues.',
                         style: AppTypography.body.copyWith(
-                          color: AppColors.lightTextPrimary.withValues(
-                            alpha: 0.7,
-                          ), // Opacité 70%
+                          color: colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -150,13 +152,11 @@ class _SignUpPageState extends State<SignUpPage> {
                     const SizedBox(height: 40),
 
                     // Formulaire
-                    // Email Champ
+                    // Email Label
                     Text(
                       'Email professionnel',
                       style: AppTypography.body.copyWith(
-                        color: AppColors.lightTextPrimary.withValues(
-                          alpha: 0.7,
-                        ),
+                        color: colorScheme.onSurface.withValues(alpha: 0.7),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -169,13 +169,10 @@ class _SignUpPageState extends State<SignUpPage> {
                         controller: _emailController,
                         prefixIcon: Icons.mail_outlined,
                         validator: (value) {
-                          final regexError = AuthValidators.validateEmail(
-                            value,
-                          ); // Erreur si le format est invalide
+                          final regexError = AuthValidators.validateEmail(value);
                           if (regexError != null) {
                             return regexError;
                           }
-                          // Afficher l'erreur du backend si elle existe
                           return _backendEmailError;
                         },
                       ),
@@ -183,13 +180,11 @@ class _SignUpPageState extends State<SignUpPage> {
 
                     const SizedBox(height: 30),
 
-                    // Mot de Passe Champ
+                    // Mot de Passe Label
                     Text(
                       'Mot de passe',
                       style: AppTypography.body.copyWith(
-                        color: AppColors.lightTextPrimary.withValues(
-                          alpha: 0.7,
-                        ),
+                        color: colorScheme.onSurface.withValues(alpha: 0.7),
                         fontWeight: FontWeight.w500,
                       ),
                       textAlign: TextAlign.left,
@@ -210,9 +205,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           });
                         },
                         validator: (value) {
-                          final regexError = AuthValidators.passwordErrorText(
-                            value,
-                          ); // Erreur si le format est invalide
+                          final regexError = AuthValidators.passwordErrorText(value);
                           if (regexError != null) {
                             return regexError;
                           }
@@ -227,7 +220,9 @@ class _SignUpPageState extends State<SignUpPage> {
                       children: [
                         Checkbox(
                           value: _acceptedCGU,
-                          activeColor: AppColors.lightIconPrimary,
+                          activeColor: colorScheme.primary,
+                          checkColor: colorScheme.onPrimary,
+                          side: BorderSide(color: colorScheme.onSurface.withValues(alpha: 0.5), width: 2),
                           onChanged: (value) {
                             setState(() {
                               _acceptedCGU = value ?? false;
@@ -240,44 +235,44 @@ class _SignUpPageState extends State<SignUpPage> {
                               Text(
                                 "J'accepte les ",
                                 style: AppTypography.body.copyWith(
-                                  color: AppColors.lightTextPrimary.withValues(
-                                    alpha: 0.7,
-                                  ),
+                                  color: colorScheme.onSurface.withValues(alpha: 0.7),
                                 ),
                               ),
                               InkWell(
                                 onTap: () {
-                                  // TODO : Ouvrir les CGU
+                                  context.pushNamed('pdf_viewer', extra: {
+                                    'title': 'Conditions Générales d\'Utilisation',
+                                    'assetPath': 'assets/documents/cgu.pdf',
+                                  });
                                 },
                                 child: Text(
                                   "CGU",
                                   style: AppTypography.body.copyWith(
-                                    color: AppColors.lightPrimary.withValues(
-                                      alpha: 0.7,
-                                    ),
+                                    color: colorScheme.primary,
                                     decoration: TextDecoration.underline,
+                                    decorationColor: colorScheme.primary,
                                   ),
                                 ),
                               ),
                               Text(
                                 " et la ",
                                 style: AppTypography.body.copyWith(
-                                  color: AppColors.lightTextPrimary.withValues(
-                                    alpha: 0.7,
-                                  ),
+                                  color: colorScheme.onSurface.withValues(alpha: 0.7),
                                 ),
                               ),
                               InkWell(
                                 onTap: () {
-                                  // TODO : Ouvrir la politique de confidentialité
+                                  context.pushNamed('pdf_viewer', extra: {
+                                    'title': 'Politique de Confidentialité',
+                                    'assetPath': 'assets/documents/politique_confidentialite.pdf',
+                                  });
                                 },
                                 child: Text(
                                   "politique de confidentialité",
                                   style: AppTypography.body.copyWith(
-                                    color: AppColors.lightPrimary.withValues(
-                                      alpha: 0.7,
-                                    ),
+                                    color: colorScheme.primary,
                                     decoration: TextDecoration.underline,
+                                    decorationColor: colorScheme.primary,
                                   ),
                                 ),
                               ),
@@ -293,17 +288,25 @@ class _SignUpPageState extends State<SignUpPage> {
                         margin: const EdgeInsets.only(top: 10),
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.red.shade50,
-                          border: Border.all(color: Colors.red.shade200),
+                          color: colorScheme.errorContainer,
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Text(
-                          _cguError!,
-                          style: TextStyle(color: Colors.red.shade600),
+                        child: Row(
+                          children: [
+                            Icon(Icons.error_outline, size: 20, color: colorScheme.onErrorContainer),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _cguError!,
+                                style: TextStyle(color: colorScheme.onErrorContainer),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
 
                     const SizedBox(height: 40),
+
                     AuthPrimaryButton(
                       text: "C'est parti !",
                       onPressed: _submit,
@@ -313,13 +316,9 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
               ),
             ),
-            // Loader par-dessus le formulaire si en chargement
-            if (state is AuthLoading) const Loader(),
-          ],
-        ),
-      );
-    },
-  ),
+          );
+        },
+      ),
     );
   }
 }

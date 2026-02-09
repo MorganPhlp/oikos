@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:oikos/core/presentation/widgets/gradient_button.dart';
+import 'package:oikos/core/common/presentation/widgets/gradient_button.dart';
 
 class BilanNoticeDialog extends StatelessWidget {
   final String title;

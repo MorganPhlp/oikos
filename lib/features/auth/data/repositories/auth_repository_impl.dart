@@ -2,7 +2,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:oikos/core/error/exceptions.dart';
 import 'package:oikos/core/error/failures.dart';
 import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
-import 'package:oikos/core/common/entities/user.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide User;
 import '../datasources/auth_remote_data_source.dart';
 
@@ -133,13 +133,27 @@ class AuthRepositoryImpl implements AuthRepository {
       final response = await remoteDataSource.client
           .from('utilisateur')
           .select('pseudo')
-          .eq('pseudo', pseudo)
+          .ilike('pseudo', pseudo.toLowerCase())
           .count(CountOption.exact);
 
       final count = response.count;
       return right(count == 0);
     } on AuthException catch (e) {
       return left(Failure(e.message));
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> verifyEmailUniqueness({
+    required String email,
+  }) async {
+    try {
+      final response = await remoteDataSource.doesEmailExist(
+        email.toLowerCase(),
+      );
+      return right(response);
     } on ServerException catch (e) {
       return left(Failure(e.message));
     }
@@ -153,6 +167,56 @@ class AuthRepositoryImpl implements AuthRepository {
       return right(user);
     } on AuthException catch (e) {
       return left(Failure(e.message));
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> signOut() async {
+    try {
+      // On utilise le client accessible via la remoteDataSource
+      await remoteDataSource.client.auth.signOut();
+
+      return const Right(null);
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> resetPassword({required String email}) async {
+    try {
+      await remoteDataSource.resetPassword(email: email);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(Failure(e.message));
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, User>> updateUser({
+    String? pseudo,
+    String? avatar,
+  }) async {
+    try {
+      final updatedUser = await remoteDataSource.updateUserData(
+        pseudo: pseudo,
+        avatar: avatar,
+      );
+      return right(updatedUser);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteAccount() async {
+    try {
+      await remoteDataSource.anonymizeAccount();
+      return const Right(null);
     } on ServerException catch (e) {
       return left(Failure(e.message));
     }

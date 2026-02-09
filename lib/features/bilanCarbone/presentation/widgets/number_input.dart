@@ -38,14 +38,13 @@ class _OikosNumberInputState extends State<OikosNumberInput> {
   }
 
   @override
-  void didUpdateWidget(covariant OikosNumberInput oldWidget) {
+  void didUpdateWidget(OikosNumberInput oldWidget) {
     super.didUpdateWidget(oldWidget);
     
     if (widget.value != oldWidget.value) {
       final newText = _getInitialText();
       
-      if (_controller.text != newText) {
-        
+      if (_controller.text != newText) {        
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!mounted) return;
           

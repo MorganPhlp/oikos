@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/domain/entities/categorie_empreinte_entity.dart';
+import 'package:oikos/core/common/domain/entities/categorie_empreinte_entity.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/detail_bilan_entity.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/calculer_bilan_categories_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/choix_categories_use_case.dart';

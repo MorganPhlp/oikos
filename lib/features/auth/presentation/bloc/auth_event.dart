@@ -26,6 +26,8 @@ final class AuthSignIn extends AuthEvent {
 
 final class AuthIsUserLoggedIn extends AuthEvent {}
 
+final class AuthResetState extends AuthEvent {}
+
 final class AuthLoadCompanyInfo extends AuthEvent {
   final String email;
 
@@ -50,3 +52,20 @@ final class AuthValidatePseudo extends AuthEvent {
 
   AuthValidatePseudo({required this.pseudo});
 }
+
+final class AuthSignOut extends AuthEvent {}
+
+final class AuthResetPassword extends AuthEvent {
+  final String email;
+
+  AuthResetPassword({required this.email});
+}
+
+final class AuthUpdateUser extends AuthEvent {
+  final String? pseudo;
+  final String? avatar;
+
+  AuthUpdateUser({this.pseudo, this.avatar});
+}
+
+final class AuthDeleteAccount extends AuthEvent {}

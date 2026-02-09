@@ -1,5 +1,5 @@
 import 'package:fpdart/fpdart.dart';
-import 'package:oikos/core/common/entities/user.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 
 import '../../../../core/error/failures.dart';
 
@@ -28,7 +28,18 @@ abstract interface class AuthRepository {
     required String communityCode,
   });
 
-  Future<Either<Failure, bool>> isPseudoUnique({
-    required String pseudo,
+  Future<Either<Failure, bool>> isPseudoUnique({required String pseudo});
+
+  Future<Either<Failure, bool>> verifyEmailUniqueness({required String email});
+
+  Future<Either<Failure, void>> signOut();
+
+  Future<Either<Failure, void>> resetPassword({required String email});
+
+  Future<Either<Failure, User>> updateUser({
+    String? pseudo,
+    String? avatar,
   });
+
+  Future<Either<Failure, void>> deleteAccount();
 }

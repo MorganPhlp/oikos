@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:oikos/core/theme/app_colors.dart';
 
 class SuggestionContainer extends StatelessWidget { 
   const SuggestionContainer({super.key});
@@ -9,9 +8,9 @@ class SuggestionContainer extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 16),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.gradientGreenEnd.withValues(alpha: 0.1),
+        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.gradientGreenEnd.withValues(alpha: 0.2)),
+        border: Border.all(color: Theme.of(context).colorScheme.primary, width: 1.5),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
