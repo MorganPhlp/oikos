@@ -1,53 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:oikos/core/theme/app_colors.dart';
+import 'package:oikos/core/common/presentation/widgets/oikos_avatar.dart';
 
 class RankingActionModal extends StatelessWidget {
-  final String name;          // Ex: "Lucas Bernard" ou "Viveris Lyon"
-  final String avatarUrl;     // Chemin de l'asset ou URL
-  final bool isCommunity;     // true = Communauté, false = Utilisateur
-  final VoidCallback onSeeProfile; // Action quand on clique sur "Voir le profil"
-  final VoidCallback onDuel;       // Action quand on clique sur "Lancer un duel"
+  final String name;
+  final String avatarUrl;
+  final bool isCommunity;
+  final VoidCallback onSeeProfile;
+  final VoidCallback onDuel;
 
   const RankingActionModal({
-    Key? key,
+    super.key,
     required this.name,
     required this.avatarUrl,
     required this.isCommunity,
     required this.onSeeProfile,
     required this.onDuel,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
-    // Couleurs basées sur tes screens (à adapter si tu as un fichier de thème global)
-    final Color primaryGreen = const Color(0xFF7CB342); // Vert bouton duel
-    final Color lightGreenBg = const Color(0xFFF1F8E9); // Vert très clair bouton profil
-    final Color textDark = const Color(0xFF2E3A26);     // Texte foncé
+    final theme = Theme.of(context);
 
     return Dialog(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24), // Arrondi prononcé comme sur le screen
+        borderRadius: BorderRadius.circular(24),
       ),
       elevation: 0,
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         child: Column(
-          mainAxisSize: MainAxisSize.min, // La modale s'adapte à la taille du contenu
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // --- 1. AVATAR ---
+            // --- 1. AVATAR AVEC NOUVEAU WIDGET ---
             Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                // Le fond vert derrière la tête
-                color: isCommunity ? Colors.green.shade200 : const Color(0xFFAED581),
+                gradient: const LinearGradient(
+                  colors: [AppColors.gradientGreenStart, AppColors.gradientGreenEnd],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
               ),
-              child: CircleAvatar(
-                radius: 32,
-                backgroundColor: Colors.transparent,
-                // On gère ici si c'est une image locale (Asset) ou réseau (Network)
-                // Pour l'instant je mets Asset, change par NetworkImage si besoin
-                backgroundImage: AssetImage(avatarUrl), 
+              child: OikosAvatar(
+                avatarUrl: avatarUrl,
+                label: name,
+                radius: 32, // Taille un peu plus grande pour la modale
               ),
             ),
             const SizedBox(height: 12),
@@ -56,11 +56,7 @@ class RankingActionModal extends StatelessWidget {
             Text(
               name,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: textDark,
-              ),
+              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
             Row(
@@ -69,29 +65,26 @@ class RankingActionModal extends StatelessWidget {
                 Icon(
                   isCommunity ? Icons.groups_outlined : Icons.person_outline,
                   size: 16,
-                  color: Colors.grey,
+                  color: theme.hintColor,
                 ),
                 const SizedBox(width: 4),
                 Text(
                   isCommunity ? "Communauté" : "Utilisateur",
-                  style: const TextStyle(
-                    color: Colors.grey,
-                    fontSize: 14,
-                  ),
+                  style: theme.textTheme.bodyMedium?.copyWith(color: theme.hintColor),
                 ),
               ],
             ),
             const SizedBox(height: 24),
 
-            // --- 3. BOUTON VOIR PROFIL (Vert Clair) ---
+            // --- 3. BOUTONS (Identiques à avant) ---
             SizedBox(
               width: double.infinity,
               height: 48,
               child: ElevatedButton(
                 onPressed: onSeeProfile,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: lightGreenBg,
-                  foregroundColor: textDark, // Couleur du texte/icone
+                  backgroundColor: AppColors.lightInput,
+                  foregroundColor: AppColors.lightTextPrimary,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -105,14 +98,13 @@ class RankingActionModal extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            // --- 4. BOUTON DUEL (Vert Foncé) ---
             SizedBox(
               width: double.infinity,
               height: 48,
               child: ElevatedButton(
                 onPressed: onDuel,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryGreen,
+                  backgroundColor: AppColors.lightPrimary,
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
@@ -122,7 +114,7 @@ class RankingActionModal extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: const [
-                    Icon(Icons.flash_on, size: 20), // Assure-toi d'avoir une icône d'épée ou utilise Icons.flash_on
+                    Icon(Icons.flash_on, size: 20),
                     SizedBox(width: 8),
                     Text(
                       "Lancer un duel",
@@ -134,17 +126,13 @@ class RankingActionModal extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // --- 5. BOUTON ANNULER ---
             InkWell(
               onTap: () => Navigator.of(context).pop(),
-              child: const Padding(
-                padding: EdgeInsets.all(8.0),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
                 child: Text(
                   "Annuler",
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 16,
-                  ),
+                  style: theme.textTheme.bodyMedium?.copyWith(color: theme.hintColor),
                 ),
               ),
             ),
