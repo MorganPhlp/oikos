@@ -40,4 +40,6 @@ abstract interface class AuthRepository {
     String? pseudo,
     String? avatar,
   });
+
+  Future<Either<Failure, void>> deleteAccount();
 }

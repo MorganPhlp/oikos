@@ -67,3 +67,5 @@ final class AuthUpdateUser extends AuthEvent {
 
   AuthUpdateUser({this.pseudo, this.avatar});
 }
+
+final class AuthDeleteAccount extends AuthEvent {}

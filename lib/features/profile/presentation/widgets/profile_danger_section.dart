@@ -4,11 +4,24 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:oikos/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:oikos/features/profile/presentation/widgets/profile_action_button.dart';
 
+import 'delete_account_modal.dart';
+
 class ProfileDangerSection extends StatelessWidget {
   const ProfileDangerSection({super.key});
 
   void _handleLogout(BuildContext context) {
     context.read<AuthBloc>().add(AuthSignOut());
+  }
+
+  void _handleDeleteAccount(BuildContext context) {
+    showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.transparent,
+        isScrollControlled: true,
+        builder: (context) => DeleteAccountModal(onConfirm: () {
+          context.read<AuthBloc>().add(AuthDeleteAccount());
+        })
+    );
   }
 
   @override
@@ -42,7 +55,7 @@ class ProfileDangerSection extends StatelessWidget {
             icon: LucideIcons.trash2,
             iconColor: colorScheme.error,
             textColor: colorScheme.error,
-            onTap: () {}, // TODO : Implémenter la suppression de compte
+            onTap: () => _handleDeleteAccount(context),
             showBorder: false,
           ),
         ],

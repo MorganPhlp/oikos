@@ -52,6 +52,7 @@ import 'package:oikos/features/dashboard/presentation/bloc/home_bloc.dart';
 
 import 'core/common/presentation/cubits/app_user/app_user_cubit.dart';
 import 'core/secrets/app_secrets.dart';
+import 'features/auth/domain/usecases/delete_account.dart';
 import 'features/auth/domain/usecases/reset_password.dart';
 import 'features/auth/domain/usecases/update_user.dart';
 import 'features/auth/domain/usecases/user_signout.dart';
@@ -123,6 +124,8 @@ void _initAuth() {
 
   serviceLocator.registerLazySingleton(() => UpdateUser(serviceLocator()));
 
+  serviceLocator.registerLazySingleton(() => DeleteAccount(serviceLocator()));
+
 
 
   // Bloc
@@ -138,6 +141,7 @@ void _initAuth() {
       userSignOut: serviceLocator(),
       resetPassword: serviceLocator(),
       updateUser: serviceLocator(),
+      deleteAccount: serviceLocator(),
     ),
   );
 }

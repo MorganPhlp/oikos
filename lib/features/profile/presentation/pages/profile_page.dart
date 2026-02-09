@@ -27,8 +27,14 @@ class _ProfilePageState extends State<ProfilePage> {
 
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        // La redirection de déconnexion est gérée par le router via AppUserCubit
-        // On garde le listener si on veut gérer d'autres états (erreurs spécifiques, loading, etc.)
+        if(state is AuthInitial){
+          // Redirection vers la page de connexion gérée par AppUserCubit
+        }
+        if(state is AuthFailure){
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message), backgroundColor: colorScheme.error,)
+          );
+        }
       },
       child: Scaffold(
         backgroundColor: colorScheme.surface,
