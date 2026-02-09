@@ -5,6 +5,7 @@ import 'package:oikos/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/features/auth/presentation/pages/intro_page.dart';
 import 'package:oikos/features/bilanCarbone/presentation/pages/bilan_flow.dart';
 import 'package:oikos/features/dashboard/presentation/pages/home_page.dart';
+import 'package:oikos/features/community/presentation/pages/community_dashboard_screen.dart';
 
 GoRouter createRouter(AppUserCubit appUserCubit) {
   return GoRouter(
@@ -28,6 +29,11 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
         name: 'home',
         builder: (context, state) => const HomePage(),
       ), 
+      GoRoute(
+        path: '/community',
+        name: 'community',
+        builder: (context, state) => const CommunityDashboardScreen(),
+      ),
       // TO DO : ajouter les autres routes ici quand elles seront prêtes
       /*
       GoRoute(
