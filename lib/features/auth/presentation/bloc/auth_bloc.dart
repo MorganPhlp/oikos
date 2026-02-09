@@ -5,6 +5,7 @@ import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
 import 'package:oikos/features/auth/domain/usecases/current_user.dart';
 import 'package:oikos/features/auth/domain/usecases/reset_password.dart';
+import 'package:oikos/features/auth/domain/usecases/update_user.dart';
 import 'package:oikos/features/auth/domain/usecases/user_signin.dart';
 import 'package:oikos/features/auth/domain/usecases/user_signout.dart';
 import 'package:oikos/features/auth/domain/usecases/user_signup.dart';
@@ -26,6 +27,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final ValidatePseudo _validatePseudo;
   final UserSignOut _userSignOut;
   final ResetPassword _resetPassword;
+  final UpdateUser _updateUser;
 
   AuthBloc({
     required UserSignup userSignup,
@@ -37,6 +39,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required ValidatePseudo validatePseudo,
     required UserSignOut userSignOut,
     required ResetPassword resetPassword,
+    required UpdateUser updateUser,
   }) : _userSignin = userSignin,
        _userSignup = userSignup,
        _currentUser = currentUser,
@@ -46,6 +49,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
        _validatePseudo = validatePseudo,
        _userSignOut = userSignOut,
        _resetPassword = resetPassword,
+       _updateUser = updateUser,
        super(AuthInitial()) {
 
     on<AuthResetState>((event, emit) => emit(AuthInitial()));
@@ -58,6 +62,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthValidatePseudo>(_onAuthValidatePseudo);
     on<AuthSignOut>(_onAuthSignOut);
     on<AuthResetPassword>(_onAuthResetPassword);
+    on<AuthUpdateUser>(_onAuthUpdateUser);
   }
 
   void _onAuthIsUserLoggedIn(
@@ -184,6 +189,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     res.fold(
       (failure) => emit(AuthFailure(failure.message)),
       (_) => emit(AuthPasswordResetSent()),
+    );
+  }
+
+  void _onAuthUpdateUser(
+    AuthUpdateUser event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+    final res = await _updateUser(
+      UpdateUserParams(pseudo: event.pseudo, avatar: event.avatar),
+    );
+
+    res.fold(
+      (failure) => emit(AuthFailure(failure.message)),
+      (user) => _emitAuthSuccess(user, emit),
     );
   }
 

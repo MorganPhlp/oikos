@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
 
 class Header extends StatelessWidget {
   const Header({super.key});
@@ -25,9 +27,20 @@ class Header extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _CircleIconButton(
-            icon: LucideIcons.user,
-            onTap: () => context.pushNamed('profile'),
+          BlocBuilder<AppUserCubit, AppUserState>(
+            builder: (context, state) {
+              String? avatarPath;
+              if (state is AppUserLoggedIn) {
+                avatarPath = state.user.avatar;
+              }
+
+              avatarPath ??= 'assets/avatars/avatar_1.png'; // Avatar par défaut
+
+              return _CircleAvatarButton(
+                avatarPath: avatarPath,
+                onTap: () => context.pushNamed('profile'),
+              );
+            },
           ),
           const Spacer(),
           Image.asset(
@@ -44,13 +57,63 @@ class Header extends StatelessWidget {
           const SizedBox(width: 12),
           Icon(LucideIcons.leaf, color: colorScheme.primary),
           const Spacer(),
-          const _ScoreBadge(score: "1250"),
+          const _ScoreBadge(
+            score: "1250",
+          ), // TODO: Récupérer le score réel de l'utilisateur
           const SizedBox(width: 8),
           const _CircleIconButton(
             icon: LucideIcons.bell,
             hasNotification: true,
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _CircleAvatarButton extends StatelessWidget {
+  final String avatarPath;
+  final VoidCallback onTap;
+
+  const _CircleAvatarButton({required this.avatarPath, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(24),
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: colorScheme.surface.withValues(alpha: 0.1),
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+            border: Border.all(
+              color: colorScheme.outline.withValues(alpha: 0.2),
+              width: 1.5,
+            ),
+          ),
+          child: ClipOval(child: Image.asset(
+              avatarPath,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Icon(
+                LucideIcons.user,
+                size: 20,
+                color: colorScheme.onSurface.withValues(alpha: 0.5),
+              )
+          )),
+        ),
       ),
     );
   }

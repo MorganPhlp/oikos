@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/core/theme/app_typography.dart';
 import 'package:oikos/features/profile/presentation/widgets/profile_action_button.dart';
+import 'package:oikos/features/profile/presentation/widgets/update_pseudo_modal.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import 'avatar_modal.dart';
 
 class ProfileAccountSection extends StatelessWidget {
   const ProfileAccountSection({super.key});
@@ -17,7 +22,6 @@ class ProfileAccountSection extends StatelessWidget {
           padding: const EdgeInsets.only(left: 8, bottom: 12),
           child: Text(
             'Paramètres du compte',
-            // MODIFICATION : Titre en H3 et en vert primaire
             style: AppTypography.h2.copyWith(
                 color: colorScheme.primary,
                 fontSize: 18
@@ -42,9 +46,29 @@ class ProfileAccountSection extends StatelessWidget {
                 title: 'Modifier le pseudo',
                 icon: LucideIcons.pencil,
                 // L'icône sera verte par défaut grâce au widget ProfileActionButton
-                onTap: () {}, // TODO : Implémenter la modification du pseudo
+                onTap: () {
+                  // Récupération du pseudo actuel
+                  final currentState = context.read<AppUserCubit>().state;
+                  final currentPseudo = (currentState is AppUserLoggedIn) ?
+                      currentState.user.pseudo : 'Utilisateur';
+
+                  // Ouverture du modal
+                  showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (context) => UpdatePseudoModal(
+                        currentPseudo: currentPseudo,
+                        onPseudoValidated: (newPseudo) {
+                          context.read<AuthBloc>().add(
+                            AuthUpdateUser(pseudo: newPseudo)
+                          );
+                        },
+                      ),
+                  );
+                },
               ),
-              // ... reste des boutons identiques ...
+              // Tous les autres boutons d'action du compte
               ProfileActionButton(
                 title: 'Email & Sécurité',
                 icon: LucideIcons.lock,
@@ -52,9 +76,9 @@ class ProfileAccountSection extends StatelessWidget {
               ),
               ProfileActionButton(
                 title: 'Statut',
-                subtitle: 'Actif', // À dynamiser
+                subtitle: 'Actif', // TODO: À dynamiser
                 icon: LucideIcons.power,
-                iconColor: const Color(0xFF4CAF50), // Vert plus vif pour le statut
+                iconColor: const Color(0xFF4CAF50),
                 onTap: () {}, // TODO
               ),
               ProfileActionButton(
@@ -65,7 +89,27 @@ class ProfileAccountSection extends StatelessWidget {
               ProfileActionButton(
                 title: 'Modifier l\'avatar',
                 icon: LucideIcons.smile,
-                onTap: () {}, // TODO
+                onTap: () {
+                  // Récupération de l'avatar actuel
+                  final currentState = context.read<AppUserCubit>().state;
+                  final currentAvatar = (currentState is AppUserLoggedIn) ?
+                    (currentState.user.avatar ?? 'assets/avatars/avatar1.png') : 'assets/avatars/avatar1.png';
+
+                  // Ouverture du modal
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (context) => AvatarModal(
+                      currentAvatar: currentAvatar,
+                      onAvatarSelected: (newAvatar) {
+                        context.read<AuthBloc>().add(
+                          AuthUpdateUser(avatar: newAvatar)
+                        );
+                      }
+                    ),
+                  );
+                },
               ),
               ProfileActionButton(
                 title: 'Centres d\'intérêt',

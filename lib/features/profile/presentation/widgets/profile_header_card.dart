@@ -3,15 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/core/theme/app_typography.dart';
+import 'package:oikos/features/auth/presentation/bloc/auth_bloc.dart';
+
+import 'avatar_modal.dart';
 
 class ProfileHeaderCard extends StatelessWidget {
   // TODO : Connecter ces valeurs au Cubit ou BilanBloc si nécessaire
-  final String currentAvatar;
-
-  const ProfileHeaderCard({
-    super.key,
-    required this.currentAvatar,
-  });
+  const ProfileHeaderCard({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -20,18 +18,22 @@ class ProfileHeaderCard extends StatelessWidget {
     return BlocBuilder<AppUserCubit, AppUserState>(
       builder: (context, state) {
         final user = (state is AppUserLoggedIn) ? state.user : null;
-        final userName = user?.pseudo ?? user?.email.split('@')[0] ?? 'Utilisateur';
+        final userName =
+            user?.pseudo ?? user?.email.split('@')[0] ?? 'Utilisateur';
         final userEmail = user?.email ?? '';
-        final communityName = 'Ma Communauté'; // TODO : A récupérer depuis le profil utilisateur
+        final communityName =
+            'Ma Communauté'; // TODO : A récupérer depuis le profil utilisateur
+        final currentAvatar = user?.avatar ?? 'assets/avatars/avatar_1.png';
 
         return Container(
-          // MODIFICATION : Suppression du padding ici pour gérer le background
           decoration: BoxDecoration(
             color: colorScheme.surface,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: colorScheme.primary.withValues(alpha: 0.08), // Ombre légèrement verte
+                color: colorScheme.primary.withValues(
+                  alpha: 0.08,
+                ), // Ombre légèrement verte
                 blurRadius: 20,
                 offset: const Offset(0, 8),
               ),
@@ -39,11 +41,13 @@ class ProfileHeaderCard extends StatelessWidget {
           ),
           child: Column(
             children: [
-              // NOUVEAU : Zone supérieure avec léger dégradé vert
+              // Zone supérieure avec léger dégradé vert
               Container(
                 padding: const EdgeInsets.fromLTRB(24, 30, 24, 20),
                 decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(20),
+                  ),
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
@@ -58,7 +62,19 @@ class ProfileHeaderCard extends StatelessWidget {
                     // Avatar avec badge d'édition
                     GestureDetector(
                       onTap: () {
-                        // TODO: Ouvrir modale avatar (Etape 2)
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (context) => AvatarModal(
+                            currentAvatar: currentAvatar,
+                            onAvatarSelected: (newAvatar) {
+                              context.read<AuthBloc>().add(
+                                AuthUpdateUser(avatar: newAvatar)
+                              );
+                            },
+                          ),
+                        );
                       },
                       child: Stack(
                         children: [
@@ -68,21 +84,35 @@ class ProfileHeaderCard extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: colorScheme.surface,
                               shape: BoxShape.circle,
-                              border: Border.all(color: colorScheme.primary, width: 2), // Bordure verte plus marquée
+                              border: Border.all(
+                                color: colorScheme.primary,
+                                width: 2,
+                              ), // Bordure verte plus marquée
                               boxShadow: [
                                 BoxShadow(
-                                  color: colorScheme.primary.withValues(alpha: 0.2),
+                                  color: colorScheme.primary.withValues(
+                                    alpha: 0.2,
+                                  ),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
-                                )
+                                ),
                               ],
                             ),
-                            child: Center(
-                              child: Text(
+                            child: ClipOval(
+                              child: Image.asset(
                                 currentAvatar,
-                                style: const TextStyle(fontSize: 40),
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Icon(
+                                    LucideIcons.user,
+                                    size: 40,
+                                    color: colorScheme.onSurface.withValues(
+                                      alpha: 0.3,
+                                    ),
+                                  );
+                                }
                               ),
-                            ),
+                            )
                           ),
                           Positioned(
                             bottom: 0,
@@ -92,9 +122,16 @@ class ProfileHeaderCard extends StatelessWidget {
                               decoration: BoxDecoration(
                                 color: colorScheme.primary,
                                 shape: BoxShape.circle,
-                                border: Border.all(color: colorScheme.surface, width: 2),
+                                border: Border.all(
+                                  color: colorScheme.surface,
+                                  width: 2,
+                                ),
                               ),
-                              child: Icon(LucideIcons.camera, size: 14, color: colorScheme.onPrimary),
+                              child: Icon(
+                                LucideIcons.camera,
+                                size: 14,
+                                color: colorScheme.onPrimary,
+                              ),
                             ),
                           ),
                         ],
@@ -124,16 +161,27 @@ class ProfileHeaderCard extends StatelessWidget {
                   children: [
                     // Tag Communauté
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
-                        color: colorScheme.primary.withValues(alpha: 0.05), // Fond vert très léger
+                        color: colorScheme.primary.withValues(
+                          alpha: 0.05,
+                        ), // Fond vert très léger
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.3)), // Bordure verte fine
+                        border: Border.all(
+                          color: colorScheme.primary.withValues(alpha: 0.3),
+                        ), // Bordure verte fine
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(LucideIcons.users, size: 16, color: colorScheme.primary),
+                          Icon(
+                            LucideIcons.users,
+                            size: 16,
+                            color: colorScheme.primary,
+                          ),
                           const SizedBox(width: 8),
                           Text(
                             communityName,
@@ -165,7 +213,9 @@ class ProfileHeaderCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: colorScheme.primary.withValues(alpha: 0.08), // Fond du container de tabs légèrement vert
+        color: colorScheme.primary.withValues(
+          alpha: 0.08,
+        ), // Fond du container de tabs légèrement vert
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -213,9 +263,12 @@ class ProfileHeaderCard extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(LucideIcons.barChart3,
-                        size: 18,
-                        color: colorScheme.primary.withValues(alpha: 0.5) // Vert inactif
+                    Icon(
+                      LucideIcons.barChart3,
+                      size: 18,
+                      color: colorScheme.primary.withValues(
+                        alpha: 0.5,
+                      ), // Vert inactif
                     ),
                     const SizedBox(width: 8),
                     Text(
@@ -223,7 +276,9 @@ class ProfileHeaderCard extends StatelessWidget {
                       style: AppTypography.body.copyWith(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: colorScheme.primary.withValues(alpha: 0.5), // Vert inactif
+                        color: colorScheme.primary.withValues(
+                          alpha: 0.5,
+                        ), // Vert inactif
                       ),
                     ),
                   ],

@@ -18,9 +18,6 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  // TODO : implémenter une vraie sélection d'avatar avec modale et sauvegarde dans le profil utilisateur
-  final String _currentAvatar = '👤';
-
   // Simule les questions restantes (TODO : à connecter plus tard au BilanSessionBloc)
   final int _remainingQuestions = 12;
 
@@ -47,7 +44,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     children: [
                       const SizedBox(height: 20),
 
-                      ProfileHeaderCard(currentAvatar: _currentAvatar),
+                      ProfileHeaderCard(),
 
                       const SizedBox(height: 25),
 

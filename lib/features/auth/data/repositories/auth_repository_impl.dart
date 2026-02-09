@@ -195,4 +195,20 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(Failure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, User>> updateUser({
+    String? pseudo,
+    String? avatar,
+  }) async {
+    try {
+      final updatedUser = await remoteDataSource.updateUserData(
+        pseudo: pseudo,
+        avatar: avatar,
+      );
+      return right(updatedUser);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
 }
