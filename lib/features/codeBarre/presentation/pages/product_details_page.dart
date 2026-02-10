@@ -14,9 +14,9 @@ class ProductDetailsPage extends StatelessWidget {
     final ecoScore = aliment.ecoScore?.toUpperCase() ?? '?';
     final nutriScore = aliment.nutriScore?.toUpperCase() ?? '?';
 
-    // On vérifie si le score est connu (ni '?' ni 'UNKNOWN')
+    // On vérifie si le score est connu (ni '?' ni 'UNKNOWN' ni 'NOT-APPLICABLE')
     final bool isEcoScoreKnown = ecoScore != '?' && ecoScore != 'UNKNOWN' && ecoScore != 'NOT-APPLICABLE';
-    // On vérifie si le score est connu (ni '?' ni 'UNKNOWN')
+    // On vérifie si le score est connu (ni '?' ni 'UNKNOWN' ni 'NOT-APPLICABLE')
     final bool isNutriScoreKnown = nutriScore != '?' && nutriScore != 'UNKNOWN' && ecoScore != 'NOT-APPLICABLE';
 
     return Scaffold(
