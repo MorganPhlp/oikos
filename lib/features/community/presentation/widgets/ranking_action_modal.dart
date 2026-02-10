@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/core/common/presentation/widgets/oikos_avatar.dart';
+import 'package:oikos/core/common/presentation/widgets/gradient_button.dart'; // Import ajouté
 
 class RankingActionModal extends StatelessWidget {
   final String name;
@@ -10,22 +11,21 @@ class RankingActionModal extends StatelessWidget {
   final VoidCallback onDuel;
 
   const RankingActionModal({
-    super.key,
+    Key? key,
     required this.name,
     required this.avatarUrl,
     required this.isCommunity,
     required this.onSeeProfile,
     required this.onDuel,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       elevation: 0,
       backgroundColor: theme.scaffoldBackgroundColor,
       child: Padding(
@@ -33,30 +33,29 @@ class RankingActionModal extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // --- 1. AVATAR AVEC NOUVEAU WIDGET ---
+            // ... (Partie Avatar et Titre identique) ...
             Container(
               padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: const LinearGradient(
-                  colors: [AppColors.gradientGreenStart, AppColors.gradientGreenEnd],
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.gradientGreenStart,
+                    AppColors.gradientGreenEnd,
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
               ),
-              child: OikosAvatar(
-                avatarUrl: avatarUrl,
-                label: name,
-                radius: 32, // Taille un peu plus grande pour la modale
-              ),
+              child: OikosAvatar(avatarUrl: avatarUrl, label: name, radius: 32),
             ),
             const SizedBox(height: 12),
-
-            // --- 2. NOM & TYPE ---
             Text(
               name,
               textAlign: TextAlign.center,
-              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 4),
             Row(
@@ -70,69 +69,59 @@ class RankingActionModal extends StatelessWidget {
                 const SizedBox(width: 4),
                 Text(
                   isCommunity ? "Communauté" : "Utilisateur",
-                  style: theme.textTheme.bodyMedium?.copyWith(color: theme.hintColor),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.hintColor,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 24),
 
-            // --- 3. BOUTONS (Identiques à avant) ---
+            // --- NOUVEAUX BOUTONS ---
             SizedBox(
               width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
+              height: 55, // Même hauteur que GradientButton
+              child: OutlinedButton(
                 onPressed: onSeeProfile,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.lightInput,
-                  foregroundColor: AppColors.lightTextPrimary,
-                  elevation: 0,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: colorScheme.primary, // Texte Vert
+                  side: BorderSide(
+                    color: colorScheme.primary,
+                    width: 2,
+                  ), // Bordure Verte
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(15),
                   ),
+                  elevation: 0, // Zéro ombre garantie
+                  backgroundColor: Colors.transparent,
                 ),
-                child: const Text(
+                child: Text(
                   "Voir le profil",
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
                 ),
               ),
             ),
             const SizedBox(height: 12),
-
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
-                onPressed: onDuel,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.lightPrimary,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Icon(Icons.flash_on, size: 20),
-                    SizedBox(width: 8),
-                    Text(
-                      "Lancer un duel",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
+            GradientButton(
+              label: "Lancer un duel",
+              icon: const Icon(Icons.flash_on, color: Colors.white, size: 20),
+              onPressed: onDuel,
             ),
-            const SizedBox(height: 16),
 
+            const SizedBox(height: 16),
             InkWell(
               onTap: () => Navigator.of(context).pop(),
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
                   "Annuler",
-                  style: theme.textTheme.bodyMedium?.copyWith(color: theme.hintColor),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.hintColor,
+                  ),
                 ),
               ),
             ),

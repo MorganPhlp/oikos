@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/core/common/presentation/widgets/oikos_avatar.dart';
+import '../../../../core/common/presentation/widgets/gradient_button.dart';
 import '../../domain/entities/leaderboard_entry.dart';
 
 class ProfileDetailsModal extends StatelessWidget {
@@ -19,6 +20,7 @@ class ProfileDetailsModal extends StatelessWidget {
       insetPadding: const EdgeInsets.all(16),
       child: Container(
         height: 600,
+        width: double.infinity, // <--- AJOUT IMPORTANT pour le centrage horizontal
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(24),
@@ -39,6 +41,7 @@ class ProfileDetailsModal extends StatelessWidget {
               ),
             ),
 
+            // Bouton Fermer
             Positioned(
               top: 10,
               right: 10,
@@ -49,8 +52,8 @@ class ProfileDetailsModal extends StatelessWidget {
             ),
 
             // --- CONTENU PRINCIPAL ---
-            Positioned.fill(
-              top: 80,
+            Padding(
+              padding: const EdgeInsets.only(top: 80),
               child: Column(
                 children: [
                   const SizedBox(height: 60),
@@ -76,13 +79,14 @@ class ProfileDetailsModal extends StatelessWidget {
 
                   const SizedBox(height: 24),
 
+                  // Titre liste
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Row(
                         children: [
-                          Icon(Icons.bookmark_border, size: 20, color: AppColors.lightPrimary),
+                          const Icon(Icons.bookmark_border, size: 20, color: AppColors.lightPrimary),
                           const SizedBox(width: 8),
                           Text(
                             isCommunity ? "Top contributeurs" : "Réalisations récentes",
@@ -106,42 +110,34 @@ class ProfileDetailsModal extends StatelessWidget {
 
                   Padding(
                     padding: const EdgeInsets.all(20),
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          print("Duel lancé");
-                        },
-                        icon: const Icon(Icons.sports_kabaddi),
-                        label: Text("Lancer un duel avec ${entry.label}"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.lightPrimary,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          elevation: 0,
-                        ),
-                      ),
+                    child: GradientButton(
+                      label: "Lancer un duel avec ${entry.label}",
+                      icon: const Icon(Icons.sports_kabaddi, color: Colors.white),
+                      onPressed: () => print("Duel lancé"),
                     ),
                   ),
                 ],
               ),
             ),
 
-            // --- AVATAR AVEC OIKOSAVATAR ---
+            // --- AVATAR ---
             Positioned(
-              top: 70,
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: bgColor,
-                  shape: BoxShape.circle,
-                ),
-                // Ici on utilise notre widget robuste
-                child: OikosAvatar(
-                  avatarUrl: entry.avatarUrl,
-                  label: entry.label,
-                  radius: 40,
+              // Calcul: (140 hauteur bandeau - 88 hauteur avatar) / 2 = 26
+              top: 26,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: bgColor,
+                    shape: BoxShape.circle,
+                  ),
+                  child: OikosAvatar(
+                    avatarUrl: entry.avatarUrl,
+                    label: entry.label,
+                    radius: 40,
+                  ),
                 ),
               ),
             ),
@@ -151,7 +147,12 @@ class ProfileDetailsModal extends StatelessWidget {
     );
   }
 
-  Widget _buildStatBox(BuildContext context, IconData icon, String value, String label) {
+  Widget _buildStatBox(
+    BuildContext context,
+    IconData icon,
+    String value,
+    String label,
+  ) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -160,13 +161,18 @@ class ProfileDetailsModal extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkInput : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightInputBorder),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.lightInputBorder,
+        ),
       ),
       child: Column(
         children: [
           Icon(icon, color: AppColors.lightPrimary, size: 24),
           const SizedBox(height: 4),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
           Text(label, style: theme.textTheme.bodySmall),
         ],
       ),
@@ -175,21 +181,63 @@ class ProfileDetailsModal extends StatelessWidget {
 
   List<Widget> _buildFakeUserAchievements(BuildContext context) {
     return [
-      _buildListItem(context, Icons.directions_bike, Colors.green, "Champion du vélo", "30 jours consécutifs"),
-      _buildListItem(context, Icons.restaurant, Colors.orange, "Végé-warrior", "50 repas végé"),
-      _buildListItem(context, Icons.lightbulb, Colors.yellow, "Économe d'énergie", "100 kWh économisés"),
+      _buildListItem(
+        context,
+        Icons.directions_bike,
+        Colors.green,
+        "Champion du vélo",
+        "30 jours consécutifs",
+      ),
+      _buildListItem(
+        context,
+        Icons.restaurant,
+        Colors.orange,
+        "Végé-warrior",
+        "50 repas végé",
+      ),
+      _buildListItem(
+        context,
+        Icons.lightbulb,
+        Colors.yellow,
+        "Économe d'énergie",
+        "100 kWh économisés",
+      ),
     ];
   }
 
   List<Widget> _buildFakeCommunityContributors(BuildContext context) {
     return [
-      _buildListItem(context, Icons.person, Colors.blue, "Sophie M.", "450 points cette semaine"),
-      _buildListItem(context, Icons.person, Colors.red, "Thomas D.", "420 points cette semaine"),
-      _buildListItem(context, Icons.person, Colors.purple, "Marie L.", "385 points cette semaine"),
+      _buildListItem(
+        context,
+        Icons.person,
+        Colors.blue,
+        "Sophie M.",
+        "450 points cette semaine",
+      ),
+      _buildListItem(
+        context,
+        Icons.person,
+        Colors.red,
+        "Thomas D.",
+        "420 points cette semaine",
+      ),
+      _buildListItem(
+        context,
+        Icons.person,
+        Colors.purple,
+        "Marie L.",
+        "385 points cette semaine",
+      ),
     ];
   }
 
-  Widget _buildListItem(BuildContext context, IconData icon, Color color, String title, String subtitle) {
+  Widget _buildListItem(
+    BuildContext context,
+    IconData icon,
+    Color color,
+    String title,
+    String subtitle,
+  ) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -214,7 +262,7 @@ class ProfileDetailsModal extends StatelessWidget {
               Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
               Text(subtitle, style: theme.textTheme.bodySmall),
             ],
-          )
+          ),
         ],
       ),
     );

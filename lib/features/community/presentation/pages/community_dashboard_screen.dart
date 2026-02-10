@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:oikos/core/theme/app_colors.dart';
-// N'oubliez pas d'importer le nouveau widget
 import 'package:oikos/core/common/presentation/widgets/oikos_avatar.dart';
+
+// Plus besoin du GradientButton ici car on allège le design
+// import 'package:oikos/core/common/presentation/widgets/gradient_button.dart';
 
 import '../../data/datasources/community_remote_datasource.dart';
 import '../../data/models/leaderboard_entry_model.dart';
@@ -108,7 +110,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
         LeaderboardEntryModel(id: '1', label: 'Sophie', value: 2450, rank: 1, isUser: true, isMe: false, impactStats: '-75kg', actionsCount: 42, streakDays: 5, avatarUrl: 'assets/avatars/avatar_1.png'),
         LeaderboardEntryModel(id: '2', label: 'Thomas', value: 2280, rank: 2, isUser: true, isMe: false, impactStats: '-60kg', actionsCount: 38, streakDays: 2, avatarUrl: 'assets/avatars/avatar_2.png'),
         LeaderboardEntryModel(id: '3', label: 'Marie', value: 2150, rank: 3, isUser: true, isMe: false, impactStats: '-55kg', actionsCount: 35, streakDays: 3, avatarUrl: 'assets/avatars/avatar_3.png'),
-        LeaderboardEntryModel(id: '4', label: 'Lucas', value: 1980, rank: 4, isUser: true, isMe: false, impactStats: '-71kg', actionsCount: 36, streakDays: 0, avatarUrl: ''), // Test sans avatar
+        LeaderboardEntryModel(id: '4', label: 'Lucas', value: 1980, rank: 4, isUser: true, isMe: false, impactStats: '-71kg', actionsCount: 36, streakDays: 0, avatarUrl: ''),
         LeaderboardEntryModel(id: '6', label: 'Vous', value: 1720, rank: 6, isUser: true, isMe: true, impactStats: '-63kg', actionsCount: 31, streakDays: 1, avatarUrl: 'assets/avatars/avatar_5.png'),
       ];
       _communityList = [
@@ -223,17 +225,13 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
     LeaderboardEntry? second = top3.length > 1 ? top3[1] : null;
     LeaderboardEntry? third = top3.length > 2 ? top3[2] : null;
 
-    const gold = Color(0xFFFFD700);
-    const silver = Color(0xFFC0C0C0);
-    const bronze = Color(0xFFCD7F32);
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        if (second != null) _buildPodiumStep(second, 2, silver, 110),
-        if (first != null) _buildPodiumStep(first, 1, gold, 140),
-        if (third != null) _buildPodiumStep(third, 3, bronze, 90),
+        if (second != null) _buildPodiumStep(second, 2, const Color(0xFFC0C0C0), 110),
+        if (first != null) _buildPodiumStep(first, 1, const Color(0xFFFFD700), 140),
+        if (third != null) _buildPodiumStep(third, 3, const Color(0xFFCD7F32), 90),
       ],
     );
   }
@@ -253,7 +251,6 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
                 Container(
                   padding: const EdgeInsets.all(3),
                   decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: color, width: 3)),
-                  // --- UTILISATION DU NOUVEAU WIDGET ---
                   child: OikosAvatar(
                     avatarUrl: entry.avatarUrl,
                     label: entry.label,
@@ -309,26 +306,31 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Actions Collectives", style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 10),
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 12),
+          child: Text("Actions Collectives", style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+        ),
 
         _ChallengeCard(
           title: "Défi avec un membre",
           subtitle: "Compare tes actions avec un collègue",
           icon: Icons.flash_on,
-          buttonText: "Lancer un défi",
           color: AppColors.lightPrimary,
+          onTap: () {
+            // Action à définir
+          },
         ),
 
-        const SizedBox(height: 10),
+        const SizedBox(height: 12),
 
         _ChallengeCard(
           title: "Défi de communautés",
           subtitle: "Affronte une autre équipe",
           icon: Icons.emoji_events,
-          buttonText: "Créer un défi",
           color: Colors.orange,
-          isInverse: true,
+          onTap: () {
+            // Action à définir
+          },
         ),
       ],
     );
@@ -373,7 +375,6 @@ class _LeaderboardCard extends StatelessWidget {
           children: [
             Text("#${entry.rank}", style: TextStyle(fontWeight: FontWeight.bold, color: theme.hintColor, fontSize: 16)),
             const SizedBox(width: 12),
-            // --- UTILISATION DU NOUVEAU WIDGET ---
             OikosAvatar(
               avatarUrl: entry.avatarUrl,
               label: entry.label,
@@ -415,21 +416,20 @@ class _LeaderboardCard extends StatelessWidget {
   }
 }
 
+// --- NOUVEAU DESIGN ÉPURÉ POUR LES CARTES ---
 class _ChallengeCard extends StatelessWidget {
   final String title;
   final String subtitle;
   final IconData icon;
-  final String buttonText;
   final Color color;
-  final bool isInverse;
+  final VoidCallback onTap;
 
   const _ChallengeCard({
     required this.title,
     required this.subtitle,
     required this.icon,
-    required this.buttonText,
     required this.color,
-    this.isInverse = false,
+    required this.onTap,
   });
 
   @override
@@ -437,49 +437,72 @@ class _ChallengeCard extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
+    // Design inspiré de ProfileActionButton
+    // mais adapté en "Card" pour le dashboard
     return Container(
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkInput : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8)],
+        // Bordure fine comme sur les inputs
+        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightInputBorder),
+        // Ombre très légère, voire nulle pour un look "flat"
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 5, offset: const Offset(0, 2))
+        ],
       ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: isInverse ? color.withOpacity(0.1) : color,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: isInverse ? color : Colors.white, size: 28),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: Row(
               children: [
-                Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: theme.textTheme.bodyLarge?.color)),
-                Text(subtitle, style: theme.textTheme.bodySmall),
-                const SizedBox(height: 8),
-                SizedBox(
-                  height: 32,
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: isInverse ? color : AppColors.lightPrimary,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      elevation: 0,
-                    ),
-                    child: Text(buttonText, style: const TextStyle(fontSize: 12)),
+                // Icône dans un cercle coloré (comme sur le profil)
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    shape: BoxShape.circle,
                   ),
-                )
+                  child: Icon(icon, color: color, size: 22),
+                ),
+                const SizedBox(width: 16),
+
+                // Textes
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                          title,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                              color: isDark ? AppColors.darkForeground : AppColors.lightTextPrimary
+                          )
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                          subtitle,
+                          style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor)
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Petite flèche discrète pour inviter à l'action
+                Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    size: 16,
+                    color: theme.hintColor.withOpacity(0.5)
+                ),
               ],
             ),
-          )
-        ],
+          ),
+        ),
       ),
     );
   }
