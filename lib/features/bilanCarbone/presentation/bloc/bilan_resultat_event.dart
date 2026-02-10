@@ -20,4 +20,6 @@ class ValiderObjectifEvent extends ResultatEvent {
   const ValiderObjectifEvent(this.objectif);
 }
 
+class AllerVersResultatEvent extends ResultatEvent {}
+
 class RetourAuChoixCategoriesEvent extends ResultatEvent {}

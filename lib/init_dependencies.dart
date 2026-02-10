@@ -293,6 +293,7 @@ void _initBilan() {
       definirObjectifUseCase: serviceLocator(),
       calculerCategoriesUseCase: serviceLocator(),
       equivalentsUseCase: serviceLocator(),
+      calculerBilanUseCase: serviceLocator(),
     ),
   );
 }

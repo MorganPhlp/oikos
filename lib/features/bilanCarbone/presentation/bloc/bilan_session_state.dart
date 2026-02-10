@@ -13,27 +13,26 @@ class SessionInitial extends BilanSessionState {}
 
 class SessionLoading extends BilanSessionState {}
 
-class SessionRepriseDisponible extends BilanSessionState {
+class SessionRepriseDetectee extends BilanSessionState {
   final List<QuestionBilanEntity> questions;
   final List<ReponseUtilisateurEntity> reponsesExistantes;
 
-  const SessionRepriseDisponible({
+  const SessionRepriseDetectee({
     required this.questions,
     required this.reponsesExistantes,
   });
-
-  @override
-  List<Object?> get props => [questions, reponsesExistantes];
 }
 
 /// État : Tout est prêt pour afficher la première (ou la prochaine) question.
 class SessionPrete extends BilanSessionState {
   final List<QuestionBilanEntity> questions;
-  final List<ReponseUtilisateurEntity> reponsesInitiales;
+  final List<ReponseUtilisateurEntity> reponsesExistantes;
+  final ModeBilan? mode;
 
   const SessionPrete({
     required this.questions,
-    required this.reponsesInitiales,
+    required this.reponsesExistantes,
+    this.mode = ModeBilan.full,
   });
 }
 
@@ -41,3 +40,5 @@ class SessionError extends BilanSessionState {
   final String message;
   const SessionError(this.message);
 }
+
+enum ModeBilan { full, continuer, modifier }

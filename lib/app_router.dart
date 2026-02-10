@@ -28,7 +28,10 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
       GoRoute(
         path: '/bilan',
         name: 'bilan',
-        builder: (context, state) => const BilanFlow(),
+        builder: (context, state) {
+          final mode = state.extra as String? ?? 'full';
+          return BilanFlow(mode: mode);
+          },
       ),
       GoRoute(
         path: '/',

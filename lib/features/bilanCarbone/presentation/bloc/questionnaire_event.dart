@@ -13,10 +13,12 @@ abstract class QuestionnaireEvent extends Equatable {
 class InitQuestionnaireEvent extends QuestionnaireEvent {
   final List<QuestionBilanEntity> questions;
   final List<ReponseUtilisateurEntity> reponsesInitiales;
+  final ModeQuestionnaire? modeQuestionnaire;
 
   const InitQuestionnaireEvent({
     required this.questions,
     required this.reponsesInitiales,
+    this.modeQuestionnaire = ModeQuestionnaire.continuer,
   });
 
   @override
@@ -43,3 +45,5 @@ class RetourVersQuestionnaireEvent extends QuestionnaireEvent {}
 class AfficherNoticeApprofondissementEvent extends QuestionnaireEvent {}
 
 class NoticeApprofondissementApprovedEvent extends QuestionnaireEvent {}
+
+enum ModeQuestionnaire { debut, continuer }
