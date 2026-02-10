@@ -6,6 +6,7 @@ import 'package:oikos/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:oikos/features/auth/presentation/pages/intro_page.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_cubit.dart';
 import 'package:oikos/features/bilanCarbone/presentation/pages/bilan_page.dart';
+import 'package:oikos/features/actions_et_defis/presentation/pages/action_page.dart';
 import 'package:oikos/init_dependencies.dart';
 
 void main() async {
@@ -46,7 +47,8 @@ class _MyAppState extends State<MyApp> {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      home: BlocSelector<AppUserCubit, AppUserState, bool>(
+      home: const ActionsPage(),
+      /* home: BlocSelector<AppUserCubit, AppUserState, bool>(
         selector: (state) {
           return state is AppUserLoggedIn;
         },
@@ -62,7 +64,7 @@ class _MyAppState extends State<MyApp> {
             return const IntroPage(); // Remplacez par votre page d'introduction
           }
         },
-      ),
+      ),*/
     );
   }
 }
