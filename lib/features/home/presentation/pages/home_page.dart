@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:oikos/features/defisCommunautaires/presentation/widgets/defis_communautaires_card_widget.dart';
+import 'package:oikos/features/community/presentation/widgets/defis_communautaires_card_widget.dart';
 import 'package:oikos/features/home/domain/entities/stats_cards_entitie.dart';
 import 'package:oikos/core/common/presentation/widgets/header.dart';
 import 'package:oikos/features/home/presentation/widgets/quick_access_widget.dart';
