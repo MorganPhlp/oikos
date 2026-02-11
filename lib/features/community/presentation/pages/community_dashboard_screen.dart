@@ -97,8 +97,8 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
           final isMe = entry.id == userId;
              return entry.copyWith(
                isMe: isMe,
-               // Si c'est l'utilisateur connecté, on affiche "Toi", sinon on garde le vrai nom
-               label: isMe ? "Toi" : entry.label, 
+               // Si c'est l'utilisateur connecté, on affiche "Moi", sinon on garde le vrai nom
+               label: isMe ? "Moi" : entry.label, 
              );
         }).toList();
         _communityList = results[1] as List<LeaderboardEntryModel>;
@@ -180,24 +180,69 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
   }
 
   Widget _buildLeaderboardView(List<LeaderboardEntry> list, {required bool isCommunity}) {
+    final theme = Theme.of(context);
     if (_isLoading) return const Center(child: CircularProgressIndicator());
     if (list.isEmpty) return const Center(child: Text("Aucun classement disponible"));
 
-    final top3 = list.take(3).toList();
-    final rest = list.length > 3 ? list.sublist(3) : <LeaderboardEntry>[];
+    List<LeaderboardEntry> displayList = [];
+    
+    // On prend les 10 premiers maximum
+    final top10 = list.take(10).toList();
+    displayList.addAll(top10);
+
+    // On vérifie si l'utilisateur connecté est dans le Top 10
+    bool amIInTop10 = top10.any((e) => e.isMe);
+
+    // Sinon on ajoute l'utilisateur connecté à la fin
+    if (!amIInTop10) {
+      try {
+        final myEntry = list.firstWhere((e) => e.isMe);
+        displayList.add(myEntry);
+      } catch (_) {
+        // Cas où l'utilisateur n'est pas trouvé dans la liste complète
+      }
+    }
+
+    // Podium des 3 premiers
+    final top3 = displayList.take(3).toList();
+    final rest = displayList.length > 3 ? displayList.sublist(3) : <LeaderboardEntry>[];
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 10, 20, 100),
       child: Column(
         children: [
+          // Affichage du podium
           if (top3.isNotEmpty) _buildPodium(top3, isCommunity),
 
           const SizedBox(height: 20),
 
-          ...rest.map((entry) => _LeaderboardCard(
-              entry: entry,
-              onTap: () => _showRankingInfo(context, entry)
-          )).toList(),
+          // Affichage du reste
+          ...rest.map((entry) {
+            final isMeAndFar = entry.isMe && !amIInTop10;
+
+            return Column(
+              children: [
+                if (isMeAndFar)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Row(
+                      children: [
+                        Expanded(child: Divider(color: theme.hintColor)),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 8),
+                          child: Icon(Icons.more_horiz, color: theme.hintColor),
+                        ),
+                        Expanded(child: Divider(color: theme.hintColor)),
+                      ],
+                    ),
+                  ),
+                _LeaderboardCard(
+                    entry: entry,
+                    onTap: () => _showRankingInfo(context, entry)
+                ),
+              ],
+            );
+          }).toList(),
 
           const SizedBox(height: 30),
 
