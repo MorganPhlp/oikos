@@ -9,10 +9,10 @@ import '../widgets/profile_details_modal.dart';
 
 // Couleurs utilisées dans la page
 class AppColors {
-  static const greenPrimary = Color(0xFFBDEE63); // Vert Citron (Boutons/Fond avatar)
-  static const greenDark = Color(0xFF37401C);    // Vert très foncé (Textes)
-  static const greenAccent = Color(0xFF65BA74);  // Vert moyen (Icones/Bordures)
-  static const bgCream = Color(0xFFFAFAFA);      // Fond Crème
+  static const greenPrimary = Color(0xFFBDEE63); // Boutons/Fond avatar
+  static const greenDark = Color(0xFF37401C);    // extes
+  static const greenAccent = Color(0xFF65BA74);  // Icônes/Bordures
+  static const bgCream = Color(0xFFFAFAFA);      // Fond
   static const cardWhite = Colors.white;
   
   // Couleurs du podium
@@ -21,7 +21,7 @@ class AppColors {
   static const bronze = Color(0xFFCD7F32);
 }
 
-// Écran principal de la section Communauté avec les classements et défis
+// Écran principal de la section Classement avec les classements et défis
 class CommunityDashboardScreen extends StatefulWidget {
   const CommunityDashboardScreen({Key? key}) : super(key: key);
 
@@ -29,6 +29,7 @@ class CommunityDashboardScreen extends StatefulWidget {
   State<CommunityDashboardScreen> createState() => _CommunityDashboardScreenState();
 }
 
+// Etat de l'écran de classement communautaire
 class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> with SingleTickerProviderStateMixin {
   late CommunityRemoteDataSource _dataSource;
   late TabController _tabController;
@@ -53,7 +54,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
         avatarUrl: entry.avatarUrl ?? '',
         isCommunity: !entry.isUser, // Si ce n'est pas un user, c'est une communauté
         onSeeProfile: () {
-          Navigator.pop(context); // Ferme la modale d'abord
+          Navigator.pop(context);
           print("Navigation vers le profil de ${entry.label}");
           showDialog(
             context: context,
@@ -62,10 +63,26 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
           },
         onDuel: () {
           Navigator.pop(context);
-          print("Duel lancé contre ${entry.label}");
+          print("Défi lancé contre ${entry.label}");
         },
       ),
     );
+  }
+
+  // Fonction utilitaire pour gérer les avatars (Web vs Local)
+  ImageProvider? _getAvatarProvider(String? url) {
+    if (url == null || url.isEmpty) return null;
+    
+    if (url.startsWith('http') || url.startsWith('https')) {
+      // Cas URL Internet (Supabase)
+      return NetworkImage(url);
+    } else {
+      // Cas fichier Local (Asset)
+      String cleanPath = url
+          .replaceAll('file:///', '')
+          .replaceAll('C:/src/projet/oikos/', '');
+      return AssetImage(cleanPath);
+    }
   }
 
   @override
@@ -84,7 +101,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
       final userId = Supabase.instance.client.auth.currentUser?.id;
       if (userId == null) throw Exception("Utilisateur non connecté");
 
-      // 1. Récupérer infos utilisateur
+      // Récupération des infos utilisateur
       final userRes = await Supabase.instance.client
           .from('utilisateur')
           .select('code_communaute, entreprise_id')
@@ -99,7 +116,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
       _myCommunityCode = userRes['code_communaute'];
       _myEntrepriseId = userRes['entreprise_id'];
 
-      // 2. Charger les vraies données
+      // Chargement des données
       final results = await Future.wait([
         _dataSource.getUserLeaderboard(_myCommunityCode!),
         _dataSource.getCommunityLeaderboard(_myEntrepriseId ?? '', _myCommunityCode!),
@@ -109,7 +126,14 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
       if (!mounted) return;
 
       setState(() {
-        _userList = results[0] as List<LeaderboardEntryModel>;
+        _userList = (results[0] as List<LeaderboardEntryModel>).map((entry){
+          final isMe = entry.id == userId;
+             return entry.copyWith(
+               isMe: isMe,
+               // Si c'est l'utilisateur connecté, on affiche "Toi", sinon on garde le vrai nom
+               label: isMe ? "Toi" : entry.label, 
+             );
+        }).toList();
         _communityList = results[1] as List<LeaderboardEntryModel>;
         _actions = results[2] as List<CommunityActionModel>;
         _isLoading = false;
@@ -117,30 +141,10 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
 
     } catch (e) {
       if (!mounted) return;
-      // Fallback si erreur serveur pour voir le design
-      _loadFakeDataFallback();
     }
   }
 
-  void _loadFakeDataFallback() {
-    // Données fictives JUSTE pour tester le design si Supabase plante
-    setState(() {
-      _userList = [
-        LeaderboardEntryModel(id: '1', label: 'Sophie', value: 2450, rank: 1, isUser: true, isMe: false, impactStats: '-75kg', actionsCount: 42, streakDays: 5, avatarUrl: ''),
-        LeaderboardEntryModel(id: '2', label: 'Thomas', value: 2280, rank: 2, isUser: true, isMe: false, impactStats: '-60kg', actionsCount: 38, streakDays: 2, avatarUrl: ''),
-        LeaderboardEntryModel(id: '3', label: 'Marie', value: 2150, rank: 3, isUser: true, isMe: false, impactStats: '-55kg', actionsCount: 35, streakDays: 3, avatarUrl: ''),
-        LeaderboardEntryModel(id: '4', label: 'Lucas Bernard', value: 1980, rank: 4, isUser: true, isMe: false, impactStats: '-71kg', actionsCount: 36, streakDays: 0, avatarUrl: ''),
-        LeaderboardEntryModel(id: '6', label: 'Vous', value: 1720, rank: 6, isUser: true, isMe: true, impactStats: '-63kg', actionsCount: 31, streakDays: 1, avatarUrl: ''),
-      ];
-      _communityList = [
-        LeaderboardEntryModel(id: 'c1', label: 'Viveris Paris', value: 24500, rank: 1, isUser: false, isMe: true, impactStats: '-1.2T', actionsCount: 156, streakDays: 0, avatarUrl: ''),
-        LeaderboardEntryModel(id: 'c2', label: 'Viveris Lyon', value: 18900, rank: 2, isUser: false, isMe: false, impactStats: '-890kg', actionsCount: 89, streakDays: 0, avatarUrl: ''),
-      ];
-      _isLoading = false;
-      _error = null;
-    });
-  }
-
+  // Nettoyage du controller
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -169,7 +173,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
             ),
             child: TabBar(
               controller: _tabController,
-              indicatorSize: TabBarIndicatorSize.tab, // L'indicateur prend toute la largeur de l'onglet
+              indicatorSize: TabBarIndicatorSize.tab,
               indicator: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(25),
@@ -254,8 +258,11 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
   }
 
   Widget _buildPodiumStep(LeaderboardEntry entry, int rank, Color color, double height) {
+    // On calcule le bon provider d'image avec notre fonction
+    final imageProvider = _getAvatarProvider(entry.avatarUrl);
+
     return Expanded(
-      child: GestureDetector( // AJOUT DU CLICK ICI
+      child: GestureDetector(
         onTap: () => _showRankingInfo(context, entry),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
@@ -269,9 +276,15 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
                   child: CircleAvatar(
                     radius: rank == 1 ? 35 : 28,
                     backgroundColor: AppColors.bgCream,
-                    backgroundImage: entry.avatarUrl != null && entry.avatarUrl!.isNotEmpty ? NetworkImage(entry.avatarUrl!) : null,
-                    child: entry.avatarUrl == null || entry.avatarUrl!.isEmpty 
-                      ? Text(entry.label[0].toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)) 
+                    
+                    backgroundImage: imageProvider,
+                    
+                    // On affiche l'initiale seulement si pas d'image
+                    child: imageProvider == null
+                      ? Text(
+                          entry.label.isNotEmpty ? entry.label[0].toUpperCase() : "?",
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)
+                        )
                       : null,
                   ),
                 ),
@@ -316,16 +329,16 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
         const SizedBox(height: 10),
         
         _ChallengeCard(
-          title: "Défi avec un membre",
-          subtitle: "Compare tes actions avec un collègue",
+          title: "Défi communautaire",
+          subtitle: "Lance-toi dans un défi collectif avec ta communauté",
           icon: Icons.flash_on,
-          buttonText: "Lancer un défi",
+          buttonText: "Lancer une action",
           color: AppColors.greenPrimary,
         ),
         
         const SizedBox(height: 10),
         
-        // Carte Défi 2
+        /*Carte Défi 2
         _ChallengeCard(
           title: "Défi de communautés",
           subtitle: "Affronte une autre équipe",
@@ -333,7 +346,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
           buttonText: "Créer un défi",
           color: AppColors.greenAccent,
           isInverse: true,
-        ),
+        ),*/
       ],
     );
   }
@@ -348,6 +361,22 @@ class _LeaderboardCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isMe = entry.isMe;
 
+    ImageProvider? imageProvider;
+    final url = entry.avatarUrl;
+
+    if (url != null && url.isNotEmpty) {
+      if (url.startsWith('http') || url.startsWith('https')) {
+        // Cas Internet (Supabase)
+        imageProvider = NetworkImage(url);
+      } else {
+        // Cas Local (Asset)
+        String cleanPath = url
+            .replaceAll('file:///', '')
+            .replaceAll('C:/src/projet/oikos/', ''); 
+        imageProvider = AssetImage(cleanPath);
+      }
+    }
+
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(12),
@@ -355,30 +384,58 @@ class _LeaderboardCard extends StatelessWidget {
         color: isMe ? const Color(0xFFE8F5E9) : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: isMe ? Border.all(color: AppColors.greenAccent) : null,
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 5, offset: const Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          )
+        ],
       ),
       child: Row(
         children: [
-          Text("#${entry.rank}", style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey, fontSize: 16)),
+          Text(
+            "#${entry.rank}",
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.grey,
+              fontSize: 16,
+            ),
+          ),
           const SizedBox(width: 12),
+          
           CircleAvatar(
             radius: 20,
             backgroundColor: isMe ? AppColors.greenPrimary : Colors.grey[200],
-            backgroundImage: entry.avatarUrl != null && entry.avatarUrl!.isNotEmpty ? NetworkImage(entry.avatarUrl!) : null,
-            child: entry.avatarUrl == null || entry.avatarUrl!.isEmpty 
-              ? Text(entry.label[0], style: TextStyle(color: isMe ? AppColors.greenDark : Colors.grey)) 
-              : null,
+            backgroundImage: imageProvider,
+            child: imageProvider == null
+                ? Text(
+                    entry.label.isNotEmpty ? entry.label[0].toUpperCase() : "?",
+                    style: TextStyle(
+                      color: isMe ? AppColors.greenDark : Colors.grey,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  )
+                : null,
           ),
+
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(entry.label, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.greenDark, fontSize: 15)),
                 Text(
-                  entry.isUser 
-                    ? "${entry.actionsCount ?? 0} actions • ${entry.impactStats ?? ''}"
-                    : "${entry.actionsCount ?? 0} membres • ${entry.impactStats ?? ''}",
+                  entry.label,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.greenDark,
+                    fontSize: 15,
+                  ),
+                ),
+                Text(
+                  entry.isUser
+                      ? "${entry.actionsCount ?? 0} actions"
+                      : "${entry.actionsCount ?? 0} membres",
                   style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
               ],
@@ -387,8 +444,18 @@ class _LeaderboardCard extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text("${entry.value}", style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.greenAccent, fontSize: 16)),
-              const Text("points", style: TextStyle(fontSize: 10, color: Colors.grey)),
+              Text(
+                "${entry.value}",
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.greenAccent,
+                  fontSize: 16,
+                ),
+              ),
+              const Text(
+                "points",
+                style: TextStyle(fontSize: 10, color: Colors.grey),
+              ),
             ],
           )
         ],

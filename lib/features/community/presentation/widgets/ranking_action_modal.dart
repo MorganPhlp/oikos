@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
+// Widget pour le modal d'action sur le classement
 class RankingActionModal extends StatelessWidget {
-  final String name;          // Ex: "Lucas Bernard" ou "Viveris Lyon"
-  final String avatarUrl;     // Chemin de l'asset ou URL
+  final String name;
+  final String avatarUrl;
   final bool isCommunity;     // true = Communauté, false = Utilisateur
   final VoidCallback onSeeProfile; // Action quand on clique sur "Voir le profil"
-  final VoidCallback onDuel;       // Action quand on clique sur "Lancer un duel"
+  final VoidCallback onDuel;       // Action quand on clique sur "Lancer un défi"
 
   const RankingActionModal({
     Key? key,
@@ -16,43 +17,62 @@ class RankingActionModal extends StatelessWidget {
     required this.onDuel,
   }) : super(key: key);
 
-  @override
+@override
   Widget build(BuildContext context) {
-    // Couleurs basées sur tes screens (à adapter si tu as un fichier de thème global)
-    final Color primaryGreen = const Color(0xFF7CB342); // Vert bouton duel
-    final Color lightGreenBg = const Color(0xFFF1F8E9); // Vert très clair bouton profil
+    // Couleurs
+    final Color primaryGreen = const Color(0xFF7CB342); // Bouton défi
+    final Color lightGreenBg = const Color(0xFFF1F8E9); // Bouton profil
     final Color textDark = const Color(0xFF2E3A26);     // Texte foncé
+
+    ImageProvider? imageProvider;
+    
+    if (avatarUrl != null && avatarUrl!.isNotEmpty) {
+      if (avatarUrl!.startsWith('http') || avatarUrl!.startsWith('https')) {
+        // URL Internet (Supabase)
+        imageProvider = NetworkImage(avatarUrl!);
+      } else {
+        // Fichier Local (Asset)
+        String cleanPath = avatarUrl!.replaceAll('file:///', '').replaceAll('C:/src/projet/oikos/', '');
+        imageProvider = AssetImage(cleanPath);
+      }
+    }
 
     return Dialog(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24), // Arrondi prononcé comme sur le screen
+        borderRadius: BorderRadius.circular(24),
       ),
       elevation: 0,
       backgroundColor: Colors.white,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         child: Column(
-          mainAxisSize: MainAxisSize.min, // La modale s'adapte à la taille du contenu
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // --- 1. AVATAR ---
             Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                // Le fond vert derrière la tête
                 color: isCommunity ? Colors.green.shade200 : const Color(0xFFAED581),
               ),
               child: CircleAvatar(
                 radius: 32,
-                backgroundColor: Colors.transparent,
-                // On gère ici si c'est une image locale (Asset) ou réseau (Network)
-                // Pour l'instant je mets Asset, change par NetworkImage si besoin
-                backgroundImage: AssetImage(avatarUrl), 
+                backgroundColor: Colors.white,
+                backgroundImage: imageProvider, 
+                // Si pas d'image, on affiche l'initiale
+                child: imageProvider == null
+                    ? Text(
+                        name.isNotEmpty ? name[0].toUpperCase() : "?",
+                        style: TextStyle(
+                          fontSize: 24, 
+                          fontWeight: FontWeight.bold, 
+                          color: textDark
+                        ),
+                      )
+                    : null,
               ),
             ),
             const SizedBox(height: 12),
 
-            // --- 2. NOM & TYPE ---
             Text(
               name,
               textAlign: TextAlign.center,
@@ -83,7 +103,7 @@ class RankingActionModal extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // --- 3. BOUTON VOIR PROFIL (Vert Clair) ---
+            // Bouton "Voir le profil"
             SizedBox(
               width: double.infinity,
               height: 48,
@@ -91,7 +111,7 @@ class RankingActionModal extends StatelessWidget {
                 onPressed: onSeeProfile,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: lightGreenBg,
-                  foregroundColor: textDark, // Couleur du texte/icone
+                  foregroundColor: textDark,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -105,7 +125,7 @@ class RankingActionModal extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            // --- 4. BOUTON DUEL (Vert Foncé) ---
+            // Bouton "Lancer un défi"
             SizedBox(
               width: double.infinity,
               height: 48,
@@ -122,10 +142,10 @@ class RankingActionModal extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: const [
-                    Icon(Icons.flash_on, size: 20), // Assure-toi d'avoir une icône d'épée ou utilise Icons.flash_on
+                    Icon(Icons.flash_on, size: 20),
                     SizedBox(width: 8),
                     Text(
-                      "Lancer un duel",
+                      "Lancer un défi",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -134,7 +154,7 @@ class RankingActionModal extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // --- 5. BOUTON ANNULER ---
+            // Bouton "Annuler"
             InkWell(
               onTap: () => Navigator.of(context).pop(),
               child: const Padding(
