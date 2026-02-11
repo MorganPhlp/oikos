@@ -1,86 +1,111 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:oikos/init_dependencies.dart';
+import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
+import 'package:oikos/features/streak/presentation/bloc/streak_bloc.dart';
+import 'package:oikos/features/streak/presentation/bloc/streak_event.dart';
+import 'package:oikos/features/streak/presentation/bloc/streak_state.dart';
 
 class StreakWidget extends StatelessWidget {
-  final DateTime endSeasonDate;
-  final DateTime timeLeftBeforeLosingStreak;
-  final String? streakImagePath;
-
-  const StreakWidget({
-    super.key,
-    required this.endSeasonDate,
-    required this.timeLeftBeforeLosingStreak,
-    this.streakImagePath,
-  });
+  const StreakWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final userState = context.read<AppUserCubit>().state;
+    String userId = "";
+    if (userState is AppUserLoggedIn) {
+      userId = userState.user.id;
+    }
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.primary.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Column(
-        children: [
-          // TODO : Charger l'image depuis supabase
-          Image.asset(
-            streakImagePath ?? 'assets/streak/streak_spring1.png',
-            height: 140,
-            fit: BoxFit.contain,
-          ),
-          const SizedBox(height: 16),
+    return BlocProvider(
+      create: (context) =>
+          serviceLocator.get<StreakBloc>()..add(WatchStreakEvent(userId)),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.primary.withValues(alpha: 0.2),
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: BlocBuilder<StreakBloc, StreakState>(
+          builder: (context, state) {
+            final logoUrl = state.streak.logoUrl;
+            final bool hasLogo = logoUrl != null && logoUrl.isNotEmpty;
+            print(
+              'endDate: ${state.streak.saisonFin}',
+            ); // Debug : Affiche la date de fin de saison dans la console
+            return Column(
+              children: [
+                if (hasLogo)
+                  Image.network(
+                    logoUrl,
+                    height: 140,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) =>
+                        const SizedBox.shrink(),
+                  )
+                else
+                  const SizedBox(height: 140),
+                const SizedBox(height: 16),
 
-          // Badge Saison
-          _CountdownBadge(
-            targetDate: endSeasonDate,
-            prefix: "avant fin de saison",
-            style: TextStyle(
-              color: theme.primaryColor,
-              fontWeight: FontWeight.bold,
-            ),
-            icon: const Text("⏳", style: TextStyle(fontSize: 16)),
-            backgroundColor: theme.primaryColor.withValues(alpha: 0.1),
-            borderColor: theme.primaryColor.withValues(alpha: 0.3),
-            // TODO : quand timer finit appel au bloc verifier et update UI
-            onFinished: () {},
-          ),
+                // Badge Saison
+                _CountdownBadge(
+                  targetDate: state.streak.saisonFin ?? DateTime(2025, 12, 31),
+                  prefix: "avant fin de saison",
+                  style: TextStyle(
+                    color: theme.primaryColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  icon: const Text("⏳", style: TextStyle(fontSize: 16)),
+                  backgroundColor: theme.primaryColor.withValues(alpha: 0.1),
+                  borderColor: theme.primaryColor.withValues(alpha: 0.3),
+                  // TODO : quand timer finit appel au bloc verifier et update UI
+                  onFinished: () {},
+                ),
 
-          const SizedBox(height: 6),
-          const _DecorativeSeparator(), // Constante : Rebuild = 0
-          const SizedBox(height: 6),
+                const SizedBox(height: 6),
+                const _DecorativeSeparator(), // Constante : Rebuild = 0
+                const SizedBox(height: 6),
 
-          // Badge Streak
-          _CountdownBadge(
-            targetDate: timeLeftBeforeLosingStreak,
-            prefix: "",
-            style: TextStyle(
-              color: theme.primaryColor,
-              fontWeight: FontWeight.bold,
-            ),
-            icon: Icon(
-              LucideIcons.clock,
-              size: 16,
-              color: theme.colorScheme.tertiary,
-            ),
-            backgroundColor: theme.colorScheme.tertiary.withValues(alpha: 0.05),
-            borderColor: theme.colorScheme.tertiary.withValues(alpha: 0.2),
-            // TODO : quand timer finit appel au bloc verifier et update UI
-            onFinished: () {},
-          ),
+                // Badge Streak
+                _CountdownBadge(
+                  targetDate: state.streak.lastUpdated.add(
+                    const Duration(days: 14),
+                  ),
+                  prefix: "",
+                  style: TextStyle(
+                    color: theme.primaryColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  icon: Icon(
+                    LucideIcons.clock,
+                    size: 16,
+                    color: theme.colorScheme.tertiary,
+                  ),
+                  backgroundColor: theme.colorScheme.tertiary.withValues(
+                    alpha: 0.05,
+                  ),
+                  borderColor: theme.colorScheme.tertiary.withValues(
+                    alpha: 0.2,
+                  ),
+                  // TODO : quand timer finit appel au bloc verifier et update UI
+                  onFinished: () {},
+                ),
 
-          const SizedBox(height: 12),
-          const Text(
-            "pour réaliser ton action quotidienne et collective",
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 12, color: Colors.black45),
-          ),
-        ],
+                const SizedBox(height: 12),
+                const Text(
+                  "pour réaliser ton action quotidienne et collective",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12, color: Colors.black45),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -120,7 +145,6 @@ class _DecorativeSeparator extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          // Ligne de droite (Dégradé vers la gauche)
           Expanded(
             child: Container(
               height: 2,
@@ -175,11 +199,22 @@ class _CountdownBadgeState extends State<_CountdownBadge> {
     );
   }
 
+  @override
+  void didUpdateWidget(_CountdownBadge oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Si la date cible a changé entre deux builds du parent
+    if (oldWidget.targetDate != widget.targetDate) {
+      _calculateDuration();
+    }
+  }
+
   void _calculateDuration() {
     final now = DateTime.now();
     final diff = widget.targetDate.difference(now);
 
-    if (diff.inSeconds <= 0 && _timer.isActive) {
+    if (diff.inSeconds <= 0) {
+      // On vérifie si le timer a été initialisé avant d'accéder à .isActive
+      // Dans initState, au premier appel, il ne l'est pas encore.
       widget.onFinished?.call();
     }
 

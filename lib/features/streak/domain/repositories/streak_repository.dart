@@ -1,5 +1,6 @@
+import 'package:oikos/features/streak/domain/entities/utilisateur_streak_entity.dart';
+
 abstract class StreakRepository {
-  Future<int> getCurrentStreak();
-  Future<void> incrementStreak();
-  Future<void> resetStreak();
+  Future<UtilisateurStreakEntity> getCurrentStreak(String userId);
+  Stream<UtilisateurStreakEntity> watchStreak(String userId);
 }

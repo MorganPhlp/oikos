@@ -39,12 +39,16 @@ import 'package:oikos/features/bilanCarbone/domain/use_cases/recuperer_questions
 import 'package:oikos/features/bilanCarbone/domain/use_cases/recuperer_reponses_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/reprendre_bilan_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/verifier_bilan_en_cours_use_case.dart';
+import 'package:oikos/features/streak/data/datasources/streak_remote_datasource.dart';
+import 'package:oikos/features/streak/data/repositories/streak_repository_impl.dart';
+import 'package:oikos/features/streak/domain/repositories/streak_repository.dart';
+import 'package:oikos/features/streak/domain/use_cases/get_streak_use_case.dart';
+import 'package:oikos/features/streak/domain/use_cases/watch_streak_use_case.dart';
+import 'package:oikos/features/streak/presentation/bloc/streak_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_session_bloc.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/questionnaire_bloc.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_resultat_bloc.dart';
-
-
 
 import 'core/common/presentation/cubits/app_user/app_user_cubit.dart';
 import 'core/secrets/app_secrets.dart';
@@ -70,7 +74,10 @@ Future<void> initDependencies() async {
     url: AppSecrets.supabaseUrl,
     anonKey: AppSecrets.supabaseAnonKey,
     authOptions: FlutterAuthClientOptions(
-      authFlowType: kIsWeb ? AuthFlowType.implicit : AuthFlowType.pkce, // Pour éviter les problèmes de redirection sur le web, on utilise le flow implicite qui gère tout côté client. C'est plus simple et sécurisé pour une application Flutter.
+      authFlowType: kIsWeb
+          ? AuthFlowType.implicit
+          : AuthFlowType
+                .pkce, // Pour éviter les problèmes de redirection sur le web, on utilise le flow implicite qui gère tout côté client. C'est plus simple et sécurisé pour une application Flutter.
     ),
   );
   serviceLocator.registerLazySingleton<SupabaseClient>(() => supabase.client);
@@ -85,6 +92,7 @@ Future<void> initDependencies() async {
   _initAuth();
   _initBilan();
   _initCodeBarre();
+  _initStreak();
 }
 
 void _initAuth() {
@@ -120,8 +128,6 @@ void _initAuth() {
   serviceLocator.registerLazySingleton(() => UpdateUser(serviceLocator()));
 
   serviceLocator.registerLazySingleton(() => DeleteAccount(serviceLocator()));
-
-
 
   // Bloc
   serviceLocator.registerLazySingleton(
@@ -298,34 +304,50 @@ void _initBilan() {
   );
 }
 
-
 void _initCodeBarre() {
   // Data Source
   serviceLocator.registerFactory<CodeBarreRemoteDataSource>(
-        () => CodeBarreRemoteDataSourceImpl(
-      client: serviceLocator(),
-    ),
+    () => CodeBarreRemoteDataSourceImpl(client: serviceLocator()),
   );
 
   // Repository
   serviceLocator.registerFactory<AlimentRepository>(
-        () => AlimentRepositoryImpl(
-      serviceLocator(),
-    ),
+    () => AlimentRepositoryImpl(serviceLocator()),
   );
 
   // UseCase
-  serviceLocator.registerFactory(
-        () => GetAlimentByCode(
-      serviceLocator(),
-    ),
-  );
+  serviceLocator.registerFactory(() => GetAlimentByCode(serviceLocator()));
 
   // Bloc
   // Vu que c'est un scan, on utilise registerFactory (nouvel état à chaque ouverture)
   serviceLocator.registerFactory(
-        () => ScanBloc(
-      getAlimentByCode: serviceLocator(),
-    ),
+    () => ScanBloc(getAlimentByCode: serviceLocator()),
+  );
+}
+
+void _initStreak() {
+  // Datasource
+  serviceLocator.registerFactory<StreakRemoteDatasource>(
+    () => StreakRemoteDatasource(
+      supabaseClient: serviceLocator<SupabaseClient>(),
+    ), // Précise SupabaseClient
+  );
+
+  // Repository
+  serviceLocator.registerFactory<StreakRepository>(
+    () => StreakRepositoryImpl(serviceLocator<StreakRemoteDatasource>()),
+  );
+
+  // Use Case
+  serviceLocator.registerFactory<WatchStreakUseCase>(
+    () => WatchStreakUseCase(serviceLocator<StreakRepository>()),
+  );
+  serviceLocator.registerFactory<GetStreakUseCase>(
+    () => GetStreakUseCase(streakRepository: serviceLocator()),
+  );
+
+  // Bloc
+  serviceLocator.registerFactory<StreakBloc>(
+    () => StreakBloc(serviceLocator(), serviceLocator()),
   );
 }

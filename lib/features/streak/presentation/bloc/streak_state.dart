@@ -1,10 +1,10 @@
 import 'package:equatable/equatable.dart';
-import 'package:oikos/features/streak/domain/entities/streak_entity.dart';
+import 'package:oikos/features/streak/domain/entities/utilisateur_streak_entity.dart';
 
 enum StreakEvolution { increase, lost, reset, none }
 
 sealed class StreakState extends Equatable {
-  final StreakEntity streak;
+  final UtilisateurStreakEntity streak;
 
   const StreakState({required this.streak});
 

@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS public.saison (
     end_date DATE NOT NULL
 );
 
+-- logique de calcul pour la streak
 CREATE OR REPLACE FUNCTION public.calculer_streak()
 RETURNS trigger AS $$
 DECLARE
@@ -80,12 +81,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Trigger pour calculer le streak après chaque modification d'action
 CREATE TRIGGER trigger_calculer_streak
 AFTER INSERT ON public.realisation_actions
 FOR EACH ROW
 EXECUTE FUNCTION public.calculer_streak();
 
-
+-- Vue pour afficher le streak actuel d'un utilisateur en tenant compte de la saison et de l'inactivité
 CREATE OR REPLACE VIEW public.view_utilisateur_streak_live AS
 SELECT 
     us.utilisateur_id,
@@ -96,24 +98,36 @@ SELECT
     END AS effective_streak,
     us.current_streak AS stored_streak,
     us.last_updated,
-    s.name AS saison_nom
+    COALESCE(s.name, 'Hors saison') AS saison_nom,
+    COALESCE(s.start_date, '1970-01-01') AS saison_debut,
+    COALESCE(s.end_date, '1970-01-01') AS saison_fin
 FROM 
     public.utilisateur_streak us
-CROSS JOIN (
-    SELECT name, end_date 
-    FROM public.saison 
-    ORDER BY end_date DESC 
-    LIMIT 1
-) s;
+LEFT JOIN public.saison s ON (NOW() BETWEEN s.start_date AND s.end_date);
 
+--pour reset ka streak automatiquement tt les jours à 3h du matin, on utilise pg_cron
 SELECT cron.schedule(
     'reset-complet-streaks',
     '0 3 * * *', -- Tous les jours à 3h du matin
     $$
-    UPDATE public.user_streak us
+    UPDATE public.utilisateur_streak us
     SET current_streak = 0, last_updated = NOW()
-    FROM (SELECT end_date FROM public.saison ORDER BY end_date DESC LIMIT 1) s
+    FROM (SELECT start_date FROM public.saison ORDER BY end_date DESC LIMIT 1) s
     WHERE us.current_streak > 0 
-    AND (NOW() > s.end_date OR NOW() >= us.last_updated + INTERVAL '2 weeks');
+    AND (us.last_updated < s.start_date OR NOW() >= us.last_updated + INTERVAL '2 weeks'); -- Reset si inactivité apres 2 semaines ou si la saison est finie
     $$
 );
+
+CREATE OR REPLACE FUNCTION public.handle_new_user_streak()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO public.utilisateur_streak (utilisateur_id, current_streak, last_updated)
+    VALUES (NEW.id, 0, NOW());
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER trigger_init_streak
+AFTER INSERT ON public.utilisateur
+FOR EACH ROW
+EXECUTE FUNCTION public.handle_new_user_streak();
