@@ -53,3 +53,9 @@ node_modules/
 
 # Fichiers de configuration environnementale
 .env
+
+#Ios simulator
+ios/build
+
+#vs code settings
+.vscode

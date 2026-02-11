@@ -70,7 +70,7 @@ class ScannerOverlay extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              isLoading ? 'Recherche en cours...' : 'Scannez un code-barres',
+              isLoading ? 'Recherche en cours...' : 'Scanne le code-barres',
               style: const TextStyle(color: Colors.white, fontSize: 16),
             ),
           ),

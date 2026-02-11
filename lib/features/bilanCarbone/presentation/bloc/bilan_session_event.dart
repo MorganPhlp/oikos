@@ -23,3 +23,7 @@ class ConfirmerRepriseEvent extends BilanSessionEvent {}
 /// Permet de réinitialiser complètement la session (utile pour un bouton "Recommencer"
 /// présent dans les réglages ou à la fin du parcours).
 class RedemarrerBilanEvent extends BilanSessionEvent {}
+
+class ModifierBilanEvent extends BilanSessionEvent {}
+
+class ContinuerBilanEvent extends BilanSessionEvent {}

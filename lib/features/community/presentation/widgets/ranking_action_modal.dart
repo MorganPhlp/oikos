@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:oikos/core/theme/app_colors.dart';
+import 'package:oikos/core/common/presentation/widgets/oikos_avatar.dart';
+import 'package:oikos/core/common/presentation/widgets/gradient_button.dart'; // Import ajouté
 
 // Widget pour le modal d'action sur le classement
 class RankingActionModal extends StatelessWidget {
@@ -19,10 +22,8 @@ class RankingActionModal extends StatelessWidget {
 
 @override
   Widget build(BuildContext context) {
-    // Couleurs
-    final Color primaryGreen = const Color(0xFF7CB342); // Bouton défi
-    final Color lightGreenBg = const Color(0xFFF1F8E9); // Bouton profil
-    final Color textDark = const Color(0xFF2E3A26);     // Texte foncé
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     ImageProvider? imageProvider;
     
@@ -38,11 +39,9 @@ class RankingActionModal extends StatelessWidget {
     }
 
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       elevation: 0,
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         child: Column(
@@ -50,36 +49,25 @@ class RankingActionModal extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
-                color: isCommunity ? Colors.green.shade200 : const Color(0xFFAED581),
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.gradientGreenStart,
+                    AppColors.gradientGreenEnd,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
               ),
-              child: CircleAvatar(
-                radius: 32,
-                backgroundColor: Colors.white,
-                backgroundImage: imageProvider, 
-                // Si pas d'image, on affiche l'initiale
-                child: imageProvider == null
-                    ? Text(
-                        name.isNotEmpty ? name[0].toUpperCase() : "?",
-                        style: TextStyle(
-                          fontSize: 24, 
-                          fontWeight: FontWeight.bold, 
-                          color: textDark
-                        ),
-                      )
-                    : null,
-              ),
+              child: OikosAvatar(avatarUrl: avatarUrl, label: name, radius: 32),
             ),
             const SizedBox(height: 12),
-
             Text(
               name,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 18,
+              style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: textDark,
               ),
             ),
             const SizedBox(height: 4),
@@ -89,14 +77,13 @@ class RankingActionModal extends StatelessWidget {
                 Icon(
                   isCommunity ? Icons.groups_outlined : Icons.person_outline,
                   size: 16,
-                  color: Colors.grey,
+                  color: theme.hintColor,
                 ),
                 const SizedBox(width: 4),
                 Text(
                   isCommunity ? "Communauté" : "Utilisateur",
-                  style: const TextStyle(
-                    color: Colors.grey,
-                    fontSize: 14,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.hintColor,
                   ),
                 ),
               ],
@@ -106,64 +93,47 @@ class RankingActionModal extends StatelessWidget {
             // Bouton "Voir le profil"
             SizedBox(
               width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
+              height: 55, // Même hauteur que GradientButton
+              child: OutlinedButton(
                 onPressed: onSeeProfile,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: lightGreenBg,
-                  foregroundColor: textDark,
-                  elevation: 0,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: colorScheme.primary, // Texte Vert
+                  side: BorderSide(
+                    color: colorScheme.primary,
+                    width: 2,
+                  ), // Bordure Verte
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(15),
                   ),
+                  elevation: 0, // Zéro ombre garantie
+                  backgroundColor: Colors.transparent,
                 ),
-                child: const Text(
+                child: Text(
                   "Voir le profil",
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
                 ),
               ),
             ),
             const SizedBox(height: 12),
-
-            // Bouton "Lancer un défi"
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
-                onPressed: onDuel,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryGreen,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Icon(Icons.flash_on, size: 20),
-                    SizedBox(width: 8),
-                    Text(
-                      "Lancer un défi",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
+            GradientButton(
+              label: "Lancer un défi",
+              icon: const Icon(Icons.flash_on, color: Colors.white, size: 20),
+              onPressed: onDuel,
             ),
-            const SizedBox(height: 16),
 
-            // Bouton "Annuler"
+            const SizedBox(height: 16),
             InkWell(
               onTap: () => Navigator.of(context).pop(),
-              child: const Padding(
-                padding: EdgeInsets.all(8.0),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
                 child: Text(
                   "Annuler",
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 16,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.hintColor,
                   ),
                 ),
               ),

@@ -156,12 +156,12 @@ class _StatCard extends StatelessWidget {
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: theme.colorScheme.primary.withValues(alpha: 0.1),
+          color: theme.colorScheme.primary.withValues(alpha: 0.6),
         ),
         boxShadow: [
           BoxShadow(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.04),
-            blurRadius: 10,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.12),
+            blurRadius: 15,
           ),
         ],
       ),

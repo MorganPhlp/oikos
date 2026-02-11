@@ -7,6 +7,7 @@ import 'package:oikos/features/bilanCarbone/presentation/bloc/questionnaire_even
 import 'package:oikos/features/bilanCarbone/presentation/bloc/questionnaire_state.dart';
 import 'package:oikos/features/bilanCarbone/presentation/widgets/bilan_notice_dialog.dart';
 import 'package:oikos/features/bilanCarbone/presentation/widgets/question_widget_factory.dart';
+import 'package:oikos/features/bilanCarbone/presentation/widgets/suggestion_container.dart';
 import 'package:oikos/features/bilanCarbone/presentation/widgets/suggestions_widget.dart';
 import '../../../../core/common/presentation/widgets/loader.dart';
 
@@ -90,6 +91,7 @@ class _BilanPageState extends State<BilanPage> {
                           children: [
                             if (state.question.suggestions != null)
                               SuggestionsWidget(
+                                key: ValueKey("${state.question.slug}_suggestions"),
                                 suggestions: List<String>.from(
                                   state.question.suggestions!.keys,
                                 ),
@@ -114,6 +116,9 @@ class _BilanPageState extends State<BilanPage> {
                               onValidityChange: (v) =>
                                   setState(() => _isAnswerValid = v),
                             ),
+
+                            if (state.question.suggestions != null)
+                              SuggestionContainer(),
                           ],
                         ),
                       ),
@@ -132,8 +137,8 @@ class _BilanPageState extends State<BilanPage> {
 
   void _initialiserValeurParDefaut(QuestionnaireAffiche state) {
     _currentAnswer = state.valeurActuelle ?? state.question.getInitialValue();
-    _isAnswerValid =
-        state.valeurActuelle != null || state.question.isAlwaysValid();
+    _isAnswerValid = state.valeurActuelle != null || state.question.isAlwaysValid();
+    _selectedSuggestion = null;
     setState(() {});
   }
 

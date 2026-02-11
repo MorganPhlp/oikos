@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:oikos/features/profile/presentation/widgets/profile_action_button.dart';
 
@@ -38,17 +39,17 @@ class ProfileBilanSection extends StatelessWidget {
                   icon: LucideIcons.checkSquare,
                   iconColor: colorScheme.primary,
                   onTap: () {
-                    // TODO: Navigation vers BilanFlow
+                    context.go('/bilan', extra: 'continuer');
                   },
                   showBorder: true,
                 ),
                 ProfileActionButton(
-                  title: 'Reprendre le bilan',
-                  subtitle: 'Modifier mes réponses',
+                  title: 'Modifier le bilan',
+                  subtitle: 'Prêt pour un nouveau départ ?',
                   icon: LucideIcons.rotateCcw,
                   iconColor: colorScheme.tertiary,
                   onTap: () {
-                    // TODO: Reprise bilan
+                    context.go('/bilan', extra: 'modifier');
                   },
                   showBorder: false,
                 ),

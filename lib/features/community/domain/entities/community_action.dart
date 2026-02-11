@@ -1,3 +1,4 @@
+// Entité représentant une action communautaire
 class CommunityAction {
   final String id;
   final String title;

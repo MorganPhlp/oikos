@@ -21,6 +21,8 @@ class BilanSessionBloc extends Bloc<BilanSessionEvent, BilanSessionState> {
   }) : super(SessionInitial()) {
     on<CheckSessionEvent>(_onCheckSession);
     on<ForcerNouveauBilan>(_onForcerNouveau);
+    on<ModifierBilanEvent>(_onModifierBilan);
+    on<ContinuerBilanEvent>(_onContinuerBilan);
   }
 
   Future<void> _onCheckSession(
@@ -35,18 +37,33 @@ class BilanSessionBloc extends Bloc<BilanSessionEvent, BilanSessionState> {
       if (hasBilan) {
         final reponses = await recupererReponsesUseCase();
         emit(
-          SessionRepriseDisponible(
+          SessionRepriseDetectee(
             questions: questions,
             reponsesExistantes: reponses,
           ),
         );
       } else {
         await recommencerBilanUseCase();
-        emit(SessionPrete(questions: questions, reponsesInitiales: const []));
+        emit(SessionPrete(questions: questions, reponsesExistantes: const []));
       }
     } catch (e) {
       emit(SessionError(e.toString()));
     }
+  }
+
+  Future<void> _onModifierBilan(
+    ModifierBilanEvent event,
+    Emitter<BilanSessionState> emit,
+  ) async {
+    emit(SessionLoading());
+    final questions = await recupererQuestionsUseCase();
+    final reponses = await recupererReponsesUseCase();
+        emit(
+          SessionPrete(
+            questions: questions,
+            reponsesExistantes: reponses,
+            mode: ModeBilan.modifier,
+          ));
   }
 
   Future<void> _onForcerNouveau(
@@ -55,6 +72,21 @@ class BilanSessionBloc extends Bloc<BilanSessionEvent, BilanSessionState> {
   ) async {
     emit(SessionLoading());
     final questions = await recommencerBilanUseCase();
-    emit(SessionPrete(questions: questions, reponsesInitiales: const []));
+    emit(SessionPrete(questions: questions, reponsesExistantes: const [], mode: ModeBilan.full));
   }
+
+  Future<void> _onContinuerBilan(
+    ContinuerBilanEvent event,
+    Emitter<BilanSessionState> emit,
+  ) async {
+    emit(SessionLoading());
+    final questions = await recupererQuestionsUseCase();
+    final reponses = await recupererReponsesUseCase();
+        emit(
+          SessionPrete(
+            questions: questions,
+            reponsesExistantes: reponses,
+            mode: ModeBilan.continuer,
+          ));
+   }
 }

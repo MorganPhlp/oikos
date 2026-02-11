@@ -34,14 +34,14 @@ class HomeScanPage extends StatelessWidget {
             const SizedBox(height: 5),
 
             const Text(
-              'Scan un aliment',
+              'Scanne un aliment',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
 
             const Text(
-              'Scan le code-barre de ton produit pour découvrir son impact carbone et son impact nutritionnel.',
+              'Scanne le code-barres de ton produit pour découvrir son impact carbone et son impact nutritionnel.',
               style: TextStyle(fontSize: 17, color: Colors.grey, height: 1.5),
               textAlign: TextAlign.center,
             ),

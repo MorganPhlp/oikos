@@ -36,7 +36,7 @@ class _OikosNavBarState extends State<OikosNavBar> {
             context.go('/scan_intro');
             break;
           case 4:
-            context.go('/dashboard');
+            context.go('/community');
             break;
         }
       },

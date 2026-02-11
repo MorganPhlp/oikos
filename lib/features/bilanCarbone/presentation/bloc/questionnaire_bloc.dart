@@ -63,10 +63,16 @@ class QuestionnaireBloc extends Bloc<QuestionnaireEvent, QuestionnaireState> {
     }
 
     // Reprendre le bilan pour retrouver l'index de la dernière question répondue
-    _currentIndex = await reprendreBilanUseCase.call(
+    if(event.modeQuestionnaire == ModeQuestionnaire.debut){
+      _currentIndex = 0;
+      _emitCurrent(emit);
+    }else{
+      _currentIndex = await reprendreBilanUseCase.call(
       _questions,
       _reponsesLocal,
     );
+
+    }
 
     //  Stocker l'index de la dernière question obligatoire
     _indexLastQuestionObligatoire = _questions.lastIndexWhere(

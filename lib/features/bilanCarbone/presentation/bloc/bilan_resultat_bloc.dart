@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/common/domain/entities/categorie_empreinte_entity.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/detail_bilan_entity.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/calculer_bilan_categories_use_case.dart';
+import 'package:oikos/features/bilanCarbone/domain/use_cases/calculer_bilan_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/choix_categories_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/definir_objectif_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/demarrer_approfondissement_use_case.dart';
@@ -17,6 +18,7 @@ class BilanResultatBloc extends Bloc<ResultatEvent, ResultatState> {
   final DefinirObjectifUseCase definirObjectifUseCase;
   final CalculerBilanCategoriesUseCase calculerCategoriesUseCase;
   final RecupererEquivalentsCarboneUseCase equivalentsUseCase;
+  final CalculerBilanUseCase calculerBilanUseCase;
 
   double? _scoreTotalCached;
   DetailBilanEntity? _detailBilanCached;
@@ -29,11 +31,13 @@ class BilanResultatBloc extends Bloc<ResultatEvent, ResultatState> {
     required this.definirObjectifUseCase,
     required this.calculerCategoriesUseCase,
     required this.equivalentsUseCase,
+    required this.calculerBilanUseCase,
   }) : super(ResultatInitial()) {
     on<DemarrerAnalyseEvent>(_onDemarrerAnalyse);
     on<ValiderCategoriesEvent>(_onValiderCategories);
     on<ValiderObjectifEvent>(_onValiderObjectif);
     on<RetourAuChoixCategoriesEvent>(_onRetourCategories);
+    on<AllerVersResultatEvent>(_onAllerVersResultat);
   }
 
   Future<void> _onDemarrerAnalyse(
@@ -105,6 +109,23 @@ class BilanResultatBloc extends Bloc<ResultatEvent, ResultatState> {
         ),
       );
     }
+  }
+
+  Future<void> _onAllerVersResultat(
+    AllerVersResultatEvent event,
+    Emitter<ResultatState> emit,
+  ) async {
+    emit(ResultatLoading());
+     final result = await calculerBilanUseCase.call();
+     _scoreTotalCached = result.$1;
+     _detailBilanCached = result.$2;
+    emit(
+      ResultatFinal(
+        scoreTotal: _scoreTotalCached!,
+        scoresParCategorie: _detailBilanCached!,
+        equivalents: await equivalentsUseCase.call(),
+      ),
+    );
   }
 
   void _onRetourCategories(

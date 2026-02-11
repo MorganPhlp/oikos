@@ -14,10 +14,10 @@ class ProductDetailsPage extends StatelessWidget {
     final ecoScore = aliment.ecoScore?.toUpperCase() ?? '?';
     final nutriScore = aliment.nutriScore?.toUpperCase() ?? '?';
 
-    // On vérifie si le score est connu (ni '?' ni 'UNKNOWN')
-    final bool isEcoScoreKnown = ecoScore != '?' && ecoScore != 'UNKNOWN';
-    // On vérifie si le score est connu (ni '?' ni 'UNKNOWN')
-    final bool isNutriScoreKnown = nutriScore != '?' && nutriScore != 'UNKNOWN';
+    // On vérifie si le score est connu (ni '?' ni 'UNKNOWN' ni 'NOT-APPLICABLE')
+    final bool isEcoScoreKnown = ecoScore != '?' && ecoScore != 'UNKNOWN' && ecoScore != 'NOT-APPLICABLE';
+    // On vérifie si le score est connu (ni '?' ni 'UNKNOWN' ni 'NOT-APPLICABLE')
+    final bool isNutriScoreKnown = nutriScore != '?' && nutriScore != 'UNKNOWN' && ecoScore != 'NOT-APPLICABLE';
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -29,7 +29,7 @@ class ProductDetailsPage extends StatelessWidget {
           onPressed: () => context.pop(),
         ),
         title: const Text(
-          "Résultat du scan",
+          "Résultats du scan",
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -115,7 +115,7 @@ class ProductDetailsPage extends StatelessWidget {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text("Eco-Score",
+                                  const Text("Impact Carbone : Eco-Score",
                                       style: TextStyle(
                                           fontSize: 14,
                                           color: Colors.black54)),
@@ -199,7 +199,7 @@ class ProductDetailsPage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(24.0),
               child: GradientButton(
-                label: 'Lancer un nouveau scan',
+                label: 'Lance un nouveau scan',
                 onPressed: () {
                   context.pop();
                 },

@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:oikos/core/theme/app_colors.dart';
+import 'package:oikos/core/common/presentation/widgets/oikos_avatar.dart';
+
+// Plus besoin du GradientButton ici car on allège le design
+// import 'package:oikos/core/common/presentation/widgets/gradient_button.dart';
+
 import '../../data/datasources/community_remote_datasource.dart';
 import '../../data/models/leaderboard_entry_model.dart';
 import '../../data/models/community_action_model.dart';
@@ -7,21 +13,6 @@ import '../../domain/entities/leaderboard_entry.dart';
 import '../widgets/ranking_action_modal.dart';
 import '../widgets/profile_details_modal.dart';
 
-// Couleurs utilisées dans la page
-class AppColors {
-  static const greenPrimary = Color(0xFFBDEE63); // Boutons/Fond avatar
-  static const greenDark = Color(0xFF37401C);    // extes
-  static const greenAccent = Color(0xFF65BA74);  // Icônes/Bordures
-  static const bgCream = Color(0xFFFAFAFA);      // Fond
-  static const cardWhite = Colors.white;
-  
-  // Couleurs du podium
-  static const gold = Color(0xFFFFD700);
-  static const silver = Color(0xFFC0C0C0);
-  static const bronze = Color(0xFFCD7F32);
-}
-
-// Écran principal de la section Classement avec les classements et défis
 class CommunityDashboardScreen extends StatefulWidget {
   const CommunityDashboardScreen({Key? key}) : super(key: key);
 
@@ -33,37 +24,33 @@ class CommunityDashboardScreen extends StatefulWidget {
 class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> with SingleTickerProviderStateMixin {
   late CommunityRemoteDataSource _dataSource;
   late TabController _tabController;
-  
+
   bool _isLoading = true;
   String? _error;
-  
-  // Données
+
   List<LeaderboardEntryModel> _userList = [];
   List<LeaderboardEntryModel> _communityList = [];
-  List<CommunityActionModel> _actions = []; 
-  
+  List<CommunityActionModel> _actions = [];
+
   String? _myCommunityCode;
   String? _myEntrepriseId;
 
-  // Méthode pour ouvrir la modale
   void _showRankingInfo(BuildContext context, LeaderboardEntry entry) {
     showDialog(
       context: context,
       builder: (context) => RankingActionModal(
         name: entry.label,
         avatarUrl: entry.avatarUrl ?? '',
-        isCommunity: !entry.isUser, // Si ce n'est pas un user, c'est une communauté
+        isCommunity: !entry.isUser,
         onSeeProfile: () {
           Navigator.pop(context);
-          print("Navigation vers le profil de ${entry.label}");
           showDialog(
             context: context,
             builder: (context) => ProfileDetailsModal(entry: entry),
           );
-          },
+        },
         onDuel: () {
           Navigator.pop(context);
-          print("Défi lancé contre ${entry.label}");
         },
       ),
     );
@@ -89,19 +76,16 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
   void initState() {
     super.initState();
     _dataSource = CommunityRemoteDataSource(Supabase.instance.client);
-    // 2 onglets : Individuel et Communautés
     _tabController = TabController(length: 2, vsync: this);
     _loadData();
   }
 
   Future<void> _loadData() async {
     setState(() { _isLoading = true; _error = null; });
-
     try {
       final userId = Supabase.instance.client.auth.currentUser?.id;
       if (userId == null) throw Exception("Utilisateur non connecté");
 
-      // Récupération des infos utilisateur
       final userRes = await Supabase.instance.client
           .from('utilisateur')
           .select('code_communaute, entreprise_id')
@@ -116,7 +100,6 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
       _myCommunityCode = userRes['code_communaute'];
       _myEntrepriseId = userRes['entreprise_id'];
 
-      // Chargement des données
       final results = await Future.wait([
         _dataSource.getUserLeaderboard(_myCommunityCode!),
         _dataSource.getCommunityLeaderboard(_myEntrepriseId ?? '', _myCommunityCode!),
@@ -144,44 +127,53 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
     }
   }
 
-  // Nettoyage du controller
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: AppColors.bgCream,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        title: const Text("Classement", style: TextStyle(color: AppColors.greenDark, fontWeight: FontWeight.bold)),
+        title: Text(
+            "Classement",
+            style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: isDark ? AppColors.darkForeground : AppColors.lightTextPrimary
+            )
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_outlined, color: AppColors.greenDark),
+            icon: Icon(Icons.notifications_outlined, color: isDark ? AppColors.darkForeground : AppColors.lightTextPrimary),
             onPressed: () {},
           )
         ],
       ),
       body: Column(
         children: [
-          // Onglets
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             height: 45,
             decoration: BoxDecoration(
-              color: const Color(0xFFE8F5E9),
-              borderRadius: BorderRadius.circular(25),
+                color: isDark ? AppColors.darkInput : AppColors.lightInput,
+                borderRadius: BorderRadius.circular(25),
+                border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightInputBorder)
             ),
             child: TabBar(
               controller: _tabController,
               indicatorSize: TabBarIndicatorSize.tab,
               indicator: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.lightPrimary,
                 borderRadius: BorderRadius.circular(25),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4)],
+                boxShadow: [BoxShadow(color: AppColors.lightPrimary.withOpacity(0.3), blurRadius: 4, offset: const Offset(0,2))],
               ),
-              labelColor: AppColors.greenAccent,
-              unselectedLabelColor: Colors.grey,
+              labelColor: Colors.white,
+              unselectedLabelColor: isDark ? Colors.grey : AppColors.lightMutedForeground,
               labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+              dividerColor: Colors.transparent,
               tabs: const [
                 Tab(text: "Individuel"),
                 Tab(text: "Communautés"),
@@ -189,7 +181,6 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
             ),
           ),
 
-          // Le contenu de chaque onglet (classements + défis)
           Expanded(
             child: TabBarView(
               controller: _tabController,
@@ -204,12 +195,10 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
     );
   }
 
-  // Vue principale du classement (utilisateurs ou communautés)
   Widget _buildLeaderboardView(List<LeaderboardEntry> list, {required bool isCommunity}) {
     if (_isLoading) return const Center(child: CircularProgressIndicator());
     if (list.isEmpty) return const Center(child: Text("Aucun classement disponible"));
 
-    // Séparation du Top 3 du reste
     final top3 = list.take(3).toList();
     final rest = list.length > 3 ? list.sublist(3) : <LeaderboardEntry>[];
 
@@ -217,49 +206,43 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
       padding: const EdgeInsets.fromLTRB(20, 10, 20, 100),
       child: Column(
         children: [
-          // Podium pour les 3 premiers
           if (top3.isNotEmpty) _buildPodium(top3, isCommunity),
 
           const SizedBox(height: 20),
 
-          // Liste pour les rangs 4 et suivants
-          ...rest.map((entry) => InkWell(
-            onTap: () => _showRankingInfo(context, entry),
-            child: _LeaderboardCard(entry: entry),
+          ...rest.map((entry) => _LeaderboardCard(
+              entry: entry,
+              onTap: () => _showRankingInfo(context, entry)
           )).toList(),
 
           const SizedBox(height: 30),
 
-          // Défis collectifs (uniquement dans l'onglet Communautés)
           _buildChallengesSection(isCommunity),
         ],
       ),
     );
   }
 
-  // Widget podium
   Widget _buildPodium(List<LeaderboardEntry> top3, bool isCommunity) {
     if (top3.isEmpty) return const SizedBox();
 
-    // Organisation de l'affichage du podium
     LeaderboardEntry? first = top3.isNotEmpty ? top3[0] : null;
     LeaderboardEntry? second = top3.length > 1 ? top3[1] : null;
     LeaderboardEntry? third = top3.length > 2 ? top3[2] : null;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.end, // Aligner en bas
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        if (second != null) _buildPodiumStep(second, 2, AppColors.silver, 110),
-        if (first != null) _buildPodiumStep(first, 1, AppColors.gold, 140),
-        if (third != null) _buildPodiumStep(third, 3, AppColors.bronze, 90),
+        if (second != null) _buildPodiumStep(second, 2, const Color(0xFFC0C0C0), 110),
+        if (first != null) _buildPodiumStep(first, 1, const Color(0xFFFFD700), 140),
+        if (third != null) _buildPodiumStep(third, 3, const Color(0xFFCD7F32), 90),
       ],
     );
   }
 
   Widget _buildPodiumStep(LeaderboardEntry entry, int rank, Color color, double height) {
-    // On calcule le bon provider d'image avec notre fonction
-    final imageProvider = _getAvatarProvider(entry.avatarUrl);
+    final theme = Theme.of(context);
 
     return Expanded(
       child: GestureDetector(
@@ -273,19 +256,10 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
                 Container(
                   padding: const EdgeInsets.all(3),
                   decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: color, width: 3)),
-                  child: CircleAvatar(
+                  child: OikosAvatar(
+                    avatarUrl: entry.avatarUrl,
+                    label: entry.label,
                     radius: rank == 1 ? 35 : 28,
-                    backgroundColor: AppColors.bgCream,
-                    
-                    backgroundImage: imageProvider,
-                    
-                    // On affiche l'initiale seulement si pas d'image
-                    child: imageProvider == null
-                      ? Text(
-                          entry.label.isNotEmpty ? entry.label[0].toUpperCase() : "?",
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)
-                        )
-                      : null,
                   ),
                 ),
                 Transform.translate(
@@ -299,18 +273,30 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
               ],
             ),
             const SizedBox(height: 15),
-            
-            Text(entry.label, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.greenDark), maxLines: 1, overflow: TextOverflow.ellipsis),
-            Text("${entry.value}", style: const TextStyle(color: AppColors.greenAccent, fontWeight: FontWeight.bold)),
-            
+
+            Text(
+                entry.label,
+                style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis
+            ),
+            Text("${entry.value}", style: TextStyle(color: AppColors.lightPrimary, fontWeight: FontWeight.bold)),
+
             const SizedBox(height: 8),
-            
+
             Container(
               height: rank == 1 ? 60 : (rank == 2 ? 40 : 25),
               width: double.infinity,
               margin: const EdgeInsets.symmetric(horizontal: 4),
               decoration: BoxDecoration(
-                color: rank == 1 ? const Color(0xFFFFF9C4) : const Color(0xFFF5F5F5),
+                gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      color.withOpacity(0.3),
+                      color.withOpacity(0.05),
+                    ]
+                ),
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
               ),
             )
@@ -320,211 +306,208 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
     );
   }
 
-  // Section des défis
   Widget _buildChallengesSection(bool isCommunity) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Actions Collectives", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.greenDark)),
-        const SizedBox(height: 10),
-        
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 12),
+          child: Text("Actions Collectives", style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+        ),
+
         _ChallengeCard(
           title: "Défi communautaire",
           subtitle: "Lance-toi dans un défi collectif avec ta communauté",
           icon: Icons.flash_on,
-          buttonText: "Lancer une action",
-          color: AppColors.greenPrimary,
+          color: AppColors.lightPrimary,
+          onTap: () {
+            // Action à définir
+          },
         ),
-        
-        const SizedBox(height: 10),
-        
-        /*Carte Défi 2
+
+        const SizedBox(height: 12),
+
         _ChallengeCard(
           title: "Défi de communautés",
           subtitle: "Affronte une autre équipe",
           icon: Icons.emoji_events,
-          buttonText: "Créer un défi",
-          color: AppColors.greenAccent,
-          isInverse: true,
-        ),*/
+          color: Colors.orange,
+          onTap: () {
+            // Action à définir
+          },
+        ),
       ],
     );
   }
 }
 
-// Widget pour une carte de classement (utilisateur ou communauté)
 class _LeaderboardCard extends StatelessWidget {
   final LeaderboardEntry entry;
-  const _LeaderboardCard({required this.entry});
+  final VoidCallback onTap;
+
+  const _LeaderboardCard({required this.entry, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final isMe = entry.isMe;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
-    ImageProvider? imageProvider;
-    final url = entry.avatarUrl;
-
-    if (url != null && url.isNotEmpty) {
-      if (url.startsWith('http') || url.startsWith('https')) {
-        // Cas Internet (Supabase)
-        imageProvider = NetworkImage(url);
-      } else {
-        // Cas Local (Asset)
-        String cleanPath = url
-            .replaceAll('file:///', '')
-            .replaceAll('C:/src/projet/oikos/', ''); 
-        imageProvider = AssetImage(cleanPath);
-      }
-    }
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: isMe ? const Color(0xFFE8F5E9) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: isMe ? Border.all(color: AppColors.greenAccent) : null,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 5,
-            offset: const Offset(0, 2),
-          )
-        ],
-      ),
-      child: Row(
-        children: [
-          Text(
-            "#${entry.rank}",
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.grey,
-              fontSize: 16,
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isMe
+              ? AppColors.lightPrimary.withOpacity(0.1)
+              : (isDark ? AppColors.darkInput : Colors.white),
+          borderRadius: BorderRadius.circular(16),
+          border: isMe
+              ? Border.all(color: AppColors.lightPrimary)
+              : Border.all(color: Colors.transparent),
+          boxShadow: isMe ? [] : [
+            BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 5,
+                offset: const Offset(0, 2)
+            )
+          ],
+        ),
+        child: Row(
+          children: [
+            Text("#${entry.rank}", style: TextStyle(fontWeight: FontWeight.bold, color: theme.hintColor, fontSize: 16)),
+            const SizedBox(width: 12),
+            OikosAvatar(
+              avatarUrl: entry.avatarUrl,
+              label: entry.label,
+              radius: 20,
             ),
-          ),
-          const SizedBox(width: 12),
-          
-          CircleAvatar(
-            radius: 20,
-            backgroundColor: isMe ? AppColors.greenPrimary : Colors.grey[200],
-            backgroundImage: imageProvider,
-            child: imageProvider == null
-                ? Text(
-                    entry.label.isNotEmpty ? entry.label[0].toUpperCase() : "?",
-                    style: TextStyle(
-                      color: isMe ? AppColors.greenDark : Colors.grey,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  )
-                : null,
-          ),
-
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  entry.label,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.greenDark,
-                    fontSize: 15,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                      entry.label,
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? AppColors.darkForeground : AppColors.lightTextPrimary,
+                          fontSize: 15
+                      )
                   ),
-                ),
-                Text(
-                  entry.isUser
-                      ? "${entry.actionsCount ?? 0} actions"
-                      : "${entry.actionsCount ?? 0} membres",
-                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                ),
-              ],
+                  Text(
+                    entry.isUser
+                        ? "${entry.actionsCount ?? 0} actions"
+                        : "${entry.actionsCount ?? 0} membres",
+                    style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                "${entry.value}",
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.greenAccent,
-                  fontSize: 16,
-                ),
-              ),
-              const Text(
-                "points",
-                style: TextStyle(fontSize: 10, color: Colors.grey),
-              ),
-            ],
-          )
-        ],
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text("${entry.value}", style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.lightPrimary, fontSize: 16)),
+                Text("pts", style: theme.textTheme.bodySmall?.copyWith(fontSize: 10)),
+              ],
+            )
+          ],
+        ),
       ),
     );
   }
 }
 
-// Widget pour une carte de défi communautaire
+// --- NOUVEAU DESIGN ÉPURÉ POUR LES CARTES ---
 class _ChallengeCard extends StatelessWidget {
   final String title;
   final String subtitle;
   final IconData icon;
-  final String buttonText;
   final Color color;
-  final bool isInverse;
+  final VoidCallback onTap;
 
   const _ChallengeCard({
-    required this.title, 
-    required this.subtitle, 
-    required this.icon, 
-    required this.buttonText, 
+    required this.title,
+    required this.subtitle,
+    required this.icon,
     required this.color,
-    this.isInverse = false,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    // Design inspiré de ProfileActionButton
+    // mais adapté en "Card" pour le dashboard
     return Container(
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.darkInput : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8)],
+        // Bordure fine comme sur les inputs
+        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightInputBorder),
+        // Ombre très légère, voire nulle pour un look "flat"
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 5, offset: const Offset(0, 2))
+        ],
       ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: isInverse ? color.withOpacity(0.2) : color,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: isInverse ? color : Colors.white, size: 28),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: Row(
               children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.greenDark)),
-                Text(subtitle, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                const SizedBox(height: 8),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isInverse ? color : AppColors.greenAccent,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-                    minimumSize: const Size(0, 30),
-                    elevation: 0,
+                // Icône dans un cercle coloré (comme sur le profil)
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    shape: BoxShape.circle,
                   ),
-                  child: Text(buttonText, style: const TextStyle(fontSize: 12)),
-                )
+                  child: Icon(icon, color: color, size: 22),
+                ),
+                const SizedBox(width: 16),
+
+                // Textes
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                          title,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                              color: isDark ? AppColors.darkForeground : AppColors.lightTextPrimary
+                          )
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                          subtitle,
+                          style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor)
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Petite flèche discrète pour inviter à l'action
+                Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    size: 16,
+                    color: theme.hintColor.withOpacity(0.5)
+                ),
               ],
             ),
-          )
-        ],
+          ),
+        ),
       ),
     );
   }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:oikos/core/common/presentation/widgets/loader.dart';
+import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_resultat_state.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_session_bloc.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_session_event.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_session_state.dart';
@@ -17,8 +19,8 @@ import 'package:oikos/features/bilanCarbone/presentation/widgets/resume_bilan_di
 import 'package:oikos/init_dependencies.dart';
 
 class BilanFlow extends StatefulWidget {
-  final bool fullFlow;
-  const BilanFlow({super.key, this.fullFlow = true});
+  final String? mode;
+  const BilanFlow({super.key, this.mode='full'});
 
   @override
   State<BilanFlow> createState() => _BilanFlowState();
@@ -33,8 +35,21 @@ class _BilanFlowState extends State<BilanFlow> {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) =>
-              serviceLocator<BilanSessionBloc>()..add(CheckSessionEvent()),
+          create: (context) {
+            final bloc = serviceLocator<BilanSessionBloc>();
+            switch (widget.mode) {
+              case 'full':
+                bloc.add(CheckSessionEvent());
+                break;
+              case 'continuer':
+                bloc.add(ContinuerBilanEvent());
+                break;
+              case 'modifier':
+                bloc.add(ModifierBilanEvent());
+                break;
+            }
+            return bloc;
+          },
         ),
         BlocProvider(create: (context) => serviceLocator<QuestionnaireBloc>()),
         BlocProvider(create: (context) => serviceLocator<BilanResultatBloc>()),
@@ -43,91 +58,107 @@ class _BilanFlowState extends State<BilanFlow> {
         builder: (innerContext) {
           return MultiBlocListener(
             listeners: [
+              // 1. GESTION DE LA SESSION
               BlocListener<BilanSessionBloc, BilanSessionState>(
                 listener: (context, state) {
-                  if (state is SessionRepriseDisponible) {
+                  if (state is SessionRepriseDetectee) {
                     ResumeBilanDialog.show(
                       context: context,
-                      onResume: () =>
-                          innerContext.read<QuestionnaireBloc>().add(
+                      onResume: () => innerContext.read<QuestionnaireBloc>().add(
                             InitQuestionnaireEvent(
                               questions: state.questions,
                               reponsesInitiales: state.reponsesExistantes,
                             ),
                           ),
-                      onRestart: () => innerContext
-                          .read<BilanSessionBloc>()
-                          .add(ForcerNouveauBilan()),
+                      onRestart: () => innerContext.read<BilanSessionBloc>().add(ForcerNouveauBilan()),
                     );
                   } else if (state is SessionPrete) {
                     innerContext.read<QuestionnaireBloc>().add(
-                      InitQuestionnaireEvent(
-                        questions: state.questions,
-                        reponsesInitiales: state.reponsesInitiales,
-                      ),
-                    );
+                          InitQuestionnaireEvent(
+                            questions: state.questions,
+                            reponsesInitiales: state.reponsesExistantes,
+                            modeQuestionnaire: widget.mode == 'continuer' 
+                                ? ModeQuestionnaire.continuer 
+                                : ModeQuestionnaire.debut,
+                          ),
+                        );
                   }
                 },
               ),
+
               BlocListener<QuestionnaireBloc, QuestionnaireState>(
                 listener: (context, state) {
                   if (state is QuestionnaireTermine) {
-                    if (widget.fullFlow) {
-                      innerContext.read<BilanResultatBloc>().add(
-                        DemarrerAnalyseEvent(),
-                      );
-                      _innerNavigatorKey.currentState?.pushNamed('categories');
+                    if (widget.mode == 'full') {
+                      innerContext.read<BilanResultatBloc>().add(DemarrerAnalyseEvent());
                     } else {
-                      context.go('/');
+                      innerContext.read<BilanResultatBloc>().add(AllerVersResultatEvent());
                     }
                   }
                 },
               ),
-            ],
-            child: PopScope(
-              canPop: false,
-              onPopInvokedWithResult: (didPop, result) async {
-                if (didPop) return;
 
-                final NavigatorState? navigator =
-                    _innerNavigatorKey.currentState;
-                if (navigator != null && navigator.canPop()) {
-                  navigator.pop();
-                } else {
-                  context.go('/');
-                }
-              },
-              child: Navigator(
-                key: _innerNavigatorKey,
-                initialRoute: 'questions',
-
-                // Gestion du retour en arrière dans le flow si on repasse de catégories aux questions
-                onDidRemovePage: (page) {
-                  if (page.name == 'categories') {
-                    innerContext.read<QuestionnaireBloc>().add(
-                      RetourVersQuestionnaireEvent(),
+              BlocListener<BilanResultatBloc, ResultatState>(
+                listener: (context, state) {
+                  if (state is ResultatChoixCategories) {
+                    _innerNavigatorKey.currentState?.pushNamed('categories');
+                  } else if (state is ResultatFinal) {
+                    _innerNavigatorKey.currentState?.pushNamedAndRemoveUntil('resultats', (route) => false);
+                  } else if (state is ResultatError) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(state.message), backgroundColor: Colors.red),
                     );
                   }
                 },
-                onGenerateRoute: (settings) {
-                  return MaterialPageRoute(
-                    builder: (context) {
-                      switch (settings.name) {
-                        case 'questions':
-                          return const BilanPage();
-                        case 'categories':
-                          return const ChoixCategoriesPage();
-                        case 'objectifs':
-                          return const PersonalGoalPage();
-                        case 'resultats':
-                          return const ResultsPage();
-                        default:
-                          return const BilanPage();
+              ),
+            ],
+            child: Stack(
+              children: [
+                PopScope(
+                  canPop: false,
+                  onPopInvokedWithResult: (didPop, result) async {
+                    if (didPop) return;
+                    final NavigatorState? navigator = _innerNavigatorKey.currentState;
+                    if (navigator != null && navigator.canPop()) {
+                      navigator.pop();
+                    } else {
+                      context.go('/');
+                    }
+                  },
+                  child: Navigator(
+                    key: _innerNavigatorKey,
+                    initialRoute: 'questions',
+                    onDidRemovePage: (page) {
+                      if (page.name == 'categories') {
+                        innerContext.read<QuestionnaireBloc>().add(RetourVersQuestionnaireEvent());
                       }
                     },
-                  );
-                },
-              ),
+                    onGenerateRoute: (settings) {
+                      return MaterialPageRoute(
+                        settings: settings,
+                        builder: (context) {
+                          switch (settings.name) {
+                            case 'questions': return const BilanPage();
+                            case 'categories': return const ChoixCategoriesPage();
+                            case 'objectifs': return const PersonalGoalPage();
+                            case 'resultats': return const ResultsPage();
+                            default: return const BilanPage();
+                          }
+                        },
+                      );
+                    },
+                  ),
+                ),
+                
+                BlocBuilder<BilanResultatBloc, ResultatState>(
+                  builder: (context, state) {
+                    if (state is ResultatLoading) {
+                      return const Loader(); 
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
+              ],
             ),
           );
         },
