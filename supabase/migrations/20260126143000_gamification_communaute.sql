@@ -19,10 +19,13 @@ from utilisateur u;
 
 -- Mise à jour de la Vue classement de communauté
 create or replace view vue_community_ranking as
-select
+select 
   c.code as community_code,
   c.nom as community_name,
-  c.plant_xp as total_xp,
-  c.entreprise_id as entreprise_id,
-  rank() over (PARTITION BY entreprise_id order by c.plant_xp desc) as rank
-from communaute c;
+  coalesce(sum(u.impact_score_xp), 0) as total_xp,    -- Somme des points
+  c.entreprise_id,
+  count(u.id) as members_count,                -- Compte les membres
+  coalesce(sum(u.actions_count), 0) as total_actions -- Somme des actions
+from communaute c
+left join utilisateur u on c.code = u.code_communaute
+group by c.code;
