@@ -52,6 +52,7 @@ dependencies:
   flutter_dotenv: ^6.0.0
   font_awesome_flutter: ^10.12.0 #icons supplementaires
   lottie: ^3.3.2  #Pour animations
+  flutter_animate: ^4.5.2
 
 
 dev_dependencies:

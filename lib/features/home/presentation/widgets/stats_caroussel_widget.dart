@@ -67,6 +67,7 @@ class _StatsCarousselWidgetState extends State<StatsCarousselWidget> {
           height: 160,
           child: PageView.builder(
             controller: _pageController,
+            clipBehavior: Clip.none,
             onPageChanged: (int index) {
               setState(() => _currentPage = index);
             },
@@ -156,12 +157,13 @@ class _StatCard extends StatelessWidget {
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: theme.colorScheme.primary.withValues(alpha: 0.6),
+          color: theme.colorScheme.primary.withValues(alpha: 0.1),
         ),
         boxShadow: [
           BoxShadow(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.12),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
             blurRadius: 15,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
