@@ -27,7 +27,7 @@ class RankingActionModal extends StatelessWidget {
 
     ImageProvider? imageProvider;
     
-    if (avatarUrl != null && avatarUrl!.isNotEmpty) {
+    if (avatarUrl!.isNotEmpty) {
       if (avatarUrl!.startsWith('http') || avatarUrl!.startsWith('https')) {
         // URL Internet (Supabase)
         imageProvider = NetworkImage(avatarUrl!);

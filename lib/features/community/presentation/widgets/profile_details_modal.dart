@@ -148,7 +148,18 @@ class _ProfileDetailsModalState extends State<ProfileDetailsModal> {
                     child: ListView(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       children: isCommunity
-                          ? _buildFakeCommunityContributors(context)
+                          ? (_isLoadingContributors
+                              ? [const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator()))]
+                              : _contributors.isEmpty
+                                  ? [const Padding(padding: EdgeInsets.all(10), child: Text("Aucun membre actif pour le moment.", style: TextStyle(color: Colors.grey)))]
+                                  : _contributors.map((u) => _buildListItem(
+                                        context,
+                                        Icons.person, // Icône par défaut si pas d'avatar
+                                        Colors.blue,
+                                        u.label,
+                                        "${u.value} XP",
+                                        avatarUrl: u.avatarUrl,
+                                      )).toList())
                           : _buildFakeUserAchievements(context),
                     ),
                   ),
@@ -250,39 +261,14 @@ class _ProfileDetailsModalState extends State<ProfileDetailsModal> {
     ];
   }
 
-  List<Widget> _buildFakeCommunityContributors(BuildContext context) {
-    return [
-      _buildListItem(
-        context,
-        Icons.person,
-        Colors.blue,
-        "Sophie M.",
-        "450 points cette semaine",
-      ),
-      _buildListItem(
-        context,
-        Icons.person,
-        Colors.red,
-        "Thomas D.",
-        "420 points cette semaine",
-      ),
-      _buildListItem(
-        context,
-        Icons.person,
-        Colors.purple,
-        "Marie L.",
-        "385 points cette semaine",
-      ),
-    ];
-  }
-
   Widget _buildListItem(
     BuildContext context,
     IconData icon,
     Color color,
     String title,
-    String subtitle,
-  ) {
+    String subtitle, {
+    String? avatarUrl, 
+  }) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -296,9 +282,19 @@ class _ProfileDetailsModalState extends State<ProfileDetailsModal> {
       ),
       child: Row(
         children: [
-          CircleAvatar(
-            backgroundColor: color.withOpacity(0.1),
-            child: Icon(icon, color: color, size: 20),
+          // --- MODIFICATION ICI POUR L'AVATAR ---
+          Container(
+            width: 40, 
+            height: 40,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: avatarUrl != null && avatarUrl.isNotEmpty
+                ? ClipOval(
+                    child: OikosAvatar(avatarUrl: avatarUrl, label: title, radius: 20),
+                  )
+                : Icon(icon, color: color, size: 20),
           ),
           const SizedBox(width: 12),
           Column(

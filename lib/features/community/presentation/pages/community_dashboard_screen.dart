@@ -56,22 +56,6 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
     );
   }
 
-  // Fonction utilitaire pour gérer les avatars (Web vs Local)
-  ImageProvider? _getAvatarProvider(String? url) {
-    if (url == null || url.isEmpty) return null;
-    
-    if (url.startsWith('http') || url.startsWith('https')) {
-      // Cas URL Internet (Supabase)
-      return NetworkImage(url);
-    } else {
-      // Cas fichier Local (Asset)
-      String cleanPath = url
-          .replaceAll('file:///', '')
-          .replaceAll('C:/src/projet/oikos/', '');
-      return AssetImage(cleanPath);
-    }
-  }
-
   @override
   void initState() {
     super.initState();
@@ -400,8 +384,8 @@ class _LeaderboardCard extends StatelessWidget {
                   ),
                   Text(
                     entry.isUser
-                        ? "${entry.actionsCount ?? 0} actions"
-                        : "${entry.actionsCount ?? 0} membres",
+                        ? "${entry.actionsCount} actions"
+                        : "${entry.actionsCount} membres",
                     style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor),
                   ),
                 ],

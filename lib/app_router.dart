@@ -20,7 +20,7 @@ import 'features/codeBarre/presentation/pages/scan_page.dart';
 
 GoRouter createRouter(AppUserCubit appUserCubit) {
   return GoRouter(
-    initialLocation: '/community',
+    initialLocation: '/',
     // On écoute le stream du Cubit pour relancer le redirect à chaque changement d'état
     refreshListenable: GoRouterRefreshStream(appUserCubit.stream),
 
