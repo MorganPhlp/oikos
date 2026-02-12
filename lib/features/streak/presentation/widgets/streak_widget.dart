@@ -163,8 +163,8 @@ List<Effect> _buildEffects(StreakState state) {
         delay: 350.ms,
         duration: 800.ms,
         curve: Curves.elasticOut,
-        begin: const Offset(1.3, 1.3),
-        end: const Offset(1, 1),
+        begin: const Offset(1, 1),
+        end: const Offset(0.7, 0.7),
       ),
     ];
   }

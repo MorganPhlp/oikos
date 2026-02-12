@@ -24,7 +24,6 @@ class RecommencerBilanUseCase {
     // Orchestration
     await bilanSessionRepository.deleteBilan(userId);
     await bilanSessionRepository.createNewBilanSession(userId);
-    await simulationRepository.init();
 
     return await questionRepository.getQuestions();
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/core/common/presentation/widgets/gradient_button.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/type_widget.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/questionnaire_bloc.dart';
@@ -292,6 +293,9 @@ class _BilanPageState extends State<BilanPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final buttonSize = size.width * 0.14;
+    final String userId = context.read<AppUserCubit>().state is AppUserLoggedIn
+        ? (context.read<AppUserCubit>().state as AppUserLoggedIn).user.id
+        : '';
 
     return Column(
       children: [
@@ -319,7 +323,7 @@ class _BilanPageState extends State<BilanPage> {
                     !_isAnswerValid &&
                     state.question.typeWidget != TypeWidget.slider,
                 onPressed: () => context.read<QuestionnaireBloc>().add(
-                  RepondreQuestionEvent(_currentAnswer),
+                  RepondreQuestionEvent(_currentAnswer, userId),
                 ),
               ),
             ),
@@ -332,7 +336,7 @@ class _BilanPageState extends State<BilanPage> {
             _buildTextLink(
               "Je ne sais pas",
               () => context.read<QuestionnaireBloc>().add(
-                RepondreQuestionEvent(null),
+                RepondreQuestionEvent(null, userId),
               ),
               size,
             ),
@@ -348,7 +352,7 @@ class _BilanPageState extends State<BilanPage> {
             _buildTextLink(
               "Pas concerné",
               () => context.read<QuestionnaireBloc>().add(
-                RepondreQuestionEvent(null),
+                RepondreQuestionEvent(null, userId),
               ),
               size,
             ),

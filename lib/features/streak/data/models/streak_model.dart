@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:oikos/features/streak/domain/entities/utilisateur_streak_entity.dart';
 
 part 'streak_model.freezed.dart';
 part 'streak_model.g.dart';

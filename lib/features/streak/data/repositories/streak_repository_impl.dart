@@ -9,7 +9,6 @@ class StreakRepositoryImpl implements StreakRepository {
 
   StreakRepositoryImpl(this.remoteDatasource);
 
-  // --- 1. MÉTHODE DE MAPPING PRIVÉE (Évite la duplication) ---
   UtilisateurStreakEntity _mapToEntity(Map<String, dynamic> map) {
     if (map.isEmpty) return UtilisateurStreakEntity.empty();
 
@@ -30,14 +29,12 @@ class StreakRepositoryImpl implements StreakRepository {
     );
   }
 
-  // --- 2. RÉCUPÉRATION PONCTUELLE ---
   @override
   Future<UtilisateurStreakEntity> getCurrentStreak(String userId) async {
     final map = await remoteDatasource.getRawStreak(userId);
     return _mapToEntity(map);
   }
 
-  // --- 3. LE STREAM COMBINÉ ---
   @override
   Stream<UtilisateurStreakEntity> watchStreak(String userId) {
     final streakStream = remoteDatasource.getRawStreakStream(userId);

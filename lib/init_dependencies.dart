@@ -29,6 +29,7 @@ import 'package:oikos/features/bilanCarbone/domain/use_cases/choix_categories_us
 import 'package:oikos/features/bilanCarbone/domain/use_cases/definir_objectif_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/demarrer_approfondissement_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/enregistrer_reponse_use_case.dart';
+import 'package:oikos/features/bilanCarbone/domain/use_cases/initialiser_moteur_de_calcul_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/obtenir_objectifs_disponibles_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/precedente_question_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/preparer_choix_objectifs_use_case.dart';
@@ -39,6 +40,10 @@ import 'package:oikos/features/bilanCarbone/domain/use_cases/recuperer_questions
 import 'package:oikos/features/bilanCarbone/domain/use_cases/recuperer_reponses_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/reprendre_bilan_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/verifier_bilan_en_cours_use_case.dart';
+import 'package:oikos/features/profile/data/repositories/bilan_repository_impl.dart';
+import 'package:oikos/features/profile/domain/repositories/bilan_repository.dart';
+import 'package:oikos/features/profile/domain/use_cases/get_questions_restantes_use_case.dart';
+import 'package:oikos/features/profile/presentation/bloc/profile_bilan_cubit.dart';
 import 'package:oikos/features/streak/data/datasources/streak_remote_datasource.dart';
 import 'package:oikos/features/streak/data/repositories/streak_repository_impl.dart';
 import 'package:oikos/features/streak/domain/repositories/streak_repository.dart';
@@ -93,6 +98,7 @@ Future<void> initDependencies() async {
   _initBilan();
   _initCodeBarre();
   _initStreak();
+  _initProfile();
 }
 
 void _initAuth() {
@@ -176,6 +182,11 @@ void _initBilan() {
   // ==========================================================
   // DOMAINE (Services & Use Cases)
   // ==========================================================
+
+  serviceLocator.registerLazySingleton(
+    () => InitialiserMoteurDeCalculUseCase(simulationRepository: serviceLocator()),
+  );
+
   serviceLocator.registerLazySingleton(
     () => ApplicabilityChecker(serviceLocator()),
   );
@@ -190,7 +201,7 @@ void _initBilan() {
   );
 
   serviceLocator.registerLazySingleton(
-    () => GetProchaineQuestionUseCase(applicabilityChecker: serviceLocator()),
+    () => GetProchaineQuestionUseCase(applicabilityChecker: serviceLocator(), reponseRepository: serviceLocator(), bilanSessionRepository: serviceLocator()),
   );
   serviceLocator.registerLazySingleton(
     () => GetPreviousQuestionUseCase(applicabilityChecker: serviceLocator()),
@@ -287,6 +298,7 @@ void _initBilan() {
       getNextUseCase: serviceLocator(),
       getPrevUseCase: serviceLocator(),
       reprendreBilanUseCase: serviceLocator(),
+      initialiserMoteurDeCalculUseCase: serviceLocator(),
     ),
   );
 
@@ -349,5 +361,22 @@ void _initStreak() {
   // Bloc
   serviceLocator.registerFactory<StreakBloc>(
     () => StreakBloc(serviceLocator(), serviceLocator()),
+  );
+}
+
+void _initProfile() {
+  // Repository
+  serviceLocator.registerFactory<ProfileBilanRepository>(
+    () => ProfileBilanRepositoryImpl(serviceLocator<SupabaseClient>()),
+  );
+
+  // Use Case
+  serviceLocator.registerFactory(
+    () => GetQuestionsRestantesUseCase(serviceLocator<ProfileBilanRepository>()),
+  );
+
+  // Bloc
+  serviceLocator.registerFactory(
+    () => ProfileBilanCubit(getQuestionsRestantesUseCase: serviceLocator()),
   );
 }

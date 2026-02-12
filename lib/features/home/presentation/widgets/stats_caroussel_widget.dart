@@ -98,7 +98,7 @@ class _StatsCarousselWidgetState extends State<StatsCarousselWidget> {
       duration: const Duration(milliseconds: 300),
       margin: const EdgeInsets.symmetric(horizontal: 4),
       height: 8,
-      width: isActive ? 20 : 8, // S'allonge quand actif
+      width: isActive ? 20 : 8,
       decoration: BoxDecoration(
         color: isActive
             ? theme.colorScheme.primary

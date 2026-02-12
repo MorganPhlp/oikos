@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/question_entity.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/enregistrer_reponse_use_case.dart';
+import 'package:oikos/features/bilanCarbone/domain/use_cases/initialiser_moteur_de_calcul_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/precedente_question_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/prochaine_question_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/reprendre_bilan_use_case.dart';
@@ -12,6 +13,7 @@ class QuestionnaireBloc extends Bloc<QuestionnaireEvent, QuestionnaireState> {
   final GetProchaineQuestionUseCase getNextUseCase;
   final GetPreviousQuestionUseCase getPrevUseCase;
   final ReprendreBilanUseCase reprendreBilanUseCase;
+  final InitialiserMoteurDeCalculUseCase initialiserMoteurDeCalculUseCase;
 
   List<QuestionBilanEntity> _questions = [];
   int _currentIndex = 0;
@@ -24,6 +26,7 @@ class QuestionnaireBloc extends Bloc<QuestionnaireEvent, QuestionnaireState> {
     required this.getNextUseCase,
     required this.getPrevUseCase,
     required this.reprendreBilanUseCase,
+    required this.initialiserMoteurDeCalculUseCase,
   }) : super(QuestionnaireInitial()) {
     on<InitQuestionnaireEvent>(_onInit);
     on<RepondreQuestionEvent>(_onRepondre);
@@ -49,6 +52,8 @@ class QuestionnaireBloc extends Bloc<QuestionnaireEvent, QuestionnaireState> {
     InitQuestionnaireEvent event,
     Emitter<QuestionnaireState> emit,
   ) async {
+    emit(QuestionnaireLoading());
+    await initialiserMoteurDeCalculUseCase.call();
     _questions = event.questions;
     _reponsesLocal.clear();
 
@@ -66,6 +71,7 @@ class QuestionnaireBloc extends Bloc<QuestionnaireEvent, QuestionnaireState> {
     if(event.modeQuestionnaire == ModeQuestionnaire.debut){
       _currentIndex = 0;
       _emitCurrent(emit);
+    // Si on est en mode "continuer", on reprend le bilan pour retrouver l'index de la dernière question répondue
     }else{
       _currentIndex = await reprendreBilanUseCase.call(
       _questions,
@@ -98,6 +104,7 @@ class QuestionnaireBloc extends Bloc<QuestionnaireEvent, QuestionnaireState> {
     final nextIdx = await getNextUseCase(
       allQuestions: _questions,
       currentIndex: _currentIndex,
+      userId: event.userId,
     );
 
     if (nextIdx == -1) {
