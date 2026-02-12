@@ -2,5 +2,6 @@ import 'package:oikos/features/streak/domain/entities/utilisateur_streak_entity.
 
 abstract class StreakRepository {
   Future<UtilisateurStreakEntity> getCurrentStreak(String userId);
-  Stream<UtilisateurStreakEntity> watchStreak(String userId);
+  Stream<UtilisateurStreakEntity> watchStreak(String userId, String entrepriseId);
+
 }

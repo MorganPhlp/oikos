@@ -61,6 +61,7 @@ class _BilanFlowState extends State<BilanFlow> {
               // 1. GESTION DE LA SESSION
               BlocListener<BilanSessionBloc, BilanSessionState>(
                 listener: (context, state) {
+                  // Si une reprise est detecte (ie la personne n'a pas fini son bilan initial) on propose de reprendre ou de recommencer
                   if (state is SessionRepriseDetectee) {
                     ResumeBilanDialog.show(
                       context: context,
@@ -72,6 +73,7 @@ class _BilanFlowState extends State<BilanFlow> {
                           ),
                       onRestart: () => innerContext.read<BilanSessionBloc>().add(ForcerNouveauBilan()),
                     );
+                    // Sinon, si la session est prête, on démarre le questionnaire directement
                   } else if (state is SessionPrete) {
                     innerContext.read<QuestionnaireBloc>().add(
                           InitQuestionnaireEvent(

@@ -27,7 +27,7 @@ class StreakBloc extends Bloc<StreakEvent, StreakState> {
     final currentStreak = await getStreakUseCase(event.userId);
     emit(StreakIdle(streak: currentStreak));
     await emit.forEach<UtilisateurStreakEntity>(
-      watchStreakUseCase(event.userId),
+      watchStreakUseCase(event.userId, event.entrepriseId),
       onData: (streakEntity) {
         return StreakUpdated(
           streak: streakEntity,

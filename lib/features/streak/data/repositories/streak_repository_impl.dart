@@ -1,8 +1,8 @@
-import 'package:rxdart/rxdart.dart'; // N'oublie pas d'ajouter rxdart dans pubspec.yaml
 import 'package:oikos/features/streak/data/datasources/streak_remote_datasource.dart';
 import 'package:oikos/features/streak/data/models/streak_model.dart';
 import 'package:oikos/features/streak/domain/entities/utilisateur_streak_entity.dart';
 import 'package:oikos/features/streak/domain/repositories/streak_repository.dart';
+import 'package:rxdart/rxdart.dart';
 
 class StreakRepositoryImpl implements StreakRepository {
   final StreakRemoteDatasource remoteDatasource;
@@ -16,7 +16,7 @@ class StreakRepositoryImpl implements StreakRepository {
 
     final String generatedLogoUrl = remoteDatasource.supabaseClient.storage
         .from('streak')
-        .getPublicUrl('viveris/blue/${model.currentStreak}.png');
+        .getPublicUrl('${model.entrepriseName}/${model.streakThemePath}/${model.currentStreak}.png');
 
     return UtilisateurStreakEntity(
       utilisateurId: model.utilisateurId,
@@ -36,19 +36,17 @@ class StreakRepositoryImpl implements StreakRepository {
   }
 
   @override
-  Stream<UtilisateurStreakEntity> watchStreak(String userId) {
+  Stream<UtilisateurStreakEntity> watchStreak(String userId, String entrepriseId) {
     final streakStream = remoteDatasource.getRawStreakStream(userId);
-    final saisonStream = remoteDatasource.getSaisonStream();
+    final saisonStream = remoteDatasource.getSaisonStream(entrepriseId);
 
-    return CombineLatestStream.combine2(
+    return Rx.combineLatest2(
       streakStream,
       saisonStream,
-      (streakStream, saisonStream) => userId,
-    ).asyncMap((id) async {
-      // on se fie a la vue qui est a jour
-      final streakMap = await remoteDatasource.getRawStreak(id);
-      // convertit le résultat
-      return _mapToEntity(streakMap);
-    });
+      (streakData, saisonData) => remoteDatasource.getRawStreak(userId),
+    ).switchMap((future) => Stream.fromFuture(future)).map((map) {
+      if (map.isEmpty) return UtilisateurStreakEntity.empty();
+      return _mapToEntity(map);
+    }).asBroadcastStream();
   }
 }

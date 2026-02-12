@@ -14,6 +14,8 @@ sealed class StreakModel with _$StreakModel {
     @JsonKey(name: 'saison_nom') String? saisonNom,
     @JsonKey(name: 'saison_debut') DateTime? saisonDebut,
     @JsonKey(name: 'saison_fin') DateTime? saisonFin,
+    @JsonKey(name: 'streak_theme_path') String? streakThemePath,
+    @JsonKey(name: 'entreprise_name') String? entrepriseName,
   }) = _StreakModel;
 
   factory StreakModel.fromJson(Map<String, dynamic> json) =>

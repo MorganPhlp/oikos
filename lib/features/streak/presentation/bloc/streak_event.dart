@@ -10,8 +10,9 @@ class StreakEvent extends Equatable {
 
 class WatchStreakEvent extends StreakEvent {
   final String userId;
+  final String entrepriseId;
 
-  const WatchStreakEvent(this.userId);
+  const WatchStreakEvent(this.userId, this.entrepriseId);
 
   @override
   List<Object?> get props => [userId];

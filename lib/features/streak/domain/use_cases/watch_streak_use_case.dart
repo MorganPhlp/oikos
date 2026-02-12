@@ -6,7 +6,7 @@ class WatchStreakUseCase {
 
   WatchStreakUseCase(this.repository);
 
-  Stream<UtilisateurStreakEntity> call(String userId) {
-    return repository.watchStreak(userId);
+  Stream<UtilisateurStreakEntity> call(String userId, String entrepriseId) {
+    return repository.watchStreak(userId, entrepriseId);
   }
 }

@@ -8,6 +8,7 @@ class UserModel extends User {
     required super.communityCode,
     super.hasCompletedBilan = false,
     super.avatar,
+    super.entrepriseId,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> map) {
@@ -18,6 +19,7 @@ class UserModel extends User {
       communityCode: map['code_communaute'] ?? '',
       hasCompletedBilan: map['a_complete_bilan'] ?? false,
       avatar: map['avatar_url'],
+      entrepriseId: map['entreprise_id'] ?? '',
     );
   }
 }

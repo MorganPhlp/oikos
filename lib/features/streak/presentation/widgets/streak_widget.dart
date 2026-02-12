@@ -17,16 +17,19 @@ class StreakWidget extends StatelessWidget {
     final theme = Theme.of(context);
     final userState = context.read<AppUserCubit>().state;
     String userId = "";
+    String entrepriseId = "";
     if (userState is AppUserLoggedIn) {
       userId = userState.user.id;
+      entrepriseId = userState.user.entrepriseId ?? ""; 
     }
 
     return BlocProvider(
       create: (context) =>
-          serviceLocator.get<StreakBloc>()..add(WatchStreakEvent(userId)),
+          serviceLocator.get<StreakBloc>()..add(WatchStreakEvent(userId, entrepriseId)),
       child: BlocBuilder<StreakBloc, StreakState>(
         builder: (context, state) {
-          final logoUrl = state.streak.logoUrl;
+          print("StreakState updated: ${state}");
+          final logoUrl = state.streak.logoUrl?.toLowerCase();
           final bool hasLogo = logoUrl != null && logoUrl.isNotEmpty;
 
           return Container(

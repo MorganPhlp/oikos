@@ -44,4 +44,8 @@ class UtilisateurStreakEntity {
       logoUrl: logoUrl ?? this.logoUrl,
     );
   }
+  @override
+  String toString() {
+    return 'UtilisateurStreakEntity(id: $utilisateurId, streak: $currentStreak, updated: $lastUpdated, saison: $saisonNom, logo: $logoUrl)';
+  }
 }

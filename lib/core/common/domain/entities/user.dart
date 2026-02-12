@@ -8,6 +8,7 @@ class User {
   final String communityCode;
   final bool hasCompletedBilan;
   final String? avatar;
+  final String? entrepriseId;
 
   User({
     required this.id,
@@ -16,5 +17,6 @@ class User {
     required this.communityCode,
     this.hasCompletedBilan = false,
     this.avatar,
+    this.entrepriseId,
   });
 }

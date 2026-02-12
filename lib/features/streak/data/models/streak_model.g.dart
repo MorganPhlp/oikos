@@ -17,6 +17,8 @@ _StreakModel _$StreakModelFromJson(Map<String, dynamic> json) => _StreakModel(
   saisonFin: json['saison_fin'] == null
       ? null
       : DateTime.parse(json['saison_fin'] as String),
+  streakThemePath: json['streak_theme_path'] as String?,
+  entrepriseName: json['entreprise_name'] as String?,
 );
 
 Map<String, dynamic> _$StreakModelToJson(_StreakModel instance) =>
@@ -27,4 +29,6 @@ Map<String, dynamic> _$StreakModelToJson(_StreakModel instance) =>
       'saison_nom': instance.saisonNom,
       'saison_debut': instance.saisonDebut?.toIso8601String(),
       'saison_fin': instance.saisonFin?.toIso8601String(),
+      'streak_theme_path': instance.streakThemePath,
+      'entreprise_name': instance.entrepriseName,
     };

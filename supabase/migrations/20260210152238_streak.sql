@@ -6,9 +6,12 @@ CREATE TABLE IF NOT EXISTS public.utilisateur_streak (
 
 CREATE TABLE IF NOT EXISTS public.saison (
     id SERIAL PRIMARY KEY,
+    entreprise_id uuid NOT NULL REFERENCES public.entreprise(id) ON DELETE CASCADE,
     name VARCHAR(255) NOT NULL,
     start_date DATE NOT NULL,
-    end_date DATE NOT NULL
+    end_date DATE NOT NULL,
+    duree_mois int CHECK (duree_mois > 0),
+    streak_theme_path VARCHAR(255) NOT NULL DEFAULT 'default'
 );
 
 -- logique de calcul pour la streak
@@ -82,13 +85,14 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Trigger pour calculer le streak après chaque modification d'action
-CREATE TRIGGER trigger_calculer_streak
+CREATE TRIGGER trigger_calculer_streak_on_action
 AFTER INSERT ON public.realisation_actions
 FOR EACH ROW
 EXECUTE FUNCTION public.calculer_streak();
 
+
 -- Vue pour afficher le streak actuel d'un utilisateur en tenant compte de la saison et de l'inactivité
-CREATE OR REPLACE VIEW public.view_utilisateur_streak_live AS
+CREATE OR REPLACE VIEW public.vue_utilisateur_streak_live AS
 SELECT 
     us.utilisateur_id,
     CASE 
@@ -100,10 +104,13 @@ SELECT
     us.last_updated,
     COALESCE(s.name, 'Hors saison') AS saison_nom,
     COALESCE(s.start_date, '1970-01-01') AS saison_debut,
-    COALESCE(s.end_date, '1970-01-01') AS saison_fin
+    COALESCE(s.end_date, '1970-01-01') AS saison_fin,
+    s.streak_theme_path,
+    e.nom AS entreprise_name
 FROM 
     public.utilisateur_streak us
-LEFT JOIN public.saison s ON (NOW() BETWEEN s.start_date AND s.end_date);
+LEFT JOIN public.saison s ON (NOW() BETWEEN s.start_date AND s.end_date)
+LEFT JOIN public.entreprise e ON s.entreprise_id = e.id;
 
 --pour reset ka streak automatiquement tt les jours à 3h du matin, on utilise pg_cron
 SELECT cron.schedule(
@@ -131,3 +138,44 @@ CREATE OR REPLACE TRIGGER trigger_init_streak
 AFTER INSERT ON public.utilisateur
 FOR EACH ROW
 EXECUTE FUNCTION public.handle_new_user_streak();
+
+CREATE OR REPLACE FUNCTION public.create_saison()
+RETURNS trigger AS $$ 
+DECLARE
+    last_end_date DATE;
+BEGIN
+    SELECT MAX(end_date) INTO last_end_date 
+    FROM public.saison 
+    WHERE entreprise_id = NEW.id 
+    AND end_date > NOW();
+
+    -- Si aucune date n'est trouvée, on crée la saison initiale
+    IF last_end_date IS NULL THEN
+        INSERT INTO public.saison (entreprise_id, name, start_date, end_date, streak_theme_path)
+        VALUES (NEW.id, 'Saison 1', NOW(), NOW() + INTERVAL '3 months' , 'default'); 
+    END IF; 
+    RETURN NEW; 
+END; 
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER trigger_create_saison AFTER INSERT ON public.entreprise FOR EACH ROW EXECUTE FUNCTION public.create_saison();
+    
+
+CREATE OR REPLACE FUNCTION public.check_saison_consistency()
+RETURNS trigger AS $$
+BEGIN
+    IF NEW.end_date <= NEW.start_date THEN
+        RAISE EXCEPTION 'La date de fin (%) doit être après la date de début (%)', 
+        NEW.end_date, NEW.start_date;
+    END IF;
+
+    NEW.duree_mois := (EXTRACT(year FROM age(NEW.end_date, NEW.start_date)) * 12) +
+                       EXTRACT(month FROM age(NEW.end_date, NEW.start_date));
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_saison_consistency
+BEFORE INSERT OR UPDATE ON public.saison
+FOR EACH ROW EXECUTE FUNCTION public.check_saison_consistency();
