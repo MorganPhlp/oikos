@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   flutter_js
   gtk
+  syncfusion_pdfviewer_linux
   url_launcher_linux
 )
 

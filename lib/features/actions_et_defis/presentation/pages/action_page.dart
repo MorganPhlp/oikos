@@ -8,192 +8,119 @@ import '../../domain/entities/action_entity.dart';
 import '../bloc/actions_bloc.dart';
 import '../widgets/action_card.dart';
 import '../widgets/action_detail_modal.dart';
-import 'my_actions_tab.dart';
+import '../widgets/actions_header.dart'; // <--- Import du Header Vert
+import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/oikos_button_theme.dart';
 
-class ActionsPage extends StatefulWidget {
-  const ActionsPage({super.key});
+class ActionsCataloguePage extends StatefulWidget {
+  const ActionsCataloguePage({super.key});
 
   @override
-  State<ActionsPage> createState() => _ActionsPageState();
+  State<ActionsCataloguePage> createState() => _ActionsCataloguePageState();
 }
 
-class _ActionsPageState extends State<ActionsPage> {
+class _ActionsCataloguePageState extends State<ActionsCataloguePage> {
   String selectedCategory = "Toutes";
-  String searchQuery = ""; // <--- 1. VARIABLE POUR LA RECHERCHE
+  String searchQuery = "";
 
   @override
   Widget build(BuildContext context) {
+    // Dépendances
     final supabase = Supabase.instance.client;
-    final userId = "5fa69d4d-94ec-49af-8495-65f6b39a96bb";
+    final userId = supabase.auth.currentUser!.id;
     final dataSource = ActionRemoteDataSourceImpl(supabase);
     final repo = ActionRepositoryImpl(dataSource);
 
     return BlocProvider(
       create: (_) => ActionsBloc(repository: repo)..add(LoadAllDataEvent(userId)),
-      child: DefaultTabController(
-        length: 2,
-        child: Scaffold(
-          backgroundColor: const Color(0xFFF5F5F5),
-          body: Column(
-            children: [
-              // HEADER VERT (Inchangé)
-              Container(
-                padding: const EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 0),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFA2D260),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(30),
-                    bottomRight: Radius.circular(30),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                          child: const Icon(Icons.person, color: Colors.black87),
-                        ),
-                        const Column(
-                          children: [
-                            Text("Espace", style: TextStyle(fontSize: 14, color: Colors.black54)),
-                            Text("Actions & Défis", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
-                          ],
-                        ),
-                        const CircleAvatar(
-                          backgroundColor: Colors.white,
-                          radius: 18,
-                          child: Icon(Icons.notifications_none, color: Colors.black87),
-                        )
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    const TabBar(
-                      indicatorColor: Colors.white,
-                      indicatorWeight: 3,
-                      labelColor: Colors.white,
-                      unselectedLabelColor: Colors.black45,
-                      labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                      tabs: [Tab(text: "CATALOGUE"), Tab(text: "MES ACTIONS")],
-                    ),
-                    const SizedBox(height: 10),
-                  ],
-                ),
-              ),
+      child: Scaffold(
+        backgroundColor: AppColors.lightBackground,
+        // On utilise Column pour empiler le Header Vert et le reste
+        body: Column(
+          children: [
+            // 1. LE HEADER VERT (Profil, Titre, Notif)
+            const ActionsHeader(
+              title: " Catalogue d'actions ",
+              subtitle: "  ",
+              userPoints: 1250, // il faudra connecter ça au Cubit User plus tard
+            ),
 
-              // CONTENU
-              Expanded(
-                child: BlocBuilder<ActionsBloc, ActionsState>(
-                  builder: (context, state) {
-                    if (state is ActionsLoading) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (state is ActionsError) {
-                      return Center(child: Text("Erreur: ${state.message}"));
-                    } else if (state is ActionsLoaded) {
-                      return TabBarView(
-                        children: [
-                          _buildCatalogueTab(context, state.catalogue, repo, userId),
-                          state.mesDefis.isEmpty
-                              ? const Center(child: Text("Aucun défi en cours. Va dans le catalogue !"))
-                              : MyActionsTab(
-                            challenges: state.mesDefis,
-                            onValidate: (actionId) async {
-                              await repo.validateAction(userId, actionId, 10, 0.5);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text("Action validée ! Bravo ! 🎉"))
-                              );
-                            },
-                            onDelete: (actionId) async {
-                              await repo.removeChallenge(userId, actionId);
-                              context.read<ActionsBloc>().add(LoadAllDataEvent(userId));
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text("Défi arrêté. À bientôt ! 👋"))
-                              );
-                            },
-                          ),
-                        ],
-                      );
-                    }
-                    return const SizedBox();
-                  },
-                ),
+            // 2. LE CONTENU (Recherche + Filtres + Liste)
+            Expanded(
+              child: BlocBuilder<ActionsBloc, ActionsState>(
+                builder: (context, state) {
+                  if (state is ActionsLoading) {
+                    return const Center(child: CircularProgressIndicator(color: AppColors.lightPrimary));
+                  }
+                  if (state is ActionsLoaded) {
+                    return _buildCatalogueList(context, state.catalogue, repo, userId);
+                  }
+                  return const SizedBox();
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildCatalogueTab(BuildContext context, List<ActionEntity> catalogue, ActionRepositoryImpl repo, String userId) {
+  Widget _buildCatalogueList(BuildContext context, List<ActionEntity> catalogue, ActionRepositoryImpl repo, String userId) {
     final Set<String> categoriesDisponibles = catalogue.map((e) => e.categoryName).toSet();
     List<String> filtres = ["Toutes", ...categoriesDisponibles];
 
-    // 2. FILTRAGE COMPLET (Catégorie + Recherche)
     final displayList = catalogue.where((action) {
-      // Filtre Catégorie
-      if (selectedCategory != "Toutes" && action.categoryName != selectedCategory) {
-        return false;
-      }
-      // Filtre Recherche ( <--- NOUVEAU )
+      if (selectedCategory != "Toutes" && action.categoryName != selectedCategory) return false;
       if (searchQuery.isNotEmpty) {
-        final titleMatch = action.title.toLowerCase().contains(searchQuery.toLowerCase());
-        final descMatch = action.description.toLowerCase().contains(searchQuery.toLowerCase());
-        if (!titleMatch && !descMatch) return false;
+        final match = action.title.toLowerCase().contains(searchQuery.toLowerCase());
+        if (!match) return false;
       }
       return true;
     }).toList();
 
     return Column(
       children: [
-        Container(
-          color: const Color(0xFFF5F5F5),
-          padding: const EdgeInsets.only(top: 16, bottom: 8),
-          child: Column(
-            children: [
-              // BARRE DE RECHERCHE CONNECTÉE
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30)),
-                  child: TextField( // <--- 3. ON CONNECTE LE TEXTFIELD
-                    onChanged: (value) {
-                      setState(() {
-                        searchQuery = value; // Met à jour la recherche quand on tape
-                      });
-                    },
-                    decoration: const InputDecoration(
-                      hintText: "Rechercher une action...",
-                      border: InputBorder.none,
-                      icon: Icon(Icons.search, color: Colors.grey),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
+        const SizedBox(height: 20),
 
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  children: filtres.map((categorie) {
-                    IconData? icon;
-                    if (categorie.contains('Transport')) icon = Icons.directions_bus;
-                    else if (categorie.contains('Alimentation')) icon = Icons.restaurant;
-                    else if (categorie.contains('Eau')) icon = Icons.water_drop;
-                    else if (categorie.contains('Numérique')) icon = Icons.computer;
-
-                    return _buildFilterChip(categorie, selectedCategory == categorie, icon: icon);
-                  }).toList(),
-                ),
+        // BARRE DE RECHERCHE
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+                border: Border.all(color: AppColors.lightInputBorder),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))
+                ]
+            ),
+            child: TextField(
+              onChanged: (val) => setState(() => searchQuery = val),
+              decoration: const InputDecoration(
+                hintText: "Rechercher une action...",
+                hintStyle: TextStyle(color: AppColors.lightMutedForeground),
+                border: InputBorder.none,
+                icon: Icon(Icons.search, color: AppColors.lightIconPrimary),
               ),
-            ],
+            ),
           ),
         ),
 
+        const SizedBox(height: 15),
+
+        // FILTRES
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            children: filtres.map((cat) => _buildFilterChip(context, cat, selectedCategory == cat)).toList(),
+          ),
+        ),
+
+        const SizedBox(height: 10),
+
+        // LISTE
         Expanded(
           child: displayList.isEmpty
               ? const Center(child: Text("Aucune action trouvée"))
@@ -213,32 +140,12 @@ class _ActionsPageState extends State<ActionsPage> {
                       action: action,
                       onJoin: (freq) async {
                         Navigator.pop(context);
-
                         try {
                           await repo.joinChallenge(userId, action.id, freq);
 
-                          // ignore: use_build_context_synchronously
                           context.read<ActionsBloc>().add(LoadAllDataEvent(userId));
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Défi ajouté ! 🚀"), backgroundColor: Color(0xFF76B82A))
-                          );
-                        } catch (e) {
-                          // GESTION DES ERREURS (Doublon + Limite)
-                          String message = "Une erreur est survenue";
-                          Color color = Colors.red;
-
-                          if (e.toString().contains("LIMIT_REACHED")) {
-                            message = "✋ Tu as déjà 5 défis en cours !";
-                          } else if (e.toString().contains("ALREADY_JOINED")) { // <--- NOUVEAU CAS
-                            message = "⚠️ Tu relèves déjà ce défi ! Regarde dans 'Mes Actions'";
-                            color = Colors.orange;
-                          }
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(message), backgroundColor: color)
-                          );
-                        }
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Action ajoutée !"), backgroundColor: AppColors.lightPrimary));
+                        } catch (e) { /*...*/ }
                       },
                     ),
                   );
@@ -251,26 +158,35 @@ class _ActionsPageState extends State<ActionsPage> {
     );
   }
 
-  Widget _buildFilterChip(String label, bool isSelected, {IconData? icon}) {
+  Widget _buildFilterChip(BuildContext context, String label, bool isSelected) {
+    final buttonTheme = Theme.of(context).extension<OikosButtonTheme>();
+
     return Padding(
-      padding: const EdgeInsets.only(right: 10),
-      child: ChoiceChip(
-        avatar: icon != null ? Icon(icon, size: 16, color: isSelected ? Colors.white : Colors.grey) : null,
-        label: Text(label),
-        selected: isSelected,
-        onSelected: (bool selected) {
-          setState(() {
-            selectedCategory = label;
-          });
-        },
-        selectedColor: const Color(0xFF76B82A),
-        backgroundColor: Colors.white,
-        labelStyle: TextStyle(
-          color: isSelected ? Colors.white : Colors.black54,
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+      padding: const EdgeInsets.only(right: 8),
+      child: GestureDetector(
+        onTap: () => setState(() => selectedCategory = label),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            gradient: isSelected ? buttonTheme?.primaryGradient : null,
+            color: isSelected ? null : Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isSelected ? Colors.transparent : AppColors.lightInputBorder,
+            ),
+            boxShadow: isSelected
+                ? [BoxShadow(color: buttonTheme?.shadowColor ?? Colors.transparent, blurRadius: 8, offset: const Offset(0, 4))]
+                : null,
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: isSelected ? Colors.white : AppColors.lightTextPrimary,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              fontSize: 13,
+            ),
+          ),
         ),
-        side: BorderSide.none,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
     );
   }
