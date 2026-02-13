@@ -1,6 +1,14 @@
 CREATE TABLE IF NOT EXISTS communaute (
-    nom VARCHAR(255) PRIMARY KEY,
+    code TEXT PRIMARY KEY NOT NULL,
+    nom TEXT NOT NULL,
+    entreprise_id UUID,
     description TEXT,
-    logo VARCHAR(255),
-    couleurHEX VARCHAR(7) NOT NULL
+    couleurHEX VARCHAR(7) NOT NULL,
+    plant_xp INT DEFAULT 0,
+    total_carbon_saved FLOAT DEFAULT 0,
+
+    CONSTRAINT fk_entreprise
+        FOREIGN KEY (entreprise_id)
+        REFERENCES entreprise(id)
+        ON DELETE SET NULL
 );

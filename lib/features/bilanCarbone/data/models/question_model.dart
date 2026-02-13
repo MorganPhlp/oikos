@@ -20,6 +20,7 @@ sealed class QuestionBilanModel with _$QuestionBilanModel {
     TypeWidget typeWidget,
     @JsonKey(name: 'config_json') @Default({}) Map<String, dynamic> config,
     @JsonKey(name: 'ordre_affichage') @Default(0) int ordre,
+    @JsonKey(name: 'est_obligatoire') @Default(true) bool estObligatoire,
   }) = _QuestionBilanModel;
 
   factory QuestionBilanModel.fromJson(Map<String, dynamic> json) =>
@@ -36,6 +37,7 @@ sealed class QuestionBilanModel with _$QuestionBilanModel {
       typeWidget: typeWidget,
       config: config,
       ordre: ordre,
+      estObligatoire: estObligatoire,
     );
   }
 

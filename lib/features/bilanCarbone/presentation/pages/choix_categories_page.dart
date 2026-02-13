@@ -1,22 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/domain/entities/categorie_empreinte_entity.dart';
-import 'package:oikos/core/presentation/widgets/gradient_button.dart';
+import 'package:oikos/core/common/presentation/widgets/loader.dart';
+import 'package:oikos/core/common/domain/entities/categorie_empreinte_entity.dart';
+import 'package:oikos/core/common/presentation/widgets/gradient_button.dart';
 import 'package:oikos/core/theme/app_colors.dart';
-import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_cubit.dart';
-import 'package:oikos/features/bilanCarbone/presentation/pages/choix_objectifs.dart';
+import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_resultat_bloc.dart';
+import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_resultat_event.dart';
+import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_resultat_state.dart';
+import 'package:oikos/features/bilanCarbone/presentation/bloc/questionnaire_bloc.dart';
+import 'package:oikos/features/bilanCarbone/presentation/bloc/questionnaire_event.dart';
 
 class ChoixCategoriesPage extends StatefulWidget {
   const ChoixCategoriesPage({super.key});
-
-  static MaterialPageRoute route(BilanCubit existingCubit) {
-    return MaterialPageRoute(
-      builder: (context) => BlocProvider.value(
-        value: existingCubit,
-        child: const ChoixCategoriesPage(),
-      ),
-    );
-  }
 
   @override
   State<ChoixCategoriesPage> createState() => _ChoixCategoriesPageState();
@@ -37,129 +32,138 @@ class _ChoixCategoriesPageState extends State<ChoixCategoriesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: true, // Autorise le retour arrière physique
-      onPopInvokedWithResult: (didPop, result) {
-        // didPop est vrai si le Navigator a bien supprimé la page
-        if (didPop) {
-          context.read<BilanCubit>().retourVersQuestionsFromObjectifs();
+    return BlocListener<BilanResultatBloc, ResultatState>(
+      listener: (context, state) {
+        // Navigation vers l'étape suivante (objectifs)
+        if (state is ResultatChoixObjectifs) {
+          Navigator.of(context).pushNamed('objectifs');
         }
       },
-      child: BlocListener<BilanCubit, BilanState>(
-        listener: (context, state) {
-          if (state is BilanTermine){
-            
-          }
-          if (state is BilanChoixObjectifs) {
-            Navigator.of(context).pushReplacement(
-              PersonalGoalPage.route(context.read<BilanCubit>())
-            );
-          }
-        },
-        child: BlocBuilder<BilanCubit, BilanState>(
-          builder: (context, state) {
-            List<CategorieEmpreinteEntity> categories = [];
-            if (state is BilanChoixCategories) {
-              categories = state.categories;
-            }
+      child: BlocBuilder<BilanResultatBloc, ResultatState>(
+        builder: (context, state) {
+          List<CategorieEmpreinteEntity> categories = [];
 
-            if (state is BilanLoading) {
-              return const Scaffold(
-                body: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CircularProgressIndicator(color: AppColors.gradientGreenEnd),
-                      SizedBox(height: 20),
-                      Text("Calcul de ton empreinte..."),
-                    ],
-                  ),
-                ),
-              );
-            }
+          // On récupère les catégories depuis l'état du bloc
+          if (state is ResultatChoixCategories) {
+            categories = state.categories;
+          }
 
-            return Scaffold(
-              backgroundColor: AppColors.lightBackground,
-              appBar: AppBar(
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: AppColors.lightTextPrimary),
-                  onPressed: () {
-                    // On gère manuellement le retour pour le bouton visuel
-                    context.read<BilanCubit>().retourVersQuestionsFromObjectifs();
-                    Navigator.of(context).pop();
-                  },
+          if (state is ResultatLoading) {
+            return const Scaffold(
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Loader(),
+                    SizedBox(height: 20),
+                    Text("Calcul de ton empreinte..."),
+                  ],
                 ),
               ),
-              body: SafeArea(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: MediaQuery.of(context).size.width * 0.05,
+            );
+          }
+
+          return Scaffold(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            appBar: AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              leading: IconButton(
+                icon: Icon(
+                  Icons.arrow_back,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                onPressed: () => {
+                  context.read<QuestionnaireBloc>().add(
+                    RetourVersQuestionnaireEvent(),
                   ),
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children: [
-                              SizedBox(height: MediaQuery.of(context).size.height * 0.012),
-                              Text(
-                                "Quels sujets t'intéressent ?",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: AppColors.lightTextPrimary,
-                                  fontSize: MediaQuery.of(context).size.width < 360 
-                                    ? 22 
+                  Navigator.of(context).pop(),
+                },
+              ),
+            ),
+            body: SafeArea(
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: MediaQuery.of(context).size.width * 0.05,
+                ),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              height:
+                                  MediaQuery.of(context).size.height * 0.012,
+                            ),
+                            Text(
+                              "Quels sujets t'intéressent ?",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontSize:
+                                    MediaQuery.of(context).size.width < 360
+                                    ? 22
                                     : MediaQuery.of(context).size.width * 0.065,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                fontWeight: FontWeight.bold,
                               ),
-                              SizedBox(height: MediaQuery.of(context).size.height * 0.015),
-                              Text(
-                                "Sélectionne toutes les catégories qui te parlent pour recevoir des suggestions personnalisées.",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: AppColors.lightTextPrimary.withOpacity(0.7),
-                                  fontSize: MediaQuery.of(context).size.width < 360 
-                                    ? 14 
+                            ),
+                            SizedBox(
+                              height:
+                                  MediaQuery.of(context).size.height * 0.015,
+                            ),
+                            Text(
+                              "Sélectionne toutes les catégories qui te parlent pour recevoir des suggestions personnalisées.",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha:0.7),
+                                fontSize:
+                                    MediaQuery.of(context).size.width < 360
+                                    ? 14
                                     : MediaQuery.of(context).size.width * 0.04,
-                                ),
                               ),
-                              SizedBox(height: MediaQuery.of(context).size.height * 0.024),
-                              _buildInfoBox(context),
-                              SizedBox(height: MediaQuery.of(context).size.height * 0.035),
-                              _buildCategoryList(categories, context),
-                              SizedBox(height: MediaQuery.of(context).size.height * 0.03),
-                            ],
-                          ),
+                            ),
+                            SizedBox(
+                              height:
+                                  MediaQuery.of(context).size.height * 0.024,
+                            ),
+                            _buildInfoBox(context),
+                            SizedBox(
+                              height:
+                                  MediaQuery.of(context).size.height * 0.035,
+                            ),
+                            _buildCategoryList(categories, context),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.03,
+                            ),
+                          ],
                         ),
                       ),
-                      _buildFooter(categories, context),
-                    ],
-                  ),
+                    ),
+                    _buildFooter(categories, context),
+                  ],
                 ),
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }
 
-  // --- Sous-widgets pour la clarté ---
-
   Widget _buildInfoBox(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final isSmallScreen = size.width < 360;
-    
+
     return Container(
       padding: EdgeInsets.all(size.width * 0.03),
       decoration: BoxDecoration(
-        color: AppColors.lightIconPrimary.withOpacity(0.1),
+        color: AppColors.lightIconPrimary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(size.width * 0.03),
         border: Border.all(
-          color: AppColors.lightIconPrimary.withOpacity(0.3),
+          color: AppColors.lightIconPrimary.withValues(alpha: 0.3),
           width: 2,
         ),
       ),
@@ -167,14 +171,14 @@ class _ChoixCategoriesPageState extends State<ChoixCategoriesPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "💡 ", 
+            "💡 ",
             style: TextStyle(fontSize: isSmallScreen ? 16 : size.width * 0.045),
           ),
           Expanded(
             child: Text(
               "Tu ne recevras pas d'actions proposées dans les catégories non cochées.",
               style: TextStyle(
-                color: AppColors.lightTextPrimary, 
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: isSmallScreen ? 13 : size.width * 0.035,
               ),
             ),
@@ -184,13 +188,16 @@ class _ChoixCategoriesPageState extends State<ChoixCategoriesPage> {
     );
   }
 
-  Widget _buildCategoryList(List<CategorieEmpreinteEntity> categories, BuildContext context) {
+  Widget _buildCategoryList(
+    List<CategorieEmpreinteEntity> categories,
+    BuildContext context,
+  ) {
     final spacing = MediaQuery.of(context).size.height * 0.015;
     return ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: categories.length,
-      separatorBuilder: (_, __) => SizedBox(height: spacing),
+      separatorBuilder: (_, _) => SizedBox(height: spacing),
       itemBuilder: (context, index) {
         final cat = categories[index];
         final isSelected = _selectedNames.contains(cat.nom);
@@ -206,9 +213,12 @@ class _ChoixCategoriesPageState extends State<ChoixCategoriesPage> {
     );
   }
 
-  Widget _buildFooter(List<CategorieEmpreinteEntity> categories, BuildContext context) {
+  Widget _buildFooter(
+    List<CategorieEmpreinteEntity> categories,
+    BuildContext context,
+  ) {
     final verticalPadding = MediaQuery.of(context).size.height * 0.025;
-    
+
     return Padding(
       padding: EdgeInsets.symmetric(vertical: verticalPadding),
       child: GradientButton(
@@ -218,9 +228,14 @@ class _ChoixCategoriesPageState extends State<ChoixCategoriesPage> {
         onPressed: () {
           final finalSelection = _selectedNames.isEmpty
               ? categories
-              : categories.where((c) => _selectedNames.contains(c.nom)).toList();
+              : categories
+                    .where((c) => _selectedNames.contains(c.nom))
+                    .toList();
 
-          context.read<BilanCubit>().setSelectedCategories(finalSelection);
+          // Adaptation : Utilisation de ValiderCategoriesEvent
+          context.read<BilanResultatBloc>().add(
+            ValiderCategoriesEvent(finalSelection),
+          );
         },
       ),
     );
@@ -248,30 +263,36 @@ class _CategoryCard extends StatelessWidget {
     final isSmallScreen = size.width < 360;
     final iconSize = size.width * 0.125;
     final padding = size.width * 0.04;
-    
+
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: EdgeInsets.all(padding),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(size.width * 0.04),
           border: Border.all(
-            color: isSelected ? AppColors.lightIconPrimary : AppColors.lightBorder,
+            color: isSelected
+                ? AppColors.lightIconPrimary
+                : Theme.of(context).colorScheme.outline,
             width: 2,
           ),
           gradient: isSelected
               ? LinearGradient(
                   colors: [
-                    AppColors.gradientGreenStart.withOpacity(0.15),
-                    AppColors.gradientGreenEnd.withOpacity(0.15),
+                    AppColors.gradientGreenStart.withValues(alpha: 0.15),
+                    AppColors.gradientGreenEnd.withValues(alpha: 0.15),
                   ],
                 )
               : null,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(isSelected ? 0.08 : 0.04),
+              color:
+                  (Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : Colors.black)
+                      .withValues(alpha: isSelected ? 0.08 : 0.04),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -284,10 +305,15 @@ class _CategoryCard extends StatelessWidget {
               height: iconSize,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: isSelected ? null : const Color(0xFFF5F5F5),
+                color: isSelected
+                    ? null
+                    : Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
                 gradient: isSelected
                     ? const LinearGradient(
-                        colors: [AppColors.gradientGreenStart, AppColors.gradientGreenEnd],
+                        colors: [
+                          AppColors.gradientGreenStart,
+                          AppColors.gradientGreenEnd,
+                        ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       )
@@ -295,8 +321,10 @@ class _CategoryCard extends StatelessWidget {
               ),
               alignment: Alignment.center,
               child: Text(
-                icon, 
-                style: TextStyle(fontSize: isSmallScreen ? 20 : size.width * 0.06),
+                icon,
+                style: TextStyle(
+                  fontSize: isSmallScreen ? 20 : size.width * 0.06,
+                ),
               ),
             ),
             SizedBox(width: size.width * 0.037),
@@ -308,8 +336,10 @@ class _CategoryCard extends StatelessWidget {
                   Text(
                     label,
                     style: TextStyle(
-                      color: AppColors.lightTextPrimary,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.w600,
                       fontSize: isSmallScreen ? 15 : size.width * 0.04,
                     ),
                   ),
@@ -319,7 +349,9 @@ class _CategoryCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: AppColors.lightTextPrimary.withOpacity(0.5),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.5),
                         fontSize: isSmallScreen ? 12 : size.width * 0.033,
                       ),
                     ),
@@ -328,8 +360,8 @@ class _CategoryCard extends StatelessWidget {
             ),
             if (isSelected)
               Icon(
-                Icons.check_circle, 
-                color: AppColors.lightIconPrimary, 
+                Icons.check_circle,
+                color: AppColors.lightIconPrimary,
                 size: isSmallScreen ? 20 : size.width * 0.06,
               ),
           ],

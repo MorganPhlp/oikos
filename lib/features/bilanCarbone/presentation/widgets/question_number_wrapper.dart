@@ -35,7 +35,9 @@ class _QuestionNumberWrapperState extends State<QuestionNumberWrapper> {
   void didUpdateWidget(covariant QuestionNumberWrapper oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.initialValue != oldWidget.initialValue) {
-      _currentValue = widget.initialValue;
+      setState(() {
+        _currentValue = widget.initialValue;
+      });
     }
   }
 
@@ -47,7 +49,6 @@ class _QuestionNumberWrapperState extends State<QuestionNumberWrapper> {
       child: Column(
         children: [
           OikosNumberInput(
-            key: ValueKey(widget.question.slug), 
             
             value: _currentValue,
             unit: widget.question.unit ?? '',

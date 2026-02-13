@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$CarboneEquivalentModel {
 
- int get id;@JsonKey(name: 'equivalent_label') String get equivalentLabel;@JsonKey(name: 'valeur_1_tonne') double get valeur1Tonne;
+ int get id;@JsonKey(name: 'equivalent_label') String get equivalentLabel;@JsonKey(name: 'valeur_1_tonne') double get valeur1Tonne;@JsonKey(name: 'icone') String? get icone;
 /// Create a copy of CarboneEquivalentModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $CarboneEquivalentModelCopyWith<CarboneEquivalentModel> get copyWith => _$Carbon
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CarboneEquivalentModel&&(identical(other.id, id) || other.id == id)&&(identical(other.equivalentLabel, equivalentLabel) || other.equivalentLabel == equivalentLabel)&&(identical(other.valeur1Tonne, valeur1Tonne) || other.valeur1Tonne == valeur1Tonne));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CarboneEquivalentModel&&(identical(other.id, id) || other.id == id)&&(identical(other.equivalentLabel, equivalentLabel) || other.equivalentLabel == equivalentLabel)&&(identical(other.valeur1Tonne, valeur1Tonne) || other.valeur1Tonne == valeur1Tonne)&&(identical(other.icone, icone) || other.icone == icone));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,equivalentLabel,valeur1Tonne);
+int get hashCode => Object.hash(runtimeType,id,equivalentLabel,valeur1Tonne,icone);
 
 @override
 String toString() {
-  return 'CarboneEquivalentModel(id: $id, equivalentLabel: $equivalentLabel, valeur1Tonne: $valeur1Tonne)';
+  return 'CarboneEquivalentModel(id: $id, equivalentLabel: $equivalentLabel, valeur1Tonne: $valeur1Tonne, icone: $icone)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $CarboneEquivalentModelCopyWith<$Res>  {
   factory $CarboneEquivalentModelCopyWith(CarboneEquivalentModel value, $Res Function(CarboneEquivalentModel) _then) = _$CarboneEquivalentModelCopyWithImpl;
 @useResult
 $Res call({
- int id,@JsonKey(name: 'equivalent_label') String equivalentLabel,@JsonKey(name: 'valeur_1_tonne') double valeur1Tonne
+ int id,@JsonKey(name: 'equivalent_label') String equivalentLabel,@JsonKey(name: 'valeur_1_tonne') double valeur1Tonne,@JsonKey(name: 'icone') String? icone
 });
 
 
@@ -65,12 +65,13 @@ class _$CarboneEquivalentModelCopyWithImpl<$Res>
 
 /// Create a copy of CarboneEquivalentModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? equivalentLabel = null,Object? valeur1Tonne = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? equivalentLabel = null,Object? valeur1Tonne = null,Object? icone = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,equivalentLabel: null == equivalentLabel ? _self.equivalentLabel : equivalentLabel // ignore: cast_nullable_to_non_nullable
 as String,valeur1Tonne: null == valeur1Tonne ? _self.valeur1Tonne : valeur1Tonne // ignore: cast_nullable_to_non_nullable
-as double,
+as double,icone: freezed == icone ? _self.icone : icone // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -152,10 +153,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id, @JsonKey(name: 'equivalent_label')  String equivalentLabel, @JsonKey(name: 'valeur_1_tonne')  double valeur1Tonne)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id, @JsonKey(name: 'equivalent_label')  String equivalentLabel, @JsonKey(name: 'valeur_1_tonne')  double valeur1Tonne, @JsonKey(name: 'icone')  String? icone)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CarboneEquivalentModel() when $default != null:
-return $default(_that.id,_that.equivalentLabel,_that.valeur1Tonne);case _:
+return $default(_that.id,_that.equivalentLabel,_that.valeur1Tonne,_that.icone);case _:
   return orElse();
 
 }
@@ -173,10 +174,10 @@ return $default(_that.id,_that.equivalentLabel,_that.valeur1Tonne);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id, @JsonKey(name: 'equivalent_label')  String equivalentLabel, @JsonKey(name: 'valeur_1_tonne')  double valeur1Tonne)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id, @JsonKey(name: 'equivalent_label')  String equivalentLabel, @JsonKey(name: 'valeur_1_tonne')  double valeur1Tonne, @JsonKey(name: 'icone')  String? icone)  $default,) {final _that = this;
 switch (_that) {
 case _CarboneEquivalentModel():
-return $default(_that.id,_that.equivalentLabel,_that.valeur1Tonne);}
+return $default(_that.id,_that.equivalentLabel,_that.valeur1Tonne,_that.icone);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -190,10 +191,10 @@ return $default(_that.id,_that.equivalentLabel,_that.valeur1Tonne);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id, @JsonKey(name: 'equivalent_label')  String equivalentLabel, @JsonKey(name: 'valeur_1_tonne')  double valeur1Tonne)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id, @JsonKey(name: 'equivalent_label')  String equivalentLabel, @JsonKey(name: 'valeur_1_tonne')  double valeur1Tonne, @JsonKey(name: 'icone')  String? icone)?  $default,) {final _that = this;
 switch (_that) {
 case _CarboneEquivalentModel() when $default != null:
-return $default(_that.id,_that.equivalentLabel,_that.valeur1Tonne);case _:
+return $default(_that.id,_that.equivalentLabel,_that.valeur1Tonne,_that.icone);case _:
   return null;
 
 }
@@ -205,12 +206,13 @@ return $default(_that.id,_that.equivalentLabel,_that.valeur1Tonne);case _:
 @JsonSerializable()
 
 class _CarboneEquivalentModel extends CarboneEquivalentModel {
-  const _CarboneEquivalentModel({this.id = 0, @JsonKey(name: 'equivalent_label') this.equivalentLabel = '', @JsonKey(name: 'valeur_1_tonne') this.valeur1Tonne = 0.0}): super._();
+  const _CarboneEquivalentModel({this.id = 0, @JsonKey(name: 'equivalent_label') this.equivalentLabel = '', @JsonKey(name: 'valeur_1_tonne') this.valeur1Tonne = 0.0, @JsonKey(name: 'icone') this.icone}): super._();
   factory _CarboneEquivalentModel.fromJson(Map<String, dynamic> json) => _$CarboneEquivalentModelFromJson(json);
 
 @override@JsonKey() final  int id;
 @override@JsonKey(name: 'equivalent_label') final  String equivalentLabel;
 @override@JsonKey(name: 'valeur_1_tonne') final  double valeur1Tonne;
+@override@JsonKey(name: 'icone') final  String? icone;
 
 /// Create a copy of CarboneEquivalentModel
 /// with the given fields replaced by the non-null parameter values.
@@ -225,16 +227,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CarboneEquivalentModel&&(identical(other.id, id) || other.id == id)&&(identical(other.equivalentLabel, equivalentLabel) || other.equivalentLabel == equivalentLabel)&&(identical(other.valeur1Tonne, valeur1Tonne) || other.valeur1Tonne == valeur1Tonne));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CarboneEquivalentModel&&(identical(other.id, id) || other.id == id)&&(identical(other.equivalentLabel, equivalentLabel) || other.equivalentLabel == equivalentLabel)&&(identical(other.valeur1Tonne, valeur1Tonne) || other.valeur1Tonne == valeur1Tonne)&&(identical(other.icone, icone) || other.icone == icone));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,equivalentLabel,valeur1Tonne);
+int get hashCode => Object.hash(runtimeType,id,equivalentLabel,valeur1Tonne,icone);
 
 @override
 String toString() {
-  return 'CarboneEquivalentModel(id: $id, equivalentLabel: $equivalentLabel, valeur1Tonne: $valeur1Tonne)';
+  return 'CarboneEquivalentModel(id: $id, equivalentLabel: $equivalentLabel, valeur1Tonne: $valeur1Tonne, icone: $icone)';
 }
 
 
@@ -245,7 +247,7 @@ abstract mixin class _$CarboneEquivalentModelCopyWith<$Res> implements $CarboneE
   factory _$CarboneEquivalentModelCopyWith(_CarboneEquivalentModel value, $Res Function(_CarboneEquivalentModel) _then) = __$CarboneEquivalentModelCopyWithImpl;
 @override @useResult
 $Res call({
- int id,@JsonKey(name: 'equivalent_label') String equivalentLabel,@JsonKey(name: 'valeur_1_tonne') double valeur1Tonne
+ int id,@JsonKey(name: 'equivalent_label') String equivalentLabel,@JsonKey(name: 'valeur_1_tonne') double valeur1Tonne,@JsonKey(name: 'icone') String? icone
 });
 
 
@@ -262,12 +264,13 @@ class __$CarboneEquivalentModelCopyWithImpl<$Res>
 
 /// Create a copy of CarboneEquivalentModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? equivalentLabel = null,Object? valeur1Tonne = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? equivalentLabel = null,Object? valeur1Tonne = null,Object? icone = freezed,}) {
   return _then(_CarboneEquivalentModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,equivalentLabel: null == equivalentLabel ? _self.equivalentLabel : equivalentLabel // ignore: cast_nullable_to_non_nullable
 as String,valeur1Tonne: null == valeur1Tonne ? _self.valeur1Tonne : valeur1Tonne // ignore: cast_nullable_to_non_nullable
-as double,
+as double,icone: freezed == icone ? _self.icone : icone // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

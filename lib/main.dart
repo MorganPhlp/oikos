@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/common/cubits/app_user/app_user_cubit.dart';
+import 'package:go_router/go_router.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:oikos/app_router.dart';
+import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:oikos/features/auth/presentation/pages/intro_page.dart';
-import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_cubit.dart';
-import 'package:oikos/features/bilanCarbone/presentation/pages/bilan_page.dart';
-import 'package:oikos/features/actions_et_defis/presentation/pages/action_page.dart';
 import 'package:oikos/init_dependencies.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Ensure that plugin services are initialized
+  WidgetsFlutterBinding.ensureInitialized();
+
+  usePathUrlStrategy(); // Pour ne pas avoir de # dans les URLs
+
   await initDependencies();
   runApp(
     MultiBlocProvider(
@@ -23,7 +26,6 @@ void main() async {
   );
 }
 
-// Passage de StatelessWidget à StatefulWidget pour gérer l'état
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -32,39 +34,48 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  // On déclare le router en late pour l'initialiser une seule fois
+  late final GoRouter _router;
+
   @override
   void initState() {
     super.initState();
-    context.read<AuthBloc>().add(AuthIsUserLoggedIn());
+
+    Supabase.instance.client.auth.onAuthStateChange.listen((data) { // 1. On écoute les changements d'état d'authentification de Supabase
+      final session = data.session;
+      final event = data.event;
+
+      if(event == AuthChangeEvent.tokenRefreshed){
+        return; // On ignore les événements de rafraîchissement de token pour éviter les boucles infinies
+      }
+
+      if(event == AuthChangeEvent.signedOut){
+        serviceLocator<AppUserCubit>().updateUser(null); // On efface les données de l'utilisateur du Cubit à la déconnexion
+        return;
+      }
+
+      if(session != null && mounted){ // Si une session existe, on met à jour le Cubit avec les données de l'utilisateur
+        if(event == AuthChangeEvent.initialSession){
+          serviceLocator<AuthBloc>().add(AuthIsUserLoggedIn()); // On vérifie si l'utilisateur est connecté à chaque changement d'état d'authentification
+        }
+      }
+    });
+
+    // 2. On initialise le router avec le singleton AppUserCubit DIRECTEMENT
+    // C'est la source de vérité unique
+    _router = createRouter(serviceLocator<AppUserCubit>());
   }
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Oîkos',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      home: const ActionsPage(),
-      /* home: BlocSelector<AppUserCubit, AppUserState, bool>(
-        selector: (state) {
-          return state is AppUserLoggedIn;
-        },
-        builder: (context, state) {
-          if (state) {
-            // Si l'utilisateur est connecté, afficher le bilan
-            return BlocProvider(
-              create: (context) => serviceLocator<BilanCubit>()..demarrerBilan(),
-              child: const BilanPage(),
-            );
-          } else {
-            // Sinon, afficher la page d'introduction ou de connexion
-            return const IntroPage(); // Remplacez par votre page d'introduction
-          }
-        },
-      ),*/
+      // On utilise routerConfig pour brancher GoRouter
+      routerConfig: _router, 
     );
   }
 }

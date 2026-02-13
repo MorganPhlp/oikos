@@ -1,20 +1,14 @@
-// fichier: lib/features/bilanCarbone/domain/services/applicability_checker.dart
 
 import 'package:oikos/features/bilanCarbone/domain/entities/question_entity.dart';
 import 'package:oikos/features/bilanCarbone/domain/repositories/simulation_repository.dart';
 
-/// Définit la règle métier complexe de vérification de pertinence.
 class ApplicabilityChecker {
-    
-    // Le service a besoin d'accéder aux réponses de l'utilisateur pour vérifier les conditions.
-    // L'injection de la SituationRepository est la clé pour obtenir cet état.
     final SimulationRepository _simulationRepo;
 
     ApplicabilityChecker(this._simulationRepo);
 
-    /// Exécute la vérification de la pertinence de la question en pur Dart.
     bool isQuestionApplicable(QuestionBilanEntity candidate) {
-        // 1. Récupérer l'état actuel de toutes les réponses (la "situation")
+        // 1. Récupérer l'état actuel de toutes les réponses
         final currentSituation = _simulationRepo.getAccumulatedSituation();
         // 2. Lire les conditions de dépendance depuis l'entité
         final config = candidate.config; 

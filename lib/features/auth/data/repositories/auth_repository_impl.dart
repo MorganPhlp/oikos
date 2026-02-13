@@ -2,24 +2,20 @@ import 'package:fpdart/fpdart.dart';
 import 'package:oikos/core/error/exceptions.dart';
 import 'package:oikos/core/error/failures.dart';
 import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
-import 'package:oikos/core/common/entities/user.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide User;
 import '../datasources/auth_remote_data_source.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  final SupabaseClient supabaseClient; // TODO: Remplacer par data source (supprimer si possible)
   final AuthRemoteDataSource remoteDataSource;
 
-  const AuthRepositoryImpl({
-    required this.supabaseClient, // TODO: Remplacer par data source (supprimer si possible)
-    required this.remoteDataSource,
-  });
+  const AuthRepositoryImpl({required this.remoteDataSource});
 
   @override
   Future<Either<Failure, User>> currentUser() async {
     try {
       final user = await remoteDataSource.getCurrentUserData();
-      if(user == null) {
+      if (user == null) {
         return left(Failure('User not logged in!'));
       }
       return right(user);
@@ -29,8 +25,8 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<String?> getUserId() async { // TODO: Remplacer avec les changements faits (peut-être supprimer la méthode ou remplacer avec data source)
-    final user = supabaseClient.auth.currentUser;
+  Future<String?> getUserId() async {
+    final user = remoteDataSource.client.auth.currentUser;
     return user?.id;
   }
 
@@ -64,6 +60,105 @@ class AuthRepositoryImpl implements AuthRepository {
     );
   }
 
+  @override
+  Future<Either<Failure, (String name, String? logoUrl)>> getCompanyByEmail({
+    required String email,
+  }) async {
+    try {
+      // Extraction du domaine
+      final parts = email.split('@');
+      if (parts.length != 2) {
+        return left(Failure('Adresse email invalide.'));
+      }
+      final domain = parts[1];
+
+      // Requête à la base de données
+      final result = await remoteDataSource.client
+          .from('entreprise')
+          .select('nom, logo_url')
+          .eq('domaine_email', domain)
+          .maybeSingle();
+
+      if (result == null) {
+        return left(
+          Failure('Aucune entreprise trouvée pour ce domaine email.'),
+        );
+      }
+
+      final nom = result['nom'] as String;
+      final logo = result['logo_url'] as String?;
+
+      // Génération de l'URL publique du logo si disponible
+      String? logoUrl;
+      if (logo != null && logo.isNotEmpty) {
+        logoUrl = remoteDataSource.client.storage
+            .from('logos')
+            .getPublicUrl(logo);
+      }
+
+      return right((nom, logoUrl));
+    } on AuthException catch (e) {
+      return left(Failure(e.message));
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> verifyCommunityCode({
+    required String communityCode,
+  }) async {
+    try {
+      final result = await remoteDataSource.client
+          .from('communaute')
+          .select('nom')
+          .eq('code', communityCode)
+          .maybeSingle();
+
+      if (result == null) {
+        return left(Failure('Ce code communauté est invalide.'));
+      }
+
+      return right((result['nom'] as String));
+    } on AuthException catch (e) {
+      return left(Failure(e.message));
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> isPseudoUnique({required String pseudo}) async {
+    try {
+      final response = await remoteDataSource.client
+          .from('utilisateur')
+          .select('pseudo')
+          .ilike('pseudo', pseudo.toLowerCase())
+          .count(CountOption.exact);
+
+      final count = response.count;
+      return right(count == 0);
+    } on AuthException catch (e) {
+      return left(Failure(e.message));
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> verifyEmailUniqueness({
+    required String email,
+  }) async {
+    try {
+      final response = await remoteDataSource.doesEmailExist(
+        email.toLowerCase(),
+      );
+      return right(response);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
   // Helper method to reduce code duplication
   Future<Either<Failure, User>> _getUser(Future<User> Function() fn) async {
     try {
@@ -72,6 +167,56 @@ class AuthRepositoryImpl implements AuthRepository {
       return right(user);
     } on AuthException catch (e) {
       return left(Failure(e.message));
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> signOut() async {
+    try {
+      // On utilise le client accessible via la remoteDataSource
+      await remoteDataSource.client.auth.signOut();
+
+      return const Right(null);
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> resetPassword({required String email}) async {
+    try {
+      await remoteDataSource.resetPassword(email: email);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(Failure(e.message));
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, User>> updateUser({
+    String? pseudo,
+    String? avatar,
+  }) async {
+    try {
+      final updatedUser = await remoteDataSource.updateUserData(
+        pseudo: pseudo,
+        avatar: avatar,
+      );
+      return right(updatedUser);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteAccount() async {
+    try {
+      await remoteDataSource.anonymizeAccount();
+      return const Right(null);
     } on ServerException catch (e) {
       return left(Failure(e.message));
     }

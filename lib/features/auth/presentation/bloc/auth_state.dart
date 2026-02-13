@@ -18,3 +18,20 @@ final class AuthFailure extends AuthState {
   final String message;
   const AuthFailure(this.message);
 }
+
+final class AuthCompanyInfoLoaded extends AuthState {
+  final String companyName;
+  final String? logoUrl;
+  const AuthCompanyInfoLoaded({required this.companyName, this.logoUrl});
+}
+
+final class AuthCommunityVerified extends AuthState {
+  final String communityName;
+  const AuthCommunityVerified({required this.communityName});
+}
+
+final class AuthEmailPasswordVerified extends AuthState {}
+
+final class AuthPseudoVerified extends AuthState {}
+
+final class AuthPasswordResetSent extends AuthState {}

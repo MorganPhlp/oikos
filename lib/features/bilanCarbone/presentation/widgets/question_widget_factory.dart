@@ -24,7 +24,9 @@ class QuestionWidgetFactory extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // On récupère les options déjà transformées par ton getter complexe
-    final List<Map<String, dynamic>> options = List<Map<String, dynamic>>.from(question.options);
+    final List<Map<String, dynamic>> options = List<Map<String, dynamic>>.from(
+      question.options,
+    );
 
     switch (question.typeWidget) {
       // =========================================================
@@ -68,10 +70,11 @@ class QuestionWidgetFactory extends StatelessWidget {
       // CAS 3 : NOMBRE (Input Texte)
       // =========================================================
       case TypeWidget.nombre:
-        final int val = (currentValue is num) ? (currentValue as num).toInt() : 0;
+        final int val = (currentValue is num)
+            ? (currentValue as num).toInt()
+            : 0;
 
         return QuestionNumberWrapper(
-          key: ValueKey(question.slug),
           question: question,
           initialValue: val,
           onValidSubmit: (newValue) => onLocalChange(newValue),
@@ -101,6 +104,20 @@ class QuestionWidgetFactory extends StatelessWidget {
         final Map<String, dynamic> currentCounts = (currentValue is Map)
             ? Map<String, dynamic>.from(currentValue)
             : {};
+        //verifier si on a atteint la limite de reponses
+        final int totalCount = currentCounts.values.fold<int>(0, (sum, item) {
+          if (item is num) {
+            return sum + (item).toInt();
+          }
+          return sum;
+        });
+
+        bool isMaxReached() {
+          if (question.max != null && totalCount >= question.max!) {
+            return true;
+          }
+          return false;
+        }
 
         return Column(
           children: options.map((option) {
@@ -114,6 +131,7 @@ class QuestionWidgetFactory extends StatelessWidget {
             return CounterItem(
               label: displayName,
               value: count,
+              isMaxReached: isMaxReached(),
               onIncrement: () {
                 final newSituation = Map<String, dynamic>.from(currentCounts);
                 newSituation[technicalKey] = count + 1;
@@ -130,8 +148,6 @@ class QuestionWidgetFactory extends StatelessWidget {
           }).toList(),
         );
 
-      default:
-        return Text("Widget non supporté : ${question.typeWidget}");
-    }
+      }
   }
 }

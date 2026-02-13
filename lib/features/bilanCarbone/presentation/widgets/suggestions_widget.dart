@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:oikos/core/theme/app_colors.dart';
 
 class SuggestionsWidget extends StatelessWidget {
   final List<String> suggestions;
@@ -26,7 +25,7 @@ class SuggestionsWidget extends StatelessWidget {
           label: Text(
             suggestion,
             style: TextStyle(
-              color: isSelected ? Colors.white : AppColors.lightTextPrimary,
+              color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurface,
             ),
           ),
           selected: isSelected,
@@ -35,11 +34,11 @@ class SuggestionsWidget extends StatelessWidget {
               onLocalChange(suggestion);
             }
           },
-          selectedColor: AppColors.lightTextGreen.withOpacity(0.7),
-          backgroundColor: AppColors.lightBackground,
+          selectedColor: Theme.of(context).colorScheme.primary.withAlpha(179),
+          backgroundColor: Theme.of(context).colorScheme.surface,
           shape: StadiumBorder(
             side: BorderSide(
-              color: isSelected ? Colors.transparent : Colors.grey.shade300,
+              color: isSelected ? Colors.transparent : Theme.of(context).colorScheme.outline,
             ),
           ),
         );

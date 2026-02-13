@@ -12,6 +12,7 @@ _CarboneEquivalentModel _$CarboneEquivalentModelFromJson(
   id: (json['id'] as num?)?.toInt() ?? 0,
   equivalentLabel: json['equivalent_label'] as String? ?? '',
   valeur1Tonne: (json['valeur_1_tonne'] as num?)?.toDouble() ?? 0.0,
+  icone: json['icone'] as String?,
 );
 
 Map<String, dynamic> _$CarboneEquivalentModelToJson(
@@ -20,4 +21,5 @@ Map<String, dynamic> _$CarboneEquivalentModelToJson(
   'id': instance.id,
   'equivalent_label': instance.equivalentLabel,
   'valeur_1_tonne': instance.valeur1Tonne,
+  'icone': instance.icone,
 };

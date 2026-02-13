@@ -20,8 +20,10 @@ class ConfirmCommunityModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Dialog(
-      backgroundColor: AppColors.lightBackground, // #fbfff2
+      backgroundColor: colorScheme.surface,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
         padding: const EdgeInsets.all(30.0),
@@ -37,27 +39,49 @@ class ConfirmCommunityModal extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: AppColors.lightIconPrimary.withValues(alpha: 0.1),
+                    color: colorScheme.primary.withValues(
+                      alpha: 0.1,
+                    ), // Vert très clair adaptatif
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.close, size: 18, color: AppColors.lightIconPrimary),
+                  child: Icon(
+                    Icons.close,
+                    size: 18,
+                    color: colorScheme.primary,
+                  ),
                 ),
               ),
             ),
 
-            // Icone Communauté (Cercle Dégradé)
+            // Icône Communauté (Cercle Dégradé - On garde les couleurs de marque)
             Container(
-              width: 80, height: 80,
+              width: 80,
+              height: 80,
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: LinearGradient(
-                  colors: [AppColors.gradientGreenStart, AppColors.gradientGreenEnd],
+                  colors: [
+                    AppColors.gradientGreenStart,
+                    AppColors.gradientGreenEnd,
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
               ),
               child: Center(
-                child: Text(communityIcon, style: const TextStyle(fontSize: 40)),
+                child: Image.network(
+                  communityIcon,
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Icon(
+                      Icons.group,
+                      size: 50,
+                      color: Colors.white,
+                    );
+                  },
+                ),
               ),
             ),
 
@@ -65,8 +89,11 @@ class ConfirmCommunityModal extends StatelessWidget {
 
             Text(
               "Confirmation de communauté",
-              style: AppTypography.h2.copyWith(fontSize: 20),
-              textAlign: TextAlign.center
+              style: AppTypography.h2.copyWith(
+                fontSize: 20,
+                color: colorScheme.onSurface,
+              ),
+              textAlign: TextAlign.center,
             ),
 
             const SizedBox(height: 20),
@@ -76,20 +103,29 @@ class ConfirmCommunityModal extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.lightInputBorder.withValues(alpha: 0.2),
+                // Fond adaptatif : Vert primaire à 10% d'opacité
+                // Ça rend bien sur fond blanc ET sur fond noir
+                color: colorScheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
                 children: [
-                  const Text(
+                  Text(
                     "Vous êtes sur le point de rejoindre :",
-                    style: TextStyle(fontSize: 14),
-                    textAlign: TextAlign.center
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: colorScheme.onSurface,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 4),
                   Text(
                     communityName,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.lightTextPrimary),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: colorScheme.onSurface,
+                    ),
                   ),
                 ],
               ),
@@ -99,22 +135,25 @@ class ConfirmCommunityModal extends StatelessWidget {
             Text(
               "Cette communauté sera votre équipe pour les défis et le classement.",
               textAlign: TextAlign.center,
-              style: TextStyle(color: AppColors.lightTextPrimary.withValues(alpha: 0.7)),
+              style: TextStyle(
+                color: colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
             ),
             const SizedBox(height: 25),
 
-            // Boutons d'action
-
+            // Boutons d'action (déjà adaptatifs)
             AuthPrimaryButton(
               text: "Oui, confirmer",
               icon: Icons.check,
               onPressed: onConfirm,
             ),
 
+            const SizedBox(height: 10), // Ajout d'un petit espace
+
             AuthSecondaryButton(
               text: "Non, choisir une autre",
               onPressed: onCancel,
-            )
+            ),
           ],
         ),
       ),

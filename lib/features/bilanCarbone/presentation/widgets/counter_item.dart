@@ -7,6 +7,7 @@ class CounterItem extends StatelessWidget {
   final int value;
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
+  final bool isMaxReached;
 
   const CounterItem({
     super.key,
@@ -15,20 +16,24 @@ class CounterItem extends StatelessWidget {
     required this.onIncrement,
     required this.onDecrement,
     this.iconEmoji,
+    this.isMaxReached = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    if (label.trim().toLowerCase() == "aucun"){
+      return SizedBox.shrink();
+    }
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(left: 6, right: 6, bottom: 12), 
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.lightInput, // Fond gris très clair
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(14),
         // Ombre subtile comme sur le design
         boxShadow: [
           BoxShadow(
-            color: AppColors.darkPrimaryForeground.withOpacity(0.5),
+            color: (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black).withValues(alpha: 0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -46,8 +51,8 @@ class CounterItem extends StatelessWidget {
                 ],
                 Text(
                   label,
-                  style: const TextStyle(
-                    color: AppColors.lightTextPrimary,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                   ),
@@ -55,7 +60,6 @@ class CounterItem extends StatelessWidget {
               ],
             ),
           ),
-
           // CONTROLES (+ / -)
           Row(
             children: [
@@ -70,10 +74,10 @@ class CounterItem extends StatelessWidget {
                 child: Text(
                   value.toString(),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.lightTextPrimary,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -81,7 +85,7 @@ class CounterItem extends StatelessWidget {
               _CounterButton(
                 icon: Icons.add,
                 onTap: onIncrement,
-                isActive: true,
+                isActive: !isMaxReached, // Désactivé si max atteint
               ),
             ],
           ),
@@ -112,12 +116,12 @@ class _CounterButton extends StatelessWidget {
         width: 36,
         height: 36,
         decoration: BoxDecoration(
-          color: isActive ? AppColors.gradientGreenEnd : AppColors.lightMuted,
+          color: isActive ? AppColors.gradientGreenEnd : Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
           shape: BoxShape.circle,
         ),
         child: Icon(
           icon,
-          color: isActive ? Colors.white : AppColors.lightMutedForeground,
+          color: isActive ? Colors.white : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
           size: 20,
         ),
       ),

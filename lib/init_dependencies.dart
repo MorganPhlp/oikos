@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
-import 'package:oikos/core/data/category_empreinte_repository_impl.dart';
-import 'package:oikos/core/data/utilisateur_repository_impl.dart';
-import 'package:oikos/core/domain/repositories/categorie_empreinte_repository.dart';
-import 'package:oikos/core/domain/repositories/utilisateur_repository.dart';
+import 'package:http/http.dart' as http;
+import 'package:oikos/core/common/data/category_empreinte_repository_impl.dart';
+import 'package:oikos/core/common/data/utilisateur_repository_impl.dart';
+import 'package:oikos/core/common/domain/repositories/categorie_empreinte_repository.dart';
+import 'package:oikos/core/common/domain/repositories/utilisateur_repository.dart';
 import 'package:oikos/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:oikos/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
@@ -26,33 +28,77 @@ import 'package:oikos/features/bilanCarbone/domain/use_cases/calculer_bilan_use_
 import 'package:oikos/features/bilanCarbone/domain/use_cases/choix_categories_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/definir_objectif_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/demarrer_approfondissement_use_case.dart';
-import 'package:oikos/features/bilanCarbone/domain/use_cases/demarrer_bilan_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/enregistrer_reponse_use_case.dart';
+import 'package:oikos/features/bilanCarbone/domain/use_cases/initialiser_moteur_de_calcul_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/obtenir_objectifs_disponibles_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/precedente_question_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/preparer_choix_objectifs_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/prochaine_question_use_case.dart';
+import 'package:oikos/features/bilanCarbone/domain/use_cases/recommencer_bilan_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/recuperer_equivalents_carbone_use_case.dart';
-import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_cubit.dart';
+import 'package:oikos/features/bilanCarbone/domain/use_cases/recuperer_questions_use_case.dart';
+import 'package:oikos/features/bilanCarbone/domain/use_cases/recuperer_reponses_use_case.dart';
+import 'package:oikos/features/bilanCarbone/domain/use_cases/reprendre_bilan_use_case.dart';
+import 'package:oikos/features/bilanCarbone/domain/use_cases/verifier_bilan_en_cours_use_case.dart';
+import 'package:oikos/features/profile/data/repositories/bilan_repository_impl.dart';
+import 'package:oikos/features/profile/domain/repositories/bilan_repository.dart';
+import 'package:oikos/features/profile/domain/use_cases/get_questions_restantes_use_case.dart';
+import 'package:oikos/features/profile/presentation/bloc/profile_bilan_cubit.dart';
+import 'package:oikos/features/streak/data/datasources/streak_remote_datasource.dart';
+import 'package:oikos/features/streak/data/repositories/streak_repository_impl.dart';
+import 'package:oikos/features/streak/domain/repositories/streak_repository.dart';
+import 'package:oikos/features/streak/domain/use_cases/get_streak_use_case.dart';
+import 'package:oikos/features/streak/domain/use_cases/watch_streak_use_case.dart';
+import 'package:oikos/features/streak/presentation/bloc/streak_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_session_bloc.dart';
+import 'package:oikos/features/bilanCarbone/presentation/bloc/questionnaire_bloc.dart';
+import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_resultat_bloc.dart';
 
-import 'core/common/cubits/app_user/app_user_cubit.dart';
+import 'core/common/presentation/cubits/app_user/app_user_cubit.dart';
 import 'core/secrets/app_secrets.dart';
+import 'features/auth/domain/usecases/delete_account.dart';
+import 'features/auth/domain/usecases/reset_password.dart';
+import 'features/auth/domain/usecases/update_user.dart';
+import 'features/auth/domain/usecases/user_signout.dart';
+import 'features/auth/domain/usecases/validate_email_password.dart';
+import 'features/auth/domain/usecases/validate_pseudo.dart';
+
+//Imports Code barre
+import 'package:oikos/features/codeBarre/data/datasources/code_barre_remote_data_source.dart';
+import 'package:oikos/features/codeBarre/data/repositories/aliment_repository_impl.dart';
+import 'package:oikos/features/codeBarre/domain/repositories/aliment_repository.dart';
+import 'package:oikos/features/codeBarre/domain/usecases/get_aliment_by_code.dart';
+import 'package:oikos/features/codeBarre/presentation/bloc/scan_bloc.dart';
 
 final serviceLocator = GetIt.instance;
 
 Future<void> initDependencies() async {
-  _initAuth();
-  _initBilan();
+  // Initialize Supabase FIRST before other dependencies
   final supabase = await Supabase.initialize(
-    // Initialize Supabase
     url: AppSecrets.supabaseUrl,
     anonKey: AppSecrets.supabaseAnonKey,
+    authOptions: FlutterAuthClientOptions(
+      authFlowType: kIsWeb
+          ? AuthFlowType.implicit
+          : AuthFlowType
+                .pkce, // Pour éviter les problèmes de redirection sur le web, on utilise le flow implicite qui gère tout côté client. C'est plus simple et sécurisé pour une application Flutter.
+    ),
   );
   serviceLocator.registerLazySingleton<SupabaseClient>(() => supabase.client);
 
+  // Enregistrement du Client HTTP (Indispensable pour le Scanner Code Barre)
+  serviceLocator.registerLazySingleton(() => http.Client());
+
   // core
   serviceLocator.registerLazySingleton(() => AppUserCubit());
+
+  // Then initialize auth and bilan after Supabase is ready
+  _initAuth();
+  _initBilan();
+  _initCodeBarre();
+  _initStreak();
+  _initProfile();
 }
 
 void _initAuth() {
@@ -65,10 +111,7 @@ void _initAuth() {
 
   // Repository
   serviceLocator.registerFactory<AuthRepository>(
-    () => AuthRepositoryImpl(
-      supabaseClient: serviceLocator(),
-      remoteDataSource: serviceLocator(),
-    ),
+    () => AuthRepositoryImpl(remoteDataSource: serviceLocator()),
   );
 
   // Use cases
@@ -80,6 +123,18 @@ void _initAuth() {
 
   serviceLocator.registerFactory(() => CurrentUser(serviceLocator()));
 
+  serviceLocator.registerFactory(() => ValidateEmailPassword(serviceLocator()));
+
+  serviceLocator.registerFactory(() => ValidatePseudo(serviceLocator()));
+
+  serviceLocator.registerFactory(() => UserSignOut(serviceLocator()));
+
+  serviceLocator.registerFactory(() => ResetPassword(serviceLocator()));
+
+  serviceLocator.registerLazySingleton(() => UpdateUser(serviceLocator()));
+
+  serviceLocator.registerLazySingleton(() => DeleteAccount(serviceLocator()));
+
   // Bloc
   serviceLocator.registerLazySingleton(
     () => AuthBloc(
@@ -87,19 +142,32 @@ void _initAuth() {
       userSignin: serviceLocator(),
       currentUser: serviceLocator(),
       appUserCubit: serviceLocator(),
+      authRepository: serviceLocator(),
+      validateEmailPassword: serviceLocator(),
+      validatePseudo: serviceLocator(),
+      userSignOut: serviceLocator(),
+      resetPassword: serviceLocator(),
+      updateUser: serviceLocator(),
+      deleteAccount: serviceLocator(),
     ),
   );
 }
 
-  void _initBilan() {
+void _initBilan() {
   // ==========================================================
   // DATA (Repositories & Services)
   // ==========================================================
-  serviceLocator.registerLazySingleton<SimulationRepository>(() => PublicodesService());
-  serviceLocator.registerLazySingleton<QuestionRepository>(() => QuestionRepositoryImpl(supabaseClient: serviceLocator()));
-  serviceLocator.registerLazySingleton<ReponseRepository>(() => ReponseRepositoryImpl(supabaseClient: serviceLocator()));
+  serviceLocator.registerLazySingleton<SimulationRepository>(
+    () => PublicodesService(),
+  );
+  serviceLocator.registerLazySingleton<QuestionRepository>(
+    () => QuestionRepositoryImpl(supabaseClient: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton<ReponseRepository>(
+    () => ReponseRepositoryImpl(supabaseClient: serviceLocator()),
+  );
   serviceLocator.registerLazySingleton<BilanSessionRepository>(
-    () => BilanSessionRepositoryImpl(supabaseClient: serviceLocator(), authRepo: serviceLocator()),
+    () => BilanSessionRepositoryImpl(supabaseClient: serviceLocator()),
   );
   serviceLocator.registerLazySingleton<CategorieEmpreinteRepository>(
     () => CategorieEmpreinteRepositoryImpl(supabaseClient: serviceLocator()),
@@ -114,48 +182,201 @@ void _initAuth() {
   // ==========================================================
   // DOMAINE (Services & Use Cases)
   // ==========================================================
-  serviceLocator.registerLazySingleton(() => ApplicabilityChecker(serviceLocator()));
 
-  serviceLocator.registerLazySingleton(() => DemarrerBilanUseCase(
-        simulationRepo: serviceLocator(),
-        questionRepo: serviceLocator(),
-        bilanSessionRepo: serviceLocator(),
-      ));
+  serviceLocator.registerLazySingleton(
+    () => InitialiserMoteurDeCalculUseCase(simulationRepository: serviceLocator()),
+  );
 
-  serviceLocator.registerLazySingleton(() => EnregistrerReponseUseCase(
-        simulationRepo: serviceLocator(),
-        reponseRepo: serviceLocator(),
-        bilanSessionRepo: serviceLocator(),
-      ));
+  serviceLocator.registerLazySingleton(
+    () => ApplicabilityChecker(serviceLocator()),
+  );
 
-  serviceLocator.registerLazySingleton(() => GetProchaineQuestionUseCase(applicabilityChecker: serviceLocator()));
-  serviceLocator.registerLazySingleton(() => GetPreviousQuestionUseCase(applicabilityChecker: serviceLocator()));
-  serviceLocator.registerLazySingleton(() => DemarrerApprofondissementUseCase(categorieRepo: serviceLocator()));
-  serviceLocator.registerLazySingleton(() => ChoixCategoriesUseCase(categorieRepo: serviceLocator()));
-  serviceLocator.registerLazySingleton(() => DefinirObjectifUseCase(utilisateurRepo: serviceLocator()));
-  serviceLocator.registerLazySingleton(() => CalculerBilanUseCase(simulationRepository: serviceLocator(), bilanRepository: serviceLocator()));
-  serviceLocator.registerLazySingleton(() => RecupererEquivalentsCarboneUseCase(carboneEquivalentRepository: serviceLocator()));
-  serviceLocator.registerLazySingleton(() => CalculerBilanCategoriesUseCase(simulationRepository: serviceLocator()));
-  serviceLocator.registerLazySingleton(() => ObtenirObjectifsDisponiblesUseCase());
-  serviceLocator.registerLazySingleton(() => PreparerChoixObjectifsUseCase(
-        calculerBilanUseCase: serviceLocator(),
-        obtenirObjectifsUseCase: serviceLocator(),
-      ));
+  serviceLocator.registerLazySingleton(
+    () => EnregistrerReponseUseCase(
+      simulationRepo: serviceLocator(),
+      reponseRepo: serviceLocator(),
+      bilanSessionRepo: serviceLocator(),
+      authRepository: serviceLocator(),
+    ),
+  );
+
+  serviceLocator.registerLazySingleton(
+    () => GetProchaineQuestionUseCase(applicabilityChecker: serviceLocator(), reponseRepository: serviceLocator(), bilanSessionRepository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => GetPreviousQuestionUseCase(applicabilityChecker: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => DemarrerApprofondissementUseCase(categorieRepo: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => ChoixCategoriesUseCase(categorieRepo: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => DefinirObjectifUseCase(utilisateurRepo: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => CalculerBilanUseCase(
+      simulationRepository: serviceLocator(),
+      bilanRepository: serviceLocator(),
+      authRepository: serviceLocator(),
+    ),
+  );
+  serviceLocator.registerLazySingleton(
+    () => RecupererEquivalentsCarboneUseCase(
+      carboneEquivalentRepository: serviceLocator(),
+    ),
+  );
+  serviceLocator.registerLazySingleton(
+    () =>
+        CalculerBilanCategoriesUseCase(simulationRepository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => ObtenirObjectifsDisponiblesUseCase(),
+  );
+  serviceLocator.registerLazySingleton(
+    () => PreparerChoixObjectifsUseCase(
+      calculerBilanUseCase: serviceLocator(),
+      obtenirObjectifsUseCase: serviceLocator(),
+    ),
+  );
+  serviceLocator.registerLazySingleton(
+    () => VerifierBilanEnCoursUseCase(
+      bilanSessionRepo: serviceLocator(),
+      authRepository: serviceLocator(),
+    ),
+  );
+
+  serviceLocator.registerLazySingleton(
+    () => RecommencerBilanUseCase(
+      bilanSessionRepository: serviceLocator(),
+      questionRepository: serviceLocator(),
+      simulationRepository: serviceLocator(),
+      authRepository: serviceLocator(),
+    ),
+  );
+
+  serviceLocator.registerLazySingleton(
+    () => RecupererReponsesUseCase(
+      reponseRepository: serviceLocator(),
+      bilanRepository: serviceLocator(),
+      questionRepository: serviceLocator(),
+      authRepository: serviceLocator(),
+    ),
+  );
+
+  serviceLocator.registerLazySingleton(
+    () => ReprendreBilanUseCase(
+      reponseRepository: serviceLocator(),
+      bilanRepository: serviceLocator(),
+      simulationRepository: serviceLocator(),
+      authRepository: serviceLocator(),
+    ),
+  );
+
+  serviceLocator.registerLazySingleton(
+    () => RecupererQuestionsUseCase(questionRepository: serviceLocator()),
+  );
 
   // ==========================================================
-  // PRESENTATION (Cubit)
+  // PRESENTATION (Bloc)
   // ==========================================================
-  serviceLocator.registerFactory(() => BilanCubit(
-        demarrerBilanUseCase: serviceLocator(),
-        repondreUseCase: serviceLocator(),
-        getNextUseCase: serviceLocator(),
-        getPrevUseCase: serviceLocator(),
-        choixCategoriesUseCase: serviceLocator(),
-        demarrerApprofondissementUseCase: serviceLocator(),
-        definirObjectifUseCase: serviceLocator(),
-        calculerBilanUseCase: serviceLocator(),
-        calculerBilanCategoriesUseCase: serviceLocator(),
-        recupererEquivalentsCarboneUseCase: serviceLocator(),
-        preparerChoixObjectifsUseCase: serviceLocator(),
-      ));
+  // 1. Gestion du cycle de vie (Reprise / Nouveau)
+  serviceLocator.registerFactory(
+    () => BilanSessionBloc(
+      verifierBilanUseCase: serviceLocator(),
+      recupererQuestionsUseCase: serviceLocator(),
+      recupererReponsesUseCase: serviceLocator(),
+      recommencerBilanUseCase: serviceLocator(),
+    ),
+  );
+
+  // 2. Moteur du questionnaire (Navigation questions)
+  serviceLocator.registerFactory(
+    () => QuestionnaireBloc(
+      repondreUseCase: serviceLocator(),
+      getNextUseCase: serviceLocator(),
+      getPrevUseCase: serviceLocator(),
+      reprendreBilanUseCase: serviceLocator(),
+      initialiserMoteurDeCalculUseCase: serviceLocator(),
+    ),
+  );
+
+  // 3. Phase de résultats (Approfondissement / Objectifs)
+  serviceLocator.registerFactory(
+    () => BilanResultatBloc(
+      demarrerApproUseCase: serviceLocator(),
+      choixCategoriesUseCase: serviceLocator(),
+      preparerObjectifsUseCase: serviceLocator(),
+      definirObjectifUseCase: serviceLocator(),
+      calculerCategoriesUseCase: serviceLocator(),
+      equivalentsUseCase: serviceLocator(),
+      calculerBilanUseCase: serviceLocator(),
+    ),
+  );
+}
+
+void _initCodeBarre() {
+  // Data Source
+  serviceLocator.registerFactory<CodeBarreRemoteDataSource>(
+    () => CodeBarreRemoteDataSourceImpl(client: serviceLocator()),
+  );
+
+  // Repository
+  serviceLocator.registerFactory<AlimentRepository>(
+    () => AlimentRepositoryImpl(serviceLocator()),
+  );
+
+  // UseCase
+  serviceLocator.registerFactory(() => GetAlimentByCode(serviceLocator()));
+
+  // Bloc
+  // Vu que c'est un scan, on utilise registerFactory (nouvel état à chaque ouverture)
+  serviceLocator.registerFactory(
+    () => ScanBloc(getAlimentByCode: serviceLocator()),
+  );
+}
+
+void _initStreak() {
+  // Datasource
+  serviceLocator.registerFactory<StreakRemoteDatasource>(
+    () => StreakRemoteDatasource(
+      supabaseClient: serviceLocator<SupabaseClient>(),
+    ), // Précise SupabaseClient
+  );
+
+  // Repository
+  serviceLocator.registerFactory<StreakRepository>(
+    () => StreakRepositoryImpl(serviceLocator<StreakRemoteDatasource>()),
+  );
+
+  // Use Case
+  serviceLocator.registerFactory<WatchStreakUseCase>(
+    () => WatchStreakUseCase(serviceLocator<StreakRepository>()),
+  );
+  serviceLocator.registerFactory<GetStreakUseCase>(
+    () => GetStreakUseCase(streakRepository: serviceLocator()),
+  );
+
+  // Bloc
+  serviceLocator.registerFactory<StreakBloc>(
+    () => StreakBloc(serviceLocator(), serviceLocator()),
+  );
+}
+
+void _initProfile() {
+  // Repository
+  serviceLocator.registerFactory<ProfileBilanRepository>(
+    () => ProfileBilanRepositoryImpl(serviceLocator<SupabaseClient>()),
+  );
+
+  // Use Case
+  serviceLocator.registerFactory(
+    () => GetQuestionsRestantesUseCase(serviceLocator<ProfileBilanRepository>()),
+  );
+
+  // Bloc
+  serviceLocator.registerFactory(
+    () => ProfileBilanCubit(getQuestionsRestantesUseCase: serviceLocator()),
+  );
 }

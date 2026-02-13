@@ -12,6 +12,7 @@ sealed class CarboneEquivalentModel with _$CarboneEquivalentModel {
     @Default(0) int id,
     @JsonKey(name: 'equivalent_label') @Default('') String equivalentLabel,
     @JsonKey(name: 'valeur_1_tonne') @Default(0.0) double valeur1Tonne,
+    @JsonKey(name: 'icone') String? icone,
   }) = _CarboneEquivalentModel;
 
   factory CarboneEquivalentModel.fromJson(Map<String, dynamic> json) =>
@@ -23,6 +24,7 @@ sealed class CarboneEquivalentModel with _$CarboneEquivalentModel {
       id: id,
       equivalentLabel: equivalentLabel,
       valeur1Tonne: valeur1Tonne,
+      icone: icone,
     );
   }
 

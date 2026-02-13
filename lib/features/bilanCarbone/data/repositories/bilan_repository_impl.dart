@@ -1,73 +1,102 @@
 // features/bilanCarbone/data/repositories/bilan_session_repository_impl.dart
-// Doit DEPENDRE de l'AuthRepository
-import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
+
+import 'package:oikos/features/bilanCarbone/domain/entities/detail_bilan_entity.dart';
 import 'package:oikos/features/bilanCarbone/domain/repositories/bilan_repository.dart';
-import 'package:supabase_flutter/supabase_flutter.dart'; 
-// Et de la source de données pour l'accès à Supabase (si vous en avez une)
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class BilanSessionRepositoryImpl implements BilanSessionRepository {
-  final SupabaseClient supabaseClient; // Injecté
-  final AuthRepository authRepo; // Injecté
+  final SupabaseClient supabaseClient;
 
-  BilanSessionRepositoryImpl({required this.supabaseClient, required this.authRepo});
-  
+  BilanSessionRepositoryImpl({required this.supabaseClient});
+
   @override
-  Future<int?> getBilanId() async {
-    try {
-      // 1. Utiliser le Repo d'Auth pour obtenir l'ID utilisateur (nettoyage de la dépendance)
-      final userId = await authRepo.getUserId();
-      if (userId == null) return null; // Utilisateur non connecté
+  Future<int> getBilanId(String userId) async {
+    final response = await supabaseClient
+        .from('bilan_carbone')
+        .select('id')
+        .eq('utilisateur_id', userId)
+        .order('date_bilan', ascending: false)
+        .limit(1)
+        .maybeSingle();
+   
+    if (response == null) { // aucun bilan trouve, on en creer un nouveau
+      await createNewBilanSession(userId);
+      final newResponse = await supabaseClient
+          .from('bilan_carbone')
+          .select('id')
+          .eq('utilisateur_id', userId)
+          .order('date_bilan', ascending: false)
+          .limit(1)
+          .maybeSingle();
+      if (newResponse == null) {
+        throw Exception("Impossible de créer une nouvelle session de bilan");
+      }
+      return newResponse['id'];
+    }
+    return response['id'];
+  }
 
-      // 2. Logique de récupération
+  @override
+  Future<void> createNewBilanSession(String userId) async {
+    await supabaseClient.from('bilan_carbone').upsert({
+      'utilisateur_id': userId,
+      'date_bilan': DateTime.now().toIso8601String(),
+      'scoretotalco2ean': 0,
+      'complet': false,
+    });
+  }
+
+  @override
+  Future<void> setBilanScore(String userId, double score) async {
+    await supabaseClient
+        .from('bilan_carbone')
+        .update({'scoretotalco2ean': score, 'complet': true})
+        .eq('utilisateur_id', userId)
+        .order('date_bilan', ascending: false)
+        .limit(1);
+  }
+
+  @override
+  Future<void> deleteBilan(String userId) async {
+    await supabaseClient
+        .from('bilan_carbone')
+        .delete()
+        .eq('utilisateur_id', userId)
+        .order('date_bilan', ascending: false)
+        .limit(1);
+  }
+
+  @override
+  Future<bool> hasBilanEnCours(String userId) async {
+    try {
       final response = await supabaseClient
           .from('bilan_carbone')
-          .select('id,date_bilan')
-          .eq('utilisateur_id', userId) // Utiliser l'ID du repo d'Auth
+          .select('complet')
+          .eq('utilisateur_id', userId)
           .order('date_bilan', ascending: false)
           .limit(1)
           .maybeSingle();
 
-      if (response == null) return null;
-      return response['id'] as int;
+      if (response == null) return false;
+
+      // Si 'complet' est false, alors un bilan est en cours.
+      final isComplet = response['complet'] ?? false;
+      return !isComplet;
     } catch (e) {
-      throw Exception('Erreur lors de la récupération de l\'ID du bilan : $e');
+      // On peut logger l'erreur ici si besoin
+      return false;
     }
   }
 
   @override
-  Future<void> createNewBilanSession() async {
-    try {
-      // 1. Obtenir l'ID utilisateur via le repo d'Auth
-      final userId = await authRepo.getUserId();
-      if (userId == null) {
-        throw Exception("Utilisateur non connecté. Impossible de créer une session de bilan.");
-      }
-      // 2. Insérer une nouvelle session de bilan dans la base de données
-      await supabaseClient
-          .from('bilan_carbone')
-          .upsert({'id':0,'utilisateur_id': userId, 'date_bilan': DateTime.now().toIso8601String(),'scoretotalco2ean':0});
-    } catch (e) {
-      throw Exception('Erreur lors de la création d\'une nouvelle session de bilan : $e');
-    }
-  }
-
-  @override
-  Future<void> setBilanScore(double score) async {
-    try {
-      // 1. Obtenir l'ID utilisateur via le repo d'Auth
-      final userId = await authRepo.getUserId();
-      if (userId == null) {
-        throw Exception("Utilisateur non connecté. Impossible de mettre à jour le score du bilan.");
-      }
-      // 2. Mettre à jour le score total du bilan dans la base de données
-      await supabaseClient
-          .from('bilan_carbone')
-          .update({'scoretotalco2ean': score})
-          .eq('utilisateur_id', userId)
-          .order('date_bilan', ascending: false)
-          .limit(1);
-    } catch (e) {
-      throw Exception('Erreur lors de la mise à jour du score du bilan : $e');
-    }
+  Future<void> saveDetailBilan(DetailBilanEntity detailBilan) async {
+    await supabaseClient.from('detail_bilan').upsert({
+      'id': detailBilan.id,
+      'transport': detailBilan.transport,
+      'alimentation': detailBilan.alimentation,
+      'logement': detailBilan.logement,
+      'divers': detailBilan.divers,
+      'services_societaux': detailBilan.servicesSocietaux,
+    });
   }
 }
