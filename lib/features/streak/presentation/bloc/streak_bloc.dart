@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/features/streak/domain/entities/utilisateur_streak_entity.dart';
+import 'package:oikos/features/streak/domain/use_cases/calculer_progres_use_case.dart';
 import 'package:oikos/features/streak/domain/use_cases/get_streak_use_case.dart';
+import 'package:oikos/features/streak/domain/use_cases/recuperer_streak_steps_use_case.dart';
 import 'package:oikos/features/streak/domain/use_cases/watch_streak_use_case.dart';
 import 'package:oikos/features/streak/presentation/bloc/streak_event.dart';
 import 'package:oikos/features/streak/presentation/bloc/streak_state.dart';
@@ -10,41 +12,76 @@ import 'package:oikos/features/streak/presentation/bloc/streak_state.dart';
 class StreakBloc extends Bloc<StreakEvent, StreakState> {
   final WatchStreakUseCase watchStreakUseCase;
   final GetStreakUseCase getStreakUseCase;
+  final CalculerProgresUseCase calculerActionsRealiseesUseCase;
+  final RecupererStreakStepsUseCase recupererStreakStepsUseCase;
 
-  StreakBloc(this.watchStreakUseCase, this.getStreakUseCase)
-    : super(StreakIdle(streak: UtilisateurStreakEntity.empty())) {
+  StreakBloc(
+    this.watchStreakUseCase,
+    this.getStreakUseCase,
+    this.calculerActionsRealiseesUseCase,
+    this.recupererStreakStepsUseCase,
+  ) : super(StreakIdle(streak: UtilisateurStreakEntity.empty())) {
     on<WatchStreakEvent>(_onWatchStreak);
-    on<StreakUpdatedEvent>(_onStreakUpdated);
   }
 
   Future<void> _onWatchStreak(
     WatchStreakEvent event,
     Emitter<StreakState> emit,
   ) async {
+    emit(StreakLoading());
     if (event.userId.isEmpty) return;
 
     // chargement initial du streak
     final currentStreak = await getStreakUseCase(event.userId);
-    emit(StreakIdle(streak: currentStreak));
-    await emit.forEach<UtilisateurStreakEntity>(
+    // si pas de saison active on emet StreakNoSeason, sinon on continue
+    if (currentStreak.saisonNom == null) {
+      emit(StreakError("Aucune saison en cours, reviens plus tard !"));
+      return;
+    }
+
+    // calcul des actions réalisées pour afficher une barre de progression dès le départ
+    final (
+      actionsQuotidiennes,
+      hasCompletedActionCommunautaire,
+    ) = await calculerActionsRealiseesUseCase(
+      event.userId,
+      currentStreak.lastUpdated,
+    );
+
+    // On recupere les conditions de progression pour la streak
+    final streakSteps = await recupererStreakStepsUseCase();
+
+    emit(
+      StreakIdle(
+        streak: currentStreak,
+        actionsQuotidiennes: actionsQuotidiennes,
+        hasCompletedActionCommunautaire: hasCompletedActionCommunautaire,
+        streakSteps: streakSteps,
+      ),
+    );
+
+    await emit.onEach<UtilisateurStreakEntity>(
       watchStreakUseCase(event.userId, event.entrepriseId),
-      onData: (streakEntity) {
-        return StreakUpdated(
-          streak: streakEntity,
-          evolution: _calculateEvolution(state.streak, streakEntity),
+      onData: (streakEntity) async {
+        final (
+          actionsQuotidiennes,
+          hasCompletedActionCommunautaire,
+        ) = await calculerActionsRealiseesUseCase(
+          event.userId,
+          streakEntity.lastUpdated,
+        );
+        emit(
+          StreakUpdated(
+            streak: streakEntity,
+            evolution: _calculateEvolution(state.streak, streakEntity),
+            actionsQuotidiennes: actionsQuotidiennes,
+            hasCompletedActionCommunautaire: hasCompletedActionCommunautaire,
+            streakSteps: state.streakSteps,
+          ),
         );
       },
-      onError: (error, stackTrace) {
-        // En cas d'erreur, on garde l'état actuel (ou on émet une erreur)
-        return state;
-      },
+      onError: (error, stackTrace) {},
     );
-  }
-
-  void _onStreakUpdated(StreakUpdatedEvent event, Emitter<StreakState> emit) {
-    final evolution = _calculateEvolution(state.streak, event.currentStreak);
-
-    emit(StreakUpdated(streak: event.currentStreak, evolution: evolution));
   }
 
   // Petite logique bonus pour déterminer ce qui s'est passé

@@ -8,12 +8,9 @@ class AppTheme {
 
   // Helper pour créer des bordures d'input personnalisées avec une couleur spécifique
   static OutlineInputBorder _border(Color color) => OutlineInputBorder(
-      borderRadius: BorderRadius.circular(10),
-      borderSide: BorderSide(
-        color: color,
-        width: 2,
-      ),
-    );
+    borderRadius: BorderRadius.circular(10),
+    borderSide: BorderSide(color: color, width: 2),
+  );
 
   // --- Thème Clair ---
   static ThemeData get lightTheme {
@@ -30,14 +27,15 @@ class AppTheme {
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
-          secondaryGradient: Colors.transparent, // Pas de gradient pour les boutons secondaires, juste une couleur unie
+          secondaryGradient: Colors
+              .transparent, // Pas de gradient pour les boutons secondaires, juste une couleur unie
           tertiaryGradient: const LinearGradient(
             colors: [Colors.orangeAccent, Colors.orange],
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
           shadowColor: AppColors.gradientGreenEnd.withValues(alpha: 0.4),
-          tertiaryShadowColor: Colors.orange.withValues(alpha: 0.4), 
+          tertiaryShadowColor: Colors.orange.withValues(alpha: 0.4),
           disabledColor: Colors.grey.shade300,
         ),
       ],
@@ -106,7 +104,8 @@ class AppTheme {
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
-          secondaryGradient: Colors.transparent, // Pas de gradient pour les boutons secondaires, juste une couleur unie
+          secondaryGradient: Colors
+              .transparent, // Pas de gradient pour les boutons secondaires, juste une couleur unie
           tertiaryGradient: const LinearGradient(
             colors: [Colors.orangeAccent, Colors.orange],
             begin: Alignment.centerLeft,
@@ -152,7 +151,9 @@ class AppTheme {
         enabledBorder: _border(AppColors.darkInputBorder),
         focusedBorder: _border(AppColors.darkInputBorderFocused),
         errorBorder: _border(AppColors.darkDestructive),
-        hintStyle: TextStyle(color: AppColors.darkForeground.withValues(alpha: 0.4)),
+        hintStyle: TextStyle(
+          color: AppColors.darkForeground.withValues(alpha: 0.4),
+        ),
       ),
 
       elevatedButtonTheme: _baseElevatedButtonTheme(),
@@ -163,14 +164,15 @@ class AppTheme {
   static ElevatedButtonThemeData _baseElevatedButtonTheme() {
     return ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        minimumSize: const Size(double.infinity, 50), // Ajusté la hauteur min (25 semblait petit)
+        minimumSize: const Size(
+          double.infinity,
+          50,
+        ), // Ajusté la hauteur min (25 semblait petit)
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
         elevation: 0,
         padding: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       ),
     );
   }

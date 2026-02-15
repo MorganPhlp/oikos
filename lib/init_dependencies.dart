@@ -47,7 +47,9 @@ import 'package:oikos/features/profile/presentation/bloc/profile_bilan_cubit.dar
 import 'package:oikos/features/streak/data/datasources/streak_remote_datasource.dart';
 import 'package:oikos/features/streak/data/repositories/streak_repository_impl.dart';
 import 'package:oikos/features/streak/domain/repositories/streak_repository.dart';
+import 'package:oikos/features/streak/domain/use_cases/calculer_progres_use_case.dart';
 import 'package:oikos/features/streak/domain/use_cases/get_streak_use_case.dart';
+import 'package:oikos/features/streak/domain/use_cases/recuperer_streak_steps_use_case.dart';
 import 'package:oikos/features/streak/domain/use_cases/watch_streak_use_case.dart';
 import 'package:oikos/features/streak/presentation/bloc/streak_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -184,7 +186,9 @@ void _initBilan() {
   // ==========================================================
 
   serviceLocator.registerLazySingleton(
-    () => InitialiserMoteurDeCalculUseCase(simulationRepository: serviceLocator()),
+    () => InitialiserMoteurDeCalculUseCase(
+      simulationRepository: serviceLocator(),
+    ),
   );
 
   serviceLocator.registerLazySingleton(
@@ -201,7 +205,11 @@ void _initBilan() {
   );
 
   serviceLocator.registerLazySingleton(
-    () => GetProchaineQuestionUseCase(applicabilityChecker: serviceLocator(), reponseRepository: serviceLocator(), bilanSessionRepository: serviceLocator()),
+    () => GetProchaineQuestionUseCase(
+      applicabilityChecker: serviceLocator(),
+      reponseRepository: serviceLocator(),
+      bilanSessionRepository: serviceLocator(),
+    ),
   );
   serviceLocator.registerLazySingleton(
     () => GetPreviousQuestionUseCase(applicabilityChecker: serviceLocator()),
@@ -357,10 +365,21 @@ void _initStreak() {
   serviceLocator.registerFactory<GetStreakUseCase>(
     () => GetStreakUseCase(streakRepository: serviceLocator()),
   );
+  serviceLocator.registerFactory<CalculerProgresUseCase>(
+    () => CalculerProgresUseCase(serviceLocator<StreakRepository>()),
+  );
+  serviceLocator.registerFactory<RecupererStreakStepsUseCase>(
+    () => RecupererStreakStepsUseCase(serviceLocator<StreakRepository>()),
+  );
 
   // Bloc
   serviceLocator.registerFactory<StreakBloc>(
-    () => StreakBloc(serviceLocator(), serviceLocator()),
+    () => StreakBloc(
+      serviceLocator(),
+      serviceLocator(),
+      serviceLocator(),
+      serviceLocator(),
+    ),
   );
 }
 
@@ -372,7 +391,8 @@ void _initProfile() {
 
   // Use Case
   serviceLocator.registerFactory(
-    () => GetQuestionsRestantesUseCase(serviceLocator<ProfileBilanRepository>()),
+    () =>
+        GetQuestionsRestantesUseCase(serviceLocator<ProfileBilanRepository>()),
   );
 
   // Bloc

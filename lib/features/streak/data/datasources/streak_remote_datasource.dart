@@ -23,8 +23,8 @@ class StreakRemoteDatasource {
           .eq('utilisateur_id', userId)
           .maybeSingle();
 
-      if (response == null) {
-        return {};
+      if (response == null || response.isEmpty) {
+        return await initStreak(userId);
       }
 
       return response;
@@ -35,15 +35,19 @@ class StreakRemoteDatasource {
 
   Future<String> getEntrepriseName(String entrepriseId) async {
     try {
-      final response = await supabaseClient .from('entreprise').select('nom').eq('id', entrepriseId)
-                                            .maybeSingle();
+      final response = await supabaseClient
+          .from('entreprise')
+          .select('nom')
+          .eq('id', entrepriseId)
+          .maybeSingle();
       if (response == null) {
-         throw Exception('Entreprise non trouvée'); 
-         } 
-      return (response['nom'] as String); 
-      } 
-    catch (e) {
-       throw Exception('Erreur lors de la récupération du nom de l\'entreprise: $e');
+        throw Exception('Entreprise non trouvée');
+      }
+      return (response['nom'] as String);
+    } catch (e) {
+      throw Exception(
+        'Erreur lors de la récupération du nom de l\'entreprise: $e',
+      );
     }
   }
 
@@ -56,5 +60,65 @@ class StreakRemoteDatasource {
         .order('start_date', ascending: false)
         .limit(1)
         .map((list) => list.isEmpty ? {} : list.first);
+  }
+
+  Future<int> getNombreActionsQuotidiennesValidesDepuis(
+    String userId,
+    DateTime date,
+  ) async {
+    try {
+      final response = await supabaseClient
+          .from('realisation_actions')
+          .select('*, actions!inner(frequence)')
+          .eq('utilisateur_id', userId)
+          .eq('actions.frequence', 'journalier')
+          .gte('date_realisation', date.toIso8601String())
+          .count(CountOption.exact);
+
+      final int count = response.count;
+
+      return count;
+    } catch (e) {
+      throw Exception(
+        'Erreur lors de la récupération du nombre d\'actions quotidiennes valides: $e',
+      );
+    }
+  }
+
+  Future<bool> hasCompletedActionCommunautaire(String userId) async {
+    // TODO: implémenter la logique réelle pour vérifier si l'utilisateur a complété une action communautaire
+    return true;
+  }
+
+  Future<List<Map<String, dynamic>>> getStreakSteps() async {
+    try {
+      final response = await supabaseClient
+          .from('streak_steps')
+          .select()
+          .order('from_streak_phase', ascending: true);
+
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      throw Exception(
+        'Erreur lors de la récupération des étapes de streak: $e',
+      );
+    }
+  }
+
+  Future<Map<String, dynamic>> initStreak(String userId) async {
+    await supabaseClient.from('utilisateur_streak').upsert({
+      'utilisateur_id': userId,
+      'current_streak': 0,
+      'last_updated': DateTime.now().toUtc().toIso8601String(),
+    });
+
+    // On force un select sur la vue
+    final response = await supabaseClient
+        .from('vue_utilisateur_streak_live')
+        .select()
+        .eq('utilisateur_id', userId)
+        .maybeSingle();
+
+    return response ?? {};
   }
 }
