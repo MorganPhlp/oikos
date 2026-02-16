@@ -21,6 +21,7 @@ class QuestionnaireAffiche extends QuestionnaireState {
   final int totalObligatoire;
   final dynamic valeurActuelle;
   final bool isDeepening;
+  final bool? isEditing;
 
   QuestionnaireAffiche({
     required this.question,
@@ -29,11 +30,18 @@ class QuestionnaireAffiche extends QuestionnaireState {
     required this.totalObligatoire,
     this.valeurActuelle,
     required this.isDeepening,
-  
+    this.isEditing = false,
   });
 
   @override
-  List<Object?> get props => [question, index, total, totalObligatoire, valeurActuelle];
+  List<Object?> get props => [
+    question,
+    index,
+    total,
+    totalObligatoire,
+    valeurActuelle,
+    isEditing,
+  ];
 }
 
 class QuestionnaireTermine extends QuestionnaireState {}

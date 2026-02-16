@@ -18,6 +18,7 @@ class QuestionnaireBloc extends Bloc<QuestionnaireEvent, QuestionnaireState> {
   List<QuestionBilanEntity> _questions = [];
   int _currentIndex = 0;
   bool _isDeepening = false;
+  bool isEditing = false;
   int _indexLastQuestionObligatoire = 0;
   final Map<String, dynamic> _reponsesLocal = {};
 
@@ -68,22 +69,26 @@ class QuestionnaireBloc extends Bloc<QuestionnaireEvent, QuestionnaireState> {
     }
 
     // Reprendre le bilan pour retrouver l'index de la dernière question répondue
-    if(event.modeQuestionnaire == ModeQuestionnaire.debut){
+    if (event.modeQuestionnaire == ModeQuestionnaire.debut) {
       _currentIndex = 0;
+      // on verifie si la personne a deja rempli le questionnaire
+      if (_reponsesLocal.length >=
+          _questions.where((q) => q.estObligatoire).length) {
+        isEditing = true;
+      }
       _emitCurrent(emit);
-    // Si on est en mode "continuer", on reprend le bilan pour retrouver l'index de la dernière question répondue
-    }else{
+      // Si on est en mode "continuer", on reprend le bilan pour retrouver l'index de la dernière question répondue
+    } else {
       _currentIndex = await reprendreBilanUseCase.call(
-      _questions,
-      _reponsesLocal,
-    );
-
+        _questions,
+        _reponsesLocal,
+      );
     }
 
     //  Stocker l'index de la dernière question obligatoire
     _indexLastQuestionObligatoire = _questions.lastIndexWhere(
       (q) => q.estObligatoire,
-    ); 
+    );
 
     // Détecter si on est en approfondissement
     if (_currentIndex > _indexLastQuestionObligatoire) {
@@ -132,10 +137,10 @@ class QuestionnaireBloc extends Bloc<QuestionnaireEvent, QuestionnaireState> {
     // transition vers l'approfondissement
     if (!_isDeepening && _currentIndex > _indexLastQuestionObligatoire) {
       emit(QuestionnaireApprofondissementNotice());
-    return;
-  }
+      return;
+    }
 
-  // transition approfondissement vers normal
+    // transition approfondissement vers normal
     if (_isDeepening && _currentIndex <= _indexLastQuestionObligatoire) {
       _isDeepening = false;
     }
@@ -149,6 +154,7 @@ class QuestionnaireBloc extends Bloc<QuestionnaireEvent, QuestionnaireState> {
         totalObligatoire: _indexLastQuestionObligatoire + 1,
         valeurActuelle: _reponsesLocal[q.slug],
         isDeepening: _isDeepening,
+        isEditing: isEditing,
       ),
     );
   }

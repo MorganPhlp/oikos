@@ -59,6 +59,10 @@ class StreakLoading extends StreakState {
   StreakLoading() : super(streak: UtilisateurStreakEntity.empty());
 }
 
+class StreakSeasonFinished extends StreakState {
+  const StreakSeasonFinished({required super.streak});
+}
+
 class StreakError extends StreakState {
   final String message;
 

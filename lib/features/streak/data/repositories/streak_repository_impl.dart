@@ -89,4 +89,10 @@ class StreakRepositoryImpl implements StreakRepository {
     final map = await remoteDatasource.initStreak(userId);
     return _mapToEntity(map);
   }
+
+  @override
+  Future<DateTime?> getDebutSaison(String userId) async {
+    final DateTime? debutSaison = await remoteDatasource.getSaisonDebut(userId);
+    return debutSaison;
+  }
 }

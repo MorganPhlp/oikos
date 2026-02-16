@@ -52,7 +52,7 @@ BEGIN
 
     -- 3. Transformer les paliers relatifs en seuils cumulés
     FOR record_step IN 
-        SELECT required_actions_quotidienne, required_actions_communautaires, to_streak_phase
+        SELECT required_actions_quotidiennes, required_actions_communautaires, to_streak_phase
         FROM public.streak_steps
         ORDER BY to_streak_phase ASC
     LOOP
@@ -114,6 +114,7 @@ JOIN public.entreprise e ON u.entreprise_id = e.id
 LEFT JOIN LATERAL (
     SELECT * FROM public.saison 
     WHERE entreprise_id = e.id 
+    AND CURRENT_TIMESTAMP >= start_date
     ORDER BY start_date DESC 
     LIMIT 1
 ) s ON true;

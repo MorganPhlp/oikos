@@ -51,7 +51,7 @@ class StreakRemoteDatasource {
     }
   }
 
-  // Méthode pour récupérer les infos de la saison en cours
+  // Méthode pour récupérer un stream de la saison en cours d'une entreprise
   Stream<Map<String, dynamic>> getSaisonStream(String entrepriseId) {
     return supabaseClient
         .from('saison')
@@ -120,5 +120,19 @@ class StreakRemoteDatasource {
         .maybeSingle();
 
     return response ?? {};
+  }
+
+  Future<DateTime?> getSaisonDebut(String userId) async {
+    final response = await supabaseClient
+        .from('vue_utilisateur_streak_live')
+        .select('saison_debut')
+        .eq('utilisateur_id', userId)
+        .maybeSingle();
+
+    if (response == null || response['saison_debut'] == null) {
+      return null;
+    }
+
+    return DateTime.parse(response['saison_debut'] as String);
   }
 }

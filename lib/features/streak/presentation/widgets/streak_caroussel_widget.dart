@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/features/streak/presentation/bloc/streak_bloc.dart';
 import 'package:oikos/features/streak/presentation/bloc/streak_state.dart';
 
+// Widget de carrousel pour afficher les différentes étapes du streak
 class StreakCarousselWidget extends StatefulWidget {
   const StreakCarousselWidget({super.key});
 

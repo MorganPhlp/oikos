@@ -22,6 +22,9 @@ class StreakBloc extends Bloc<StreakEvent, StreakState> {
     this.recupererStreakStepsUseCase,
   ) : super(StreakIdle(streak: UtilisateurStreakEntity.empty())) {
     on<WatchStreakEvent>(_onWatchStreak);
+    on<SeasonFinishedEvent>((event, emit) {
+      emit(StreakSeasonFinished(streak: state.streak));
+    });
   }
 
   Future<void> _onWatchStreak(
@@ -33,50 +36,41 @@ class StreakBloc extends Bloc<StreakEvent, StreakState> {
 
     // chargement initial du streak
     final currentStreak = await getStreakUseCase(event.userId);
-    // si pas de saison active on emet StreakNoSeason, sinon on continue
-    if (currentStreak.saisonNom == null) {
-      emit(StreakError("Aucune saison en cours, reviens plus tard !"));
+    // Vérification de la fin de saison
+    final bool isFinished =
+        currentStreak.saisonFin?.isBefore(DateTime.now()) ?? false;
+    if (isFinished) {
+      emit(StreakSeasonFinished(streak: currentStreak));
       return;
     }
 
-    // calcul des actions réalisées pour afficher une barre de progression dès le départ
-    final (
-      actionsQuotidiennes,
-      hasCompletedActionCommunautaire,
-    ) = await calculerActionsRealiseesUseCase(
-      event.userId,
-      currentStreak.lastUpdated,
-    );
-
-    // On recupere les conditions de progression pour la streak
     final streakSteps = await recupererStreakStepsUseCase();
 
-    emit(
-      StreakIdle(
-        streak: currentStreak,
-        actionsQuotidiennes: actionsQuotidiennes,
-        hasCompletedActionCommunautaire: hasCompletedActionCommunautaire,
-        streakSteps: streakSteps,
-      ),
-    );
-
+    // calcul des actions réalisées pour la barre de progression
     await emit.onEach<UtilisateurStreakEntity>(
       watchStreakUseCase(event.userId, event.entrepriseId),
       onData: (streakEntity) async {
+        final streamSaisonDebut = streakEntity.saisonDebut;
+        if (streamSaisonDebut == null) {
+          emit(StreakError("Aucune saison en cours, reviens plus tard !"));
+          return;
+        }
+
         final (
           actionsQuotidiennes,
           hasCompletedActionCommunautaire,
         ) = await calculerActionsRealiseesUseCase(
           event.userId,
-          streakEntity.lastUpdated,
+          streakEntity.currentStreak,
         );
+
         emit(
           StreakUpdated(
             streak: streakEntity,
             evolution: _calculateEvolution(state.streak, streakEntity),
             actionsQuotidiennes: actionsQuotidiennes,
             hasCompletedActionCommunautaire: hasCompletedActionCommunautaire,
-            streakSteps: state.streakSteps,
+            streakSteps: streakSteps,
           ),
         );
       },

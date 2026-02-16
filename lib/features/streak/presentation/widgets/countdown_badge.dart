@@ -85,11 +85,9 @@ class _CountdownBadgeState extends State<CountdownBadge> {
 
     List<String> parts = [];
 
-    // On construit la chaîne dynamiquement
     if (days > 0) parts.add("${days}j");
     if (hours > 0) parts.add("${hours}h");
 
-    // On affiche les minutes si elles existent OU si on est en dessous de l'heure
     if (minutes > 0 || (days == 0 && hours == 0)) {
       parts.add("${minutes}min");
     }
@@ -104,9 +102,7 @@ class _CountdownBadgeState extends State<CountdownBadge> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
         color: widget.backgroundColor,
-        borderRadius: BorderRadius.circular(
-          12,
-        ), // Un peu plus arrondi pour le style
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: widget.borderColor, width: 1.5),
       ),
       child: Row(

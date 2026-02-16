@@ -4,6 +4,7 @@ import 'package:oikos/core/common/presentation/widgets/separator.dart';
 import 'package:oikos/features/streak/presentation/widgets/streak_caroussel_widget.dart';
 import 'package:oikos/features/streak/presentation/widgets/streak_statistics_widget.dart';
 
+// Widget affichant les détails du streak, avec un carrousel des étapes et des statistiques
 class StreakDetailsWidget extends StatelessWidget {
   final void Function()? onSaisonFinished;
   const StreakDetailsWidget({super.key, this.onSaisonFinished});
@@ -27,7 +28,7 @@ class StreakDetailsWidget extends StatelessWidget {
               const SizedBox(height: 16),
               DecorativeSeparator(),
               const SizedBox(height: 16),
-              StreakStatisticsWidget(onFinished: onSaisonFinished).animate(
+              StreakStatisticsWidget().animate(
                 effects: const [
                   FadeEffect(duration: Duration(milliseconds: 800)),
                 ],

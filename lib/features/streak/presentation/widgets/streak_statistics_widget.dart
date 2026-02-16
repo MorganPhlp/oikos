@@ -2,11 +2,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/features/streak/presentation/bloc/streak_bloc.dart';
+import 'package:oikos/features/streak/presentation/bloc/streak_event.dart';
 import 'package:oikos/features/streak/presentation/bloc/streak_state.dart';
 
 class StreakStatisticsWidget extends StatefulWidget {
-  final void Function()? onFinished;
-  const StreakStatisticsWidget({super.key, this.onFinished});
+  const StreakStatisticsWidget({super.key});
 
   @override
   State<StreakStatisticsWidget> createState() => _StreakStatisticsWidgetState();
@@ -35,7 +35,7 @@ class _StreakStatisticsWidgetState extends State<StreakStatisticsWidget> {
           if (diff.isNegative) {
             _timeLeft = Duration.zero;
             _timer?.cancel();
-            widget.onFinished?.call();
+            context.read<StreakBloc>().add(const SeasonFinishedEvent());
           } else {
             _timeLeft = diff;
           }

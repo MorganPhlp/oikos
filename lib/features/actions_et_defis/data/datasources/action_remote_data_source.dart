@@ -30,9 +30,7 @@ class ActionRemoteDataSourceImpl {
             .filter('categorie_nom', 'in', myCategories);
       } else {
         // Sinon on prend tout
-        data = await supabaseClient
-            .from('actions')
-            .select();
+        data = await supabaseClient.from('actions').select();
       }
 
       return data.map((json) => ActionModel.fromJson(json)).toList();
@@ -56,7 +54,8 @@ class ActionRemoteDataSourceImpl {
 
       // On transforme ça en liste d'Actions pour l'affichage
       return data.map((json) {
-        final actionJson = json['actions']; // On récupère l'objet action imbriqué
+        final actionJson =
+            json['actions']; // On récupère l'objet action imbriqué
         // On peut ajouter la fréquence si tu veux l'afficher, mais restons simple
         return ActionModel.fromJson(actionJson);
       }).toList();
@@ -66,7 +65,11 @@ class ActionRemoteDataSourceImpl {
     }
   }
 
-  Future<void> joinChallenge(String userId, String actionId, String frequence) async {
+  Future<void> joinChallenge(
+    String userId,
+    String actionId,
+    String frequence,
+  ) async {
     // 1. VÉRIFIER SI DÉJÀ PRÉSENT (Anti-Doublon)
     final existingChallenge = await supabaseClient
         .from('defis_personnels')
@@ -95,17 +98,22 @@ class ActionRemoteDataSourceImpl {
       'utilisateur_id': userId,
       'action_id': actionId,
       'frequence': frequence,
-      'statut': 'actif'
+      'statut': 'actif',
     });
   }
 
-  Future<void> validateAction(String userId, String actionId, int xp, double co2) async {
+  Future<void> validateAction(
+    String userId,
+    String actionId,
+    int xp,
+    double co2,
+  ) async {
     await supabaseClient.from('realisation_actions').insert({
       'utilisateur_id': userId,
       'action_id': actionId,
       'xp_gagne': xp,
       'co2_economise': co2,
-      'date_realisation': DateTime.now().toIso8601String(),
+      'date_realisation': DateTime.now().toUtc().toIso8601String(),
     });
 
     // Update User
@@ -116,13 +124,18 @@ class ActionRemoteDataSourceImpl {
         .single();
 
     int currentXp = (userRes['impact_score_xp'] as num?)?.toInt() ?? 0;
-    double currentCo2 = (userRes['co2_economise_total'] as num?)?.toDouble() ?? 0.0;
+    double currentCo2 =
+        (userRes['co2_economise_total'] as num?)?.toDouble() ?? 0.0;
 
-    await supabaseClient.from('utilisateur').update({
-      'impact_score_xp': currentXp + xp,
-      'co2_economise_total': currentCo2 + co2
-    }).eq('id', userId);
+    await supabaseClient
+        .from('utilisateur')
+        .update({
+          'impact_score_xp': currentXp + xp,
+          'co2_economise_total': currentCo2 + co2,
+        })
+        .eq('id', userId);
   }
+
   // Supprimer un défi (Arrêter l'action)
   Future<void> removeChallenge(String userId, String actionId) async {
     await supabaseClient

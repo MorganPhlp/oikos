@@ -14,4 +14,5 @@ abstract class StreakRepository {
   Future<bool> hasCompletedActionCommunautaire(String userId);
   Future<List<StreakStepEntity>> getStreakSteps();
   Future<UtilisateurStreakEntity> initStreak(String userId);
+  Future<DateTime?> getDebutSaison(String userId);
 }
