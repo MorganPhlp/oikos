@@ -15,6 +15,10 @@ class ProductDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);//theme global de l'appli
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     // Récupération des scores (ou '?' si inconnu)
     final ecoScore = aliment.ecoScore?.toUpperCase() ?? '?';
     final nutriScore = aliment.nutriScore?.toUpperCase() ?? '?';
@@ -23,17 +27,20 @@ class ProductDetailsPage extends StatelessWidget {
     return BlocProvider(
       create: (_) => serviceLocator<AlternativeProductCubit>()..loadAlternative(aliment),
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: colorScheme.surface,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
             onPressed: () => context.pop(),
           ),
-          title: const Text(
+          title: Text(
             "Résultat du scan",
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+            style: textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ),
           ),
           centerTitle: true,
         ),
@@ -52,7 +59,7 @@ class ProductDetailsPage extends StatelessWidget {
                           height: 200,
                           width: 200,
                           decoration: BoxDecoration(
-                            color: Colors.grey[100],
+                            color: colorScheme.surfaceContainerHighest,
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
@@ -68,14 +75,14 @@ class ProductDetailsPage extends StatelessWidget {
                             child: Image.network(
                               aliment.imageUrl!,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => const Icon(
+                              errorBuilder: (_, __, ___) => Icon(
                                   Icons.fastfood,
                                   size: 50,
-                                  color: Colors.grey),
+                                  color: colorScheme.onSurfaceVariant),
                             ),
                           )
-                              : const Icon(Icons.image_not_supported,
-                              size: 50, color: Colors.grey),
+                              : Icon(Icons.image_not_supported,
+                              size: 50, color: colorScheme.onSurfaceVariant),
                         ),
                       ),
                       const SizedBox(height: 24),
@@ -83,15 +90,19 @@ class ProductDetailsPage extends StatelessWidget {
                       // --- TITRE ET MARQUE ---
                       Text(
                         aliment.nom,
-                        style: const TextStyle(
-                            fontSize: 22, fontWeight: FontWeight.bold),
+                        style: textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.onSurface,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                       if (aliment.marque != null) ...[
                         const SizedBox(height: 8),
                         Text(
                           aliment.marque!,
-                          style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                          style: textTheme.bodyLarge?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
                           textAlign: TextAlign.center,
                         ),
                       ],
@@ -117,13 +128,12 @@ class ProductDetailsPage extends StatelessWidget {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text("Eco-Score",
-                                        style: TextStyle(
-                                            fontSize: 14, color: Colors.black54)),
+                                    Text("Eco-Score",
+                                        style: textTheme.bodyMedium?.copyWith(
+                                            color: colorScheme.onSurface.withOpacity(0.7))),
                                     Text(
                                       isEcoScoreKnown ? "Classe $ecoScore" : "Inconnu",
-                                      style: TextStyle(
-                                        fontSize: 28,
+                                      style: textTheme.headlineMedium?.copyWith(
                                         fontWeight: FontWeight.w900,
                                         color: _getScoreColor(ecoScore),
                                       ),
@@ -154,15 +164,16 @@ class ProductDetailsPage extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 20, vertical: 15),
                         decoration: BoxDecoration(
-                          color: Colors.grey[50],
+                          color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
                           borderRadius: BorderRadius.circular(15),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text("Nutri-Score",
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w600)),
+                            Text("Nutri-Score",
+                                style: textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: colorScheme.onSurface)),
                             Container(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 4),
@@ -189,10 +200,13 @@ class ProductDetailsPage extends StatelessWidget {
                       BlocBuilder<AlternativeProductCubit, AlternativeProductState>(
                         builder: (context, state) {
                           if (state is AlternativeProductLoading) {
-                            return const Center(
+                            return Center(
                               child: Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: CircularProgressIndicator(strokeWidth: 2),// peut etre  a retirer
+                                padding: const EdgeInsets.all(8.0),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: colorScheme.primary,
+                                ),
                               ),
                             );
                           }
@@ -207,10 +221,11 @@ class ProductDetailsPage extends StatelessWidget {
                       ),
 
                       const SizedBox(height: 24),
-                      const Text(
+                      Text(
                         "Données issues d'Open Food Facts.",
-                        style: TextStyle(
-                            color: Colors.grey, fontSize: 12, fontStyle: FontStyle.italic),
+                        style: textTheme.bodySmall?.copyWith(
+                            color: colorScheme.outline, // Gris subtil
+                            fontStyle: FontStyle.italic),
                         textAlign: TextAlign.center,
                       ),
                     ],
@@ -238,27 +253,37 @@ class ProductDetailsPage extends StatelessWidget {
 
   // --- WIDGET POUR LA SUGGESTION ---
   Widget _buildAlternativeCard(BuildContext context, AlimentEntity alternative) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final cardBgColor = isDark ? Colors.green.shade900.withOpacity(0.3) : Colors.green.shade50;
+    final cardBorderColor = isDark ? Colors.green.shade700 : Colors.green.shade200;
+    final iconColor = isDark ? Colors.green.shade300 : Colors.green.shade700;
+    final titleColor = isDark ? Colors.green.shade200 : Colors.green.shade800;
+
     final altEcoScore = alternative.ecoScore?.toUpperCase() ?? '?';
     final bool isAltEcoScoreKnown = ['A', 'B', 'C', 'D', 'E'].contains(altEcoScore);
+
+
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.green.shade50, // Fond vert très clair pour attirer l'oeil
+        color: cardBgColor, // Fond vert très clair pour attirer l'oeil
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.green.shade200),
+        border: Border.all(color: cardBorderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.eco, color: Colors.green.shade700, size: 20),
+              Icon(Icons.eco, color: iconColor, size: 20),
               const SizedBox(width: 8),
               Text(
                 "Alternative plus écologique",
                 style: TextStyle(
-                  color: Colors.green.shade800,
+                  color: titleColor,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
@@ -279,14 +304,14 @@ class ProductDetailsPage extends StatelessWidget {
                   child: Container(
                     height: 60,
                     width: 60,
-                    color: Colors.white,
+                    color: colorScheme.surface,
                     child: alternative.imageUrl != null
                         ? Image.network(
                       alternative.imageUrl!,
                       fit: BoxFit.cover,
                       // AJOUT DE LA SÉCURITÉ pour l'affichage
                       errorBuilder: (context, error, stackTrace) {
-                        return const Icon(Icons.image_not_supported, color: Colors.grey);
+                        return Icon(Icons.image_not_supported, color: colorScheme.onSurfaceVariant);
                       },
                     )
                         : const Icon(Icons.image, color: Colors.grey),
@@ -302,12 +327,17 @@ class ProductDetailsPage extends StatelessWidget {
                         alternative.nom,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.onSurface,
+                        ),
                       ),
                       if (alternative.marque != null)
                         Text(
                           alternative.marque!,
-                          style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
                         ),
                     ],
                   ),
@@ -327,7 +357,7 @@ class ProductDetailsPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                Icon(Icons.arrow_forward_ios, size: 16, color: colorScheme.onSurfaceVariant),
               ],
             ),
           ),
