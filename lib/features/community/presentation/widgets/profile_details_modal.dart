@@ -62,7 +62,7 @@ class _ProfileDetailsModalState extends State<ProfileDetailsModal> {
       insetPadding: const EdgeInsets.all(16),
       child: Container(
         height: 600,
-        width: double.infinity, // <--- AJOUT IMPORTANT pour le centrage horizontal
+        width: double.infinity,
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(24),
@@ -70,7 +70,6 @@ class _ProfileDetailsModalState extends State<ProfileDetailsModal> {
         child: Stack(
           alignment: Alignment.topCenter,
           children: [
-            // --- HEADER GRADIENT ---
             Container(
               height: 140,
               decoration: const BoxDecoration(
@@ -85,7 +84,6 @@ class _ProfileDetailsModalState extends State<ProfileDetailsModal> {
             
             Positioned(top: 10, right: 10, child: IconButton(icon: const Icon(Icons.close, color: Colors.white70), onPressed: () => Navigator.of(context).pop())),
 
-            // Bouton Fermer
             Positioned(
               top: 10,
               right: 10,
@@ -95,7 +93,6 @@ class _ProfileDetailsModalState extends State<ProfileDetailsModal> {
               ),
             ),
 
-            // --- CONTENU PRINCIPAL ---
             Padding(
               padding: const EdgeInsets.only(top: 80),
               child: Column(
@@ -124,7 +121,6 @@ class _ProfileDetailsModalState extends State<ProfileDetailsModal> {
 
                   const SizedBox(height: 24),
 
-                  // Titre liste
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Align(
@@ -176,9 +172,7 @@ class _ProfileDetailsModalState extends State<ProfileDetailsModal> {
               ),
             ),
 
-            // --- AVATAR ---
             Positioned(
-              // Calcul: (140 hauteur bandeau - 88 hauteur avatar) / 2 = 26
               top: 26,
               left: 0,
               right: 0,
@@ -282,7 +276,6 @@ class _ProfileDetailsModalState extends State<ProfileDetailsModal> {
       ),
       child: Row(
         children: [
-          // --- MODIFICATION ICI POUR L'AVATAR ---
           Container(
             width: 40, 
             height: 40,
