@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/core/theme/app_typography.dart';
@@ -254,8 +255,7 @@ class ProfileHeaderCard extends StatelessWidget {
           Expanded(
             child: InkWell(
               onTap: () {
-                // TODO: Navigation vers le Dashboard
-                // context.pushNamed('dashboard');
+                context.goNamed('dashboard');
               },
               borderRadius: BorderRadius.circular(10),
               child: SizedBox(
