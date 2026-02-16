@@ -57,7 +57,7 @@ class CodeBarreRemoteDataSourceImpl implements CodeBarreRemoteDataSource {
       });
 
       try {
-        final response = await client.get(uri, headers: _headers).timeout(const Duration(seconds: 15));
+        final response = await client.get(uri, headers: _headers).timeout(const Duration(seconds: 20));
 
         if (response.statusCode == 200) {
           final data = json.decode(response.body);
