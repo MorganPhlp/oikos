@@ -1,17 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../../../../core/error/exceptions.dart';
+import 'package:oikos/core/error/exceptions.dart';
 import '../models/aliment_model.dart';
 
-/*
-*
-* Effectue l’appel HTTP réel.
-* Lance la requête vers l’URL d’OpenFoodFacts.
-*
-* */
 abstract interface class CodeBarreRemoteDataSource {
   Future<AlimentModel> getAliment(String codeBarre);
-  Future<AlimentModel?> getBetterAlternative(String categoryTag);
+  // MODIFICATION : On ajoute le paramètre currentEcoScore
+  Future<AlimentModel?> getBetterAlternative(String categoryTag, String currentEcoScore);
 }
 
 class CodeBarreRemoteDataSourceImpl implements CodeBarreRemoteDataSource {
@@ -21,9 +16,7 @@ class CodeBarreRemoteDataSourceImpl implements CodeBarreRemoteDataSource {
 
   @override
   Future<AlimentModel> getAliment(String codeBarre) async {
-    // URL API OpenFoodFacts (v0 est stable et simple)
     final url = Uri.parse('https://world.openfoodfacts.org/api/v0/product/$codeBarre.json');
-
     final response = await client.get(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -31,59 +24,73 @@ class CodeBarreRemoteDataSourceImpl implements CodeBarreRemoteDataSource {
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> jsonResponse = json.decode(response.body);
-
-      // OpenFoodFacts renvoie status = 1 si le produit est trouvé
       if (jsonResponse['status'] == 1 && jsonResponse['product'] != null) {
         return AlimentModel.fromJson(jsonResponse);
       } else {
-        // Produit non trouvé sur l'API
         throw ServerException("Produit non trouvé sur l'API");
       }
     } else {
-      // Erreur réseau ou serveur
       throw ServerException("Erreur réseau ou serveur");
     }
   }
 
   @override
-  Future<AlimentModel?> getBetterAlternative(String categoryTag) async {
-    // On construit l'URL de recherche avec des filtres précis :
-    // 1. tag_0 : La catégorie du produit scanné
-    // 2. country : France (pour s'assurer qu'on peut l'acheter)
-    // 3. sort_by : ecoscore_score (les A en premier)
-    // 4. page_size : 1 (on ne veut que le meilleur)
+  Future<AlimentModel?> getBetterAlternative(String categoryTag, String currentEcoScore) async {
+    // Liste des grades qu'on veut tester comme alternative (on ne cherche jamais E comme alternative)
+    const targetGrades = ['a', 'b', 'c', 'd'];
 
-    final uri = Uri.parse('https://fr.openfoodfacts.org/cgi/search.pl').replace(
-      queryParameters: {
-        'action': 'process',
-        'tagtype_0': 'categories',
-        'tag_contains_0': 'contains',
-        'tag_0': categoryTag,      // La catégorie (ex: en:tomato-ketchups)
-        'tagtype_1': 'countries',  // FILTRE PAYS
-        'tag_contains_1': 'contains',
-        'tag_1': 'france',         // VALEUR PAYS
-        'sort_by': 'ecoscore_score', // TRI PAR ECOSCORE
-        'page_size': '1',          // UN SEUL RESULTAT
-        'json': 'true',            // FORMAT JSON
-      },
-    );
+    // On normalise le score actuel en minuscule pour comparer
+    String currentGradeLower = currentEcoScore.toLowerCase();
 
-    try {
-      final response = await client.get(uri);
+    // Fonction de recherche interne
+    Future<AlimentModel?> searchBestProduct(String grade) async {
+      final uri = Uri.parse('https://fr.openfoodfacts.org/cgi/search.pl').replace(
+        queryParameters: {
+          'action': 'process',
+          'tagtype_0': 'categories', 'tag_contains_0': 'contains', 'tag_0': categoryTag,
+          'tagtype_1': 'countries', 'tag_contains_1': 'contains', 'tag_1': 'france',
+          'tagtype_2': 'ecoscore_grade', 'tag_contains_2': 'contains', 'tag_2': grade,
+          'sort_by': 'unique_scans_n', // Le plus populaire
+          'page_size': '1',
+          'json': 'true',
+        },
+      );
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final List<dynamic> products = data['products'] ?? [];
-
-        if (products.isNotEmpty) {
-          // On retourne le premier produit de la liste (le meilleur)
-          return AlimentModel.fromJson(products.first);
+      try {
+        final response = await client.get(uri);
+        if (response.statusCode == 200) {
+          final data = json.decode(response.body);
+          final List<dynamic> products = data['products'] ?? [];
+          if (products.isNotEmpty) {
+            return AlimentModel.fromJson(products.first);
+          }
         }
+      } catch (e) {
+        return null;
       }
-      return null; // Pas d'alternative trouvée
-    } catch (e) {
-      // En cas d'erreur on renvoie null
       return null;
     }
+
+    // BOUCLE DE STRATÉGIE
+    for (final grade in targetGrades) {
+      // REGLE D'OR : Si le grade qu'on cherche est pire ou égal au grade actuel, on arrête.
+      // Exemple : Si j'ai un 'C', je cherche A, puis B. Quand la boucle arrive à C, on stop.
+      // (On utilise compareTo : 'a' < 'b')
+      if (currentGradeLower != 'unknown' && currentGradeLower != '?' && currentGradeLower!= 'not-applicable') {
+        currentGradeLower = 'e';
+        if (grade.compareTo(currentGradeLower) >= 0){
+          // Sinon, on tente de trouver un produit de ce grade
+          final result = await searchBestProduct(grade);
+
+          // Si on trouve, on renvoie direct (c'est le meilleur possible vu l'ordre de la boucle)
+          if (result != null) {
+            return result;
+          }
+        }
+
+      }
+    }
+
+    return null;
   }
 }
