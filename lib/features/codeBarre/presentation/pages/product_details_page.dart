@@ -225,7 +225,8 @@ class ProductDetailsPage extends StatelessWidget {
                 child: GradientButton(
                   label: 'Lance un nouveau scan',
                   onPressed: () {
-                    context.pop();
+                    //On retourne a la page de scan
+                    context.push('/scan');
                   },
                 ),
               ),
@@ -315,7 +316,7 @@ class ProductDetailsPage extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                   child: Text(
-                    isAltEcoScoreKnown ? "Classe $altEcoScore" : "Inconnu",
+                    isAltEcoScoreKnown ?  altEcoScore : "Inconnu",
                     style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                 ),
