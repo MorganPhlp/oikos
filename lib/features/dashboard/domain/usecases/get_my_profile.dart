@@ -1,10 +1,10 @@
 import 'package:oikos/core/error/failures.dart';
 import 'package:fpdart/fpdart.dart';
-import '../repository/home_repository.dart';
+import '../repository/dashboard_repository.dart';
 import '../../../../core/usecase/usecase.dart';
 
 class GetMyPseudo implements UseCase<String, NoParams> {
-  final HomeRepository repository;
+  final DashboardRepository repository;
   GetMyPseudo(this.repository);
 
   @override

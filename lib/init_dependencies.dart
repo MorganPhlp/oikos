@@ -55,6 +55,12 @@ import 'features/auth/domain/usecases/user_signout.dart';
 import 'features/auth/domain/usecases/validate_email_password.dart';
 import 'features/auth/domain/usecases/validate_pseudo.dart';
 
+import 'package:oikos/features/dashboard/data/datasources/dashboard_remote_data_source.dart';
+import 'package:oikos/features/dashboard/data/repositories/dashboard_repository_impl.dart';
+import 'package:oikos/features/dashboard/domain/repository/dashboard_repository.dart';
+import 'package:oikos/features/dashboard/domain/usecases/get_my_profile.dart';
+import 'package:oikos/features/dashboard/presentation/bloc/dashboard_bloc.dart';
+
 //Imports Code barre
 import 'package:oikos/features/codeBarre/data/datasources/code_barre_remote_data_source.dart';
 import 'package:oikos/features/codeBarre/data/repositories/aliment_repository_impl.dart';
@@ -85,6 +91,7 @@ Future<void> initDependencies() async {
   _initAuth();
   _initBilan();
   _initCodeBarre();
+  _initDashboard();
 }
 
 void _initAuth() {
@@ -294,6 +301,32 @@ void _initBilan() {
       calculerCategoriesUseCase: serviceLocator(),
       equivalentsUseCase: serviceLocator(),
       calculerBilanUseCase: serviceLocator(),
+    ),
+  );
+}
+
+void _initDashboard() {
+  // Datasource : création du la connexion à la bdd
+  serviceLocator.registerFactory<DashboardRemoteDataSource>(
+    () => DashboardRemoteDataSourceImpl(serviceLocator()),
+  );
+
+  // Repository: on donne la co au repository 
+  serviceLocator.registerFactory<DashboardRepository>(
+    () => DashboardRepositoryImpl(
+      remoteDataSource: serviceLocator(),
+    ),
+  );
+
+  // UseCase : on donne le repo au use case
+  serviceLocator.registerFactory(
+    () => GetMyPseudo(serviceLocator()),
+  );
+
+  // Bloc : on donne le use case au bloc pour qu'il gère l'état de la page
+  serviceLocator.registerLazySingleton(
+    () => DashboardBloc(
+      getMyPseudo: serviceLocator(),
     ),
   );
 }

@@ -1,12 +1,11 @@
 import 'package:oikos/core/error/failures.dart';
 import 'package:fpdart/fpdart.dart';
-import '../../domain/repository/home_repository.dart';
-import '../datasources/home_remote_data_source.dart';
+import '../../domain/repository/dashboard_repository.dart';
+import '../datasources/dashboard_remote_data_source.dart';
 
-class HomeRepositoryImpl implements HomeRepository {
-  final HomeRemoteDataSource remoteDataSource;
-  HomeRepositoryImpl(this.remoteDataSource);
-
+class DashboardRepositoryImpl implements DashboardRepository {
+  final DashboardRemoteDataSource remoteDataSource;
+  DashboardRepositoryImpl({required this.remoteDataSource});
   @override
   Future<Either<Failure, String>> getMyPseudo() async {
     try {

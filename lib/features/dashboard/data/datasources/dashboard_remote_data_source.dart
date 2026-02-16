@@ -1,12 +1,12 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-abstract interface class HomeRemoteDataSource {
+abstract interface class DashboardRemoteDataSource {
   Future<String> getMyPseudo();
 }
 
-class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
+class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
   final SupabaseClient supabaseClient;
-  HomeRemoteDataSourceImpl(this.supabaseClient);
+  DashboardRemoteDataSourceImpl(this.supabaseClient);
 
   @override
   Future<String> getMyPseudo() async {
