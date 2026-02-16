@@ -187,14 +187,13 @@ class ProductDetailsPage extends StatelessWidget {
                       const SizedBox(height: 30),
 
                       // --- 5. ZONE ALTERNATIVE ---
-                      // C'est ici que la magie opère !
                       BlocBuilder<AlternativeProductCubit, AlternativeProductState>(
                         builder: (context, state) {
                           if (state is AlternativeProductLoading) {
                             return const Center(
                               child: Padding(
                                 padding: EdgeInsets.all(8.0),
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child: CircularProgressIndicator(strokeWidth: 2),// peut etre  a retirer
                               ),
                             );
                           }

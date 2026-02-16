@@ -52,10 +52,20 @@ class CodeBarreRemoteDataSourceImpl implements CodeBarreRemoteDataSource {
       final uri = Uri.parse('https://fr.openfoodfacts.org/cgi/search.pl').replace(
         queryParameters: {
           'action': 'process',
-          // Filtres
-          'tagtype_0': 'categories', 'tag_contains_0': 'contains', 'tag_0': categoryTag,
-          'tagtype_1': 'countries', 'tag_contains_1': 'contains', 'tag_1': 'france',
-          'tagtype_2': 'ecoscore_grade', 'tag_contains_2': 'contains', 'tag_2': targetGrade,
+          // Filtre 0 : La catégorie
+          'tagtype_0': 'categories',
+          'tag_contains_0': 'contains',
+          'tag_0': categoryTag,
+
+          // Filtre 1 : Le pays
+          //'tagtype_1': 'countries',
+          //'tag_contains_1': 'contains',
+          //'tag_1': 'france',
+
+          // Filtre 2 : L'Eco-Score cible (Index remis à 2 car 1 existe)
+          'tagtype_2': 'ecoscore_grade',
+          'tag_contains_2': 'contains',
+          'tag_2': targetGrade,
 
           // Tri par popularité (évite les produits bizarres)
           'sort_by': 'unique_scans_n',
