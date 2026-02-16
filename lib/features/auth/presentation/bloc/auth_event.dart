@@ -64,8 +64,16 @@ final class AuthResetPassword extends AuthEvent {
 final class AuthUpdateUser extends AuthEvent {
   final String? pseudo;
   final String? avatar;
+  final bool? isActive;
 
-  AuthUpdateUser({this.pseudo, this.avatar});
+  AuthUpdateUser({this.pseudo, this.avatar, this.isActive});
 }
 
 final class AuthDeleteAccount extends AuthEvent {}
+
+final class AuthUpdateCredentials extends AuthEvent {
+  final String? email;
+  final String? password;
+
+  AuthUpdateCredentials({this.email, this.password});
+}

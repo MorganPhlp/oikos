@@ -29,9 +29,15 @@ abstract interface class AuthRemoteDataSource {
   Future<UserModel> updateUserData({
     String? pseudo,
     String? avatar,
+    bool? isActive,
   });
 
   Future<void> anonymizeAccount();
+
+  Future<void> updateCredentials({
+    String? email,
+    String? password,
+  });
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -87,11 +93,18 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (response.user == null) {
         throw ServerException('User is null');
       }
-      // on recupere les donnees supplementaires de l'utilisateur
+      // on récupère les donnees supplémentaires de l'utilisateur
       final userData = await supabaseClient
           .from('utilisateur')
           .select()
           .eq('id', response.user!.id).single();
+
+      // On bloque la connexion si le compte est anonyme
+      if(userData['etat_compte'] == 'ANONYMISE' || userData['est_compte_valide'] == false) {
+        await supabaseClient.auth.signOut(); // On s'assure de se déconnecter pour éviter les sessions fantômes
+        throw ServerException('Ce compte a été anonymisé ou supprimé.');
+      }
+
       // on merge les deux maps
       final mergedData = {
         ...userData,
@@ -153,6 +166,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<UserModel> updateUserData({
     String? pseudo,
     String? avatar,
+    bool? isActive,
   }) async {
     try {
       final user = currentUserSession?.user;
@@ -163,6 +177,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       final updates = <String, dynamic>{};
       if (pseudo != null) updates['pseudo'] = pseudo;
       if (avatar != null) updates['avatar_url'] = avatar;
+      if (isActive != null) updates['est_actif'] = isActive;
 
       if(updates.isEmpty) {
         return getCurrentUserData().then((data) => data!); // Si aucune mise à jour, on retourne les données actuelles
@@ -206,6 +221,42 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }).eq('id', user.id);
 
       await supabaseClient.auth.signOut(); // Déconnexion de l'utilisateur après anonymisation
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+  }
+
+  @override
+  Future<void> updateCredentials({
+    String? email,
+    String? password,
+  }) async {
+    try {
+      final user = currentUserSession?.user;
+      if (user == null) {
+        throw ServerException('User not logged in');
+      }
+
+      if (email == null && password == null) {
+        throw ServerException('No credentials provided for update');
+      }
+
+      if (email != null) {
+        await supabaseClient.auth.updateUser(
+          UserAttributes(email: email),
+        );
+
+        // Mise à jour de l'email dans la table utilisateur
+        await supabaseClient.from('utilisateur').update({
+          'email': email,
+        }).eq('id', user.id);
+      }
+
+      if (password != null) {
+        await supabaseClient.auth.updateUser(
+          UserAttributes(password: password),
+        );
+      }
     } catch (e) {
       throw ServerException(e.toString());
     }

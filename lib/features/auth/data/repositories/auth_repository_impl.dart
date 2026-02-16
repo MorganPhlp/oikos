@@ -200,11 +200,13 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, User>> updateUser({
     String? pseudo,
     String? avatar,
+    bool? isActive,
   }) async {
     try {
       final updatedUser = await remoteDataSource.updateUserData(
         pseudo: pseudo,
         avatar: avatar,
+        isActive: isActive,
       );
       return right(updatedUser);
     } on ServerException catch (e) {
@@ -216,6 +218,22 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, void>> deleteAccount() async {
     try {
       await remoteDataSource.anonymizeAccount();
+      return const Right(null);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> updateCredentials({
+    String? email,
+    String? password,
+  }) async {
+    try {
+      await remoteDataSource.updateCredentials(
+        email: email,
+        password: password,
+      );
       return const Right(null);
     } on ServerException catch (e) {
       return left(Failure(e.message));

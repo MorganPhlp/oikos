@@ -13,6 +13,7 @@ import 'package:oikos/features/community/presentation/pages/community_dashboard_
 import 'package:oikos/features/home/presentation/pages/home_page.dart';
 import 'package:oikos/features/dashboard/presentation/pages/dashboard_page.dart';
 import 'package:oikos/features/dashboard/presentation/bloc/dashboard_bloc.dart';
+import 'package:oikos/features/profile/presentation/pages/security_page.dart';
 import 'package:oikos/init_dependencies.dart';
 import 'package:oikos/features/profile/presentation/pages/profile_page.dart';
 
@@ -47,6 +48,11 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
         path: '/profile',
         name: 'profile',
         builder: (context, state) => const ProfilePage(),
+      ),
+      GoRoute(
+        path: '/security',
+        name: 'security',
+        builder: (context, state) => const SecurityPage(),
       ),
       GoRoute(
         path: '/pdf',

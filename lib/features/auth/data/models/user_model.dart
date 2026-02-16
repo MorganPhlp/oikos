@@ -9,6 +9,7 @@ class UserModel extends User {
     super.hasCompletedBilan = false,
     super.avatar,
     super.entrepriseId,
+    super.isActive
   });
 
   factory UserModel.fromJson(Map<String, dynamic> map) {
@@ -20,6 +21,7 @@ class UserModel extends User {
       hasCompletedBilan: map['a_complete_bilan'] ?? false,
       avatar: map['avatar_url'],
       entrepriseId: map['entreprise_id'] ?? '',
+      isActive: map['est_actif'] ?? true,
     );
   }
 }

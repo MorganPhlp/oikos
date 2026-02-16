@@ -9,6 +9,7 @@ class User {
   final bool hasCompletedBilan;
   final String? avatar;
   final String? entrepriseId;
+  final bool isActive;
 
   User({
     required this.id,
@@ -18,5 +19,6 @@ class User {
     this.hasCompletedBilan = false,
     this.avatar,
     this.entrepriseId,
+    this.isActive = true,
   });
 }

@@ -54,7 +54,7 @@ class DeleteAccountModal extends StatelessWidget {
           const SizedBox(height: 12),
 
           Text(
-            'Cette action est irréversible. Toutes vos données personnelles seront anonymisées conformément au RGPD.',
+            'Cette action est irréversible. Toutes tes données personnelles seront anonymisées conformément au RGPD.',
             style: AppTypography.body.copyWith(
               color: colorScheme.onSurface.withValues(alpha: 0.7),
             ),

@@ -57,7 +57,7 @@ class ProfileBilanSection extends StatelessWidget {
                         showBorder: true,
                       ),
                       ProfileActionButton(
-                        title: 'Modifier le bilan',
+                        title: 'Modifier mon bilan',
                         subtitle: 'Prêt pour un nouveau départ ?',
                         icon: LucideIcons.rotateCcw,
                         iconColor: colorScheme.tertiary,

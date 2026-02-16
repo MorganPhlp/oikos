@@ -35,3 +35,8 @@ final class AuthEmailPasswordVerified extends AuthState {}
 final class AuthPseudoVerified extends AuthState {}
 
 final class AuthPasswordResetSent extends AuthState {}
+
+final class AuthCredentialsUpdated extends AuthState {
+  final String message;
+  const AuthCredentialsUpdated(this.message);
+}

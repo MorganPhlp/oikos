@@ -62,6 +62,7 @@ import 'core/common/presentation/cubits/app_user/app_user_cubit.dart';
 import 'core/secrets/app_secrets.dart';
 import 'features/auth/domain/usecases/delete_account.dart';
 import 'features/auth/domain/usecases/reset_password.dart';
+import 'features/auth/domain/usecases/update_credentials.dart';
 import 'features/auth/domain/usecases/update_user.dart';
 import 'features/auth/domain/usecases/user_signout.dart';
 import 'features/auth/domain/usecases/validate_email_password.dart';
@@ -148,6 +149,8 @@ void _initAuth() {
 
   serviceLocator.registerLazySingleton(() => DeleteAccount(serviceLocator()));
 
+  serviceLocator.registerLazySingleton(() => UpdateCredentials(serviceLocator()));
+
   // Bloc
   serviceLocator.registerLazySingleton(
     () => AuthBloc(
@@ -162,6 +165,7 @@ void _initAuth() {
       resetPassword: serviceLocator(),
       updateUser: serviceLocator(),
       deleteAccount: serviceLocator(),
+      updateCredentials: serviceLocator(),
     ),
   );
 }
