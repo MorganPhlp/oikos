@@ -239,8 +239,8 @@ class ProductDetailsPage extends StatelessWidget {
 
   // --- WIDGET POUR L'ALTERNATIVE ---
   Widget _buildAlternativeCard(BuildContext context, AlimentEntity alternative) {
-    final altEcoScore = aliment.ecoScore?.toUpperCase() ?? '?';
-    final bool isAltEcoScoreKnown = altEcoScore != '?' && altEcoScore != 'UNKNOWN' && altEcoScore != 'NOT-APPLICABLE';
+    final altEcoScore = alternative.ecoScore?.toUpperCase() ?? '?';
+    final bool isAltEcoScoreKnown = ['A', 'B', 'C', 'D', 'E'].contains(altEcoScore);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -316,7 +316,7 @@ class ProductDetailsPage extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                   child: Text(
-                    isAltEcoScoreKnown ?  altEcoScore : "Inconnu",
+                    isAltEcoScoreKnown ? altEcoScore : "?",
                     style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                 ),

@@ -37,51 +37,69 @@ class CodeBarreRemoteDataSourceImpl implements CodeBarreRemoteDataSource {
 
   @override
   Future<AlimentModel?> getBetterAlternative(String categoryTag, String currentEcoScore) async {
-    const targetGrades = ['a', 'b', 'c', 'd'];
+    // Liste de référence pour comparer les scores
+    const grades = ['a', 'b', 'c', 'd', 'e'];
     String currentGradeLower = currentEcoScore.toLowerCase();
 
     // Est-ce que le produit actuel a un score valide (a,b,c,d,e) ?
-    bool isCurrentScoreKnown = ['a', 'b', 'c', 'd', 'e'].contains(currentGradeLower);
+    bool isCurrentScoreKnown = grades.contains(currentGradeLower);
 
-    print("🚀 DÉBUT RECHERCHE V2 pour '$categoryTag' (Actuel: $currentGradeLower)");
+    print("🚀 DÉBUT RECHERCHE OPTIMISÉE pour '$categoryTag' (Actuel: $currentGradeLower)");
 
     Future<AlimentModel?> searchBestProduct(String targetGrade) async {
-      // On demande l'API V2 avec un page_size plus grand pour filtrer nous-mêmes les erreurs
+      // On demande 20 produits pour avoir du choix et pouvoir trier
       final uri = Uri.https('fr.openfoodfacts.org', '/api/v2/search', {
         'categories_tags': categoryTag,
         'ecoscore_grade': targetGrade,
         'countries_tags_en': 'france',
-        'sort_by': 'unique_scans_n',
-        'page_size': '10', // On en prend 10 pour être sûr de trouver le bon grade
+        'sort_by': 'unique_scans_n', // Toujours les plus populaires
+        'page_size': '20',           // On élargit la recherche
         'fields': 'product_name,brands,image_url,ecoscore_grade,nutriscore_grade,code,categories_tags'
       });
 
       try {
-        final response = await client.get(uri, headers: _headers).timeout(const Duration(seconds: 20));
+        final response = await client.get(uri, headers: _headers).timeout(const Duration(seconds: 15));
 
         if (response.statusCode == 200) {
           final data = json.decode(response.body);
-          final List<dynamic> products = data['products'] ?? [];
 
-          // FILTRAGE STRICT CÔTÉ CLIENT
-          // On parcourt les résultats pour trouver le premier qui a VRAIMENT le bon grade
+          // On crée une liste modifiable pour pouvoir la trier
+          final List<dynamic> products = List.from(data['products'] ?? []);
+
+          if (products.isEmpty) return null;
+
+          // 1. TRI INTELLIGENT : On trie du meilleur score (A) au pire (E)
+          // Comme ça, le premier qu'on valide sera forcément le meilleur disponible
+          products.sort((a, b) {
+            String gradeA = (a['ecoscore_grade'] ?? 'z').toString().toLowerCase();
+            String gradeB = (b['ecoscore_grade'] ?? 'z').toString().toLowerCase();
+            return gradeA.compareTo(gradeB); // 'a' vient avant 'b'
+          });
+
+          // 2. PARCOURS ET SÉLECTION
           for (var product in products) {
-            final String? realGrade = product['ecoscore_grade'];
+            final String? realGrade = product['ecoscore_grade']?.toString().toLowerCase();
 
-            // Si le produit a bien le grade qu'on cherche (ex: on cherche 'a', le produit est 'a')
-            if (realGrade != null && realGrade.toLowerCase() == targetGrade) {
-              // Petite sécurité : éviter de proposer le produit qu'on vient de scanner
-              // (On ne peut pas comparer les codes ici car on ne l'a pas passé en argument,
-              // mais la probabilité est faible si on cherche une "meilleure" note).
+            // Vérification de base : le grade existe et est valide
+            if (realGrade != null && grades.contains(realGrade)) {
 
-              print("   ✅ VRAI ALTERNATIVE TROUVÉE : ${product['product_name']} (Eco: $realGrade)");
-              return AlimentModel.fromJson(product);
-            } else {
-              print("   ⚠️ Rejeté : ${product['product_name']} a un grade ${realGrade} alors qu'on veut $targetGrade");
+              // CRITÈRE DE SUCCÈS :
+              // - Soit on ne connait pas notre score actuel (donc tout est bon à prendre)
+              // - Soit le score trouvé est STRICTEMENT meilleur (plus petit alphabétiquement) que le nôtre
+              //   Exemple: 'b' < 'd' est VRAI.
+              bool isBetter = !isCurrentScoreKnown || realGrade.compareTo(currentGradeLower) < 0;
+
+              if (isBetter) {
+                print("   ✅ TROUVÉ (Mieux que $currentGradeLower) : ${product['product_name']} (Eco: $realGrade)");
+                return AlimentModel.fromJson(product);
+              } else {
+                // Optionnel : afficher ce qu'on rejette pour comprendre
+                // print("   ! Rejeté : ${product['product_name']} ($realGrade) n'est pas mieux que $currentGradeLower");
+              }
             }
           }
 
-          print("   ❌ Aucun des 10 produits populaires n'avait réellement le grade $targetGrade");
+          // Si on arrive ici, aucun des 20 produits n'était mieux
           return null;
 
         } else {
@@ -95,17 +113,18 @@ class CodeBarreRemoteDataSourceImpl implements CodeBarreRemoteDataSource {
     }
 
     // --- BOUCLE DE STRATÉGIE ---
-    for (final targetGrade in targetGrades) {
-      // On s'arrête si on cherche un score moins bon ou égal à celui qu'on a déjà
-      // (Seulement si le score actuel est connu et valide)
+    // On garde la boucle car l'API priorise quand même ce qu'on demande dans 'ecoscore_grade'
+    // Mais grâce au "return" rapide ci-dessus, on sortira dès la première requête fructueuse.
+    for (final targetGrade in ['a', 'b', 'c', 'd']) {
+
+      // Sécurité : inutile de demander 'd' si on a déjà 'c'
       if (isCurrentScoreKnown && targetGrade.compareTo(currentGradeLower) >= 0) {
-        print("🛑 Arrêt : On a atteint la qualité du produit actuel ($currentGradeLower).");
-        return null;
+        break;
       }
 
       final result = await searchBestProduct(targetGrade);
       if (result != null) {
-        return result;
+        return result; // On a trouvé une perle rare, on l'envoie !
       }
     }
 

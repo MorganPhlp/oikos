@@ -38,19 +38,20 @@ class _StreakCarousselWidgetState extends State<StreakCarousselWidget> {
         final String? logoUrl = streak.logoUrl;
 
         final String streakDirectory =
-            (logoUrl != null && logoUrl.contains('/'))
+        (logoUrl != null && logoUrl.contains('/'))
             ? logoUrl.substring(0, logoUrl.lastIndexOf('/') + 1)
             : "";
 
         return SizedBox(
           height: 200,
-          child: CarouselView(
-            itemExtent: 200,
+          child: CarouselView.weightedBuilder(
+            flexWeights: [2, 4, 2],
             controller: controller,
+            scrollDirection: Axis.horizontal,
             backgroundColor: Colors.transparent,
             itemSnapping: true,
-            // On génère la liste des widgets directement
-            children: List.generate(5, (index) {
+            itemCount: 5,
+            itemBuilder: (context, index) {
               final bool isCurrentEvolution = index == streak.currentStreak;
               final bool isAchieved = index < streak.currentStreak;
               final bool isFuture = index > streak.currentStreak;
@@ -99,7 +100,7 @@ class _StreakCarousselWidgetState extends State<StreakCarousselWidget> {
               );
             },
           ),
-        ));
+        );
       },
     );
   }
