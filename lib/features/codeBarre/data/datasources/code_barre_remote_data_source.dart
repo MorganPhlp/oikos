@@ -5,7 +5,6 @@ import '../models/aliment_model.dart';
 
 abstract interface class CodeBarreRemoteDataSource {
   Future<AlimentModel> getAliment(String codeBarre);
-  // MODIFICATION : On ajoute le paramètre currentEcoScore
   Future<AlimentModel?> getBetterAlternative(String categoryTag, String currentEcoScore);
 }
 
@@ -36,28 +35,45 @@ class CodeBarreRemoteDataSourceImpl implements CodeBarreRemoteDataSource {
 
   @override
   Future<AlimentModel?> getBetterAlternative(String categoryTag, String currentEcoScore) async {
-    // Liste des grades qu'on veut tester comme alternative (on ne cherche jamais E comme alternative)
+    // 1. Définition des cibles : on cherche une alternative A, B, C ou D.
     const targetGrades = ['a', 'b', 'c', 'd'];
 
-    // On normalise le score actuel en minuscule pour comparer
+    // 2. Nettoyage du score actuel
     String currentGradeLower = currentEcoScore.toLowerCase();
 
-    // Fonction de recherche interne
-    Future<AlimentModel?> searchBestProduct(String grade) async {
+    // Est-ce que le produit actuel a un score valide ?
+    bool isCurrentScoreKnown = currentGradeLower != 'unknown' &&
+        currentGradeLower != '?' &&
+        currentGradeLower != 'not-applicable' &&
+        targetGrades.contains(currentGradeLower); // Vérifie si c'est bien a,b,c,d ou e
+
+    // --- Fonction de recherche API optimisée ---
+    Future<AlimentModel?> searchBestProduct(String targetGrade) async {
       final uri = Uri.parse('https://fr.openfoodfacts.org/cgi/search.pl').replace(
         queryParameters: {
           'action': 'process',
+          // Filtres
           'tagtype_0': 'categories', 'tag_contains_0': 'contains', 'tag_0': categoryTag,
           'tagtype_1': 'countries', 'tag_contains_1': 'contains', 'tag_1': 'france',
-          'tagtype_2': 'ecoscore_grade', 'tag_contains_2': 'contains', 'tag_2': grade,
-          'sort_by': 'unique_scans_n', // Le plus populaire
+          'tagtype_2': 'ecoscore_grade', 'tag_contains_2': 'contains', 'tag_2': targetGrade,
+
+          // Tri par popularité (évite les produits bizarres)
+          'sort_by': 'unique_scans_n',
+
+          // Pagination : 1 seul résultat suffit
           'page_size': '1',
           'json': 'true',
+
+          // OPTIMISATION CRITIQUE : On ne demande que les champs nécessaires
+          // Cela rend la requête beaucoup plus rapide (moins de données à télécharger)
+          'fields': 'product_name,brands,image_url,ecoscore_grade,nutriscore_grade,code,categories_tags'
         },
       );
 
       try {
-        final response = await client.get(uri);
+        // Timeout de 6 secondes pour ne pas bloquer l'interface trop longtemps
+        final response = await client.get(uri).timeout(const Duration(seconds: 6));
+
         if (response.statusCode == 200) {
           final data = json.decode(response.body);
           final List<dynamic> products = data['products'] ?? [];
@@ -66,31 +82,39 @@ class CodeBarreRemoteDataSourceImpl implements CodeBarreRemoteDataSource {
           }
         }
       } catch (e) {
+        // En cas d'erreur ou timeout, on passe silencieusement au suivant
         return null;
       }
       return null;
     }
 
-    // BOUCLE DE STRATÉGIE
-    for (final grade in targetGrades) {
-      // REGLE D'OR : Si le grade qu'on cherche est pire ou égal au grade actuel, on arrête.
-      // Exemple : Si j'ai un 'C', je cherche A, puis B. Quand la boucle arrive à C, on stop.
-      // (On utilise compareTo : 'a' < 'b')
-      if (currentGradeLower != 'unknown' && currentGradeLower != '?' && currentGradeLower!= 'not-applicable') {
-        currentGradeLower = 'e';
-        if (grade.compareTo(currentGradeLower) >= 0){
-          // Sinon, on tente de trouver un produit de ce grade
-          final result = await searchBestProduct(grade);
+    // --- BOUCLE DE STRATÉGIE CORRIGÉE ---
+    for (final targetGrade in targetGrades) {
 
-          // Si on trouve, on renvoie direct (c'est le meilleur possible vu l'ordre de la boucle)
-          if (result != null) {
-            return result;
-          }
-        }
+      // REGLE D'ARRET :
+      // Si le score actuel est CONNU (ex: 'c')
+      // ET que le grade qu'on vise (ex: 'c' ou 'd') est pire ou égal...
+      // ALORS on arrête de chercher. On ne veut proposer que MIEUX.
+      // (rappel: 'a' < 'b' est vrai alphabétiquement)
+      if (isCurrentScoreKnown && targetGrade.compareTo(currentGradeLower) >= 0) {
+        return null;
+      }
 
+      // Si le score est INCONNU, on ignore la condition ci-dessus et on cherche quand même (A, puis B...).
+
+      // On lance la recherche pour ce grade
+      final result = await searchBestProduct(targetGrade);
+
+      // Si on trouve un produit, c'est forcément le meilleur possible dans l'ordre de la boucle.
+      // On le renvoie immédiatement.
+      if (result != null) {
+        // Petite sécurité : on ne se suggère pas soi-même (si on a scanné le meilleur produit de la catégorie)
+        // Note: cela n'arrive que rarement car on cherche "mieux", mais utile pour les cas limites.
+        return result;
       }
     }
 
+    // Si on a fait toute la boucle sans rien trouver
     return null;
   }
 }

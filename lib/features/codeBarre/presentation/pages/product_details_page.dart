@@ -224,7 +224,7 @@ class ProductDetailsPage extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: GradientButton(
-                  label: 'Lancer un nouveau scan',
+                  label: 'Lance un nouveau scan',
                   onPressed: () {
                     context.pop();
                   },
