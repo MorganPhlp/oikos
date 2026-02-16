@@ -29,7 +29,10 @@ class AlimentModel extends AlimentEntity {
       ecoScore: product['ecoscore_grade']?.toString().toUpperCase(),
       nutriScore: product['nutriscore_grade']?.toString().toUpperCase(),
       ingredients: product['ingredients_text'],
-      imageUrl: product['image_front_url'],
+      imageUrl: product['image_front_small_url'] ?? // La plus légère
+          product['image_small_url'] ??       // Une autre légère
+          product['image_front_url'] ??       // La normale
+          product['image_url'],               // La générique
 
       //Parsing de la liste des catégories
       categoriesTags: (product['categories_tags'] as List<dynamic>?)

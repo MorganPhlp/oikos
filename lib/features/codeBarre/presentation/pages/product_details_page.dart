@@ -281,7 +281,14 @@ class ProductDetailsPage extends StatelessWidget {
                     width: 60,
                     color: Colors.white,
                     child: alternative.imageUrl != null
-                        ? Image.network(alternative.imageUrl!, fit: BoxFit.cover)
+                        ? Image.network(
+                      alternative.imageUrl!,
+                      fit: BoxFit.cover,
+                      // AJOUT DE LA SÉCURITÉ pour l'affichage
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Icon(Icons.image_not_supported, color: Colors.grey);
+                      },
+                    )
                         : const Icon(Icons.image, color: Colors.grey),
                   ),
                 ),

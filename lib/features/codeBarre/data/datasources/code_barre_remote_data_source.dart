@@ -54,7 +54,7 @@ class CodeBarreRemoteDataSourceImpl implements CodeBarreRemoteDataSource {
         'countries_tags_en': 'france',
         'sort_by': 'unique_scans_n', // les plus populaires
         'page_size': '20',           // 20 produit
-        'fields': 'product_name,brands,image_url,ecoscore_grade,nutriscore_grade,code,categories_tags'
+        'fields': 'product_name,brands,image_url,image_small_url,image_front_url,image_front_small_url,ecoscore_grade,nutriscore_grade,code,categories_tags'
       });
 
       try {
