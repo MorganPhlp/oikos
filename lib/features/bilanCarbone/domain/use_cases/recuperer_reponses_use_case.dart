@@ -21,12 +21,9 @@ class RecupererReponsesUseCase {
     final userId = await authRepository.getUserId();
     if (userId == null) throw Exception("Action impossible sans connexion");
 
-    final int? bilanId = await bilanRepository.getBilanId(userId);
+    final int bilanId = await bilanRepository.getBilanId(userId);
 
     // Si bilanId est nul, on retourne une liste vide immédiatement
-    if (bilanId == null) {
-      return [];
-    }
     final reponses = await reponseRepository.getReponses(bilanId);
     return reponses;
   }

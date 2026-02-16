@@ -29,8 +29,10 @@ class _OikosNavBarState extends State<OikosNavBar> {
             context.go('/home');
             break;
           case 1: /* context.go('/catalogue'); */
+            context.go('/catalogue');
             break;
           case 2: /* context.go('/actions'); */
+            context.go('/my_actions');
             break;
           case 3:
             context.go('/scan_intro');

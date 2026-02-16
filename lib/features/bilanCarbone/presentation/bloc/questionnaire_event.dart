@@ -28,11 +28,12 @@ class InitQuestionnaireEvent extends QuestionnaireEvent {
 /// Enregistre une réponse et demande la question suivante
 class RepondreQuestionEvent extends QuestionnaireEvent {
   final dynamic valeur;
+  final String userId;
 
-  const RepondreQuestionEvent(this.valeur);
+  const RepondreQuestionEvent(this.valeur, this.userId);
 
   @override
-  List<Object?> get props => [valeur];
+  List<Object?> get props => [valeur, userId];
 }
 
 /// Revient à la question précédente (géré par le UseCase de navigation)

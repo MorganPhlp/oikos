@@ -13,6 +13,7 @@ import 'package:oikos/features/community/presentation/pages/community_dashboard_
 import 'package:oikos/features/home/presentation/pages/home_page.dart';
 import 'package:oikos/features/dashboard/presentation/pages/dashboard_page.dart';
 import 'package:oikos/features/dashboard/presentation/bloc/dashboard_bloc.dart';
+import 'package:oikos/features/profile/presentation/pages/security_page.dart';
 import 'package:oikos/init_dependencies.dart';
 import 'package:oikos/features/profile/presentation/pages/profile_page.dart';
 
@@ -20,6 +21,8 @@ import 'features/codeBarre/domain/entities/aliment_entity.dart';
 import 'features/codeBarre/presentation/pages/home_scan_page.dart';
 import 'features/codeBarre/presentation/pages/product_details_page.dart';
 import 'features/codeBarre/presentation/pages/scan_page.dart';
+import 'package:oikos/features/actions_et_defis/presentation/pages/action_page.dart';
+import 'package:oikos/features/actions_et_defis/presentation/pages/my_actions_page.dart';
 
 GoRouter createRouter(AppUserCubit appUserCubit) {
   return GoRouter(
@@ -47,6 +50,11 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
         builder: (context, state) => const ProfilePage(),
       ),
       GoRoute(
+        path: '/security',
+        name: 'security',
+        builder: (context, state) => const SecurityPage(),
+      ),
+      GoRoute(
         path: '/pdf',
         name: 'pdf_viewer',
         builder: (context, state) {
@@ -71,6 +79,18 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
             path: '/home',
             name: 'home',
             builder: (context, state) => const HomePage(),
+          ),
+          GoRoute(
+            path: '/catalogue',
+            name: 'catalogue',
+            builder: (context, state) => const ActionsCataloguePage(),
+          ),
+
+          // 2. Route pour l'onglet "Actions" (Mes Actions en cours)
+          GoRoute(
+            path: '/my_actions',
+            name: 'my_actions',
+             builder: (context, state) => const MyActionsPage(),
           ),
           // route pour la page d'accueil du scan
           GoRoute(

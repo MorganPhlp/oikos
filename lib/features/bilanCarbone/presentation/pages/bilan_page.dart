@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/core/common/presentation/widgets/gradient_button.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/type_widget.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/questionnaire_bloc.dart';
@@ -91,7 +92,9 @@ class _BilanPageState extends State<BilanPage> {
                           children: [
                             if (state.question.suggestions != null)
                               SuggestionsWidget(
-                                key: ValueKey("${state.question.slug}_suggestions"),
+                                key: ValueKey(
+                                  "${state.question.slug}_suggestions",
+                                ),
                                 suggestions: List<String>.from(
                                   state.question.suggestions!.keys,
                                 ),
@@ -137,7 +140,8 @@ class _BilanPageState extends State<BilanPage> {
 
   void _initialiserValeurParDefaut(QuestionnaireAffiche state) {
     _currentAnswer = state.valeurActuelle ?? state.question.getInitialValue();
-    _isAnswerValid = state.valeurActuelle != null || state.question.isAlwaysValid();
+    _isAnswerValid =
+        state.valeurActuelle != null || state.question.isAlwaysValid();
     _selectedSuggestion = null;
     setState(() {});
   }
@@ -197,14 +201,16 @@ class _BilanPageState extends State<BilanPage> {
                 ],
               ),
             ),
-            if (state.isDeepening)
+            if (state.isDeepening || state.isEditing == true)
               Positioned(
                 right: 0,
                 child: _buildTextLink(
                   "Terminer",
                   () => _confirmSkip(context),
                   size,
-                  color: deepeningColor,
+                  color: state.isDeepening
+                      ? deepeningColor
+                      : theme.colorScheme.primary,
                 ),
               ),
           ],
@@ -292,6 +298,9 @@ class _BilanPageState extends State<BilanPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final buttonSize = size.width * 0.14;
+    final String userId = context.read<AppUserCubit>().state is AppUserLoggedIn
+        ? (context.read<AppUserCubit>().state as AppUserLoggedIn).user.id
+        : '';
 
     return Column(
       children: [
@@ -303,7 +312,12 @@ class _BilanPageState extends State<BilanPage> {
               ),
               icon: Icon(Icons.chevron_left, color: colorScheme.onSurface),
               style: IconButton.styleFrom(
-                side: BorderSide(color: !state.isDeepening ? colorScheme.primary : colorScheme.tertiary, width: 2),
+                side: BorderSide(
+                  color: !state.isDeepening
+                      ? colorScheme.primary
+                      : colorScheme.tertiary,
+                  width: 2,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -319,7 +333,7 @@ class _BilanPageState extends State<BilanPage> {
                     !_isAnswerValid &&
                     state.question.typeWidget != TypeWidget.slider,
                 onPressed: () => context.read<QuestionnaireBloc>().add(
-                  RepondreQuestionEvent(_currentAnswer),
+                  RepondreQuestionEvent(_currentAnswer, userId),
                 ),
               ),
             ),
@@ -332,7 +346,7 @@ class _BilanPageState extends State<BilanPage> {
             _buildTextLink(
               "Je ne sais pas",
               () => context.read<QuestionnaireBloc>().add(
-                RepondreQuestionEvent(null),
+                RepondreQuestionEvent(null, userId),
               ),
               size,
             ),
@@ -348,7 +362,7 @@ class _BilanPageState extends State<BilanPage> {
             _buildTextLink(
               "Pas concerné",
               () => context.read<QuestionnaireBloc>().add(
-                RepondreQuestionEvent(null),
+                RepondreQuestionEvent(null, userId),
               ),
               size,
             ),
@@ -363,7 +377,7 @@ class _BilanPageState extends State<BilanPage> {
     VoidCallback onTap,
     Size size, {
     Color? color,
-    bool underlined = true,
+    bool underlined = false,
   }) {
     return InkWell(
       onTap: onTap,

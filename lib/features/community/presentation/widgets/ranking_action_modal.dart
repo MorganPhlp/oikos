@@ -3,12 +3,13 @@ import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/core/common/presentation/widgets/oikos_avatar.dart';
 import 'package:oikos/core/common/presentation/widgets/gradient_button.dart'; // Import ajouté
 
+// Widget pour le modal d'action sur le classement
 class RankingActionModal extends StatelessWidget {
   final String name;
   final String avatarUrl;
-  final bool isCommunity;
-  final VoidCallback onSeeProfile;
-  final VoidCallback onDuel;
+  final bool isCommunity;     // true = Communauté, false = Utilisateur
+  final VoidCallback onSeeProfile; // Action quand on clique sur "Voir le profil"
+  final VoidCallback onDuel;       // Action quand on clique sur "Lancer un défi"
 
   const RankingActionModal({
     Key? key,
@@ -19,10 +20,24 @@ class RankingActionModal extends StatelessWidget {
     required this.onDuel,
   }) : super(key: key);
 
-  @override
+@override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+
+    // ignore: unused_local_variable
+    ImageProvider? imageProvider;
+    
+    if (avatarUrl.isNotEmpty) {
+      if (avatarUrl.startsWith('http') || avatarUrl.startsWith('https')) {
+        // URL Internet (Supabase)
+        imageProvider = NetworkImage(avatarUrl);
+      } else {
+        // Fichier Local (Asset)
+        String cleanPath = avatarUrl.replaceAll('file:///', '').replaceAll('C:/src/projet/oikos/', '');
+        imageProvider = AssetImage(cleanPath);
+      }
+    }
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
@@ -33,7 +48,6 @@ class RankingActionModal extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // ... (Partie Avatar et Titre identique) ...
             Container(
               padding: const EdgeInsets.all(4),
               decoration: const BoxDecoration(
@@ -77,7 +91,7 @@ class RankingActionModal extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // --- NOUVEAUX BOUTONS ---
+            // Bouton "Voir le profil"
             SizedBox(
               width: double.infinity,
               height: 55, // Même hauteur que GradientButton
@@ -107,7 +121,7 @@ class RankingActionModal extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             GradientButton(
-              label: "Lancer un duel",
+              label: "Lancer un défi",
               icon: const Icon(Icons.flash_on, color: Colors.white, size: 20),
               onPressed: onDuel,
             ),

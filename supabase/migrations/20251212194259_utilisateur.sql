@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS utilisateur (
     objectif FLOAT DEFAULT 0.1,
     a_complete_bilan BOOLEAN DEFAULT FALSE,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    est_actif BOOLEAN DEFAULT TRUE,
     
     -- Foreign Keys
     CONSTRAINT fk_communaute 

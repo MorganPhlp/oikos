@@ -54,7 +54,9 @@ class BilanNoticeDialog extends StatelessWidget {
             Text(
               title,
               textAlign: TextAlign.center,
-              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
             SizedBox(height: size.height * 0.015),
             Text(
@@ -65,7 +67,7 @@ class BilanNoticeDialog extends StatelessWidget {
               ),
             ),
             if (hintText != null) ...[
-              SizedBox(height: size.height * 0.03),
+              SizedBox(height: size.height * 0.1),
               Container(
                 padding: EdgeInsets.all(size.width * 0.04),
                 width: double.infinity,
@@ -77,12 +79,16 @@ class BilanNoticeDialog extends StatelessWidget {
                     width: 1,
                   ),
                 ),
-                child: Row(children: [
-                  Icon(Icons.lightbulb_outline_rounded,size: 20, color: colorScheme.tertiary.withValues(alpha: 0.8),),
-                  SizedBox(width: size.width * 0.03),
-                  Expanded(
-                    child: 
-                      Text(
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.lightbulb_outline_rounded,
+                      size: 20,
+                      color: colorScheme.tertiary.withValues(alpha: 0.8),
+                    ),
+                    SizedBox(width: size.width * 0.1),
+                    Expanded(
+                      child: Text(
                         hintText!,
                         textAlign: TextAlign.center,
                         style: theme.textTheme.bodyMedium?.copyWith(
@@ -92,10 +98,12 @@ class BilanNoticeDialog extends StatelessWidget {
                         ),
                       ),
                     ),
-                ],),
+                  ],
+                ),
               ),
-              SizedBox(height: size.height * 0.03),
+              SizedBox(height: size.height * 0.1),
             ],
+            SizedBox(height: size.height * 0.05),
             GradientButton(
               label: buttonLabel,
               isTertiary: true,
@@ -121,14 +129,19 @@ class BilanNoticeDialog extends StatelessWidget {
   }
 
   // --- Static Helper pour la Notice d'approfondissement (Transition) ---
-  static Future<void> showNotice({required BuildContext context, required VoidCallback onStart}) {
+  static Future<void> showNotice({
+    required BuildContext context,
+    required VoidCallback onStart,
+  }) {
     return showDialog(
       context: context,
-      barrierDismissible: false, // On force l'utilisateur à cliquer sur le bouton
+      barrierDismissible:
+          false, // On force l'utilisateur à cliquer sur le bouton
       builder: (context) => BilanNoticeDialog(
         title: "Bien joué!",
         description: "Nous allons maintenant approfondir ensemble ton bilan.",
-        hintText: "Tu peux choisir de passer cette étape à tout moment si tu le souhaites.",
+        hintText:
+            "Tu peux choisir de passer cette étape à tout moment si tu le souhaites.",
         buttonLabel: "J'y vais !",
         icon: Icons.add_chart,
         onConfirm: () {
@@ -140,14 +153,18 @@ class BilanNoticeDialog extends StatelessWidget {
   }
 
   // --- Static Helper pour le dialogue de Skip (Popup) ---
-  static Future<void> showSkip({required BuildContext context, required VoidCallback onSkip}) {
+  static Future<void> showSkip({
+    required BuildContext context,
+    required VoidCallback onSkip,
+  }) {
     return showDialog(
       context: context,
       builder: (context) => BilanNoticeDialog(
-        title: "Passer l'approfondissement ?",
-        description: "Tes réponses obligatoires sont enregistrées. Tu peux voir tes résultats dès maintenant.",
+        title: "Passer les questions restantes ?",
+        description:
+            "Tes réponses obligatoires sont enregistrées. Tu peux voir tes résultats dès maintenant.",
         buttonLabel: "Voir mes résultats",
-        secondaryButtonLabel: "Continuer l'approfondissement",
+        secondaryButtonLabel: "Continuer à approfondir",
         icon: Icons.analytics_outlined,
         onConfirm: () {
           Navigator.of(context).pop();

@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/core/common/presentation/widgets/oikos_avatar.dart';
-
-// Plus besoin du GradientButton ici car on allège le design
-// import 'package:oikos/core/common/presentation/widgets/gradient_button.dart';
-
+import '../widgets/community_challenges_sheet.dart';
 import '../../data/datasources/community_remote_datasource.dart';
 import '../../data/models/leaderboard_entry_model.dart';
 import '../../data/models/community_action_model.dart';
@@ -13,6 +10,7 @@ import '../../domain/entities/leaderboard_entry.dart';
 import '../widgets/ranking_action_modal.dart';
 import '../widgets/profile_details_modal.dart';
 
+// Ecran pour le dahsboard de communautés
 class CommunityDashboardScreen extends StatefulWidget {
   const CommunityDashboardScreen({Key? key}) : super(key: key);
 
@@ -20,6 +18,7 @@ class CommunityDashboardScreen extends StatefulWidget {
   State<CommunityDashboardScreen> createState() => _CommunityDashboardScreenState();
 }
 
+// Etat de l'écran de classement communautaire
 class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> with SingleTickerProviderStateMixin {
   late CommunityRemoteDataSource _dataSource;
   late TabController _tabController;
@@ -27,13 +26,14 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
   bool _isLoading = true;
   String? _error;
 
-  List<LeaderboardEntryModel> _userList = [];
-  List<LeaderboardEntryModel> _communityList = [];
-  List<CommunityActionModel> _actions = [];
+  List<LeaderboardEntryModel> _userList = []; // Liste des utilisateurs 
+  List<LeaderboardEntryModel> _communityList = []; // Liste des communautés
+  List<CommunityActionModel> _actions = []; // Liste des actions
 
   String? _myCommunityCode;
   String? _myEntrepriseId;
 
+  // Affichage du classement
   void _showRankingInfo(BuildContext context, LeaderboardEntry entry) {
     showDialog(
       context: context,
@@ -63,6 +63,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
     _loadData();
   }
 
+  // Chargement des données
   Future<void> _loadData() async {
     setState(() { _isLoading = true; _error = null; });
     try {
@@ -83,6 +84,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
       _myCommunityCode = userRes['code_communaute'];
       _myEntrepriseId = userRes['entreprise_id'];
 
+      // On récupère les données
       final results = await Future.wait([
         _dataSource.getUserLeaderboard(_myCommunityCode!),
         _dataSource.getCommunityLeaderboard(_myEntrepriseId ?? '', _myCommunityCode!),
@@ -92,7 +94,14 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
       if (!mounted) return;
 
       setState(() {
-        _userList = results[0] as List<LeaderboardEntryModel>;
+        _userList = (results[0] as List<LeaderboardEntryModel>).map((entry){
+          final isMe = entry.id == userId;
+             return entry.copyWith(
+               isMe: isMe,
+               // Si c'est l'utilisateur connecté, on affiche "Moi", sinon on garde le vrai nom
+               label: isMe ? "Moi" : entry.label, 
+             );
+        }).toList();
         _communityList = results[1] as List<LeaderboardEntryModel>;
         _actions = results[2] as List<CommunityActionModel>;
         _isLoading = false;
@@ -100,28 +109,10 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
 
     } catch (e) {
       if (!mounted) return;
-      _loadFakeDataFallback();
     }
   }
 
-  void _loadFakeDataFallback() {
-    setState(() {
-      _userList = [
-        LeaderboardEntryModel(id: '1', label: 'Sophie', value: 2450, rank: 1, isUser: true, isMe: false, impactStats: '-75kg', actionsCount: 42, streakDays: 5, avatarUrl: 'assets/avatars/avatar_1.png'),
-        LeaderboardEntryModel(id: '2', label: 'Thomas', value: 2280, rank: 2, isUser: true, isMe: false, impactStats: '-60kg', actionsCount: 38, streakDays: 2, avatarUrl: 'assets/avatars/avatar_2.png'),
-        LeaderboardEntryModel(id: '3', label: 'Marie', value: 2150, rank: 3, isUser: true, isMe: false, impactStats: '-55kg', actionsCount: 35, streakDays: 3, avatarUrl: 'assets/avatars/avatar_3.png'),
-        LeaderboardEntryModel(id: '4', label: 'Lucas', value: 1980, rank: 4, isUser: true, isMe: false, impactStats: '-71kg', actionsCount: 36, streakDays: 0, avatarUrl: ''),
-        LeaderboardEntryModel(id: '6', label: 'Vous', value: 1720, rank: 6, isUser: true, isMe: true, impactStats: '-63kg', actionsCount: 31, streakDays: 1, avatarUrl: 'assets/avatars/avatar_5.png'),
-      ];
-      _communityList = [
-        LeaderboardEntryModel(id: 'c1', label: 'Viveris Paris', value: 24500, rank: 1, isUser: false, isMe: true, impactStats: '-1.2T', actionsCount: 156, streakDays: 0, avatarUrl: ''),
-        LeaderboardEntryModel(id: 'c2', label: 'Viveris Lyon', value: 18900, rank: 2, isUser: false, isMe: false, impactStats: '-890kg', actionsCount: 89, streakDays: 0, avatarUrl: ''),
-      ];
-      _isLoading = false;
-      _error = null;
-    });
-  }
-
+  // Construction de la fenêtre
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -191,24 +182,69 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
   }
 
   Widget _buildLeaderboardView(List<LeaderboardEntry> list, {required bool isCommunity}) {
+    final theme = Theme.of(context);
     if (_isLoading) return const Center(child: CircularProgressIndicator());
     if (list.isEmpty) return const Center(child: Text("Aucun classement disponible"));
 
-    final top3 = list.take(3).toList();
-    final rest = list.length > 3 ? list.sublist(3) : <LeaderboardEntry>[];
+    List<LeaderboardEntry> displayList = [];
+    
+    // On prend les 10 premiers maximum
+    final top10 = list.take(10).toList();
+    displayList.addAll(top10);
+
+    // On vérifie si l'utilisateur connecté est dans le Top 10
+    bool amIInTop10 = top10.any((e) => e.isMe);
+
+    // Sinon on ajoute l'utilisateur connecté à la fin
+    if (!amIInTop10) {
+      try {
+        final myEntry = list.firstWhere((e) => e.isMe);
+        displayList.add(myEntry);
+      } catch (_) {
+        // Cas où l'utilisateur n'est pas trouvé dans la liste complète
+      }
+    }
+
+    // Podium des 3 premiers
+    final top3 = displayList.take(3).toList();
+    final rest = displayList.length > 3 ? displayList.sublist(3) : <LeaderboardEntry>[];
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 10, 20, 100),
       child: Column(
         children: [
+          // Affichage du podium
           if (top3.isNotEmpty) _buildPodium(top3, isCommunity),
 
           const SizedBox(height: 20),
 
-          ...rest.map((entry) => _LeaderboardCard(
-              entry: entry,
-              onTap: () => _showRankingInfo(context, entry)
-          )).toList(),
+          // Affichage du reste
+          ...rest.map((entry) {
+            final isMeAndFar = entry.isMe && !amIInTop10;
+
+            return Column(
+              children: [
+                if (isMeAndFar)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Row(
+                      children: [
+                        Expanded(child: Divider(color: theme.hintColor)),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 8),
+                          child: Icon(Icons.more_horiz, color: theme.hintColor),
+                        ),
+                        Expanded(child: Divider(color: theme.hintColor)),
+                      ],
+                    ),
+                  ),
+                _LeaderboardCard(
+                    entry: entry,
+                    onTap: () => _showRankingInfo(context, entry)
+                ),
+              ],
+            );
+          }).toList(),
 
           const SizedBox(height: 30),
 
@@ -218,6 +254,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
     );
   }
 
+  // Widgets du podium
   Widget _buildPodium(List<LeaderboardEntry> top3, bool isCommunity) {
     if (top3.isEmpty) return const SizedBox();
 
@@ -301,6 +338,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
     );
   }
 
+  // Widget des défis
   Widget _buildChallengesSection(bool isCommunity) {
     final theme = Theme.of(context);
     return Column(
@@ -312,8 +350,8 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
         ),
 
         _ChallengeCard(
-          title: "Défi avec un membre",
-          subtitle: "Compare tes actions avec un collègue",
+          title: "Défi communautaire",
+          subtitle: "Lance-toi dans un défi collectif avec ta communauté",
           icon: Icons.flash_on,
           color: AppColors.lightPrimary,
           onTap: () {
@@ -329,13 +367,26 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
           icon: Icons.emoji_events,
           color: Colors.orange,
           onTap: () {
-            // Action à définir
-          },
+            // --- ON OUVRE LE BOTTOM SHEET ICI ---
+            if (_myEntrepriseId != null) {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true, 
+                backgroundColor: Colors.transparent, 
+                builder: (context) => CommunityChallengesSheet(
+                  actions: _actions, 
+                  entrepriseId: _myEntrepriseId!,
+                  myCommunityCode: _myCommunityCode!,
+                ),
+              );
+            }
+          }
         ),
       ],
     );
   }
 }
+
 
 class _LeaderboardCard extends StatelessWidget {
   final LeaderboardEntry entry;
@@ -395,8 +446,8 @@ class _LeaderboardCard extends StatelessWidget {
                   ),
                   Text(
                     entry.isUser
-                        ? "${entry.actionsCount ?? 0} actions • ${entry.impactStats ?? ''}"
-                        : "${entry.actionsCount ?? 0} membres • ${entry.impactStats ?? ''}",
+                        ? "${entry.actionsCount} actions"
+                        : "${entry.actionsCount} membres",
                     style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor),
                   ),
                 ],
@@ -416,7 +467,6 @@ class _LeaderboardCard extends StatelessWidget {
   }
 }
 
-// --- NOUVEAU DESIGN ÉPURÉ POUR LES CARTES ---
 class _ChallengeCard extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -437,15 +487,11 @@ class _ChallengeCard extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    // Design inspiré de ProfileActionButton
-    // mais adapté en "Card" pour le dashboard
     return Container(
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkInput : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        // Bordure fine comme sur les inputs
         border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightInputBorder),
-        // Ombre très légère, voire nulle pour un look "flat"
         boxShadow: [
           BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 5, offset: const Offset(0, 2))
         ],
@@ -459,7 +505,6 @@ class _ChallengeCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             child: Row(
               children: [
-                // Icône dans un cercle coloré (comme sur le profil)
                 Container(
                   width: 44,
                   height: 44,
@@ -471,7 +516,6 @@ class _ChallengeCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 16),
 
-                // Textes
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -493,7 +537,6 @@ class _ChallengeCard extends StatelessWidget {
                   ),
                 ),
 
-                // Petite flèche discrète pour inviter à l'action
                 Icon(
                     Icons.arrow_forward_ios_rounded,
                     size: 16,

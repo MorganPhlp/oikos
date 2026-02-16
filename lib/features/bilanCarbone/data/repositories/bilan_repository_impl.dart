@@ -10,7 +10,7 @@ class BilanSessionRepositoryImpl implements BilanSessionRepository {
   BilanSessionRepositoryImpl({required this.supabaseClient});
 
   @override
-  Future<int?> getBilanId(String userId) async {
+  Future<int> getBilanId(String userId) async {
     final response = await supabaseClient
         .from('bilan_carbone')
         .select('id')
@@ -18,8 +18,22 @@ class BilanSessionRepositoryImpl implements BilanSessionRepository {
         .order('date_bilan', ascending: false)
         .limit(1)
         .maybeSingle();
-
-    return response?['id'] as int?;
+   
+    if (response == null) { // aucun bilan trouve, on en creer un nouveau
+      await createNewBilanSession(userId);
+      final newResponse = await supabaseClient
+          .from('bilan_carbone')
+          .select('id')
+          .eq('utilisateur_id', userId)
+          .order('date_bilan', ascending: false)
+          .limit(1)
+          .maybeSingle();
+      if (newResponse == null) {
+        throw Exception("Impossible de créer une nouvelle session de bilan");
+      }
+      return newResponse['id'];
+    }
+    return response['id'];
   }
 
   @override

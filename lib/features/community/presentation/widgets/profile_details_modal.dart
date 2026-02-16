@@ -1,26 +1,68 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../data/datasources/community_remote_datasource.dart';
+import '../../data/models/leaderboard_entry_model.dart';
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/core/common/presentation/widgets/oikos_avatar.dart';
 import '../../../../core/common/presentation/widgets/gradient_button.dart';
 import '../../domain/entities/leaderboard_entry.dart';
 
-class ProfileDetailsModal extends StatelessWidget {
+// Widget de modal pour afficher les détails d'un profil utilisateur ou d'une communauté
+class ProfileDetailsModal extends StatefulWidget {
   final LeaderboardEntry entry;
 
   const ProfileDetailsModal({super.key, required this.entry});
 
   @override
+  State<ProfileDetailsModal> createState() => _ProfileDetailsModalState();
+}
+
+class _ProfileDetailsModalState extends State<ProfileDetailsModal> {
+  List<LeaderboardEntryModel> _contributors = [];
+  bool _isLoadingContributors = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // Si c'est une communauté, on charge ses top membres
+    if (!widget.entry.isUser) {
+      _loadContributors();
+    } else {
+      setState(() => _isLoadingContributors = false);
+    }
+  }
+
+  Future<void> _loadContributors() async {
+    final dataSource = CommunityRemoteDataSource(Supabase.instance.client);
+    
+    final users = await dataSource.getCommunityTopContributors(widget.entry.id); 
+    
+    if (mounted) {
+      setState(() {
+        _contributors = users;
+        _isLoadingContributors = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final entry = widget.entry;
     final bool isCommunity = !entry.isUser;
     final theme = Theme.of(context);
     final bgColor = theme.scaffoldBackgroundColor;
+
+    // Calculs pour les badges dynamiques
+    // TODO : Affiner les critères de badges et les seuils
+    final int treesPlanted = (entry.value / 1000).floor(); 
+    final bool isSuperActive = (entry.actionsCount ?? 0) > 100; // Seuil arbitraire
 
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.all(16),
       child: Container(
         height: 600,
-        width: double.infinity, // <--- AJOUT IMPORTANT pour le centrage horizontal
+        width: double.infinity,
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(24),
@@ -28,7 +70,6 @@ class ProfileDetailsModal extends StatelessWidget {
         child: Stack(
           alignment: Alignment.topCenter,
           children: [
-            // --- HEADER GRADIENT ---
             Container(
               height: 140,
               decoration: const BoxDecoration(
@@ -40,8 +81,9 @@ class ProfileDetailsModal extends StatelessWidget {
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
             ),
+            
+            Positioned(top: 10, right: 10, child: IconButton(icon: const Icon(Icons.close, color: Colors.white70), onPressed: () => Navigator.of(context).pop())),
 
-            // Bouton Fermer
             Positioned(
               top: 10,
               right: 10,
@@ -51,7 +93,6 @@ class ProfileDetailsModal extends StatelessWidget {
               ),
             ),
 
-            // --- CONTENU PRINCIPAL ---
             Padding(
               padding: const EdgeInsets.only(top: 80),
               child: Column(
@@ -71,15 +112,15 @@ class ProfileDetailsModal extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      _buildStatBox(context, Icons.emoji_events, "${entry.value}", "Points"),
-                      _buildStatBox(context, Icons.flash_on, "${entry.actionsCount ?? 0}", "Actions"),
-                      _buildStatBox(context, Icons.trending_down, entry.impactStats ?? "0kg", "Réduction"),
+                      _buildStatBox(context, Icons.emoji_events, "${entry.value}", "XP Total"),
+                      _buildStatBox(context, Icons.flash_on, "${entry.actionsCount}", "Actions"),
+                      if (isCommunity)
+                        _buildStatBox(context, Icons.group, "${entry.membersCount}", "Membres")
                     ],
                   ),
 
                   const SizedBox(height: 24),
 
-                  // Titre liste
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Align(
@@ -103,7 +144,18 @@ class ProfileDetailsModal extends StatelessWidget {
                     child: ListView(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       children: isCommunity
-                          ? _buildFakeCommunityContributors(context)
+                          ? (_isLoadingContributors
+                              ? [const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator()))]
+                              : _contributors.isEmpty
+                                  ? [const Padding(padding: EdgeInsets.all(10), child: Text("Aucun membre actif pour le moment.", style: TextStyle(color: Colors.grey)))]
+                                  : _contributors.map((u) => _buildListItem(
+                                        context,
+                                        Icons.person, // Icône par défaut si pas d'avatar
+                                        Colors.blue,
+                                        u.label,
+                                        "${u.value} XP",
+                                        avatarUrl: u.avatarUrl,
+                                      )).toList())
                           : _buildFakeUserAchievements(context),
                     ),
                   ),
@@ -111,18 +163,16 @@ class ProfileDetailsModal extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.all(20),
                     child: GradientButton(
-                      label: "Lancer un duel avec ${entry.label}",
+                      label: "Lancer un défi avec ${entry.label}",
                       icon: const Icon(Icons.sports_kabaddi, color: Colors.white),
-                      onPressed: () => print("Duel lancé"),
+                      onPressed: () => print("Défi lancé"),
                     ),
                   ),
                 ],
               ),
             ),
 
-            // --- AVATAR ---
             Positioned(
-              // Calcul: (140 hauteur bandeau - 88 hauteur avatar) / 2 = 26
               top: 26,
               left: 0,
               right: 0,
@@ -205,39 +255,14 @@ class ProfileDetailsModal extends StatelessWidget {
     ];
   }
 
-  List<Widget> _buildFakeCommunityContributors(BuildContext context) {
-    return [
-      _buildListItem(
-        context,
-        Icons.person,
-        Colors.blue,
-        "Sophie M.",
-        "450 points cette semaine",
-      ),
-      _buildListItem(
-        context,
-        Icons.person,
-        Colors.red,
-        "Thomas D.",
-        "420 points cette semaine",
-      ),
-      _buildListItem(
-        context,
-        Icons.person,
-        Colors.purple,
-        "Marie L.",
-        "385 points cette semaine",
-      ),
-    ];
-  }
-
   Widget _buildListItem(
     BuildContext context,
     IconData icon,
     Color color,
     String title,
-    String subtitle,
-  ) {
+    String subtitle, {
+    String? avatarUrl, 
+  }) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -251,9 +276,18 @@ class ProfileDetailsModal extends StatelessWidget {
       ),
       child: Row(
         children: [
-          CircleAvatar(
-            backgroundColor: color.withOpacity(0.1),
-            child: Icon(icon, color: color, size: 20),
+          Container(
+            width: 40, 
+            height: 40,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: avatarUrl != null && avatarUrl.isNotEmpty
+                ? ClipOval(
+                    child: OikosAvatar(avatarUrl: avatarUrl, label: title, radius: 20),
+                  )
+                : Icon(icon, color: color, size: 20),
           ),
           const SizedBox(width: 12),
           Column(

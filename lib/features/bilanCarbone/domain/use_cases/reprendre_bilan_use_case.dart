@@ -26,7 +26,6 @@ class ReprendreBilanUseCase {
     Map<String, dynamic> situation,
   ) async {
     // initialiser moteur
-    await simulationRepository.init();
     Map<String, dynamic> situationFormattee = {};
 
     for (var entry in situation.entries) {
