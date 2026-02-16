@@ -44,14 +44,13 @@ class _StreakCarousselWidgetState extends State<StreakCarousselWidget> {
 
         return SizedBox(
           height: 200,
-          child: CarouselView.weightedBuilder(
-            flexWeights: [2, 4, 2],
+          child: CarouselView(
+            itemExtent: 200,
             controller: controller,
-            scrollDirection: Axis.horizontal,
             backgroundColor: Colors.transparent,
             itemSnapping: true,
-            itemCount: 5,
-            itemBuilder: (context, index) {
+            // On génère la liste des widgets directement
+            children: List.generate(5, (index) {
               final bool isCurrentEvolution = index == streak.currentStreak;
               final bool isAchieved = index < streak.currentStreak;
               final bool isFuture = index > streak.currentStreak;
@@ -100,7 +99,7 @@ class _StreakCarousselWidgetState extends State<StreakCarousselWidget> {
               );
             },
           ),
-        );
+        ));
       },
     );
   }
