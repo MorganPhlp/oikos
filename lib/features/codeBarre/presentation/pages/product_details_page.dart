@@ -20,7 +20,6 @@ class ProductDetailsPage extends StatelessWidget {
     final nutriScore = aliment.nutriScore?.toUpperCase() ?? '?';
     final bool isEcoScoreKnown = ecoScore != '?' && ecoScore != 'UNKNOWN' && ecoScore != 'NOT-APPLICABLE';
 
-    // 1. On enveloppe la page dans le BlocProvider pour activer la logique
     return BlocProvider(
       create: (_) => serviceLocator<AlternativeProductCubit>()..loadAlternative(aliment),
       child: Scaffold(
@@ -47,7 +46,7 @@ class ProductDetailsPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // --- 1. IMAGE DU PRODUIT ---
+                      // --- IMAGE DU PRODUIT ---
                       Center(
                         child: Container(
                           height: 200,
@@ -81,7 +80,7 @@ class ProductDetailsPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 24),
 
-                      // --- 2. TITRE ET MARQUE ---
+                      // --- TITRE ET MARQUE ---
                       Text(
                         aliment.nom,
                         style: const TextStyle(
@@ -98,7 +97,7 @@ class ProductDetailsPage extends StatelessWidget {
                       ],
                       const SizedBox(height: 32),
 
-                      // --- 3. GRANDE CARTE ECO-SCORE ---
+                      // --- GRANDE CARTE ECO-SCORE ---
                       Stack(
                         children: [
                           Container(
@@ -150,7 +149,7 @@ class ProductDetailsPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
 
-                      // --- 4. PETITE CARTE NUTRI-SCORE ---
+                      // --- PETITE CARTE NUTRI-SCORE ---
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 20, vertical: 15),
@@ -186,7 +185,7 @@ class ProductDetailsPage extends StatelessWidget {
 
                       const SizedBox(height: 30),
 
-                      // --- 5. ZONE ALTERNATIVE ---
+                      // --- ZONE DE SUGGESTION D'ALIMENT MEILLEUR ---
                       BlocBuilder<AlternativeProductCubit, AlternativeProductState>(
                         builder: (context, state) {
                           if (state is AlternativeProductLoading) {
@@ -202,7 +201,7 @@ class ProductDetailsPage extends StatelessWidget {
                             return _buildAlternativeCard(context, state.alternative);
                           }
 
-                          // Si pas d'alternative ou erreur, on ne montre rien (c'est plus propre)
+                          // Si pas d'alternative ou erreur, on ne montre rien
                           return const SizedBox.shrink();
                         },
                       ),
@@ -219,7 +218,7 @@ class ProductDetailsPage extends StatelessWidget {
                 ),
               ),
 
-              // --- 6. BOUTON BAS DE PAGE ---
+              // --- BOUTON BAS DE PAGE POUR RELANCER LE SCAN ---
               Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: GradientButton(
@@ -237,7 +236,7 @@ class ProductDetailsPage extends StatelessWidget {
     );
   }
 
-  // --- WIDGET POUR L'ALTERNATIVE ---
+  // --- WIDGET POUR LA SUGGESTION ---
   Widget _buildAlternativeCard(BuildContext context, AlimentEntity alternative) {
     final altEcoScore = alternative.ecoScore?.toUpperCase() ?? '?';
     final bool isAltEcoScoreKnown = ['A', 'B', 'C', 'D', 'E'].contains(altEcoScore);
