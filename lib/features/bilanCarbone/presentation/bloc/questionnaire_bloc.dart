@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/question_entity.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/enregistrer_reponse_use_case.dart';
+import 'package:oikos/features/bilanCarbone/domain/use_cases/initialiser_moteur_de_calcul_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/precedente_question_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/prochaine_question_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/reprendre_bilan_use_case.dart';
@@ -12,10 +13,12 @@ class QuestionnaireBloc extends Bloc<QuestionnaireEvent, QuestionnaireState> {
   final GetProchaineQuestionUseCase getNextUseCase;
   final GetPreviousQuestionUseCase getPrevUseCase;
   final ReprendreBilanUseCase reprendreBilanUseCase;
+  final InitialiserMoteurDeCalculUseCase initialiserMoteurDeCalculUseCase;
 
   List<QuestionBilanEntity> _questions = [];
   int _currentIndex = 0;
   bool _isDeepening = false;
+  bool isEditing = false;
   int _indexLastQuestionObligatoire = 0;
   final Map<String, dynamic> _reponsesLocal = {};
 
@@ -24,6 +27,7 @@ class QuestionnaireBloc extends Bloc<QuestionnaireEvent, QuestionnaireState> {
     required this.getNextUseCase,
     required this.getPrevUseCase,
     required this.reprendreBilanUseCase,
+    required this.initialiserMoteurDeCalculUseCase,
   }) : super(QuestionnaireInitial()) {
     on<InitQuestionnaireEvent>(_onInit);
     on<RepondreQuestionEvent>(_onRepondre);
@@ -49,6 +53,8 @@ class QuestionnaireBloc extends Bloc<QuestionnaireEvent, QuestionnaireState> {
     InitQuestionnaireEvent event,
     Emitter<QuestionnaireState> emit,
   ) async {
+    emit(QuestionnaireLoading());
+    await initialiserMoteurDeCalculUseCase.call();
     _questions = event.questions;
     _reponsesLocal.clear();
 
@@ -63,21 +69,26 @@ class QuestionnaireBloc extends Bloc<QuestionnaireEvent, QuestionnaireState> {
     }
 
     // Reprendre le bilan pour retrouver l'index de la dernière question répondue
-    if(event.modeQuestionnaire == ModeQuestionnaire.debut){
+    if (event.modeQuestionnaire == ModeQuestionnaire.debut) {
       _currentIndex = 0;
+      // on verifie si la personne a deja rempli le questionnaire
+      if (_reponsesLocal.length >=
+          _questions.where((q) => q.estObligatoire).length) {
+        isEditing = true;
+      }
       _emitCurrent(emit);
-    }else{
+      // Si on est en mode "continuer", on reprend le bilan pour retrouver l'index de la dernière question répondue
+    } else {
       _currentIndex = await reprendreBilanUseCase.call(
-      _questions,
-      _reponsesLocal,
-    );
-
+        _questions,
+        _reponsesLocal,
+      );
     }
 
     //  Stocker l'index de la dernière question obligatoire
     _indexLastQuestionObligatoire = _questions.lastIndexWhere(
       (q) => q.estObligatoire,
-    ); 
+    );
 
     // Détecter si on est en approfondissement
     if (_currentIndex > _indexLastQuestionObligatoire) {
@@ -98,6 +109,7 @@ class QuestionnaireBloc extends Bloc<QuestionnaireEvent, QuestionnaireState> {
     final nextIdx = await getNextUseCase(
       allQuestions: _questions,
       currentIndex: _currentIndex,
+      userId: event.userId,
     );
 
     if (nextIdx == -1) {
@@ -125,10 +137,10 @@ class QuestionnaireBloc extends Bloc<QuestionnaireEvent, QuestionnaireState> {
     // transition vers l'approfondissement
     if (!_isDeepening && _currentIndex > _indexLastQuestionObligatoire) {
       emit(QuestionnaireApprofondissementNotice());
-    return;
-  }
+      return;
+    }
 
-  // transition approfondissement vers normal
+    // transition approfondissement vers normal
     if (_isDeepening && _currentIndex <= _indexLastQuestionObligatoire) {
       _isDeepening = false;
     }
@@ -142,6 +154,7 @@ class QuestionnaireBloc extends Bloc<QuestionnaireEvent, QuestionnaireState> {
         totalObligatoire: _indexLastQuestionObligatoire + 1,
         valeurActuelle: _reponsesLocal[q.slug],
         isDeepening: _isDeepening,
+        isEditing: isEditing,
       ),
     );
   }

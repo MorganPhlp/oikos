@@ -1,3 +1,4 @@
+// Entité représentant une entrée du classement (utilisateur ou communauté)
 class LeaderboardEntry {
   final String id;          // Identifiant unique (user.id ou communaute.code)
   final String label;       // Nom affiché (pseudo ou nom de la communauté)
@@ -5,12 +6,12 @@ class LeaderboardEntry {
   final int rank;           // Rang dans le classement
   final bool isUser;        // True = utilisateur, false = communauté
   final bool isMe;          // Utilisateur courant ou communauté courante
-  final String? avatarUrl;  // URL de l'avatar (optionnel)
+  final String? avatarUrl;  // URL de l'avatar (si il existe)
+  final int membersCount;
   
   // Statistiques additionnelles
-  final String impactStats;   // Amélioration actuelle de l'empreinte carbone (ex: "-89kg CO2")
-  final int actionsCount;     // Nombre d'actions effectuées (ex: 45 actions)
-  final int streakDays;       // Nombre de jours de streak consécutifs (ex: 12 jours)
+  final int actionsCount;     // Nombre d'actions effectuées 
+  final int streakDays;       // Nombre de jours de streak consécutifs
 
   LeaderboardEntry({
     required this.id, 
@@ -20,9 +21,8 @@ class LeaderboardEntry {
     required this.isUser,
     required this.isMe,
     this.avatarUrl,
-    // TODO: ajouter les connexions pour les données suivantes
-    this.impactStats = "-0kg",
-    this.actionsCount = 0,
-    this.streakDays = 0,
+    required this.actionsCount,
+    required this.streakDays,
+    this.membersCount = 0,
   });
 }

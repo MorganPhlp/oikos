@@ -29,6 +29,7 @@ import 'package:oikos/features/bilanCarbone/domain/use_cases/choix_categories_us
 import 'package:oikos/features/bilanCarbone/domain/use_cases/definir_objectif_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/demarrer_approfondissement_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/enregistrer_reponse_use_case.dart';
+import 'package:oikos/features/bilanCarbone/domain/use_cases/initialiser_moteur_de_calcul_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/obtenir_objectifs_disponibles_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/precedente_question_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/preparer_choix_objectifs_use_case.dart';
@@ -39,12 +40,22 @@ import 'package:oikos/features/bilanCarbone/domain/use_cases/recuperer_questions
 import 'package:oikos/features/bilanCarbone/domain/use_cases/recuperer_reponses_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/reprendre_bilan_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/verifier_bilan_en_cours_use_case.dart';
+import 'package:oikos/features/profile/data/repositories/bilan_repository_impl.dart';
+import 'package:oikos/features/profile/domain/repositories/bilan_repository.dart';
+import 'package:oikos/features/profile/domain/use_cases/get_questions_restantes_use_case.dart';
+import 'package:oikos/features/profile/presentation/bloc/profile_bilan_cubit.dart';
+import 'package:oikos/features/streak/data/datasources/streak_remote_datasource.dart';
+import 'package:oikos/features/streak/data/repositories/streak_repository_impl.dart';
+import 'package:oikos/features/streak/domain/repositories/streak_repository.dart';
+import 'package:oikos/features/streak/domain/use_cases/calculer_progres_use_case.dart';
+import 'package:oikos/features/streak/domain/use_cases/get_streak_use_case.dart';
+import 'package:oikos/features/streak/domain/use_cases/recuperer_streak_steps_use_case.dart';
+import 'package:oikos/features/streak/domain/use_cases/watch_streak_use_case.dart';
+import 'package:oikos/features/streak/presentation/bloc/streak_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_session_bloc.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/questionnaire_bloc.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_resultat_bloc.dart';
-
-
 
 import 'core/common/presentation/cubits/app_user/app_user_cubit.dart';
 import 'core/secrets/app_secrets.dart';
@@ -70,7 +81,10 @@ Future<void> initDependencies() async {
     url: AppSecrets.supabaseUrl,
     anonKey: AppSecrets.supabaseAnonKey,
     authOptions: FlutterAuthClientOptions(
-      authFlowType: kIsWeb ? AuthFlowType.implicit : AuthFlowType.pkce, // Pour éviter les problèmes de redirection sur le web, on utilise le flow implicite qui gère tout côté client. C'est plus simple et sécurisé pour une application Flutter.
+      authFlowType: kIsWeb
+          ? AuthFlowType.implicit
+          : AuthFlowType
+                .pkce, // Pour éviter les problèmes de redirection sur le web, on utilise le flow implicite qui gère tout côté client. C'est plus simple et sécurisé pour une application Flutter.
     ),
   );
   serviceLocator.registerLazySingleton<SupabaseClient>(() => supabase.client);
@@ -85,6 +99,8 @@ Future<void> initDependencies() async {
   _initAuth();
   _initBilan();
   _initCodeBarre();
+  _initStreak();
+  _initProfile();
 }
 
 void _initAuth() {
@@ -120,8 +136,6 @@ void _initAuth() {
   serviceLocator.registerLazySingleton(() => UpdateUser(serviceLocator()));
 
   serviceLocator.registerLazySingleton(() => DeleteAccount(serviceLocator()));
-
-
 
   // Bloc
   serviceLocator.registerLazySingleton(
@@ -170,6 +184,13 @@ void _initBilan() {
   // ==========================================================
   // DOMAINE (Services & Use Cases)
   // ==========================================================
+
+  serviceLocator.registerLazySingleton(
+    () => InitialiserMoteurDeCalculUseCase(
+      simulationRepository: serviceLocator(),
+    ),
+  );
+
   serviceLocator.registerLazySingleton(
     () => ApplicabilityChecker(serviceLocator()),
   );
@@ -184,7 +205,11 @@ void _initBilan() {
   );
 
   serviceLocator.registerLazySingleton(
-    () => GetProchaineQuestionUseCase(applicabilityChecker: serviceLocator()),
+    () => GetProchaineQuestionUseCase(
+      applicabilityChecker: serviceLocator(),
+      reponseRepository: serviceLocator(),
+      bilanSessionRepository: serviceLocator(),
+    ),
   );
   serviceLocator.registerLazySingleton(
     () => GetPreviousQuestionUseCase(applicabilityChecker: serviceLocator()),
@@ -281,6 +306,7 @@ void _initBilan() {
       getNextUseCase: serviceLocator(),
       getPrevUseCase: serviceLocator(),
       reprendreBilanUseCase: serviceLocator(),
+      initialiserMoteurDeCalculUseCase: serviceLocator(),
     ),
   );
 
@@ -298,34 +324,79 @@ void _initBilan() {
   );
 }
 
-
 void _initCodeBarre() {
   // Data Source
   serviceLocator.registerFactory<CodeBarreRemoteDataSource>(
-        () => CodeBarreRemoteDataSourceImpl(
-      client: serviceLocator(),
-    ),
+    () => CodeBarreRemoteDataSourceImpl(client: serviceLocator()),
   );
 
   // Repository
   serviceLocator.registerFactory<AlimentRepository>(
-        () => AlimentRepositoryImpl(
-      serviceLocator(),
-    ),
+    () => AlimentRepositoryImpl(serviceLocator()),
   );
 
   // UseCase
-  serviceLocator.registerFactory(
-        () => GetAlimentByCode(
-      serviceLocator(),
-    ),
-  );
+  serviceLocator.registerFactory(() => GetAlimentByCode(serviceLocator()));
 
   // Bloc
   // Vu que c'est un scan, on utilise registerFactory (nouvel état à chaque ouverture)
   serviceLocator.registerFactory(
-        () => ScanBloc(
-      getAlimentByCode: serviceLocator(),
+    () => ScanBloc(getAlimentByCode: serviceLocator()),
+  );
+}
+
+void _initStreak() {
+  // Datasource
+  serviceLocator.registerFactory<StreakRemoteDatasource>(
+    () => StreakRemoteDatasource(
+      supabaseClient: serviceLocator<SupabaseClient>(),
+    ), // Précise SupabaseClient
+  );
+
+  // Repository
+  serviceLocator.registerFactory<StreakRepository>(
+    () => StreakRepositoryImpl(serviceLocator<StreakRemoteDatasource>()),
+  );
+
+  // Use Case
+  serviceLocator.registerFactory<WatchStreakUseCase>(
+    () => WatchStreakUseCase(serviceLocator<StreakRepository>()),
+  );
+  serviceLocator.registerFactory<GetStreakUseCase>(
+    () => GetStreakUseCase(streakRepository: serviceLocator()),
+  );
+  serviceLocator.registerFactory<CalculerProgresUseCase>(
+    () => CalculerProgresUseCase(serviceLocator<StreakRepository>()),
+  );
+  serviceLocator.registerFactory<RecupererStreakStepsUseCase>(
+    () => RecupererStreakStepsUseCase(serviceLocator<StreakRepository>()),
+  );
+
+  // Bloc
+  serviceLocator.registerFactory<StreakBloc>(
+    () => StreakBloc(
+      serviceLocator(),
+      serviceLocator(),
+      serviceLocator(),
+      serviceLocator(),
     ),
+  );
+}
+
+void _initProfile() {
+  // Repository
+  serviceLocator.registerFactory<ProfileBilanRepository>(
+    () => ProfileBilanRepositoryImpl(serviceLocator<SupabaseClient>()),
+  );
+
+  // Use Case
+  serviceLocator.registerFactory(
+    () =>
+        GetQuestionsRestantesUseCase(serviceLocator<ProfileBilanRepository>()),
+  );
+
+  // Bloc
+  serviceLocator.registerFactory(
+    () => ProfileBilanCubit(getQuestionsRestantesUseCase: serviceLocator()),
   );
 }

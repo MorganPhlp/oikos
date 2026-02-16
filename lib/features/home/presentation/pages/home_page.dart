@@ -16,33 +16,37 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SingleChildScrollView(
-        child:Column(
-          children:[
+        child: Column(
+          children: [
             const Header(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(children: [
-                const SizedBox(height:24),
+              child: Column(
+                children: [
+                  const SizedBox(height: 24),
 
-                StreakWidget( 
-                  endSeasonDate:  DateTime.now().add(const Duration(days: 15)), 
-                  timeLeftBeforeLosingStreak: DateTime.now().add(const Duration(seconds: 10)),
-                ),
-                
-                const SizedBox(height:32),
-                // TODO : remplacer par les vraies stats cards (depuis supabase)
-                StatsCarousselWidget(allStatsCards: [StatsCardsEntitie.mock1(), StatsCardsEntitie.mock2(), StatsCardsEntitie.mock3()]),
-                const SizedBox(height: 32),
-                const QuickAccessWidget(),
-                const SizedBox(height: 32),
-                const DefisCommunautairesCardWidget(),
-                const SizedBox(height: 100),
-              ],)
+                  StreakWidget(),
+
+                  const SizedBox(height: 32),
+                  // TODO : remplacer par les vraies stats cards (depuis supabase)
+                  StatsCarousselWidget(
+                    allStatsCards: [
+                      StatsCardsEntitie.mock1(),
+                      StatsCardsEntitie.mock2(),
+                      StatsCardsEntitie.mock3(),
+                    ],
+                  ),
+                  const SizedBox(height: 32),
+                  const QuickAccessWidget(),
+                  const SizedBox(height: 32),
+                  const DefisCommunautairesCardWidget(),
+                  const SizedBox(height: 100),
+                ],
               ),
-            
-          ]
-        )
-      )
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

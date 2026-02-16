@@ -17,6 +17,8 @@ import 'features/codeBarre/domain/entities/aliment_entity.dart';
 import 'features/codeBarre/presentation/pages/home_scan_page.dart';
 import 'features/codeBarre/presentation/pages/product_details_page.dart';
 import 'features/codeBarre/presentation/pages/scan_page.dart';
+import 'package:oikos/features/actions_et_defis/presentation/pages/action_page.dart';
+import 'package:oikos/features/actions_et_defis/presentation/pages/my_actions_page.dart';
 
 GoRouter createRouter(AppUserCubit appUserCubit) {
   return GoRouter(
@@ -68,6 +70,18 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
             path: '/home',
             name: 'home',
             builder: (context, state) => const HomePage(),
+          ),
+          GoRoute(
+            path: '/catalogue',
+            name: 'catalogue',
+            builder: (context, state) => const ActionsCataloguePage(),
+          ),
+
+          // 2. Route pour l'onglet "Actions" (Mes Actions en cours)
+          GoRoute(
+            path: '/my_actions',
+            name: 'my_actions',
+             builder: (context, state) => const MyActionsPage(),
           ),
           // route pour la page d'accueil du scan
           GoRoute(
