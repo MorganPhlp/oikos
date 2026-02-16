@@ -6,7 +6,12 @@ abstract class ActionRepository {
 
   Future<void> joinChallenge(String userId, String actionId, String frequency);
 
-  Future<void> validateAction(String userId, String actionId, int xp, double co2);
+  Future<void> validateAction(
+    String userId,
+    String actionId,
+    int xp,
+    double co2,
+  );
 
   Future<List<ActionEntity>> getMyChallenges(String userId);
 

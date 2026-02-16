@@ -49,6 +49,7 @@ import 'package:oikos/features/streak/data/repositories/streak_repository_impl.d
 import 'package:oikos/features/streak/domain/repositories/streak_repository.dart';
 import 'package:oikos/features/streak/domain/use_cases/calculer_progres_use_case.dart';
 import 'package:oikos/features/streak/domain/use_cases/get_streak_use_case.dart';
+import 'package:oikos/features/streak/domain/use_cases/mark_streak_as_seen_use_case.dart';
 import 'package:oikos/features/streak/domain/use_cases/recuperer_streak_steps_use_case.dart';
 import 'package:oikos/features/streak/domain/use_cases/watch_streak_use_case.dart';
 import 'package:oikos/features/streak/presentation/bloc/streak_bloc.dart';
@@ -381,10 +382,14 @@ void _initStreak() {
   serviceLocator.registerFactory<RecupererStreakStepsUseCase>(
     () => RecupererStreakStepsUseCase(serviceLocator<StreakRepository>()),
   );
+  serviceLocator.registerFactory(
+    () => MarkStreakAsSeenUseCase(serviceLocator<StreakRepository>()),
+  );
 
   // Bloc
   serviceLocator.registerFactory<StreakBloc>(
     () => StreakBloc(
+      serviceLocator(),
       serviceLocator(),
       serviceLocator(),
       serviceLocator(),

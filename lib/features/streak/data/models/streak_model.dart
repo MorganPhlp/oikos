@@ -10,12 +10,13 @@ sealed class StreakModel with _$StreakModel {
   const factory StreakModel({
     @JsonKey(name: 'utilisateur_id') required String utilisateurId,
     @JsonKey(name: 'effective_streak') required int currentStreak,
-    @JsonKey(name: 'last_updated') required DateTime lastUpdated,
+    @JsonKey(name: 'last_updated') required DateTime? lastUpdated,
     @JsonKey(name: 'saison_nom') String? saisonNom,
     @JsonKey(name: 'saison_debut') DateTime? saisonDebut,
     @JsonKey(name: 'saison_fin') DateTime? saisonFin,
     @JsonKey(name: 'streak_theme_path') String? streakThemePath,
     @JsonKey(name: 'entreprise_name') String? entrepriseName,
+    @JsonKey(name: 'last_streak_seen') int? lastStreakSeen,
   }) = _StreakModel;
 
   factory StreakModel.fromJson(Map<String, dynamic> json) =>

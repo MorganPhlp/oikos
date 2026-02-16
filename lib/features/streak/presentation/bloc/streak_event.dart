@@ -30,3 +30,22 @@ class StreakUpdatedEvent extends StreakEvent {
 class SeasonFinishedEvent extends StreakEvent {
   const SeasonFinishedEvent();
 }
+
+class MarkStreakAsSeenEvent extends StreakEvent {
+  final String userId;
+  final int lastSeenStreak;
+
+  const MarkStreakAsSeenEvent(this.userId, this.lastSeenStreak);
+
+  @override
+  List<Object?> get props => [userId, lastSeenStreak];
+}
+
+class RefreshStreakEvent extends StreakEvent {
+  final String userId;
+
+  const RefreshStreakEvent(this.userId);
+
+  @override
+  List<Object?> get props => [userId];
+}

@@ -30,6 +30,7 @@ class StreakRepositoryImpl implements StreakRepository {
       saisonDebut: model.saisonDebut,
       saisonFin: model.saisonFin,
       logoUrl: generatedLogoUrl.toLowerCase(),
+      lastStreakSeen: model.lastStreakSeen,
     );
   }
 
@@ -91,8 +92,7 @@ class StreakRepositoryImpl implements StreakRepository {
   }
 
   @override
-  Future<DateTime?> getDebutSaison(String userId) async {
-    final DateTime? debutSaison = await remoteDatasource.getSaisonDebut(userId);
-    return debutSaison;
+  Future<void> markStreakAsSeen(String userId, int lastSeenStreak) async {
+    await remoteDatasource.markStreakAsSeen(userId, lastSeenStreak);
   }
 }

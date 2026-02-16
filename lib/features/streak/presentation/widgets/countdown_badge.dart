@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 class CountdownBadge extends StatefulWidget {
-  final DateTime targetDate;
+  final DateTime? targetDate; // Rendu nullable pour gérer l'infini
   final String prefix;
   final TextStyle style;
   final Widget icon;
@@ -12,7 +12,7 @@ class CountdownBadge extends StatefulWidget {
 
   const CountdownBadge({
     super.key,
-    required this.targetDate,
+    this.targetDate,
     required this.prefix,
     required this.style,
     required this.icon,
@@ -41,20 +41,29 @@ class _CountdownBadgeState extends State<CountdownBadge> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.targetDate != widget.targetDate) {
       _calculateDuration();
+      _startTimer(); // On relance le timer si la date change
     }
   }
 
   void _startTimer() {
     _timer?.cancel();
-    _timer = Timer.periodic(
-      const Duration(seconds: 1),
-      (_) => _calculateDuration(),
-    );
+    // On ne lance le timer que si on a une date cible
+    if (widget.targetDate != null) {
+      _timer = Timer.periodic(
+        const Duration(seconds: 1),
+        (_) => _calculateDuration(),
+      );
+    }
   }
 
   void _calculateDuration() {
+    if (widget.targetDate == null) {
+      if (mounted) setState(() => _duration = Duration.zero);
+      return;
+    }
+
     final now = DateTime.now();
-    final diff = widget.targetDate.difference(now);
+    final diff = widget.targetDate!.difference(now);
 
     if (diff.isNegative || diff.inSeconds <= 0) {
       if (_timer?.isActive ?? false) {
@@ -77,19 +86,27 @@ class _CountdownBadgeState extends State<CountdownBadge> {
   }
 
   String _formatTime() {
+    // CAS INFINI : Si pas de date cible
+    if (widget.targetDate == null) return "∞";
+
     if (_duration.inSeconds <= 0) return "Terminé";
 
     final days = _duration.inDays;
     final hours = _duration.inHours.remainder(24);
     final minutes = _duration.inMinutes.remainder(60);
+    final seconds = _duration.inSeconds.remainder(60);
 
     List<String> parts = [];
 
-    if (days > 0) parts.add("${days}j");
-    if (hours > 0) parts.add("${hours}h");
-
-    if (minutes > 0 || (days == 0 && hours == 0)) {
-      parts.add("${minutes}min");
+    if (days > 0) {
+      parts.add("${days}j");
+      if (hours > 0) parts.add("${hours}h");
+    } else if (hours > 0) {
+      parts.add("${hours}h");
+      if (minutes > 0) parts.add("${minutes}min");
+    } else {
+      if (minutes > 0) parts.add("${minutes}min");
+      parts.add("${seconds}s");
     }
 
     final timeString = parts.join(' ');

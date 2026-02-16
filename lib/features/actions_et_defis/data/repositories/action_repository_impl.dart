@@ -4,7 +4,8 @@ import '../../domain/repositories/action_repository.dart';
 import '../datasources/action_remote_data_source.dart';
 
 class ActionRepositoryImpl implements ActionRepository {
-  final ActionRemoteDataSourceImpl remoteDataSource; // Assure-toi que le type est bon
+  final ActionRemoteDataSourceImpl
+  remoteDataSource; // Assure-toi que le type est bon
 
   ActionRepositoryImpl(this.remoteDataSource);
 
@@ -15,12 +16,21 @@ class ActionRepositoryImpl implements ActionRepository {
   }
 
   @override
-  Future<void> joinChallenge(String userId, String actionId, String frequency) async {
+  Future<void> joinChallenge(
+    String userId,
+    String actionId,
+    String frequency,
+  ) async {
     await remoteDataSource.joinChallenge(userId, actionId, frequency);
   }
 
   @override
-  Future<void> validateAction(String userId, String actionId, int xp, double co2) async {
+  Future<void> validateAction(
+    String userId,
+    String actionId,
+    int xp,
+    double co2,
+  ) async {
     await remoteDataSource.validateAction(userId, actionId, xp, co2);
   }
 
