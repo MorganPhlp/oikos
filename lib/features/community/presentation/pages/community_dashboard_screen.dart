@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/core/common/presentation/widgets/oikos_avatar.dart';
-
-// Plus besoin du GradientButton ici car on allège le design
-// import 'package:oikos/core/common/presentation/widgets/gradient_button.dart';
-
+import '../widgets/community_challenges_sheet.dart';
 import '../../data/datasources/community_remote_datasource.dart';
 import '../../data/models/leaderboard_entry_model.dart';
 import '../../data/models/community_action_model.dart';
@@ -13,6 +10,7 @@ import '../../domain/entities/leaderboard_entry.dart';
 import '../widgets/ranking_action_modal.dart';
 import '../widgets/profile_details_modal.dart';
 
+// Ecran pour le dahsboard de communautés
 class CommunityDashboardScreen extends StatefulWidget {
   const CommunityDashboardScreen({Key? key}) : super(key: key);
 
@@ -28,13 +26,14 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
   bool _isLoading = true;
   String? _error;
 
-  List<LeaderboardEntryModel> _userList = [];
-  List<LeaderboardEntryModel> _communityList = [];
-  List<CommunityActionModel> _actions = [];
+  List<LeaderboardEntryModel> _userList = []; // Liste des utilisateurs 
+  List<LeaderboardEntryModel> _communityList = []; // Liste des communautés
+  List<CommunityActionModel> _actions = []; // Liste des actions
 
   String? _myCommunityCode;
   String? _myEntrepriseId;
 
+  // Affichage du classement
   void _showRankingInfo(BuildContext context, LeaderboardEntry entry) {
     showDialog(
       context: context,
@@ -64,6 +63,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
     _loadData();
   }
 
+  // Chargement des données
   Future<void> _loadData() async {
     setState(() { _isLoading = true; _error = null; });
     try {
@@ -84,6 +84,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
       _myCommunityCode = userRes['code_communaute'];
       _myEntrepriseId = userRes['entreprise_id'];
 
+      // On récupère les données
       final results = await Future.wait([
         _dataSource.getUserLeaderboard(_myCommunityCode!),
         _dataSource.getCommunityLeaderboard(_myEntrepriseId ?? '', _myCommunityCode!),
@@ -111,6 +112,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
     }
   }
 
+  // Construction de la fenêtre
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -252,6 +254,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
     );
   }
 
+  // Widgets du podium
   Widget _buildPodium(List<LeaderboardEntry> top3, bool isCommunity) {
     if (top3.isEmpty) return const SizedBox();
 
@@ -335,6 +338,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
     );
   }
 
+  // Widget des défis
   Widget _buildChallengesSection(bool isCommunity) {
     final theme = Theme.of(context);
     return Column(
@@ -363,13 +367,26 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
           icon: Icons.emoji_events,
           color: Colors.orange,
           onTap: () {
-            // Action à définir
-          },
+            // --- ON OUVRE LE BOTTOM SHEET ICI ---
+            if (_myEntrepriseId != null) {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true, 
+                backgroundColor: Colors.transparent, 
+                builder: (context) => CommunityChallengesSheet(
+                  actions: _actions, 
+                  entrepriseId: _myEntrepriseId!,
+                  myCommunityCode: _myCommunityCode!,
+                ),
+              );
+            }
+          }
         ),
       ],
     );
   }
 }
+
 
 class _LeaderboardCard extends StatelessWidget {
   final LeaderboardEntry entry;
@@ -450,7 +467,6 @@ class _LeaderboardCard extends StatelessWidget {
   }
 }
 
-// --- NOUVEAU DESIGN ÉPURÉ POUR LES CARTES ---
 class _ChallengeCard extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -471,15 +487,11 @@ class _ChallengeCard extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    // Design inspiré de ProfileActionButton
-    // mais adapté en "Card" pour le dashboard
     return Container(
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkInput : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        // Bordure fine comme sur les inputs
         border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightInputBorder),
-        // Ombre très légère, voire nulle pour un look "flat"
         boxShadow: [
           BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 5, offset: const Offset(0, 2))
         ],
@@ -493,7 +505,6 @@ class _ChallengeCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             child: Row(
               children: [
-                // Icône dans un cercle coloré (comme sur le profil)
                 Container(
                   width: 44,
                   height: 44,
@@ -505,7 +516,6 @@ class _ChallengeCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 16),
 
-                // Textes
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -527,7 +537,6 @@ class _ChallengeCard extends StatelessWidget {
                   ),
                 ),
 
-                // Petite flèche discrète pour inviter à l'action
                 Icon(
                     Icons.arrow_forward_ios_rounded,
                     size: 16,

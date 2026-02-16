@@ -25,15 +25,16 @@ class RankingActionModal extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
+    // ignore: unused_local_variable
     ImageProvider? imageProvider;
     
-    if (avatarUrl!.isNotEmpty) {
-      if (avatarUrl!.startsWith('http') || avatarUrl!.startsWith('https')) {
+    if (avatarUrl.isNotEmpty) {
+      if (avatarUrl.startsWith('http') || avatarUrl.startsWith('https')) {
         // URL Internet (Supabase)
-        imageProvider = NetworkImage(avatarUrl!);
+        imageProvider = NetworkImage(avatarUrl);
       } else {
         // Fichier Local (Asset)
-        String cleanPath = avatarUrl!.replaceAll('file:///', '').replaceAll('C:/src/projet/oikos/', '');
+        String cleanPath = avatarUrl.replaceAll('file:///', '').replaceAll('C:/src/projet/oikos/', '');
         imageProvider = AssetImage(cleanPath);
       }
     }

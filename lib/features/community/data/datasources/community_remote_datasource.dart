@@ -65,7 +65,7 @@ Future<List<LeaderboardEntryModel>> getUserLeaderboard(String communityCode) asy
 
     } catch (e) {
       print("Erreur getCommunityLeaderboard: $e");
-      return []; // Retourne une liste vide en cas d'erreur pour éviter le crash
+      return []; // Retourne une liste vide en cas d'erreur
     }
   }
 
@@ -91,7 +91,7 @@ Future<List<LeaderboardEntryModel>> getUserLeaderboard(String communityCode) asy
       return LeaderboardEntryModel.fromCommunityView(response, communityCode);
     } catch (e) {
       print("Erreur getCommunityDetails: $e");
-      return null; // Retourne null en cas d'erreur pour éviter le crash
+      return null; // Retourne null en cas d'erreur
     }
   }
   
@@ -122,6 +122,104 @@ Future<List<LeaderboardEntryModel>> getUserLeaderboard(String communityCode) asy
     } catch (e) {
       print("Erreur getCommunityTopContributors: $e");
       return [];
+    }
+  }
+
+  // Lancer un nouveau défi communautaire
+  Future<void> createCommunityChallenge({
+    required String entrepriseId,
+    required String actionId,
+    String? titrePersonnalise,
+    required int daysDuration,
+  }) async {
+    try {
+      final userId = supabase.auth.currentUser!.id;
+      final dateFin = DateTime.now().add(Duration(days: daysDuration)).toIso8601String();
+
+      await supabase.from('defi_communautaire').insert({
+        'entreprise_id': entrepriseId,
+        'action_id': actionId,
+        'titre_personnalise': titrePersonnalise,
+        'date_fin': dateFin,
+        'createur_id': userId,
+      });
+    } catch (e) {
+      print("Erreur createCommunityChallenge: $e");
+      rethrow;
+    }
+  }
+
+  // Récupérer les défis en cours
+  Future<List<dynamic>> getActiveChallenges(String entrepriseId) async {
+    try {
+      final userId = supabase.auth.currentUser!.id;
+
+      final response = await supabase
+          .from('vue_defis_actifs') 
+          .select()
+          .eq('entreprise_id', entrepriseId)
+          .order('date_fin', ascending: true);
+      
+      final participations = await supabase
+          .from('defi_participation')
+          .select('defi_id')
+          .eq('user_id', userId);
+
+      final myJoinedIds = (participations as List).map((p) => p['defi_id'].toString()).toSet();
+
+      return (response as List).map((json) {
+        final defiId = json['defi_id'].toString();
+        return {
+          ...json,
+          'is_joined': myJoinedIds.contains(defiId),
+        };
+      }).toList();
+    } catch (e) {
+      print("Erreur getActiveChallenges: $e");
+      return [];
+    }
+  }
+
+  // Rejoindre un défi et le valider
+  Future<void> joinAndValidateChallenge({
+    required String defiId, 
+    required String codeCommunaute, 
+    required int xpGain, 
+    required String actionId,
+    required double co2Saved,
+  }) async {
+    final userId = supabase.auth.currentUser!.id;
+      
+    // Inscription au défi collectif
+    try {
+      await supabase.from('defi_participation').insert({
+        'defi_id': defiId,
+        'user_id': userId,
+        'code_communaute': codeCommunaute,
+      });
+    } catch (e) {
+      // Si on est déjà inscrit, on peut quand même vouloir valider l'action
+      print("Déjà inscrit au défi ou erreur: $e");
+    }
+
+    // Ajout des points d'XP au profil utilisateur
+    await supabase.rpc('add_xp_to_user', params: {
+      'user_id_param': userId,
+      'xp_amount': xpGain,
+    });
+
+    // Insertion dans l'historique
+    try {
+      await supabase.from('realisation_actions').insert({
+        'utilisateur_id': userId,
+        'action_id': actionId,
+        'date_realisation': DateTime.now().toIso8601String(), // Date du jour
+        'xp_gagne': xpGain,           // Points gagnés
+        'co2_economise': co2Saved,    // CO2 économisé
+      });
+    } catch (e) {
+      print("Erreur insertion realisation_actions: $e");
+      throw Exception("Erreur lors de l'enregistrement de l'action: $e");
     }
   }
 }
