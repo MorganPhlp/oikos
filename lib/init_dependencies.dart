@@ -73,6 +73,9 @@ import 'package:oikos/features/codeBarre/domain/repositories/aliment_repository.
 import 'package:oikos/features/codeBarre/domain/usecases/get_aliment_by_code.dart';
 import 'package:oikos/features/codeBarre/presentation/bloc/scan_bloc.dart';
 
+import 'features/codeBarre/domain/usecases/get_alternative_product.dart';
+import 'features/codeBarre/presentation/cubit/alternative_product_cubit.dart';
+
 final serviceLocator = GetIt.instance;
 
 Future<void> initDependencies() async {
@@ -335,13 +338,20 @@ void _initCodeBarre() {
     () => AlimentRepositoryImpl(serviceLocator()),
   );
 
-  // UseCase
+  // UseCase getaAliment
   serviceLocator.registerFactory(() => GetAlimentByCode(serviceLocator()));
+  // UseCase pour recuperer un aliment similaire
+  serviceLocator.registerFactory(() => GetAlternativeProduct(serviceLocator()));
 
   // Bloc
   // Vu que c'est un scan, on utilise registerFactory (nouvel état à chaque ouverture)
   serviceLocator.registerFactory(
     () => ScanBloc(getAlimentByCode: serviceLocator()),
+  );
+
+  //Cubit pour l'alternative
+  serviceLocator.registerFactory(
+        () => AlternativeProductCubit(getAlternativeProduct: serviceLocator()),
   );
 }
 
