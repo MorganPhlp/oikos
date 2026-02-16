@@ -9,6 +9,7 @@ class AlimentEntity extends Equatable {
   final String? nutriScore; // A, B, C, D, E
   final String? ingredients; // Liste simple pour info
   final String? imageUrl; // Pour afficher la photo du produit
+  final List<String>? categoriesTags; //Notamment pour faire des recommendation sur un produit similaire
 
   const AlimentEntity({
     required this.codeBarre,
@@ -19,6 +20,7 @@ class AlimentEntity extends Equatable {
     this.nutriScore,
     this.ingredients,
     this.imageUrl,
+    this.categoriesTags,
   });
 
   @override

@@ -31,4 +31,16 @@ class AlimentRepositoryImpl implements AlimentRepository {
       return Left(Failure(e.toString()));
     }
   }
+  @override
+  Future<Either<Failure, AlimentEntity?>> getAlternativeProduct(String categoryTag) async {
+    try {
+      final alternative = await remoteDataSource.getBetterAlternative(categoryTag);
+      return right(alternative); // Peut être null si pas trouvé
+    } on ServerException catch (e) {
+      // Si la recherche d'alternative échoue, on ne veut pas bloquer l'app
+      // On loggue l'erreur si besoin, mais on renvoie "null" (pas d'alternative)
+      // Ici, le plus sûr pour l'UX est de renvoyer une erreur que le Bloc ignorera silencieusement.
+      return left(Failure(e.message));
+    }
+  }
 }

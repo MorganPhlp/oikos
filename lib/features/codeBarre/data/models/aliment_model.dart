@@ -12,6 +12,7 @@ class AlimentModel extends AlimentEntity {
     super.nutriScore,
     super.ingredients,
     super.imageUrl,
+    super.categoriesTags,
   });
 
   factory AlimentModel.fromJson(Map<String, dynamic> json) {
@@ -29,6 +30,12 @@ class AlimentModel extends AlimentEntity {
       nutriScore: product['nutriscore_grade']?.toString().toUpperCase(),
       ingredients: product['ingredients_text'],
       imageUrl: product['image_front_url'],
+
+      //Parsing de la liste des catégories
+      categoriesTags: (product['categories_tags'] as List<dynamic>?)
+          ?.map((e) => e.toString())
+          .toList(),
+
     );
   }
 

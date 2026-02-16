@@ -11,6 +11,7 @@ import '../models/aliment_model.dart';
 * */
 abstract interface class CodeBarreRemoteDataSource {
   Future<AlimentModel> getAliment(String codeBarre);
+  Future<AlimentModel?> getBetterAlternative(String categoryTag);
 }
 
 class CodeBarreRemoteDataSourceImpl implements CodeBarreRemoteDataSource {
@@ -41,6 +42,48 @@ class CodeBarreRemoteDataSourceImpl implements CodeBarreRemoteDataSource {
     } else {
       // Erreur réseau ou serveur
       throw ServerException("Erreur réseau ou serveur");
+    }
+  }
+
+  @override
+  Future<AlimentModel?> getBetterAlternative(String categoryTag) async {
+    // On construit l'URL de recherche avec des filtres précis :
+    // 1. tag_0 : La catégorie du produit scanné
+    // 2. country : France (pour s'assurer qu'on peut l'acheter)
+    // 3. sort_by : ecoscore_score (les A en premier)
+    // 4. page_size : 1 (on ne veut que le meilleur)
+
+    final uri = Uri.parse('https://fr.openfoodfacts.org/cgi/search.pl').replace(
+      queryParameters: {
+        'action': 'process',
+        'tagtype_0': 'categories',
+        'tag_contains_0': 'contains',
+        'tag_0': categoryTag,      // La catégorie (ex: en:tomato-ketchups)
+        'tagtype_1': 'countries',  // FILTRE PAYS
+        'tag_contains_1': 'contains',
+        'tag_1': 'france',         // VALEUR PAYS
+        'sort_by': 'ecoscore_score', // TRI PAR ECOSCORE
+        'page_size': '1',          // UN SEUL RESULTAT
+        'json': 'true',            // FORMAT JSON
+      },
+    );
+
+    try {
+      final response = await client.get(uri);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final List<dynamic> products = data['products'] ?? [];
+
+        if (products.isNotEmpty) {
+          // On retourne le premier produit de la liste (le meilleur)
+          return AlimentModel.fromJson(products.first);
+        }
+      }
+      return null; // Pas d'alternative trouvée
+    } catch (e) {
+      // En cas d'erreur on renvoie null
+      return null;
     }
   }
 }
