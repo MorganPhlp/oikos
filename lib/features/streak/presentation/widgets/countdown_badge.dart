@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 
 class CountdownBadge extends StatefulWidget {
@@ -12,6 +11,7 @@ class CountdownBadge extends StatefulWidget {
   final VoidCallback? onFinished;
 
   const CountdownBadge({
+    super.key,
     required this.targetDate,
     required this.prefix,
     required this.style,
@@ -26,57 +26,74 @@ class CountdownBadge extends StatefulWidget {
 }
 
 class _CountdownBadgeState extends State<CountdownBadge> {
-  late Timer _timer;
+  Timer? _timer;
   late Duration _duration;
 
   @override
   void initState() {
     super.initState();
     _calculateDuration();
+    _startTimer();
+  }
+
+  @override
+  void didUpdateWidget(CountdownBadge oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.targetDate != widget.targetDate) {
+      _calculateDuration();
+    }
+  }
+
+  void _startTimer() {
+    _timer?.cancel();
     _timer = Timer.periodic(
       const Duration(seconds: 1),
       (_) => _calculateDuration(),
     );
   }
 
-  @override
-  void didUpdateWidget(CountdownBadge oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Si la date cible a changé entre deux builds du parent
-    if (oldWidget.targetDate != widget.targetDate) {
-      _calculateDuration();
-    }
-  }
-
   void _calculateDuration() {
     final now = DateTime.now();
     final diff = widget.targetDate.difference(now);
 
-    if (diff.inSeconds <= 0) {
-      // On vérifie si le timer a été initialisé avant d'accéder à .isActive
-      // Dans initState, au premier appel, il ne l'est pas encore.
-      widget.onFinished?.call();
+    if (diff.isNegative || diff.inSeconds <= 0) {
+      if (_timer?.isActive ?? false) {
+        _timer?.cancel();
+        widget.onFinished?.call();
+      }
+      if (mounted) setState(() => _duration = Duration.zero);
+      return;
     }
 
     if (mounted) {
-      setState(() {
-        _duration = diff.inSeconds > 0 ? diff : Duration.zero;
-      });
+      setState(() => _duration = diff);
     }
   }
 
   @override
   void dispose() {
-    _timer.cancel();
+    _timer?.cancel();
     super.dispose();
   }
 
   String _formatTime() {
     if (_duration.inSeconds <= 0) return "Terminé";
-    if (_duration.inDays > 0) return "J-${_duration.inDays} ${widget.prefix}";
-    if (_duration.inHours > 0) return "Il te reste ${_duration.inHours}h";
-    if (_duration.inMinutes > 0) return "Il te reste ${_duration.inMinutes}min";
-    return "Il te reste ${_duration.inSeconds}s";
+
+    final days = _duration.inDays;
+    final hours = _duration.inHours.remainder(24);
+    final minutes = _duration.inMinutes.remainder(60);
+
+    List<String> parts = [];
+
+    if (days > 0) parts.add("${days}j");
+    if (hours > 0) parts.add("${hours}h");
+
+    if (minutes > 0 || (days == 0 && hours == 0)) {
+      parts.add("${minutes}min");
+    }
+
+    final timeString = parts.join(' ');
+    return widget.prefix.isEmpty ? timeString : "${widget.prefix} $timeString";
   }
 
   @override
@@ -85,14 +102,14 @@ class _CountdownBadgeState extends State<CountdownBadge> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
         color: widget.backgroundColor,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: widget.borderColor),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: widget.borderColor, width: 1.5),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           widget.icon,
-          const SizedBox(width: 8),
+          const SizedBox(width: 10),
           Text(_formatTime(), style: widget.style),
         ],
       ),

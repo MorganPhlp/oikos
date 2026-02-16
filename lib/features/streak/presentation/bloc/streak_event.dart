@@ -26,3 +26,7 @@ class StreakUpdatedEvent extends StreakEvent {
   @override
   List<Object?> get props => [currentStreak];
 }
+
+class SeasonFinishedEvent extends StreakEvent {
+  const SeasonFinishedEvent();
+}

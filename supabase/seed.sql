@@ -30,3 +30,10 @@ INSERT INTO carbone_equivalent (equivalent_label, valeur_1_tonne, icone) VALUES
 ('Litres d''eau', 130000, '💧'),
 ('% de l''empreinte carbone moyenne d''un français', 11, '🇫🇷')
 ON CONFLICT DO NOTHING;
+
+
+INSERT INTO streak_steps (from_streak_phase, to_streak_phase, required_actions_quotidiennes, required_actions_communautaires) VALUES
+(0, 1, 3, 1),
+(1, 2, 5, 1),
+(2, 3, 7, 1),
+(3, 4, 10, 1)
