@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$StreakModel {
 
-@JsonKey(name: 'utilisateur_id') String get utilisateurId;@JsonKey(name: 'effective_streak') int get currentStreak;@JsonKey(name: 'last_updated') DateTime get lastUpdated;@JsonKey(name: 'saison_nom') String? get saisonNom;@JsonKey(name: 'saison_debut') DateTime? get saisonDebut;@JsonKey(name: 'saison_fin') DateTime? get saisonFin;@JsonKey(name: 'streak_theme_path') String? get streakThemePath;@JsonKey(name: 'entreprise_name') String? get entrepriseName;
+@JsonKey(name: 'utilisateur_id') String get utilisateurId;@JsonKey(name: 'effective_streak') int get currentStreak;@JsonKey(name: 'last_updated') DateTime? get lastUpdated;@JsonKey(name: 'saison_nom') String? get saisonNom;@JsonKey(name: 'saison_debut') DateTime? get saisonDebut;@JsonKey(name: 'saison_fin') DateTime? get saisonFin;@JsonKey(name: 'streak_theme_path') String? get streakThemePath;@JsonKey(name: 'entreprise_name') String? get entrepriseName;@JsonKey(name: 'last_streak_seen') int? get lastStreakSeen;
 /// Create a copy of StreakModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $StreakModelCopyWith<StreakModel> get copyWith => _$StreakModelCopyWithImpl<Stre
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is StreakModel&&(identical(other.utilisateurId, utilisateurId) || other.utilisateurId == utilisateurId)&&(identical(other.currentStreak, currentStreak) || other.currentStreak == currentStreak)&&(identical(other.lastUpdated, lastUpdated) || other.lastUpdated == lastUpdated)&&(identical(other.saisonNom, saisonNom) || other.saisonNom == saisonNom)&&(identical(other.saisonDebut, saisonDebut) || other.saisonDebut == saisonDebut)&&(identical(other.saisonFin, saisonFin) || other.saisonFin == saisonFin)&&(identical(other.streakThemePath, streakThemePath) || other.streakThemePath == streakThemePath)&&(identical(other.entrepriseName, entrepriseName) || other.entrepriseName == entrepriseName));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StreakModel&&(identical(other.utilisateurId, utilisateurId) || other.utilisateurId == utilisateurId)&&(identical(other.currentStreak, currentStreak) || other.currentStreak == currentStreak)&&(identical(other.lastUpdated, lastUpdated) || other.lastUpdated == lastUpdated)&&(identical(other.saisonNom, saisonNom) || other.saisonNom == saisonNom)&&(identical(other.saisonDebut, saisonDebut) || other.saisonDebut == saisonDebut)&&(identical(other.saisonFin, saisonFin) || other.saisonFin == saisonFin)&&(identical(other.streakThemePath, streakThemePath) || other.streakThemePath == streakThemePath)&&(identical(other.entrepriseName, entrepriseName) || other.entrepriseName == entrepriseName)&&(identical(other.lastStreakSeen, lastStreakSeen) || other.lastStreakSeen == lastStreakSeen));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,utilisateurId,currentStreak,lastUpdated,saisonNom,saisonDebut,saisonFin,streakThemePath,entrepriseName);
+int get hashCode => Object.hash(runtimeType,utilisateurId,currentStreak,lastUpdated,saisonNom,saisonDebut,saisonFin,streakThemePath,entrepriseName,lastStreakSeen);
 
 @override
 String toString() {
-  return 'StreakModel(utilisateurId: $utilisateurId, currentStreak: $currentStreak, lastUpdated: $lastUpdated, saisonNom: $saisonNom, saisonDebut: $saisonDebut, saisonFin: $saisonFin, streakThemePath: $streakThemePath, entrepriseName: $entrepriseName)';
+  return 'StreakModel(utilisateurId: $utilisateurId, currentStreak: $currentStreak, lastUpdated: $lastUpdated, saisonNom: $saisonNom, saisonDebut: $saisonDebut, saisonFin: $saisonFin, streakThemePath: $streakThemePath, entrepriseName: $entrepriseName, lastStreakSeen: $lastStreakSeen)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $StreakModelCopyWith<$Res>  {
   factory $StreakModelCopyWith(StreakModel value, $Res Function(StreakModel) _then) = _$StreakModelCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'utilisateur_id') String utilisateurId,@JsonKey(name: 'effective_streak') int currentStreak,@JsonKey(name: 'last_updated') DateTime lastUpdated,@JsonKey(name: 'saison_nom') String? saisonNom,@JsonKey(name: 'saison_debut') DateTime? saisonDebut,@JsonKey(name: 'saison_fin') DateTime? saisonFin,@JsonKey(name: 'streak_theme_path') String? streakThemePath,@JsonKey(name: 'entreprise_name') String? entrepriseName
+@JsonKey(name: 'utilisateur_id') String utilisateurId,@JsonKey(name: 'effective_streak') int currentStreak,@JsonKey(name: 'last_updated') DateTime? lastUpdated,@JsonKey(name: 'saison_nom') String? saisonNom,@JsonKey(name: 'saison_debut') DateTime? saisonDebut,@JsonKey(name: 'saison_fin') DateTime? saisonFin,@JsonKey(name: 'streak_theme_path') String? streakThemePath,@JsonKey(name: 'entreprise_name') String? entrepriseName,@JsonKey(name: 'last_streak_seen') int? lastStreakSeen
 });
 
 
@@ -65,17 +65,18 @@ class _$StreakModelCopyWithImpl<$Res>
 
 /// Create a copy of StreakModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? utilisateurId = null,Object? currentStreak = null,Object? lastUpdated = null,Object? saisonNom = freezed,Object? saisonDebut = freezed,Object? saisonFin = freezed,Object? streakThemePath = freezed,Object? entrepriseName = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? utilisateurId = null,Object? currentStreak = null,Object? lastUpdated = freezed,Object? saisonNom = freezed,Object? saisonDebut = freezed,Object? saisonFin = freezed,Object? streakThemePath = freezed,Object? entrepriseName = freezed,Object? lastStreakSeen = freezed,}) {
   return _then(_self.copyWith(
 utilisateurId: null == utilisateurId ? _self.utilisateurId : utilisateurId // ignore: cast_nullable_to_non_nullable
 as String,currentStreak: null == currentStreak ? _self.currentStreak : currentStreak // ignore: cast_nullable_to_non_nullable
-as int,lastUpdated: null == lastUpdated ? _self.lastUpdated : lastUpdated // ignore: cast_nullable_to_non_nullable
-as DateTime,saisonNom: freezed == saisonNom ? _self.saisonNom : saisonNom // ignore: cast_nullable_to_non_nullable
+as int,lastUpdated: freezed == lastUpdated ? _self.lastUpdated : lastUpdated // ignore: cast_nullable_to_non_nullable
+as DateTime?,saisonNom: freezed == saisonNom ? _self.saisonNom : saisonNom // ignore: cast_nullable_to_non_nullable
 as String?,saisonDebut: freezed == saisonDebut ? _self.saisonDebut : saisonDebut // ignore: cast_nullable_to_non_nullable
 as DateTime?,saisonFin: freezed == saisonFin ? _self.saisonFin : saisonFin // ignore: cast_nullable_to_non_nullable
 as DateTime?,streakThemePath: freezed == streakThemePath ? _self.streakThemePath : streakThemePath // ignore: cast_nullable_to_non_nullable
 as String?,entrepriseName: freezed == entrepriseName ? _self.entrepriseName : entrepriseName // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,lastStreakSeen: freezed == lastStreakSeen ? _self.lastStreakSeen : lastStreakSeen // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 
@@ -157,10 +158,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'utilisateur_id')  String utilisateurId, @JsonKey(name: 'effective_streak')  int currentStreak, @JsonKey(name: 'last_updated')  DateTime lastUpdated, @JsonKey(name: 'saison_nom')  String? saisonNom, @JsonKey(name: 'saison_debut')  DateTime? saisonDebut, @JsonKey(name: 'saison_fin')  DateTime? saisonFin, @JsonKey(name: 'streak_theme_path')  String? streakThemePath, @JsonKey(name: 'entreprise_name')  String? entrepriseName)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'utilisateur_id')  String utilisateurId, @JsonKey(name: 'effective_streak')  int currentStreak, @JsonKey(name: 'last_updated')  DateTime? lastUpdated, @JsonKey(name: 'saison_nom')  String? saisonNom, @JsonKey(name: 'saison_debut')  DateTime? saisonDebut, @JsonKey(name: 'saison_fin')  DateTime? saisonFin, @JsonKey(name: 'streak_theme_path')  String? streakThemePath, @JsonKey(name: 'entreprise_name')  String? entrepriseName, @JsonKey(name: 'last_streak_seen')  int? lastStreakSeen)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _StreakModel() when $default != null:
-return $default(_that.utilisateurId,_that.currentStreak,_that.lastUpdated,_that.saisonNom,_that.saisonDebut,_that.saisonFin,_that.streakThemePath,_that.entrepriseName);case _:
+return $default(_that.utilisateurId,_that.currentStreak,_that.lastUpdated,_that.saisonNom,_that.saisonDebut,_that.saisonFin,_that.streakThemePath,_that.entrepriseName,_that.lastStreakSeen);case _:
   return orElse();
 
 }
@@ -178,10 +179,10 @@ return $default(_that.utilisateurId,_that.currentStreak,_that.lastUpdated,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'utilisateur_id')  String utilisateurId, @JsonKey(name: 'effective_streak')  int currentStreak, @JsonKey(name: 'last_updated')  DateTime lastUpdated, @JsonKey(name: 'saison_nom')  String? saisonNom, @JsonKey(name: 'saison_debut')  DateTime? saisonDebut, @JsonKey(name: 'saison_fin')  DateTime? saisonFin, @JsonKey(name: 'streak_theme_path')  String? streakThemePath, @JsonKey(name: 'entreprise_name')  String? entrepriseName)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'utilisateur_id')  String utilisateurId, @JsonKey(name: 'effective_streak')  int currentStreak, @JsonKey(name: 'last_updated')  DateTime? lastUpdated, @JsonKey(name: 'saison_nom')  String? saisonNom, @JsonKey(name: 'saison_debut')  DateTime? saisonDebut, @JsonKey(name: 'saison_fin')  DateTime? saisonFin, @JsonKey(name: 'streak_theme_path')  String? streakThemePath, @JsonKey(name: 'entreprise_name')  String? entrepriseName, @JsonKey(name: 'last_streak_seen')  int? lastStreakSeen)  $default,) {final _that = this;
 switch (_that) {
 case _StreakModel():
-return $default(_that.utilisateurId,_that.currentStreak,_that.lastUpdated,_that.saisonNom,_that.saisonDebut,_that.saisonFin,_that.streakThemePath,_that.entrepriseName);}
+return $default(_that.utilisateurId,_that.currentStreak,_that.lastUpdated,_that.saisonNom,_that.saisonDebut,_that.saisonFin,_that.streakThemePath,_that.entrepriseName,_that.lastStreakSeen);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -195,10 +196,10 @@ return $default(_that.utilisateurId,_that.currentStreak,_that.lastUpdated,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'utilisateur_id')  String utilisateurId, @JsonKey(name: 'effective_streak')  int currentStreak, @JsonKey(name: 'last_updated')  DateTime lastUpdated, @JsonKey(name: 'saison_nom')  String? saisonNom, @JsonKey(name: 'saison_debut')  DateTime? saisonDebut, @JsonKey(name: 'saison_fin')  DateTime? saisonFin, @JsonKey(name: 'streak_theme_path')  String? streakThemePath, @JsonKey(name: 'entreprise_name')  String? entrepriseName)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'utilisateur_id')  String utilisateurId, @JsonKey(name: 'effective_streak')  int currentStreak, @JsonKey(name: 'last_updated')  DateTime? lastUpdated, @JsonKey(name: 'saison_nom')  String? saisonNom, @JsonKey(name: 'saison_debut')  DateTime? saisonDebut, @JsonKey(name: 'saison_fin')  DateTime? saisonFin, @JsonKey(name: 'streak_theme_path')  String? streakThemePath, @JsonKey(name: 'entreprise_name')  String? entrepriseName, @JsonKey(name: 'last_streak_seen')  int? lastStreakSeen)?  $default,) {final _that = this;
 switch (_that) {
 case _StreakModel() when $default != null:
-return $default(_that.utilisateurId,_that.currentStreak,_that.lastUpdated,_that.saisonNom,_that.saisonDebut,_that.saisonFin,_that.streakThemePath,_that.entrepriseName);case _:
+return $default(_that.utilisateurId,_that.currentStreak,_that.lastUpdated,_that.saisonNom,_that.saisonDebut,_that.saisonFin,_that.streakThemePath,_that.entrepriseName,_that.lastStreakSeen);case _:
   return null;
 
 }
@@ -210,17 +211,18 @@ return $default(_that.utilisateurId,_that.currentStreak,_that.lastUpdated,_that.
 @JsonSerializable()
 
 class _StreakModel extends StreakModel {
-  const _StreakModel({@JsonKey(name: 'utilisateur_id') required this.utilisateurId, @JsonKey(name: 'effective_streak') required this.currentStreak, @JsonKey(name: 'last_updated') required this.lastUpdated, @JsonKey(name: 'saison_nom') this.saisonNom, @JsonKey(name: 'saison_debut') this.saisonDebut, @JsonKey(name: 'saison_fin') this.saisonFin, @JsonKey(name: 'streak_theme_path') this.streakThemePath, @JsonKey(name: 'entreprise_name') this.entrepriseName}): super._();
+  const _StreakModel({@JsonKey(name: 'utilisateur_id') required this.utilisateurId, @JsonKey(name: 'effective_streak') required this.currentStreak, @JsonKey(name: 'last_updated') required this.lastUpdated, @JsonKey(name: 'saison_nom') this.saisonNom, @JsonKey(name: 'saison_debut') this.saisonDebut, @JsonKey(name: 'saison_fin') this.saisonFin, @JsonKey(name: 'streak_theme_path') this.streakThemePath, @JsonKey(name: 'entreprise_name') this.entrepriseName, @JsonKey(name: 'last_streak_seen') this.lastStreakSeen}): super._();
   factory _StreakModel.fromJson(Map<String, dynamic> json) => _$StreakModelFromJson(json);
 
 @override@JsonKey(name: 'utilisateur_id') final  String utilisateurId;
 @override@JsonKey(name: 'effective_streak') final  int currentStreak;
-@override@JsonKey(name: 'last_updated') final  DateTime lastUpdated;
+@override@JsonKey(name: 'last_updated') final  DateTime? lastUpdated;
 @override@JsonKey(name: 'saison_nom') final  String? saisonNom;
 @override@JsonKey(name: 'saison_debut') final  DateTime? saisonDebut;
 @override@JsonKey(name: 'saison_fin') final  DateTime? saisonFin;
 @override@JsonKey(name: 'streak_theme_path') final  String? streakThemePath;
 @override@JsonKey(name: 'entreprise_name') final  String? entrepriseName;
+@override@JsonKey(name: 'last_streak_seen') final  int? lastStreakSeen;
 
 /// Create a copy of StreakModel
 /// with the given fields replaced by the non-null parameter values.
@@ -235,16 +237,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _StreakModel&&(identical(other.utilisateurId, utilisateurId) || other.utilisateurId == utilisateurId)&&(identical(other.currentStreak, currentStreak) || other.currentStreak == currentStreak)&&(identical(other.lastUpdated, lastUpdated) || other.lastUpdated == lastUpdated)&&(identical(other.saisonNom, saisonNom) || other.saisonNom == saisonNom)&&(identical(other.saisonDebut, saisonDebut) || other.saisonDebut == saisonDebut)&&(identical(other.saisonFin, saisonFin) || other.saisonFin == saisonFin)&&(identical(other.streakThemePath, streakThemePath) || other.streakThemePath == streakThemePath)&&(identical(other.entrepriseName, entrepriseName) || other.entrepriseName == entrepriseName));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _StreakModel&&(identical(other.utilisateurId, utilisateurId) || other.utilisateurId == utilisateurId)&&(identical(other.currentStreak, currentStreak) || other.currentStreak == currentStreak)&&(identical(other.lastUpdated, lastUpdated) || other.lastUpdated == lastUpdated)&&(identical(other.saisonNom, saisonNom) || other.saisonNom == saisonNom)&&(identical(other.saisonDebut, saisonDebut) || other.saisonDebut == saisonDebut)&&(identical(other.saisonFin, saisonFin) || other.saisonFin == saisonFin)&&(identical(other.streakThemePath, streakThemePath) || other.streakThemePath == streakThemePath)&&(identical(other.entrepriseName, entrepriseName) || other.entrepriseName == entrepriseName)&&(identical(other.lastStreakSeen, lastStreakSeen) || other.lastStreakSeen == lastStreakSeen));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,utilisateurId,currentStreak,lastUpdated,saisonNom,saisonDebut,saisonFin,streakThemePath,entrepriseName);
+int get hashCode => Object.hash(runtimeType,utilisateurId,currentStreak,lastUpdated,saisonNom,saisonDebut,saisonFin,streakThemePath,entrepriseName,lastStreakSeen);
 
 @override
 String toString() {
-  return 'StreakModel(utilisateurId: $utilisateurId, currentStreak: $currentStreak, lastUpdated: $lastUpdated, saisonNom: $saisonNom, saisonDebut: $saisonDebut, saisonFin: $saisonFin, streakThemePath: $streakThemePath, entrepriseName: $entrepriseName)';
+  return 'StreakModel(utilisateurId: $utilisateurId, currentStreak: $currentStreak, lastUpdated: $lastUpdated, saisonNom: $saisonNom, saisonDebut: $saisonDebut, saisonFin: $saisonFin, streakThemePath: $streakThemePath, entrepriseName: $entrepriseName, lastStreakSeen: $lastStreakSeen)';
 }
 
 
@@ -255,7 +257,7 @@ abstract mixin class _$StreakModelCopyWith<$Res> implements $StreakModelCopyWith
   factory _$StreakModelCopyWith(_StreakModel value, $Res Function(_StreakModel) _then) = __$StreakModelCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'utilisateur_id') String utilisateurId,@JsonKey(name: 'effective_streak') int currentStreak,@JsonKey(name: 'last_updated') DateTime lastUpdated,@JsonKey(name: 'saison_nom') String? saisonNom,@JsonKey(name: 'saison_debut') DateTime? saisonDebut,@JsonKey(name: 'saison_fin') DateTime? saisonFin,@JsonKey(name: 'streak_theme_path') String? streakThemePath,@JsonKey(name: 'entreprise_name') String? entrepriseName
+@JsonKey(name: 'utilisateur_id') String utilisateurId,@JsonKey(name: 'effective_streak') int currentStreak,@JsonKey(name: 'last_updated') DateTime? lastUpdated,@JsonKey(name: 'saison_nom') String? saisonNom,@JsonKey(name: 'saison_debut') DateTime? saisonDebut,@JsonKey(name: 'saison_fin') DateTime? saisonFin,@JsonKey(name: 'streak_theme_path') String? streakThemePath,@JsonKey(name: 'entreprise_name') String? entrepriseName,@JsonKey(name: 'last_streak_seen') int? lastStreakSeen
 });
 
 
@@ -272,17 +274,18 @@ class __$StreakModelCopyWithImpl<$Res>
 
 /// Create a copy of StreakModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? utilisateurId = null,Object? currentStreak = null,Object? lastUpdated = null,Object? saisonNom = freezed,Object? saisonDebut = freezed,Object? saisonFin = freezed,Object? streakThemePath = freezed,Object? entrepriseName = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? utilisateurId = null,Object? currentStreak = null,Object? lastUpdated = freezed,Object? saisonNom = freezed,Object? saisonDebut = freezed,Object? saisonFin = freezed,Object? streakThemePath = freezed,Object? entrepriseName = freezed,Object? lastStreakSeen = freezed,}) {
   return _then(_StreakModel(
 utilisateurId: null == utilisateurId ? _self.utilisateurId : utilisateurId // ignore: cast_nullable_to_non_nullable
 as String,currentStreak: null == currentStreak ? _self.currentStreak : currentStreak // ignore: cast_nullable_to_non_nullable
-as int,lastUpdated: null == lastUpdated ? _self.lastUpdated : lastUpdated // ignore: cast_nullable_to_non_nullable
-as DateTime,saisonNom: freezed == saisonNom ? _self.saisonNom : saisonNom // ignore: cast_nullable_to_non_nullable
+as int,lastUpdated: freezed == lastUpdated ? _self.lastUpdated : lastUpdated // ignore: cast_nullable_to_non_nullable
+as DateTime?,saisonNom: freezed == saisonNom ? _self.saisonNom : saisonNom // ignore: cast_nullable_to_non_nullable
 as String?,saisonDebut: freezed == saisonDebut ? _self.saisonDebut : saisonDebut // ignore: cast_nullable_to_non_nullable
 as DateTime?,saisonFin: freezed == saisonFin ? _self.saisonFin : saisonFin // ignore: cast_nullable_to_non_nullable
 as DateTime?,streakThemePath: freezed == streakThemePath ? _self.streakThemePath : streakThemePath // ignore: cast_nullable_to_non_nullable
 as String?,entrepriseName: freezed == entrepriseName ? _self.entrepriseName : entrepriseName // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,lastStreakSeen: freezed == lastStreakSeen ? _self.lastStreakSeen : lastStreakSeen // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 

@@ -39,7 +39,13 @@ abstract interface class AuthRepository {
   Future<Either<Failure, User>> updateUser({
     String? pseudo,
     String? avatar,
+    bool? isActive,
   });
 
   Future<Either<Failure, void>> deleteAccount();
+
+  Future<Either<Failure, void>> updateCredentials({
+    String? email,
+    String? password,
+  });
 }

@@ -72,7 +72,7 @@ class StreakRemoteDatasource {
           .select('*, actions!inner(frequence)')
           .eq('utilisateur_id', userId)
           .eq('actions.frequence', 'journalier')
-          .gte('date_realisation', date.toIso8601String())
+          .gt('date_realisation', date.toIso8601String())
           .count(CountOption.exact);
 
       final int count = response.count;
@@ -122,17 +122,10 @@ class StreakRemoteDatasource {
     return response ?? {};
   }
 
-  Future<DateTime?> getSaisonDebut(String userId) async {
-    final response = await supabaseClient
-        .from('vue_utilisateur_streak_live')
-        .select('saison_debut')
-        .eq('utilisateur_id', userId)
-        .maybeSingle();
-
-    if (response == null || response['saison_debut'] == null) {
-      return null;
-    }
-
-    return DateTime.parse(response['saison_debut'] as String);
+  Future<void> markStreakAsSeen(String userId, int lastSeenStreak) async {
+    await supabaseClient
+        .from('utilisateur_streak')
+        .update({'last_streak_seen': lastSeenStreak})
+        .eq('utilisateur_id', userId);
   }
 }

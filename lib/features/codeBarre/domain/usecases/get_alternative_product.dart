@@ -12,7 +12,7 @@ class GetAlternativeProduct implements UseCase<AlimentEntity?, AlimentEntity> {
   @override
   Future<Either<Failure, AlimentEntity?>> call(AlimentEntity produitScanne) async {
     // Si Eco-Score est déjà 'A' (ou 'a'), pas besoin d'alternative
-    final currentScore = produitScanne.ecoScore?.toLowerCase();
+    final currentScore = produitScanne.ecoScore?.toLowerCase() ?? '?';
     if (currentScore == 'a') {
       return const Right(null);
     }
@@ -28,6 +28,6 @@ class GetAlternativeProduct implements UseCase<AlimentEntity?, AlimentEntity> {
     final targetCategory = produitScanne.categoriesTags!.last;
 
     // Appel au repository
-    return await repository.getAlternativeProduct(targetCategory);
+    return await repository.getAlternativeProduct(targetCategory,currentScore);
   }
 }

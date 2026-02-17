@@ -43,7 +43,7 @@ class ProfileDangerSection extends StatelessWidget {
       child: Column(
         children: [
           ProfileActionButton(
-            title: 'Se déconnecter',
+            title: 'Me déconnecter',
             icon: LucideIcons.logOut,
             iconColor: colorScheme.error,
             textColor: colorScheme.error,

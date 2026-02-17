@@ -25,9 +25,9 @@ class HomeScanPage extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: Lottie.asset(
-                'assets/animations/scan_animation.json', // <--- 2. VOTRE FICHIER JSON
+                'assets/animations/scan_animation.json', // l'animation sous format JSON
                 fit: BoxFit.contain,
-                // Optionnel : contrôleurs pour répéter l'anim
+                //  pour répéter l'anim
                 repeat: true,
               ),
             ),

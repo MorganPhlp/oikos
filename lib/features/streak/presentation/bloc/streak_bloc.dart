@@ -1,9 +1,11 @@
 import 'dart:async';
 
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/features/streak/domain/entities/utilisateur_streak_entity.dart';
 import 'package:oikos/features/streak/domain/use_cases/calculer_progres_use_case.dart';
 import 'package:oikos/features/streak/domain/use_cases/get_streak_use_case.dart';
+import 'package:oikos/features/streak/domain/use_cases/mark_streak_as_seen_use_case.dart';
 import 'package:oikos/features/streak/domain/use_cases/recuperer_streak_steps_use_case.dart';
 import 'package:oikos/features/streak/domain/use_cases/watch_streak_use_case.dart';
 import 'package:oikos/features/streak/presentation/bloc/streak_event.dart';
@@ -14,16 +16,21 @@ class StreakBloc extends Bloc<StreakEvent, StreakState> {
   final GetStreakUseCase getStreakUseCase;
   final CalculerProgresUseCase calculerActionsRealiseesUseCase;
   final RecupererStreakStepsUseCase recupererStreakStepsUseCase;
+  final MarkStreakAsSeenUseCase markStreakAsSeenUseCase;
 
   StreakBloc(
     this.watchStreakUseCase,
     this.getStreakUseCase,
     this.calculerActionsRealiseesUseCase,
     this.recupererStreakStepsUseCase,
+    this.markStreakAsSeenUseCase,
   ) : super(StreakIdle(streak: UtilisateurStreakEntity.empty())) {
-    on<WatchStreakEvent>(_onWatchStreak);
+    on<WatchStreakEvent>(_onWatchStreak, transformer: restartable());
     on<SeasonFinishedEvent>((event, emit) {
       emit(StreakSeasonFinished(streak: state.streak));
+    });
+    on<MarkStreakAsSeenEvent>((event, emit) async {
+      await markStreakAsSeenUseCase(event.userId, event.lastSeenStreak);
     });
   }
 
@@ -34,36 +41,29 @@ class StreakBloc extends Bloc<StreakEvent, StreakState> {
     emit(StreakLoading());
     if (event.userId.isEmpty) return;
 
-    // chargement initial du streak
-    final currentStreak = await getStreakUseCase(event.userId);
-    // Vérification de la fin de saison
-    final bool isFinished =
-        currentStreak.saisonFin?.isBefore(DateTime.now()) ?? false;
-    if (isFinished) {
-      emit(StreakSeasonFinished(streak: currentStreak));
-      return;
-    }
-
     final streakSteps = await recupererStreakStepsUseCase();
 
     // calcul des actions réalisées pour la barre de progression
     await emit.onEach<UtilisateurStreakEntity>(
       watchStreakUseCase(event.userId, event.entrepriseId),
       onData: (streakEntity) async {
+        // Vérification si la saison existe
         final streamSaisonDebut = streakEntity.saisonDebut;
         if (streamSaisonDebut == null) {
           emit(StreakError("Aucune saison en cours, reviens plus tard !"));
           return;
         }
+        // Vérification de la fin de saison
+        if (streakEntity.saisonFin != null &&
+            streakEntity.saisonFin!.isBefore(DateTime.now().toUtc())) {
+          emit(StreakSeasonFinished(streak: streakEntity));
+          return;
+        }
 
-        final (
-          actionsQuotidiennes,
-          hasCompletedActionCommunautaire,
-        ) = await calculerActionsRealiseesUseCase(
-          event.userId,
-          streakEntity.currentStreak,
-        );
-
+        // Calcul des actions réalisées pour la barre de progression
+        final (actionsQuotidiennes, hasCompletedActionCommunautaire) =
+            await calculerActionsRealiseesUseCase(event.userId, streakEntity);
+        // Emission de l'état avec les données mises à jour
         emit(
           StreakUpdated(
             streak: streakEntity,

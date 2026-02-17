@@ -11,6 +11,10 @@ import 'package:oikos/features/bilanCarbone/presentation/pages/bilan_flow.dart';
 import 'package:oikos/features/community/presentation/pages/community_dashboard_screen.dart';
 
 import 'package:oikos/features/home/presentation/pages/home_page.dart';
+import 'package:oikos/features/dashboard/presentation/pages/dashboard_page.dart';
+import 'package:oikos/features/dashboard/presentation/bloc/dashboard_bloc.dart';
+import 'package:oikos/features/profile/presentation/pages/security_page.dart';
+import 'package:oikos/init_dependencies.dart';
 import 'package:oikos/features/profile/presentation/pages/profile_page.dart';
 
 import 'features/codeBarre/domain/entities/aliment_entity.dart';
@@ -44,6 +48,11 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
         path: '/profile',
         name: 'profile',
         builder: (context, state) => const ProfilePage(),
+      ),
+      GoRoute(
+        path: '/security',
+        name: 'security',
+        builder: (context, state) => const SecurityPage(),
       ),
       GoRoute(
         path: '/pdf',
@@ -105,7 +114,12 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
           GoRoute(
             path: '/dashboard',
             name: 'dashboard',
-            builder: (context, state) => const Placeholder(),
+            pageBuilder: (context, state) => NoTransitionPage(
+              child: BlocProvider(
+                create: (context) => serviceLocator<DashboardBloc>(),
+                child: const DashboardPage(),
+              ),
+            ),
           ),
             GoRoute(
           path: '/community',

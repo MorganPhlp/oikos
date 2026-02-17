@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:oikos/core/utils/show_snackbar.dart';
 import 'package:oikos/features/codeBarre/presentation/bloc/scan_bloc.dart';
-import 'package:oikos/features/codeBarre/presentation/pages/product_modal.dart';
 import 'package:oikos/features/codeBarre/presentation/pages/scanner_overlay.dart';
 import 'package:oikos/init_dependencies.dart';
 
@@ -28,6 +27,8 @@ class _ScanPageState extends State<ScanPage> {
     returnImage: false,
   );
 
+  bool _isProcessing = false;
+
   @override
   void dispose() {
     controller.dispose();
@@ -42,6 +43,7 @@ class _ScanPageState extends State<ScanPage> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -55,7 +57,13 @@ class _ScanPageState extends State<ScanPage> {
             if (state is ScanFailure) {
               showSnackBar(context, state.message);
               // On attend 2 secondes avant de relancer après une erreur
-              Future.delayed(const Duration(seconds: 2), _resetScan);
+              Future.delayed(const Duration(seconds: 2), () {
+                if (mounted) {
+                  context.read<ScanBloc>().add(ScanReset());
+                  controller.start();
+                  setState(() { _isProcessing = false; });
+                }
+              });
             }
             else if (state is ScanSuccess) {
               controller.stop(); // On fige la caméra
@@ -63,30 +71,46 @@ class _ScanPageState extends State<ScanPage> {
               // On navigue vers la page de détails en passant l'aliment trouvé
               await context.push('/product_details', extra: state.aliment);
 
-              // Quand on revient de la page détails (après le "pop"), on relance le scan
+              // Au retour de la page détails :
               if (mounted) {
+                // 1. On reset le bloc
                 context.read<ScanBloc>().add(ScanReset());
+                // 2. On redémarre la caméra
                 controller.start();
+                // 3. On enlève le verrou pour permettre un nouveau scan
+                setState(() {
+                  _isProcessing = false;
+                });
               }
 
             }
           },
           builder: (context, state) {
             final isLoading = state is ScanLoading;
+            if (isLoading) {
+              return const Center(child: CircularProgressIndicator(color: Colors.white));
+            }
+
 
             return Stack(
               children: [
-                // La Caméra
                 MobileScanner(
                   controller: controller,
                   onDetect: (capture) {
                     final List<Barcode> barcodes = capture.barcodes;
-                    // On ne scanne que si on n'est pas déjà en train de charger
-                    if (barcodes.isNotEmpty && !isLoading) {
-                      final code = barcodes.first.rawValue;
-                      if (code != null) {
-                        context.read<ScanBloc>().add(ScanBarcodeDetected(code));
-                      }
+
+                    // SI on est déjà en train de traiter un code OU qu'il n'y a pas de code -> ON STOPPE
+                    if (_isProcessing || barcodes.isEmpty) return;
+
+                    final code = barcodes.first.rawValue;
+                    if (code != null) {
+                      // On verrouille immédiatement
+                      setState(() {
+                        _isProcessing = true;
+                      });
+
+                      // On lance l'événement
+                      context.read<ScanBloc>().add(ScanBarcodeDetected(code));
                     }
                   },
                 ),
@@ -110,23 +134,4 @@ class _ScanPageState extends State<ScanPage> {
     );
   }
 
-  // affiche la fiche du produit
-  void _showProductBottomSheet(BuildContext parentContext, ScanSuccess state) {
-    showModalBottomSheet(
-      context: parentContext,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => ProductModal(
-        aliment: state.aliment,
-        onAddPressed: () {
-          Navigator.pop(ctx);
-          // TODO: Ajouter la logique d'ajout final ici
-          _resetScan();
-        },
-      ),
-    ).then((_) {
-      // Quand la modale se ferme (swipe ou clic extérieur), on relance le scan
-      _resetScan();
-    });
-  }
 }

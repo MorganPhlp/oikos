@@ -32,9 +32,9 @@ class AlimentRepositoryImpl implements AlimentRepository {
     }
   }
   @override
-  Future<Either<Failure, AlimentEntity?>> getAlternativeProduct(String categoryTag) async {
+  Future<Either<Failure, AlimentEntity?>> getAlternativeProduct(String categoryTag,String currentEcoScore) async {
     try {
-      final alternative = await remoteDataSource.getBetterAlternative(categoryTag);
+      final alternative = await remoteDataSource.getBetterAlternative(categoryTag,currentEcoScore);
       return right(alternative); // Peut être null si pas trouvé
     } on ServerException catch (e) {
       // Si la recherche d'alternative échoue, on ne veut pas bloquer l'app

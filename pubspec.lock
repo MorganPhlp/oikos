@@ -89,6 +89,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "9.2.0"
+  bloc_concurrency:
+    dependency: "direct main"
+    description:
+      name: bloc_concurrency
+      sha256: "86b7b17a0a78f77fca0d7c030632b59b593b22acea2d96972588f40d4ef53a94"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -193,6 +201,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.19.1"
+  contribution_heatmap:
+    dependency: "direct main"
+    description:
+      name: contribution_heatmap
+      sha256: cedfb14f058f17baf793f929fb6ed512cf0f36d316f2dbaf0754ef3c98cc1d4e
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.3"
   convert:
     dependency: transitive
     description:
@@ -334,6 +350,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "9.1.1"
+  flutter_confetti:
+    dependency: "direct main"
+    description:
+      name: flutter_confetti
+      sha256: "7e46b82ea0adc456afc91037652bbfbd52a951804fde0708822fad5d68be6398"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.1"
   flutter_dotenv:
     dependency: "direct main"
     description:

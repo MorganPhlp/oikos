@@ -49,6 +49,7 @@ import 'package:oikos/features/streak/data/repositories/streak_repository_impl.d
 import 'package:oikos/features/streak/domain/repositories/streak_repository.dart';
 import 'package:oikos/features/streak/domain/use_cases/calculer_progres_use_case.dart';
 import 'package:oikos/features/streak/domain/use_cases/get_streak_use_case.dart';
+import 'package:oikos/features/streak/domain/use_cases/mark_streak_as_seen_use_case.dart';
 import 'package:oikos/features/streak/domain/use_cases/recuperer_streak_steps_use_case.dart';
 import 'package:oikos/features/streak/domain/use_cases/watch_streak_use_case.dart';
 import 'package:oikos/features/streak/presentation/bloc/streak_bloc.dart';
@@ -61,10 +62,17 @@ import 'core/common/presentation/cubits/app_user/app_user_cubit.dart';
 import 'core/secrets/app_secrets.dart';
 import 'features/auth/domain/usecases/delete_account.dart';
 import 'features/auth/domain/usecases/reset_password.dart';
+import 'features/auth/domain/usecases/update_credentials.dart';
 import 'features/auth/domain/usecases/update_user.dart';
 import 'features/auth/domain/usecases/user_signout.dart';
 import 'features/auth/domain/usecases/validate_email_password.dart';
 import 'features/auth/domain/usecases/validate_pseudo.dart';
+
+import 'package:oikos/features/dashboard/data/datasources/dashboard_remote_data_source.dart';
+import 'package:oikos/features/dashboard/data/repositories/dashboard_repository_impl.dart';
+import 'package:oikos/features/dashboard/domain/repository/dashboard_repository.dart';
+import 'package:oikos/features/dashboard/domain/usecases/get_my_profile.dart';
+import 'package:oikos/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 
 //Imports Code barre
 import 'package:oikos/features/codeBarre/data/datasources/code_barre_remote_data_source.dart';
@@ -104,6 +112,7 @@ Future<void> initDependencies() async {
   _initCodeBarre();
   _initStreak();
   _initProfile();
+  _initDashboard();
 }
 
 void _initAuth() {
@@ -140,6 +149,8 @@ void _initAuth() {
 
   serviceLocator.registerLazySingleton(() => DeleteAccount(serviceLocator()));
 
+  serviceLocator.registerLazySingleton(() => UpdateCredentials(serviceLocator()));
+
   // Bloc
   serviceLocator.registerLazySingleton(
     () => AuthBloc(
@@ -154,6 +165,7 @@ void _initAuth() {
       resetPassword: serviceLocator(),
       updateUser: serviceLocator(),
       deleteAccount: serviceLocator(),
+      updateCredentials: serviceLocator(),
     ),
   );
 }
@@ -327,6 +339,33 @@ void _initBilan() {
   );
 }
 
+void _initDashboard() {
+  // Datasource : création du la connexion à la bdd
+  serviceLocator.registerFactory<DashboardRemoteDataSource>(
+    () => DashboardRemoteDataSourceImpl(serviceLocator()),
+  );
+
+  // Repository: on donne la co au repository 
+  serviceLocator.registerFactory<DashboardRepository>(
+    () => DashboardRepositoryImpl(
+      remoteDataSource: serviceLocator(),
+    ),
+  );
+
+  // UseCase : on donne le repo au use case
+  serviceLocator.registerFactory(
+    () => GetMyPseudo(serviceLocator()),
+  );
+
+  // Bloc : on donne le use case au bloc pour qu'il gère l'état de la page
+  serviceLocator.registerLazySingleton(
+    () => DashboardBloc(
+      getMyPseudo: serviceLocator(),
+    ),
+  );
+}
+
+
 void _initCodeBarre() {
   // Data Source
   serviceLocator.registerFactory<CodeBarreRemoteDataSource>(
@@ -381,10 +420,14 @@ void _initStreak() {
   serviceLocator.registerFactory<RecupererStreakStepsUseCase>(
     () => RecupererStreakStepsUseCase(serviceLocator<StreakRepository>()),
   );
+  serviceLocator.registerFactory(
+    () => MarkStreakAsSeenUseCase(serviceLocator<StreakRepository>()),
+  );
 
   // Bloc
   serviceLocator.registerFactory<StreakBloc>(
     () => StreakBloc(
+      serviceLocator(),
       serviceLocator(),
       serviceLocator(),
       serviceLocator(),

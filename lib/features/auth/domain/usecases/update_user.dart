@@ -14,6 +14,7 @@ class UpdateUser implements UseCase<User, UpdateUserParams> {
     return await authRepository.updateUser(
       pseudo: params.pseudo,
       avatar: params.avatar,
+      isActive: params.isActive,
     );
   }
 }
@@ -21,6 +22,7 @@ class UpdateUser implements UseCase<User, UpdateUserParams> {
 class UpdateUserParams {
   final String? pseudo;
   final String? avatar;
+  final bool? isActive;
 
-  UpdateUserParams({this.pseudo, this.avatar});
+  UpdateUserParams({this.pseudo, this.avatar, this.isActive});
 }

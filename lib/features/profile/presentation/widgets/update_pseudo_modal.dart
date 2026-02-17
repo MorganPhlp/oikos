@@ -72,7 +72,7 @@ class _UpdatePseudoModalState extends State<UpdatePseudoModal> {
               ),
 
               Text(
-                'Modifier le pseudo',
+                'Modifier mon pseudo',
                 style: AppTypography.h2.copyWith(
                   color: colorScheme.primary,
                   fontSize: 22,
