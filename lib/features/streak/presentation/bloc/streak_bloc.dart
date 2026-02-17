@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/features/streak/domain/entities/utilisateur_streak_entity.dart';
@@ -24,7 +23,7 @@ class StreakBloc extends Bloc<StreakEvent, StreakState> {
     this.calculerActionsRealiseesUseCase,
     this.recupererStreakStepsUseCase,
     this.markStreakAsSeenUseCase,
-  ) : super(StreakIdle(streak: UtilisateurStreakEntity.empty())) {
+  ) : super(StreakLoading()) {
     on<WatchStreakEvent>(_onWatchStreak, transformer: restartable());
     on<SeasonFinishedEvent>((event, emit) {
       emit(StreakSeasonFinished(streak: state.streak));
@@ -38,7 +37,6 @@ class StreakBloc extends Bloc<StreakEvent, StreakState> {
     WatchStreakEvent event,
     Emitter<StreakState> emit,
   ) async {
-    emit(StreakLoading());
     if (event.userId.isEmpty) return;
 
     final streakSteps = await recupererStreakStepsUseCase();

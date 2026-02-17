@@ -1,7 +1,7 @@
 #!/bin/sh
 # This is a generated file; do not edit or check into version control.
-export "FLUTTER_ROOT=/Users/sisso/libs_progra/flutter"
-export "FLUTTER_APPLICATION_PATH=/Users/sisso/documents_local/m2_ai/projet_GL/oikos"
+export "FLUTTER_ROOT=D:\develop\flutter_windows_3.38.4-stable\flutter"
+export "FLUTTER_APPLICATION_PATH=D:\Document\Ecole\ET5\oikos"
 export "COCOAPODS_PARALLEL_CODE_SIGN=true"
 export "FLUTTER_BUILD_DIR=build"
 export "FLUTTER_BUILD_NAME=1.0.0"
