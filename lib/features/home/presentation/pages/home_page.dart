@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/features/community/presentation/widgets/community_challenges_card_widget.dart';
 import 'package:oikos/features/home/domain/entities/stats_cards_entitie.dart';
-import 'package:oikos/core/common/presentation/widgets/header.dart';
 import 'package:oikos/features/home/presentation/widgets/quick_access_widget.dart';
 import 'package:oikos/features/home/presentation/widgets/stats_caroussel_widget.dart';
 import 'package:oikos/features/streak/presentation/widgets/streak_widget.dart';
@@ -27,7 +26,6 @@ class HomePage extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const Header(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(

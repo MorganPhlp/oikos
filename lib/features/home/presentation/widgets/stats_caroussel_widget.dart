@@ -124,7 +124,7 @@ class _NavArrow extends StatelessWidget {
       color: theme.colorScheme.surface,
       shape: const CircleBorder(),
       elevation: 2, // L'élévation gère l'ombre plus proprement que BoxShadow
-      shadowColor: Colors.black.withValues(alpha: 0.2),
+      shadowColor: theme.colorScheme.onSurface.withValues(alpha: 0.2),
       clipBehavior:
           Clip.antiAlias, // Important : coupe le ripple pour qu'il reste rond
       child: InkWell(
@@ -157,12 +157,12 @@ class _StatCard extends StatelessWidget {
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: theme.colorScheme.primary.withValues(alpha: 0.1),
+          color: theme.colorScheme.primary.withValues(alpha: 0.4),
         ),
         boxShadow: [
           BoxShadow(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
-            blurRadius: 15,
+            color: theme.colorScheme.primary.withValues(alpha: 0.2),
+            blurRadius: 35,
             offset: const Offset(0, 5),
           ),
         ],

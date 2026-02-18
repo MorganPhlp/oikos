@@ -9,54 +9,55 @@ class HomeScanPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
-
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(height: 60),
-            // Une icône ou une image illustrative
-            Container(
-              padding: const EdgeInsets.all(30),
-              decoration: BoxDecoration(
-                color: Colors.green.shade50,
-                shape: BoxShape.circle,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(height: 20),
+              // Une icône ou une image illustrative
+              Container(
+                padding: const EdgeInsets.all(30),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade50,
+                  shape: BoxShape.circle,
+                ),
+                child: Lottie.asset(
+                  'assets/animations/scan_animation.json', // l'animation sous format JSON
+                  fit: BoxFit.contain,
+                  //  pour répéter l'anim
+                  repeat: true,
+                ),
               ),
-              child: Lottie.asset(
-                'assets/animations/scan_animation.json', // l'animation sous format JSON
-                fit: BoxFit.contain,
-                //  pour répéter l'anim
-                repeat: true,
+              const SizedBox(height: 5),
+
+              const Text(
+                'Scanne un aliment',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
               ),
-            ),
-            const SizedBox(height: 5),
+              const SizedBox(height: 16),
 
-            const Text(
-              'Scanne un aliment',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-
-            const Text(
-              'Scanne le code-barres de ton produit pour découvrir son impact carbone et son impact nutritionnel.',
-              style: TextStyle(fontSize: 17, color: Colors.grey, height: 1.5),
-              textAlign: TextAlign.center,
-            ),
-
-            Padding(
-              padding: const EdgeInsets.all(7.0),
-              child: GradientButton(
-                label: 'Lance le scan',
-                onPressed: () {
-                  context.push('/scan'); // On navigue vers la page caméra existante
-                },
+              const Text(
+                'Scanne le code-barres de ton produit pour découvrir son impact carbone et son impact nutritionnel.',
+                style: TextStyle(fontSize: 17, color: Colors.grey, height: 1.5),
+                textAlign: TextAlign.center,
               ),
-            ),
 
-          ],
+              Padding(
+                padding: const EdgeInsets.all(7.0),
+                child: GradientButton(
+                  label: 'Lance le scan',
+                  onPressed: () {
+                    context.push(
+                      '/scan/camera',
+                    ); // On navigue vers la page caméra existante
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
