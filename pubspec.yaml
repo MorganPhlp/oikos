@@ -46,8 +46,7 @@ dependencies:
   lucide_icons: ^0.257.0
   go_router: ^17.0.1
   syncfusion_flutter_pdfviewer: ^32.1.24
-  mobile_scanner: ^7.1.4
- #For QR code scanning
+  mobile_scanner: ^7.1.4 #For QR code scanning
   http: ^1.2.0 #For making HTTP requests
   flutter_dotenv: ^6.0.0
   font_awesome_flutter: ^10.12.0 #icons supplementaires

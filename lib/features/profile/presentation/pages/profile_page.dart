@@ -18,8 +18,6 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  // Simule les questions restantes (TODO : à connecter plus tard au BilanSessionBloc)
-  final int _remainingQuestions = 12;
 
   @override
   Widget build(BuildContext context) {
