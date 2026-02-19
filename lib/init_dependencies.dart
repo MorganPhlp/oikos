@@ -84,6 +84,16 @@ import 'package:oikos/features/codeBarre/presentation/bloc/scan_bloc.dart';
 import 'features/codeBarre/domain/usecases/get_alternative_product.dart';
 import 'features/codeBarre/presentation/cubit/alternative_product_cubit.dart';
 
+import 'package:oikos/features/actions_et_defis/data/datasources/action_remote_data_source.dart';
+import 'package:oikos/features/actions_et_defis/data/repositories/action_repository_impl.dart';
+import 'package:oikos/features/actions_et_defis/domain/repositories/action_repository.dart';
+import 'package:oikos/features/actions_et_defis/domain/usecases/get_actions.dart';
+import 'package:oikos/features/actions_et_defis/domain/usecases/get_my_active_actions_use_case.dart';
+import 'package:oikos/features/actions_et_defis/domain/usecases/add_to_my_actions_use_case.dart';
+import 'package:oikos/features/actions_et_defis/domain/usecases/validate_action_use_case.dart';
+import 'package:oikos/features/actions_et_defis/domain/usecases/remove_from_my_actions_use_case.dart';
+import 'package:oikos/features/actions_et_defis/presentation/bloc/actions_bloc.dart';
+
 final serviceLocator = GetIt.instance;
 
 Future<void> initDependencies() async {
@@ -113,6 +123,7 @@ Future<void> initDependencies() async {
   _initStreak();
   _initProfile();
   _initDashboard();
+  _initActions();
 }
 
 void _initAuth() {
@@ -149,7 +160,9 @@ void _initAuth() {
 
   serviceLocator.registerLazySingleton(() => DeleteAccount(serviceLocator()));
 
-  serviceLocator.registerLazySingleton(() => UpdateCredentials(serviceLocator()));
+  serviceLocator.registerLazySingleton(
+    () => UpdateCredentials(serviceLocator()),
+  );
 
   // Bloc
   serviceLocator.registerLazySingleton(
@@ -345,26 +358,19 @@ void _initDashboard() {
     () => DashboardRemoteDataSourceImpl(serviceLocator()),
   );
 
-  // Repository: on donne la co au repository 
+  // Repository: on donne la co au repository
   serviceLocator.registerFactory<DashboardRepository>(
-    () => DashboardRepositoryImpl(
-      remoteDataSource: serviceLocator(),
-    ),
+    () => DashboardRepositoryImpl(remoteDataSource: serviceLocator()),
   );
 
   // UseCase : on donne le repo au use case
-  serviceLocator.registerFactory(
-    () => GetMyPseudo(serviceLocator()),
-  );
+  serviceLocator.registerFactory(() => GetMyPseudo(serviceLocator()));
 
   // Bloc : on donne le use case au bloc pour qu'il gère l'état de la page
   serviceLocator.registerLazySingleton(
-    () => DashboardBloc(
-      getMyPseudo: serviceLocator(),
-    ),
+    () => DashboardBloc(getMyPseudo: serviceLocator()),
   );
 }
-
 
 void _initCodeBarre() {
   // Data Source
@@ -390,7 +396,7 @@ void _initCodeBarre() {
 
   //Cubit pour l'alternative
   serviceLocator.registerFactory(
-        () => AlternativeProductCubit(getAlternativeProduct: serviceLocator()),
+    () => AlternativeProductCubit(getAlternativeProduct: serviceLocator()),
   );
 }
 
@@ -432,6 +438,46 @@ void _initStreak() {
       serviceLocator(),
       serviceLocator(),
       serviceLocator(),
+    ),
+  );
+}
+
+void _initActions() {
+  // Datasource
+  serviceLocator.registerFactory<ActionRemoteDataSource>(
+    () => ActionRemoteDataSourceImpl(serviceLocator<SupabaseClient>()),
+  );
+
+  // Repository
+  serviceLocator.registerFactory<ActionRepository>(
+    () => ActionRepositoryImpl(serviceLocator<ActionRemoteDataSource>()),
+  );
+
+  // Use Cases
+  serviceLocator.registerFactory(
+    () => GetActionsUseCase(serviceLocator<ActionRepository>()),
+  );
+  serviceLocator.registerFactory(
+    () => GetMyActiveActionsUseCase(serviceLocator<ActionRepository>()),
+  );
+  serviceLocator.registerFactory(
+    () => AddToMyActionsUseCase(serviceLocator<ActionRepository>()),
+  );
+  serviceLocator.registerFactory(
+    () => ValidateActionUseCase(serviceLocator<ActionRepository>()),
+  );
+  serviceLocator.registerFactory(
+    () => RemoveFromMyActionsUseCase(serviceLocator<ActionRepository>()),
+  );
+
+  // Bloc
+  serviceLocator.registerFactory(
+    () => ActionsBloc(
+      getActions: serviceLocator(),
+      getMyActiveActions: serviceLocator(),
+      addToMyActions: serviceLocator(),
+      validateAction: serviceLocator(),
+      removeFromMyActions: serviceLocator(),
     ),
   );
 }

@@ -1,50 +1,103 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../domain/entities/action_entity.dart';
-import '../../domain/repositories/action_repository.dart';
 
-// EVENTS
-abstract class ActionsEvent {}
-class LoadAllDataEvent extends ActionsEvent { // On charge TOUT d'un coup
-  final String userId;
-  LoadAllDataEvent(this.userId);
-}
+import '../../domain/usecases/get_actions.dart';
+import '../../domain/usecases/get_my_active_actions_use_case.dart';
+import '../../domain/usecases/add_to_my_actions_use_case.dart';
+import '../../domain/usecases/remove_from_my_actions_use_case.dart';
+import '../../domain/usecases/validate_action_use_case.dart';
+import 'actions_event.dart';
+import 'actions_state.dart';
 
-// STATES
-abstract class ActionsState {}
-class ActionsInitial extends ActionsState {}
-class ActionsLoading extends ActionsState {}
-class ActionsError extends ActionsState { final String message; ActionsError(this.message); }
-
-class ActionsLoaded extends ActionsState {
-  final List<ActionEntity> catalogue; // Onglet 1
-  final List<ActionEntity> mesDefis;  // Onglet 2
-
-  ActionsLoaded({required this.catalogue, required this.mesDefis});
-}
-
-// BLOC
 class ActionsBloc extends Bloc<ActionsEvent, ActionsState> {
-  final ActionRepository repository;
+  final GetActionsUseCase _getActions;
+  final GetMyActiveActionsUseCase _getMyActiveActions;
+  final AddToMyActionsUseCase _addToMyActions;
+  final ValidateActionUseCase _validateAction;
+  final RemoveFromMyActionsUseCase _removeFromMyActions;
 
-  ActionsBloc({required this.repository}) : super(ActionsInitial()) {
+  ActionsBloc({
+    required GetActionsUseCase getActions,
+    required GetMyActiveActionsUseCase getMyActiveActions,
+    required AddToMyActionsUseCase addToMyActions,
+    required ValidateActionUseCase validateAction,
+    required RemoveFromMyActionsUseCase removeFromMyActions,
+  }) : _getActions = getActions,
+       _getMyActiveActions = getMyActiveActions,
+       _addToMyActions = addToMyActions,
+       _validateAction = validateAction,
+       _removeFromMyActions = removeFromMyActions,
+       super(const ActionsInitial()) {
+    on<LoadAllActionsEvent>(_onLoadAllActions);
+    on<AddToMyActionsEvent>(_onAddToMyActions);
+    on<ValidateActionEvent>(_onValidateAction);
+    on<RemoveFromMyActionsEvent>(_onRemoveFromMyActions);
+  }
 
-    on<LoadAllDataEvent>((event, emit) async {
-      emit(ActionsLoading());
-      try {
-        // 1. On lance les deux requêtes en parallèle (c'est plus rapide)
-        final results = await Future.wait([
-          repository.getActions(event.userId),      // Index 0
-          repository.getMyChallenges(event.userId), // Index 1
-        ]);
+  Future<void> _onLoadAllActions(
+    LoadAllActionsEvent event,
+    Emitter<ActionsState> emit,
+  ) async {
+    emit(const ActionsLoading());
 
-        // 2. On émet le résultat
-        emit(ActionsLoaded(
-            catalogue: results[0],
-            mesDefis: results[1]
-        ));
-      } catch (e) {
-        emit(ActionsError("Erreur chargement : $e"));
-      }
-    });
+    final catalogueResult = await _getActions(event.userId);
+    final activeActionsResult = await _getMyActiveActions(event.userId);
+
+    if (catalogueResult.isLeft() || activeActionsResult.isLeft()) {
+      final errorMsg = catalogueResult.fold(
+        (f) => f.message,
+        (_) => activeActionsResult.fold((f) => f.message, (_) => ''),
+      );
+      emit(ActionsError(errorMsg));
+      return;
+    }
+
+    emit(
+      ActionsLoaded(
+        catalogue: catalogueResult.getOrElse((_) => []),
+        mesActions: activeActionsResult.getOrElse((_) => []),
+      ),
+    );
+  }
+
+  Future<void> _onAddToMyActions(
+    AddToMyActionsEvent event,
+    Emitter<ActionsState> emit,
+  ) async {
+    final result = await _addToMyActions(
+      AddToMyActionsParams(userId: event.userId, actionId: event.actionId),
+    );
+
+    result.fold(
+      (failure) => emit(ActionsError(failure.message)),
+      (_) => add(LoadAllActionsEvent(event.userId)),
+    );
+  }
+
+  Future<void> _onValidateAction(
+    ValidateActionEvent event,
+    Emitter<ActionsState> emit,
+  ) async {
+    final result = await _validateAction(
+      ValidateActionParams(userId: event.userId, actionId: event.actionId),
+    );
+
+    result.fold(
+      (failure) => emit(ActionsError(failure.message)),
+      (_) => add(LoadAllActionsEvent(event.userId)),
+    );
+  }
+
+  Future<void> _onRemoveFromMyActions(
+    RemoveFromMyActionsEvent event,
+    Emitter<ActionsState> emit,
+  ) async {
+    final result = await _removeFromMyActions(
+      RemoveFromMyActionsParams(userId: event.userId, actionId: event.actionId),
+    );
+
+    result.fold(
+      (failure) => emit(ActionsError(failure.message)),
+      (_) => add(LoadAllActionsEvent(event.userId)),
+    );
   }
 }

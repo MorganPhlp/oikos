@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../../core/theme/app_colors.dart';
+
+import '../../../../core/theme/oikos_button_theme.dart';
 
 class ActionsHeader extends StatelessWidget {
   final String title;
@@ -15,104 +16,110 @@ class ActionsHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final buttonTheme = theme.extension<OikosButtonTheme>();
+
     return Container(
-      // 👇 LE DÉGRADÉ VERT ARRONDIE
       padding: const EdgeInsets.only(top: 60, left: 20, right: 20, bottom: 25),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.gradientGreenStart, AppColors.gradientGreenEnd],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-        borderRadius: BorderRadius.only(
+      decoration: BoxDecoration(
+        gradient: buttonTheme?.primaryGradient,
+        borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(30),
           bottomRight: Radius.circular(30),
         ),
         boxShadow: [
-          BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 5))
+          BoxShadow(
+            color: colorScheme.shadow.withValues(alpha: 0.12),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
         ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // 1. GAUCHE : PROFIL (Avatar Blanc sur fond vert)
+          // Avatar
           Container(
             padding: const EdgeInsets.all(2),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.2), // Cercle translucide
-              border: Border.all(color: Colors.white, width: 2),
+              color: colorScheme.onPrimary.withValues(alpha: 0.2),
+              border: Border.all(color: colorScheme.onPrimary, width: 2),
             ),
-            child: const CircleAvatar(
+            child: CircleAvatar(
               radius: 20,
-              backgroundColor: Colors.white,
-              child: Icon(Icons.person, color: AppColors.lightTextPrimary, size: 24),
+              backgroundColor: colorScheme.onPrimary,
+              child: Icon(Icons.person, color: colorScheme.onSurface, size: 24),
             ),
           ),
 
-          // 2. CENTRE : TITRES (En blanc)
+          // Titres
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                  subtitle.toUpperCase(),
-                  style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.white70, // Blanc cassé
-                      letterSpacing: 1.2,
-                      fontWeight: FontWeight.w600
-                  )
+                subtitle.toUpperCase(),
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: colorScheme.onPrimary.withValues(alpha: 0.7),
+                  letterSpacing: 1.2,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               Text(
-                  title,
-                  style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white // Blanc pur
-                  )
+                title,
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.onPrimary,
+                ),
               ),
             ],
           ),
 
-          // 3. DROITE : POINTS + NOTIF
+          // Points + Notif
           Row(
             children: [
-              // Badge Points (Fond blanc semi-transparent)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: colorScheme.onPrimary.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.white.withOpacity(0.3)),
+                  border: Border.all(
+                    color: colorScheme.onPrimary.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.bolt, color: Colors.yellowAccent, size: 18),
+                    Icon(Icons.bolt, color: colorScheme.tertiary, size: 18),
                     const SizedBox(width: 4),
                     Text(
-                        "$userPoints",
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            fontSize: 14
-                        )
+                      '$userPoints',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.onPrimary,
+                      ),
                     ),
                   ],
                 ),
               ),
               const SizedBox(width: 12),
-
-              // Cloche Notif (Bouton blanc translucide)
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: colorScheme.onPrimary.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.notifications_none, color: Colors.white, size: 24),
+                child: Icon(
+                  Icons.notifications_none,
+                  color: colorScheme.onPrimary,
+                  size: 24,
+                ),
               ),
             ],
-          )
+          ),
         ],
       ),
     );

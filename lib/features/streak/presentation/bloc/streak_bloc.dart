@@ -45,6 +45,9 @@ class StreakBloc extends Bloc<StreakEvent, StreakState> {
     await emit.onEach<UtilisateurStreakEntity>(
       watchStreakUseCase(event.userId, event.entrepriseId),
       onData: (streakEntity) async {
+        print(
+          "Nouveau streak reçu: ${streakEntity.currentStreak}",
+        ); // Debug print
         // Vérification si la saison existe
         final streamSaisonDebut = streakEntity.saisonDebut;
         if (streamSaisonDebut == null) {

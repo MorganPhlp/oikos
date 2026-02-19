@@ -1,13 +1,15 @@
+import 'package:fpdart/fpdart.dart';
+import 'package:oikos/core/error/failures.dart';
+
 import '../entities/action_entity.dart';
 import '../repositories/action_repository.dart';
 
-class GetActions {
+class GetActionsUseCase {
   final ActionRepository repository;
 
-  GetActions(this.repository);
+  GetActionsUseCase(this.repository);
 
-  // 👇 On ajoute l'argument userId ici pour le passer au repository
-  Future<List<ActionEntity>> call(String userId) async {
-    return await repository.getActions(userId);
+  Future<Either<Failure, List<ActionEntity>>> call(String userId) {
+    return repository.getActions(userId);
   }
 }

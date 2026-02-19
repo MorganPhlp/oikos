@@ -3,6 +3,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.95.2",
     "dotenv": "^17.2.3",
+    "mime-types": "^3.0.2",
     "publicodes": "^1.9.1"
   },
   "devDependencies": {

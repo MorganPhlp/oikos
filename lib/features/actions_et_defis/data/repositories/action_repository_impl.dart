@@ -1,46 +1,82 @@
-import 'dart:io';
+import 'package:fpdart/fpdart.dart';
+import 'package:oikos/core/error/exceptions.dart';
+import 'package:oikos/core/error/failures.dart';
+import 'package:oikos/features/actions_et_defis/domain/entities/user_active_action_entity.dart';
+
 import '../../domain/entities/action_entity.dart';
 import '../../domain/repositories/action_repository.dart';
 import '../datasources/action_remote_data_source.dart';
 
 class ActionRepositoryImpl implements ActionRepository {
-  final ActionRemoteDataSourceImpl
-  remoteDataSource; // Assure-toi que le type est bon
-
+  final ActionRemoteDataSource remoteDataSource;
   ActionRepositoryImpl(this.remoteDataSource);
 
   @override
-  // 👇 Ajout de userId ici pour respecter le contrat qu'on a modifié à l'étape 1
-  Future<List<ActionEntity>> getActions(String userId) async {
-    return await remoteDataSource.fetchActions(userId);
-  }
-
-  @override
-  Future<void> joinChallenge(
+  Future<Either<Failure, void>> addToMyActions(
     String userId,
     String actionId,
-    String frequency,
   ) async {
-    await remoteDataSource.joinChallenge(userId, actionId, frequency);
+    try {
+      // Logique métier : Vérification du quota de 5 actions
+      final currentActions = await remoteDataSource.fetchMyActiveActions(
+        userId,
+      );
+      if (currentActions.length >= 5) {
+        return left(Failure('Limite de 5 actions actives atteinte.'));
+      }
+
+      await remoteDataSource.addToMyActions(userId, actionId);
+      return right(null);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
   }
 
   @override
-  Future<void> validateAction(
+  Future<Either<Failure, void>> validateAction(
     String userId,
     String actionId,
-    int xp,
-    double co2,
   ) async {
-    await remoteDataSource.validateAction(userId, actionId, xp, co2);
+    try {
+      await remoteDataSource.validateAction(userId, actionId);
+      return right(null);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
   }
 
   @override
-  Future<List<ActionEntity>> getMyChallenges(String userId) async {
-    return await remoteDataSource.fetchMyChallenges(userId);
+  Future<Either<Failure, List<ActionEntity>>> getActions(String userId) async {
+    try {
+      final actions = await remoteDataSource.fetchActions(userId);
+      return right(actions);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
   }
 
   @override
-  Future<void> removeChallenge(String userId, String actionId) async {
-    await remoteDataSource.removeChallenge(userId, actionId);
+  Future<Either<Failure, List<UserActiveActionEntity>>> getMyActiveActions(
+    String userId,
+  ) async {
+    try {
+      final actions = await remoteDataSource.fetchMyActiveActions(userId);
+      return right(actions);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> removeFromMyActions(
+    String userId,
+    String actionId,
+  ) async {
+    try {
+      await remoteDataSource.removeFromMyActions(userId, actionId);
+      return right(null);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
   }
 }

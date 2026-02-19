@@ -25,7 +25,7 @@ SELECT
   COALESCE(dc.titre_personnalise, a.titre) AS titre,
   a.description,
   a.icon_name,
-  a.xp_gain,
+  a.impact_score,
   dc.date_fin,
   -- On compte combien de personnes participent à ce défi
   (SELECT count(*) FROM defi_participation dp WHERE dp.defi_id = dc.id) AS participants_count

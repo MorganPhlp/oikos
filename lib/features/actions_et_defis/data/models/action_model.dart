@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../domain/entities/action_entity.dart';
 
 class ActionModel extends ActionEntity {
@@ -7,9 +8,9 @@ class ActionModel extends ActionEntity {
     required super.title,
     required super.description,
     required super.categoryName,
+    super.tags,
     required super.difficulty,
-    required super.points, // xp_gain
-    required super.co2Saved, // gain_co2
+    required super.impactScore,
     required super.icon,
     required super.tips,
     required super.frequency,
@@ -20,47 +21,38 @@ class ActionModel extends ActionEntity {
       id: json['id'],
       title: json['titre'] ?? 'Sans titre',
       description: json['description'] ?? '',
-
-      // 👇 ICI : On récupère le NOM de la catégorie (ex: 'Transport')
       categoryName: json['categorie_nom'] ?? 'Divers',
-
+      tags: List<String>.from(json['tags'] ?? []),
       difficulty: json['difficulte'] ?? 'Facile',
-
-      // 👇 ICI : Correspondance avec tes colonnes SQL
-      points: json['xp_gain'] ?? 0,
-      co2Saved: "${json['gain_co2'] ?? 0} kg", // On affiche le float + "kg"
-
+      impactScore: json['impact_score'] ?? 0,
       icon: _getIconByName(json['icon_name']),
       tips: List<String>.from(json['tips'] ?? []),
-      frequency: json['frequence']?? 'unique',
+      frequency: json['frequence'] ?? 'unique',
     );
   }
 
-  // Petite map pour transformer le texte en Icône Flutter
   static IconData _getIconByName(String? name) {
-    switch (name) {
-    // Tes nouvelles icônes
-      case 'directions_walk': return Icons.directions_walk;
-      case 'pedal_bike': return Icons.pedal_bike;
-      case 'electric_bike': return Icons.electric_bike;
-      case 'videocam': return Icons.videocam;
-      case 'water': return Icons.water_drop;
-      case 'spa': return Icons.spa;
-      case 'sentiment_very_satisfied': return Icons.sentiment_very_satisfied;
-      case 'delete_sweep': return Icons.delete_sweep;
-      case 'power_settings_new': return Icons.power_settings_new;
-      case 'local_bar': return Icons.local_bar;
-      case 'shower': return Icons.shower;
-      case 'cloud': return Icons.cloud;
-      case 'checkroom': return Icons.checkroom;
-      case 'wb_sunny': return Icons.wb_sunny;
-      case 'router': return Icons.router;
-      case 'receipt_long': return Icons.receipt_long;
-      case 'shopping_basket': return Icons.shopping_basket;
-      case 'savings': return Icons.savings;
-      case 'markunread_mailbox': return Icons.markunread_mailbox;
-    // Par défaut
-      default: return Icons.eco;
-    }
+    const iconMap = <String, IconData>{
+      'directions_walk': Icons.directions_walk,
+      'pedal_bike': Icons.pedal_bike,
+      'electric_bike': Icons.electric_bike,
+      'videocam': Icons.videocam,
+      'water': Icons.water_drop,
+      'spa': Icons.spa,
+      'sentiment_very_satisfied': Icons.sentiment_very_satisfied,
+      'delete_sweep': Icons.delete_sweep,
+      'power_settings_new': Icons.power_settings_new,
+      'local_bar': Icons.local_bar,
+      'shower': Icons.shower,
+      'cloud': Icons.cloud,
+      'checkroom': Icons.checkroom,
+      'wb_sunny': Icons.wb_sunny,
+      'router': Icons.router,
+      'receipt_long': Icons.receipt_long,
+      'shopping_basket': Icons.shopping_basket,
+      'savings': Icons.savings,
+      'markunread_mailbox': Icons.markunread_mailbox,
+    };
+    return iconMap[name] ?? Icons.eco;
   }
 }

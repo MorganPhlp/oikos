@@ -23,6 +23,7 @@ BEGIN
     pseudo, 
     code_communaute, 
     entreprise_id,
+    avatar_url,
     est_compte_valide,
     a_accepte_cgu
   )
@@ -32,6 +33,7 @@ BEGIN
     NEW.raw_user_meta_data->>'pseudo',
     NEW.raw_user_meta_data->>'code_communaute',
     v_entreprise_id,
+    'assets/avatars/avatar_1.png', 
     TRUE,
     TRUE 
   );

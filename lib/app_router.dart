@@ -24,6 +24,9 @@ import 'features/codeBarre/presentation/pages/product_details_page.dart';
 import 'features/codeBarre/presentation/pages/scan_page.dart';
 import 'package:oikos/features/actions_et_defis/presentation/pages/action_page.dart';
 import 'package:oikos/features/actions_et_defis/presentation/pages/my_actions_page.dart';
+import 'package:oikos/features/actions_et_defis/presentation/bloc/actions_bloc.dart';
+import 'package:oikos/features/actions_et_defis/presentation/bloc/actions_event.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 GoRouter createRouter(AppUserCubit appUserCubit) {
   GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -98,12 +101,28 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
           GoRoute(
             path: '/actions',
             name: 'catalogue',
-            builder: (context, state) => const ActionsCataloguePage(),
+            builder: (context, state) {
+              final userId = Supabase.instance.client.auth.currentUser!.id;
+              return BlocProvider(
+                create: (_) =>
+                    serviceLocator<ActionsBloc>()
+                      ..add(LoadAllActionsEvent(userId)),
+                child: const ActionsCataloguePage(),
+              );
+            },
             routes: [
               GoRoute(
                 path: 'mine', // /actions/mine
                 name: 'my_actions',
-                builder: (context, state) => const MyActionsPage(),
+                builder: (context, state) {
+                  final userId = Supabase.instance.client.auth.currentUser!.id;
+                  return BlocProvider(
+                    create: (_) =>
+                        serviceLocator<ActionsBloc>()
+                          ..add(LoadAllActionsEvent(userId)),
+                    child: const MyActionsPage(),
+                  );
+                },
               ),
             ],
           ),
