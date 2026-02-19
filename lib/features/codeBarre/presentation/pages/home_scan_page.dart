@@ -64,18 +64,18 @@ class HomeScanPage extends StatelessWidget {
                 // On le met en rouge pour bien se rappeler de l'enlever avant la mise en production !
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                 onPressed: () {
-                  // 1. Création d'un faux produit (Mock)
-                  // Remplissez avec les attributs exacts de votre AlimentEntity
+                  // Création d'un faux produit (Mock)
+                  // Attributs test
                   final mockAliment = AlimentEntity(
                     codeBarre: '1234567890123',
                     nom: 'Produit Test Tablette',
                     marque: 'Viveris Test',
-                    ecoScore: 'A', // Pratique pour tester les différentes couleurs de l'éco-score !
+                    ecoScore: 'A',
                     imageUrl: 'https://images.openfoodfacts.org/images/products/301/762/042/2003/front_fr.594.400.jpg',
-                    // Ajoutez ici les autres attributs requis par votre classe
+                    // 'https://images.openfoodfacts.org/images/products/301/762/042/2003/front_fr.594.400.jpg' pour nutella
                   );
 
-                  // 2. Navigation vers la page avec les fausses données
+                  // Navigation vers la page TEST
                   context.push('/scan/details', extra: mockAliment);
                 },
                 child: const Text('Mode Debug : Voir un produit'),

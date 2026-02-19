@@ -23,8 +23,11 @@ class ScanPage extends StatefulWidget {
 
 class _ScanPageState extends State<ScanPage> {
   final MobileScannerController controller = MobileScannerController(
+    // Limite la détection à 1 scan par seconde maximum
+    detectionTimeoutMs: 1000,
     detectionSpeed: DetectionSpeed.noDuplicates,
     returnImage: false,
+
   );
 
   bool _isProcessing = false;
