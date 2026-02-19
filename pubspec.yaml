@@ -55,6 +55,7 @@ dependencies:
   flutter_animate: ^4.5.2
   flutter_confetti: ^0.5.1
   bloc_concurrency: ^0.3.0
+  flutter_launcher_icons: ^0.13.1 #Image appli dans menu
 
 
 dev_dependencies:
@@ -122,3 +123,11 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/logos/oikos_home.png" # Chemin vers image
+  # Optionnel ANDROID : Si le logo a un fond transparent, on peut ajouter une couleur de fond pour Android
+  adaptive_icon_background: "#1A1C19"
+  # adaptive_icon_foreground: "assets/logos/oikos_logo.png"
