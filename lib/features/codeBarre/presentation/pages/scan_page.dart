@@ -69,7 +69,7 @@ class _ScanPageState extends State<ScanPage> {
               controller.stop(); // On fige la caméra
 
               // On navigue vers la page de détails en passant l'aliment trouvé
-              await context.push('/product_details', extra: state.aliment);
+              await context.push('/scan/details', extra: state.aliment);
 
               // Au retour de la page détails :
               if (mounted) {
