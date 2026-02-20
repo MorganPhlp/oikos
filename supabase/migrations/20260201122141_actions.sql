@@ -34,6 +34,13 @@ CREATE TABLE IF NOT EXISTS public.actions_en_cours (
     UNIQUE(utilisateur_id, action_id)
 );
 
+CREATE TABLE IF NOT EXISTS public.utilisateur_habitudes (
+    utilisateur_id uuid PRIMARY KEY REFERENCES public.utilisateur(id) ON DELETE CASCADE,
+    action_id uuid NOT NULL REFERENCES public.actions(id) ON DELETE CASCADE,
+    date_ajout timestamptz NOT NULL DEFAULT now(),
+    UNIQUE(utilisateur_id, action_id)
+);
+
 CREATE OR REPLACE VIEW public.vue_actions_en_cours AS
 WITH recap_actions AS (
     SELECT 
@@ -48,7 +55,7 @@ WITH recap_actions AS (
                 WHEN a.frequence = 'hebdomadaire' THEN date_trunc('week', ra.date_realisation)
                 WHEN a.frequence = 'mensuelle' THEN date_trunc('month', ra.date_realisation)
             END
-        ) FILTER (WHERE ra.date_realisation >= ac.date_dernier_reset) as streak_count
+        ) FILTER (WHERE ra.date_realisation >= ac.date_dernier_reset) as count_since_reset
     FROM public.actions_en_cours ac
     JOIN public.actions a ON ac.action_id = a.id
     LEFT JOIN public.realisation_actions ra ON ra.action_id = ac.action_id 
@@ -65,8 +72,8 @@ SELECT
              AND date_trunc('week', derniere_realisation) < date_trunc('week', now() - INTERVAL '1 week') THEN 0
         WHEN frequence = 'mensuelle' 
              AND date_trunc('month', derniere_realisation) < date_trunc('month', now() - INTERVAL '1 month') THEN 0  
-        ELSE streak_count
-    END AS streak_actuel
+        ELSE count_since_reset
+    END AS effective_count
 FROM recap_actions;
 
 
@@ -115,6 +122,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_reset_actions_en_cours ON public.realisation_actions;
 CREATE TRIGGER trigger_reset_actions_en_cours
 BEFORE INSERT ON public.realisation_actions
 FOR EACH ROW EXECUTE FUNCTION public.reset_actions_en_cours();
@@ -152,6 +160,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS init_impact_score_trigger ON public.actions;
 CREATE OR REPLACE TRIGGER init_impact_score_trigger
     BEFORE INSERT ON public.actions
     FOR EACH ROW
@@ -186,3 +195,43 @@ DROP TRIGGER IF EXISTS trg_on_action_validated ON public.realisation_actions;
 CREATE TRIGGER trg_on_action_validated
 BEFORE INSERT ON public.realisation_actions
 FOR EACH ROW EXECUTE FUNCTION public.calculer_et_ajouter_xp();
+
+CREATE OR REPLACE FUNCTION public.check_habitude_applicability()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_frequence text;
+    count int;
+    is_valid boolean := false;
+BEGIN
+    SELECT frequence, effective_count INTO v_frequence, count
+    FROM public.vue_actions_en_cours
+    WHERE utilisateur_id = NEW.utilisateur_id AND action_id = NEW.action_id;
+
+    IF v_frequence IS NULL THEN
+        RAISE EXCEPTION 'Action ID % introuvable pour l''utilisateur %', NEW.action_id, NEW.utilisateur_id;
+    END IF;
+
+    CASE 
+        WHEN v_frequence = 'quotidienne' AND count >= 7 THEN
+            is_valid := true;
+        WHEN v_frequence = 'hebdomadaire' AND count >=4 THEN
+            is_valid := true;
+        WHEN v_frequence = 'mensuelle' AND count >= 3 THEN
+            is_valid := true;
+        WHEN v_frequence = 'bonus' AND count >= 1 THEN
+            is_valid := true;
+        ELSE
+            is_valid := false;
+    END CASE;
+    if is_valid THEN
+        RETURN NEW;
+    ELSE
+        RAISE EXCEPTION 'Action non applicable en tant qu''habitude. Fréquence: %, Count: %', v_frequence, count;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trigger_check_habitude_applicability ON public.utilisateur_habitudes;
+CREATE TRIGGER trigger_check_habitude_applicability
+BEFORE INSERT ON public.utilisateur_habitudes
+FOR EACH ROW EXECUTE FUNCTION public.check_habitude_applicability();

@@ -55,6 +55,8 @@ dependencies:
   flutter_animate: ^4.5.2
   flutter_confetti: ^0.5.1
   bloc_concurrency: ^0.3.0
+  flutter_card_swiper: ^7.2.0
+  animations: ^2.1.1
 
 dev_dependencies:
   flutter_test:
@@ -93,6 +95,7 @@ flutter:
     - assets/logos/oikos_home.png
     - assets/animations/
     - assets/avatars/
+    - assets/logos/oikos_interrogation.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

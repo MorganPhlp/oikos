@@ -1,6 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:oikos/core/error/exceptions.dart';
 import 'package:oikos/core/error/failures.dart';
+import 'package:oikos/features/actions_et_defis/domain/entities/habitude_entity.dart';
 import 'package:oikos/features/actions_et_defis/domain/entities/user_active_action_entity.dart';
 
 import '../../domain/entities/action_entity.dart';
@@ -75,6 +76,44 @@ class ActionRepositoryImpl implements ActionRepository {
     try {
       await remoteDataSource.removeFromMyActions(userId, actionId);
       return right(null);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> addToHabitudes(
+    String userId,
+    String actionId,
+  ) async {
+    try {
+      await remoteDataSource.addToHabitudes(userId, actionId);
+      return right(null);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> removeFromHabitudes(
+    String userId,
+    String actionId,
+  ) async {
+    try {
+      await remoteDataSource.removeFromHabitudes(userId, actionId);
+      return right(null);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<HabitudeEntity>>> getMyHabitudes(
+    String userId,
+  ) async {
+    try {
+      final habitudes = await remoteDataSource.fetchMyHabitudes(userId);
+      return right(habitudes);
     } on ServerException catch (e) {
       return left(Failure(e.message));
     }

@@ -1,4 +1,5 @@
 import 'package:oikos/core/error/exceptions.dart';
+import 'package:oikos/features/actions_et_defis/data/models/habitude_model.dart';
 import 'package:oikos/features/actions_et_defis/data/models/user_active_action_model.dart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -10,6 +11,9 @@ abstract interface class ActionRemoteDataSource {
   Future<void> addToMyActions(String userId, String actionId);
   Future<void> validateAction(String userId, String actionId);
   Future<void> removeFromMyActions(String userId, String actionId);
+  Future<void> addToHabitudes(String userId, String actionId);
+  Future<void> removeFromHabitudes(String userId, String actionId);
+  Future<List<HabitudeModel>> fetchMyHabitudes(String userId);
 }
 
 class ActionRemoteDataSourceImpl implements ActionRemoteDataSource {
@@ -86,6 +90,54 @@ class ActionRemoteDataSourceImpl implements ActionRemoteDataSource {
       throw ServerException(
         'Erreur lors du chargement des actions actives : $e',
       );
+    }
+  }
+
+  @override
+  Future<void> addToHabitudes(String userId, String actionId) async {
+    try {
+      await supabaseClient.from('utilisateur_habitudes').insert({
+        'utilisateur_id': userId,
+        'action_id': actionId,
+      });
+    } on PostgrestException catch (e) {
+      if (e.code == '23505') throw const ServerException('Habitude déjà ajoutée.');
+      throw ServerException(e.message);
+    } catch (e) {
+      throw ServerException('Erreur ajout habitude: $e');
+    }
+  }
+
+  @override
+  Future<List<HabitudeModel>> fetchMyHabitudes(String userId) async {
+    try {
+      final response = await supabaseClient
+          .from('utilisateur_habitudes')
+          .select('*, actions(*)')
+          .eq('utilisateur_id', userId);
+
+      final data = response as List<dynamic>;
+
+      return data.map((json) {
+        return HabitudeModel.fromJson(json);
+      }).toList();
+    } catch (e) {
+      throw ServerException(
+        'Erreur lors du chargement des habitudes : $e',
+      );
+    }
+  }
+
+  @override
+  Future<void> removeFromHabitudes(String userId, String actionId) async {
+    try {
+      await supabaseClient
+          .from('utilisateur_habitudes')
+          .delete()
+          .eq('utilisateur_id', userId)
+          .eq('action_id', actionId);
+    } catch (e) {
+      throw ServerException('Erreur lors du retrait de l\'habitude : $e');
     }
   }
 

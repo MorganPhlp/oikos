@@ -10,20 +10,28 @@ class OikosNavBar extends StatefulWidget {
 }
 
 class _OikosNavBarState extends State<OikosNavBar> {
-  int currentPageIndex = 0;
+  int _calculateSelectedIndex(BuildContext context) {
+    final String location = GoRouterState.of(context).uri.path;
+
+    if (location.startsWith('/home')) return 0;
+    if (location.startsWith('/actions')) {
+      if (location.contains('/mine')) return 2;
+      return 1;
+    }
+    if (location.startsWith('/scan')) return 3;
+    if (location.startsWith('/community')) return 4;
+
+    return 0;
+  }
 
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
     return NavigationBar(
       backgroundColor: theme.colorScheme.surface,
-      selectedIndex: currentPageIndex,
+      selectedIndex: _calculateSelectedIndex(context),
       indicatorColor: theme.colorScheme.tertiary.withValues(alpha: 0.1),
       onDestinationSelected: (int index) {
-        setState(() {
-          currentPageIndex = index;
-        });
-
         switch (index) {
           case 0:
             context.go('/home');
@@ -46,7 +54,7 @@ class _OikosNavBarState extends State<OikosNavBar> {
         NavigationDestination(
           icon: BouncingIcon(
             index: 0,
-            currentIndex: currentPageIndex,
+            currentIndex: _calculateSelectedIndex(context),
             child: Image.asset(
               'assets/logos/oikos_home.png',
               width: 26,
@@ -56,7 +64,7 @@ class _OikosNavBarState extends State<OikosNavBar> {
           ),
           selectedIcon: BouncingIcon(
             index: 0,
-            currentIndex: currentPageIndex,
+            currentIndex: _calculateSelectedIndex(context),
             child: Image.asset(
               'assets/logos/oikos_home.png',
               width: 26,
@@ -69,12 +77,12 @@ class _OikosNavBarState extends State<OikosNavBar> {
         NavigationDestination(
           icon: BouncingIcon(
             index: 1,
-            currentIndex: currentPageIndex,
+            currentIndex: _calculateSelectedIndex(context),
             child: const Icon(Icons.menu_book, color: Colors.grey),
           ),
           selectedIcon: BouncingIcon(
             index: 1,
-            currentIndex: currentPageIndex,
+            currentIndex: _calculateSelectedIndex(context),
             child: const Icon(Icons.menu_book, color: Colors.orange),
           ),
           label: 'Catalogue',
@@ -82,12 +90,12 @@ class _OikosNavBarState extends State<OikosNavBar> {
         NavigationDestination(
           icon: BouncingIcon(
             index: 2,
-            currentIndex: currentPageIndex,
+            currentIndex: _calculateSelectedIndex(context),
             child: const Icon(Icons.star, color: Colors.grey),
           ),
           selectedIcon: BouncingIcon(
             index: 2,
-            currentIndex: currentPageIndex,
+            currentIndex: _calculateSelectedIndex(context),
             child: const Icon(Icons.star, color: Colors.orange),
           ),
           label: 'Actions',
@@ -95,12 +103,12 @@ class _OikosNavBarState extends State<OikosNavBar> {
         NavigationDestination(
           icon: BouncingIcon(
             index: 3,
-            currentIndex: currentPageIndex,
+            currentIndex: _calculateSelectedIndex(context),
             child: const Icon(Icons.qr_code_2, color: Colors.grey),
           ),
           selectedIcon: BouncingIcon(
             index: 3,
-            currentIndex: currentPageIndex,
+            currentIndex: _calculateSelectedIndex(context),
             child: const Icon(Icons.qr_code_2, color: Colors.orange),
           ),
           label: 'Scan',
@@ -108,12 +116,12 @@ class _OikosNavBarState extends State<OikosNavBar> {
         NavigationDestination(
           icon: BouncingIcon(
             index: 4,
-            currentIndex: currentPageIndex,
+            currentIndex: _calculateSelectedIndex(context),
             child: const Icon(LucideIcons.trophy, color: Colors.grey),
           ),
           selectedIcon: BouncingIcon(
             index: 4,
-            currentIndex: currentPageIndex,
+            currentIndex: _calculateSelectedIndex(context),
             child: const Icon(LucideIcons.trophy, color: Colors.orange),
           ),
           label: 'Classement',

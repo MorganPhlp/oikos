@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-
 import '../../domain/entities/user_active_action_entity.dart';
 import '../../domain/entities/action_entity.dart';
 import '../widgets/action_detail_modal.dart';
@@ -8,7 +7,7 @@ import '../widgets/active_action_card.dart';
 
 class MyActionsTab extends StatefulWidget {
   final List<UserActiveActionEntity> activeActions;
-  final Function(String actionId, int xp) onValidate;
+  final Function(String actionId) onValidate;
   final Function(String actionId) onDelete;
 
   const MyActionsTab({
@@ -24,7 +23,6 @@ class MyActionsTab extends StatefulWidget {
 
 class _MyActionsTabState extends State<MyActionsTab> {
   String selectedFilter = 'quotidienne';
-  bool modeDeVie = false;
 
   String _getFilterTitle(String filter) {
     switch (filter) {
@@ -43,19 +41,15 @@ class _MyActionsTabState extends State<MyActionsTab> {
 
   @override
   Widget build(BuildContext context) {
-    // filtrer si on est dans le mode de vie
-    final filteredList = widget.activeActions.where((entry) {
-      if (modeDeVie) return entry.isModeDeVie;
-      return entry.action.frequency == selectedFilter;
+    final filteredList = widget.activeActions.where((e) {
+      if (e.action.frequency == selectedFilter) return true;
+      return false;
     }).toList();
-
     // Sort: incomplete first, then completed
-    if (selectedFilter != 'modeDeVie') {
-      filteredList.sort((a, b) {
-        if (a.isCompletedForPeriod == b.isCompletedForPeriod) return 0;
-        return a.isCompletedForPeriod ? 1 : -1;
-      });
-    }
+    filteredList.sort((a, b) {
+      if (a.isCompletedForPeriod == b.isCompletedForPeriod) return 0;
+      return a.isCompletedForPeriod ? 1 : -1;
+    });
 
     final totalActions = filteredList.length;
     final actionsDone = filteredList
@@ -88,12 +82,6 @@ class _MyActionsTabState extends State<MyActionsTab> {
               const SizedBox(width: 10),
               _buildTabFilter(context, 'Bonus', 'unique'),
               const SizedBox(width: 10),
-              _buildTabFilter(
-                context,
-                'Mode de vie',
-                'lifestyle',
-                isSpecial: true,
-              ),
             ],
           ),
         ),
@@ -101,29 +89,49 @@ class _MyActionsTabState extends State<MyActionsTab> {
 
         // Liste des actions
         Expanded(
-          child: filteredList.isEmpty
-              ? _buildEmptyState(context)
-              : ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  itemCount: filteredList.length,
-                  itemBuilder: (context, index) {
-                    final entry = filteredList[index];
-                    final action = entry.action;
-                    final isLifestyle = selectedFilter == 'lifestyle';
+          child: AnimatedSwitcher(
+            duration: Duration(milliseconds: 250),
+            transitionBuilder: (Widget child, Animation<double> animation) {
+              final curved = CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeInOut,
+              );
 
-                    return ActiveActionCard(
-                      action: action,
-                      frequency: action.frequency,
-                      isCompleted: isLifestyle || entry.isCompletedForPeriod,
-                      streakCount: entry.streakCount,
-                      onValidate: () {
-                        widget.onValidate(action.id, action.impactScore);
-                      },
-                      onDelete: () => _confirmDelete(context, action.id),
-                      onTap: () => _showActionDetail(context, action),
-                    );
-                  },
-                ),
+              final scaleAnimation = Tween<double>(
+                begin: 0.9,
+                end: 1.0,
+              ).animate(curved);
+
+              return ScaleTransition(
+                scale: scaleAnimation,
+                child: FadeTransition(opacity: curved, child: child),
+              );
+            },
+            child: filteredList.isEmpty
+                ? _buildEmptyState(context)
+                : ListView.builder(
+                    key: ValueKey(selectedFilter),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    itemCount: filteredList.length,
+                    itemBuilder: (context, index) {
+                      final entry = filteredList[index];
+                      final action = entry.action;
+                      final isLifestyle = selectedFilter == 'lifestyle';
+
+                      return ActiveActionCard(
+                        action: action,
+                        frequency: action.frequency,
+                        isCompleted: isLifestyle || entry.isCompletedForPeriod,
+                        streakCount: entry.streakCount,
+                        onValidate: () {
+                          widget.onValidate(action.id);
+                        },
+                        onDelete: () => _confirmDelete(context, action.id),
+                        onTap: () => _showActionDetail(context, action),
+                      );
+                    },
+                  ),
+          ),
         ),
       ],
     );
@@ -212,16 +220,13 @@ class _MyActionsTabState extends State<MyActionsTab> {
     );
   }
 
-  Widget _buildTabFilter(
-    BuildContext context,
-    String label,
-    String value, {
-    bool isSpecial = false,
-  }) {
+  Widget _buildTabFilter(BuildContext context, String label, String value) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isSelected = selectedFilter == value;
-    final activeColor = isSpecial ? colorScheme.tertiary : colorScheme.primary;
+    final activeColor = isSelected
+        ? colorScheme.primary
+        : colorScheme.onSurface.withValues(alpha: 0.3);
 
     return GestureDetector(
       onTap: () => setState(() => selectedFilter = value),
@@ -231,11 +236,7 @@ class _MyActionsTabState extends State<MyActionsTab> {
           color: isSelected ? activeColor : colorScheme.surface,
           borderRadius: BorderRadius.circular(25),
           border: Border.all(
-            color: isSelected
-                ? Colors.transparent
-                : (isSpecial
-                      ? colorScheme.tertiary.withValues(alpha: 0.3)
-                      : colorScheme.outline),
+            color: isSelected ? Colors.transparent : (colorScheme.outline),
           ),
           boxShadow: isSelected
               ? [
@@ -250,11 +251,9 @@ class _MyActionsTabState extends State<MyActionsTab> {
         child: Text(
           label,
           style: theme.textTheme.bodySmall?.copyWith(
-            color: isSpecial && !isSelected
-                ? colorScheme.tertiary
-                : (isSelected
-                      ? colorScheme.onPrimary
-                      : colorScheme.onSurface.withValues(alpha: 0.5)),
+            color: isSelected
+                ? colorScheme.onPrimary
+                : colorScheme.onSurface.withValues(alpha: 0.5),
             fontWeight: FontWeight.bold,
           ),
         ),

@@ -16,7 +16,7 @@ class UserActiveActionModel extends UserActiveActionEntity {
 
     return UserActiveActionModel(
       action: ActionModel.fromJson(actionJson),
-      streakCount: json['streak_actuel'] ?? 0,
+      streakCount: json['effective_count'] ?? 0,
       lastCompletedAt: lastDateStr != null
           ? DateTime.parse(lastDateStr).toLocal()
           : null,

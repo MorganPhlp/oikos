@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'action_card.dart';
+import 'package:oikos/core/theme/action_card_theme.dart';
 
 /// Données de filtre transmises entre la page et la modale.
 class FilterData {
@@ -24,11 +23,6 @@ class FilterData {
   );
 }
 
-/// Modale de filtres & tri pour le catalogue d'actions.
-///
-/// - **Trier par** : affiché en chips.
-/// - **Fréquence / Catégorie / Sous-catégories** : sections repliables
-///   avec des checkboxes pour ne pas surcharger la modale.
 class FilterSortModal extends StatefulWidget {
   final FilterData currentFilters;
   final List<String> allCategories;
@@ -172,10 +166,9 @@ class _FilterSortModalState extends State<FilterSortModal> {
                     icon: Icons.category_outlined,
                     selectedCount: _tmp.category != null ? 1 : 0,
                     children: widget.allCategories.map((cat) {
-                      final catColor = ActionCard.getCategoryColor(
-                        cat,
-                        colorScheme,
-                      );
+                      final catColor = theme
+                          .extension<ActionCardTheme>()!
+                          .getCategoryColor(cat);
                       return CheckboxListTile(
                         dense: true,
                         visualDensity: VisualDensity.compact,

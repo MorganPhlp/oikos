@@ -13,7 +13,7 @@ class UserActiveActionEntity {
     this.isModeDeVie = false,
   });
 
-  bool isCompleted() {
+  bool isPromotable() {
     switch (action.frequency.toLowerCase()) {
       case 'quotidienne':
         return streakCount >= 7;

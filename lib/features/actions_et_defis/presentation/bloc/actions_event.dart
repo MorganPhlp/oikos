@@ -29,16 +29,11 @@ class AddToMyActionsEvent extends ActionsEvent {
 class ValidateActionEvent extends ActionsEvent {
   final String userId;
   final String actionId;
-  final int xp;
 
-  const ValidateActionEvent({
-    required this.userId,
-    required this.actionId,
-    required this.xp,
-  });
+  const ValidateActionEvent({required this.userId, required this.actionId});
 
   @override
-  List<Object?> get props => [userId, actionId, xp];
+  List<Object?> get props => [userId, actionId];
 }
 
 class RemoveFromMyActionsEvent extends ActionsEvent {
@@ -52,4 +47,13 @@ class RemoveFromMyActionsEvent extends ActionsEvent {
 
   @override
   List<Object?> get props => [userId, actionId];
+}
+
+class OpenActionDetailsEvent extends ActionsEvent {
+  final String actionId;
+
+  const OpenActionDetailsEvent(this.actionId);
+
+  @override
+  List<Object?> get props => [actionId];
 }

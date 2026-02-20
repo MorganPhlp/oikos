@@ -10,7 +10,8 @@ import '../widgets/action_detail_modal.dart';
 import '../widgets/filter_sort_modal.dart';
 
 class ActionsCataloguePage extends StatefulWidget {
-  const ActionsCataloguePage({super.key});
+  final String? openedActionId;
+  const ActionsCataloguePage({super.key, this.openedActionId});
 
   @override
   State<ActionsCataloguePage> createState() => _ActionsCataloguePageState();
@@ -27,35 +28,69 @@ class _ActionsCataloguePageState extends State<ActionsCataloguePage> {
       _filters.sortBy != 'default';
 
   @override
+  void didUpdateWidget(covariant ActionsCataloguePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    final userId = switch (context.read<AppUserCubit>().state) {
+      AppUserLoggedIn(user: var u) => u.id,
+      _ => '',
+    };
+    if (oldWidget.openedActionId != widget.openedActionId &&
+        widget.openedActionId != null) {
+      final state = context.read<ActionsBloc>().state;
+      if (state is ActionsLoaded) {
+        final action = state.catalogue.firstWhere(
+          (a) => a.id == widget.openedActionId,
+        );
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _showDetailModal(context, action, userId);
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final appUserState = context.read<AppUserCubit>().state;
     final String userId = (appUserState is AppUserLoggedIn)
         ? appUserState.user.id
         : '';
 
-    return Column(
-      children: [
-        Expanded(
-          child: BlocBuilder<ActionsBloc, ActionsState>(
-            builder: (context, state) {
-              if (state is ActionsLoading) {
-                return Center(
-                  child: CircularProgressIndicator(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                );
-              }
-              if (state is ActionsLoaded) {
-                return _buildCatalogueList(context, state, userId);
-              }
-              if (state is ActionsError) {
-                return Center(child: Text(state.message));
-              }
-              return const SizedBox();
-            },
+    return BlocListener<ActionsBloc, ActionsState>(
+      listener: (BuildContext context, ActionsState state) {
+        if (state is ActionsLoaded && widget.openedActionId != null) {
+          final action = state.catalogue.firstWhere(
+            (a) => a.id == widget.openedActionId,
+          );
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _showDetailModal(context, action, userId);
+          });
+        }
+      },
+      child: Column(
+        children: [
+          Expanded(
+            child: BlocBuilder<ActionsBloc, ActionsState>(
+              builder: (context, state) {
+                if (state is ActionsLoading) {
+                  return Center(
+                    child: CircularProgressIndicator(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  );
+                }
+                if (state is ActionsLoaded) {
+                  return _buildCatalogueList(context, state, userId);
+                }
+                if (state is ActionsError) {
+                  return Center(child: Text(state.message));
+                }
+                return const SizedBox();
+              },
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

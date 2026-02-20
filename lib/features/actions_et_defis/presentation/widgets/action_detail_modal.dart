@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:oikos/core/theme/action_card_theme.dart';
 
 import '../../../../core/theme/oikos_button_theme.dart';
 import '../../domain/entities/action_entity.dart';
@@ -23,11 +24,8 @@ class ActionDetailModal extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final buttonTheme = theme.extension<OikosButtonTheme>();
-    final categoryColor = ActionCard.getCategoryColor(
-      action.categoryName,
-      colorScheme,
-    );
-
+    final actionTheme = theme.extension<ActionCardTheme>()!;
+    final categoryColor = actionTheme.getCategoryColor(action.categoryName);
     return DraggableScrollableSheet(
       initialChildSize: 0.92,
       minChildSize: 0.5,
@@ -102,7 +100,6 @@ class ActionDetailModal extends StatelessWidget {
 
                         const SizedBox(height: 10),
 
-                        // Accordéon : Pourquoi ?
                         _buildAccordion(
                           context,
                           title: 'Pourquoi c\'est important ?',

@@ -5,6 +5,9 @@ import 'package:oikos/core/common/data/category_empreinte_repository_impl.dart';
 import 'package:oikos/core/common/data/utilisateur_repository_impl.dart';
 import 'package:oikos/core/common/domain/repositories/categorie_empreinte_repository.dart';
 import 'package:oikos/core/common/domain/repositories/utilisateur_repository.dart';
+import 'package:oikos/features/actions_et_defis/domain/entities/user_active_action_entity.dart';
+import 'package:oikos/features/actions_et_defis/domain/usecases/get_my_habitudes_use_case.dart';
+import 'package:oikos/features/actions_et_defis/presentation/bloc/promotion_cubit.dart';
 import 'package:oikos/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:oikos/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
@@ -469,6 +472,9 @@ void _initActions() {
   serviceLocator.registerFactory(
     () => RemoveFromMyActionsUseCase(serviceLocator<ActionRepository>()),
   );
+  serviceLocator.registerFactory(
+    () => GetMyHabitudesUseCase(serviceLocator<ActionRepository>()),
+  );
 
   // Bloc
   serviceLocator.registerFactory(
@@ -478,8 +484,15 @@ void _initActions() {
       addToMyActions: serviceLocator(),
       validateAction: serviceLocator(),
       removeFromMyActions: serviceLocator(),
+      getMyHabitudes: serviceLocator(),
     ),
   );
+
+  serviceLocator.registerFactoryParam<
+    PromoteActionsCubit,
+    List<UserActiveActionEntity>,
+    void
+  >((actions, _) => PromoteActionsCubit(actions: actions));
 }
 
 void _initProfile() {

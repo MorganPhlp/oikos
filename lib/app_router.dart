@@ -17,7 +17,6 @@ import 'package:oikos/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'package:oikos/features/profile/presentation/pages/security_page.dart';
 import 'package:oikos/init_dependencies.dart';
 import 'package:oikos/features/profile/presentation/pages/profile_page.dart';
-
 import 'features/codeBarre/domain/entities/aliment_entity.dart';
 import 'features/codeBarre/presentation/pages/home_scan_page.dart';
 import 'features/codeBarre/presentation/pages/product_details_page.dart';
@@ -26,7 +25,6 @@ import 'package:oikos/features/actions_et_defis/presentation/pages/action_page.d
 import 'package:oikos/features/actions_et_defis/presentation/pages/my_actions_page.dart';
 import 'package:oikos/features/actions_et_defis/presentation/bloc/actions_bloc.dart';
 import 'package:oikos/features/actions_et_defis/presentation/bloc/actions_event.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 GoRouter createRouter(AppUserCubit appUserCubit) {
   GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -102,12 +100,19 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
             path: '/actions',
             name: 'catalogue',
             builder: (context, state) {
-              final userId = Supabase.instance.client.auth.currentUser!.id;
+              final userId =
+                  context.read<AppUserCubit>().state is AppUserLoggedIn
+                  ? (context.read<AppUserCubit>().state as AppUserLoggedIn)
+                        .user
+                        .id
+                  : '';
+
+              final actionId = state.uri.queryParameters['actionId'];
               return BlocProvider(
                 create: (_) =>
                     serviceLocator<ActionsBloc>()
                       ..add(LoadAllActionsEvent(userId)),
-                child: const ActionsCataloguePage(),
+                child: ActionsCataloguePage(openedActionId: actionId),
               );
             },
             routes: [
@@ -115,7 +120,12 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
                 path: 'mine', // /actions/mine
                 name: 'my_actions',
                 builder: (context, state) {
-                  final userId = Supabase.instance.client.auth.currentUser!.id;
+                  final userId =
+                      context.read<AppUserCubit>().state is AppUserLoggedIn
+                      ? (context.read<AppUserCubit>().state as AppUserLoggedIn)
+                            .user
+                            .id
+                      : '';
                   return BlocProvider(
                     create: (_) =>
                         serviceLocator<ActionsBloc>()

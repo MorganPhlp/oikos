@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:oikos/core/theme/action_card_theme.dart';
 
 import '../../domain/entities/action_entity.dart';
 
@@ -12,7 +13,8 @@ class ActionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final categoryColor = getCategoryColor(action.categoryName, colorScheme);
+    final actionTheme = theme.extension<ActionCardTheme>()!;
+    final categoryColor = actionTheme.getCategoryColor(action.categoryName);
 
     return GestureDetector(
       onTap: onTap,
@@ -216,30 +218,5 @@ class ActionCard extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  /// Couleur par catégorie – exposée en static pour réutilisation.
-  static Color getCategoryColor(String category, ColorScheme colorScheme) {
-    final lower = category.toLowerCase();
-    if (lower.contains('transport')) return const Color(0xFF4CAF50);
-    if (lower.contains('alimentation')) return const Color(0xFFFF9800);
-    if (lower.contains('énergie') || lower.contains('energie')) {
-      return const Color(0xFFFFC107);
-    }
-    if (lower.contains('eau')) return const Color(0xFF2196F3);
-    if (lower.contains('déchet') || lower.contains('dechet')) {
-      return const Color(0xFF795548);
-    }
-    if (lower.contains('numérique') || lower.contains('numerique')) {
-      return const Color(0xFF9C27B0);
-    }
-    if (lower.contains('logement')) return const Color(0xFF607D8B);
-    if (lower.contains('biodiversité') || lower.contains('biodiversite')) {
-      return const Color(0xFF009688);
-    }
-    if (lower.contains('textile') || lower.contains('mode')) {
-      return const Color(0xFFE91E63);
-    }
-    return colorScheme.primary;
   }
 }

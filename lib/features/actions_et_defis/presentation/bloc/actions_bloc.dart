@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:oikos/features/actions_et_defis/domain/usecases/get_my_habitudes_use_case.dart';
 
 import '../../domain/usecases/get_actions.dart';
 import '../../domain/usecases/get_my_active_actions_use_case.dart';
@@ -14,6 +15,7 @@ class ActionsBloc extends Bloc<ActionsEvent, ActionsState> {
   final AddToMyActionsUseCase _addToMyActions;
   final ValidateActionUseCase _validateAction;
   final RemoveFromMyActionsUseCase _removeFromMyActions;
+  final GetMyHabitudesUseCase _getMyHabitudes;
 
   ActionsBloc({
     required GetActionsUseCase getActions,
@@ -21,11 +23,13 @@ class ActionsBloc extends Bloc<ActionsEvent, ActionsState> {
     required AddToMyActionsUseCase addToMyActions,
     required ValidateActionUseCase validateAction,
     required RemoveFromMyActionsUseCase removeFromMyActions,
+    required GetMyHabitudesUseCase getMyHabitudes,
   }) : _getActions = getActions,
        _getMyActiveActions = getMyActiveActions,
        _addToMyActions = addToMyActions,
        _validateAction = validateAction,
        _removeFromMyActions = removeFromMyActions,
+       _getMyHabitudes = getMyHabitudes,
        super(const ActionsInitial()) {
     on<LoadAllActionsEvent>(_onLoadAllActions);
     on<AddToMyActionsEvent>(_onAddToMyActions);
@@ -41,11 +45,17 @@ class ActionsBloc extends Bloc<ActionsEvent, ActionsState> {
 
     final catalogueResult = await _getActions(event.userId);
     final activeActionsResult = await _getMyActiveActions(event.userId);
+    final habitudes = await _getMyHabitudes(event.userId);
 
-    if (catalogueResult.isLeft() || activeActionsResult.isLeft()) {
+    if (catalogueResult.isLeft() ||
+        activeActionsResult.isLeft() ||
+        habitudes.isLeft()) {
       final errorMsg = catalogueResult.fold(
         (f) => f.message,
-        (_) => activeActionsResult.fold((f) => f.message, (_) => ''),
+        (_) => activeActionsResult.fold(
+          (f) => f.message,
+          (h) => habitudes.fold((f) => f.message, (_) => ''),
+        ),
       );
       emit(ActionsError(errorMsg));
       return;
@@ -55,6 +65,7 @@ class ActionsBloc extends Bloc<ActionsEvent, ActionsState> {
       ActionsLoaded(
         catalogue: catalogueResult.getOrElse((_) => []),
         mesActions: activeActionsResult.getOrElse((_) => []),
+        mesHabitudes: habitudes.getOrElse((_) => []),
       ),
     );
   }
