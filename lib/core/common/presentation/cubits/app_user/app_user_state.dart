@@ -7,7 +7,7 @@ final class AppUserInitial extends AppUserState {}
 
 final class AppUserLoading extends AppUserState {}
 
-final class AppUserUnauthenticated extends AppUserState {} // TODO: Vérifier que cela marche bien et que pas de bugs avec les AppUserInitial
+final class AppUserUnauthenticated extends AppUserState {}
 
 final class AppUserLoggedIn extends AppUserState {
   final User user;

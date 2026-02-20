@@ -9,6 +9,7 @@ import 'package:oikos/features/profile/presentation/widgets/update_pseudo_modal.
 import 'package:oikos/features/profile/presentation/widgets/user_status_modal.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import 'avatar_modal.dart';
+import 'interests_modal.dart';
 
 class ProfileAccountSection extends StatelessWidget {
   const ProfileAccountSection({super.key});
@@ -148,7 +149,14 @@ class ProfileAccountSection extends StatelessWidget {
                   ProfileActionButton(
                     title: 'Centres d\'intérêt',
                     icon: LucideIcons.tag,
-                    onTap: () {}, // TODO
+                    onTap: () {
+                      showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (context) => const InterestsModal(),
+                      );
+                    },
                     showBorder: false,
                   ),
                 ],
