@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:oikos/core/theme/admin_theme.dart';
 /// Header pour les formulaires mobile (plein écran)
 ///
 /// Affiche un titre avec un bouton de fermeture à gauche.
@@ -134,7 +133,7 @@ class FormTextField extends StatelessWidget {
         color: hasError
             ? Colors.red
             : isFocused
-            ? CommunityColors.primary
+            ? const Color(0xFF16A34A)
             : Colors.grey[300]!,
         width: isFocused ? 2 : 1,
       ),
@@ -196,7 +195,7 @@ class FormActions extends StatelessWidget {
             child: ElevatedButton(
               onPressed: onSubmit,
               style: ElevatedButton.styleFrom(
-                backgroundColor: CommunityColors.primary,
+                backgroundColor: const Color(0xFF16A34A),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(

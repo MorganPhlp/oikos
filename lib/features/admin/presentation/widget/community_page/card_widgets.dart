@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/features/admin/domain/entities/community.dart';
-import 'package:oikos/features/admin/domain/entities/company.dart';
+import 'package:oikos/core/domain/entities/user.dart';
+import 'package:oikos/features/admin/data/models/models.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_state.dart';
-import 'package:oikos/features/admin/domain/entities/user.dart';
-import 'package:oikos/core/theme/admin_theme.dart';
 // ============================================================================
 // CARTES COMMUNAUTÉ
 // ============================================================================
@@ -87,7 +85,7 @@ class CommunityCard extends StatelessWidget {
             _buildInfoRow(
               icon: Icons.people,
               child: Text(
-                '${community.membersCount} membre${community.membersCount > 1 ? 's' : ''}',
+                '${community.membersCount ?? 0} membre${(community.membersCount ?? 0) > 1 ? 's' : ''}',
                 style: TextStyle(fontSize: 13, color: Colors.grey[600]),
               ),
             ),
@@ -222,7 +220,7 @@ class MobileCommunityCard extends StatelessWidget {
                           Icon(Icons.people, size: 14, color: Colors.grey[500]),
                           const SizedBox(width: 4),
                           Text(
-                            '${community.membersCount}',
+                            '${community.membersCount ?? 0}',
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.grey[600],
@@ -234,7 +232,11 @@ class MobileCommunityCard extends StatelessWidget {
                       // Rang et Score
                       Row(
                         children: [
-                          Icon(Icons.emoji_events, size: 14, color: _getRankColor(rank)),
+                          Icon(
+                            Icons.emoji_events,
+                            size: 14,
+                            color: _getRankColor(rank),
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             'Rang $rank',
@@ -361,8 +363,8 @@ class _ActionButtons extends StatelessWidget {
             icon: const Icon(Icons.visibility, size: 16),
             label: const Text('Voir les membres'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: CommunityColors.primaryLight,
-              foregroundColor: CommunityColors.primary,
+              backgroundColor: const Color(0xFFDCFCE7),
+              foregroundColor: const Color(0xFF16A34A),
               elevation: 0,
               padding: const EdgeInsets.symmetric(vertical: 10),
               shape: RoundedRectangleBorder(
@@ -520,7 +522,7 @@ class CommunityRadioTile extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Material(
-        color: isSelected ? CommunityColors.primaryLight : Colors.grey[50],
+        color: isSelected ? const Color(0xFFDCFCE7) : Colors.grey[50],
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
           onTap: onTap,
@@ -535,7 +537,7 @@ class CommunityRadioTile extends StatelessWidget {
                       ? Icons.radio_button_checked
                       : Icons.radio_button_off,
                   color: isSelected
-                      ? CommunityColors.primary
+                      ? const Color(0xFF16A34A)
                       : Colors.grey[400],
                 ),
                 const SizedBox(width: 12),
@@ -550,7 +552,7 @@ class CommunityRadioTile extends StatelessWidget {
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
                           color: isSelected
-                              ? CommunityColors.primary
+                              ? const Color(0xFF16A34A)
                               : Colors.grey[900],
                         ),
                       ),
@@ -592,7 +594,7 @@ class CompanyRadioTile extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Material(
-        color: isSelected ? CommunityColors.primaryLight : Colors.grey[50],
+        color: isSelected ? const Color(0xFFDCFCE7) : Colors.grey[50],
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
           onTap: onTap,
@@ -607,7 +609,7 @@ class CompanyRadioTile extends StatelessWidget {
                       ? Icons.radio_button_checked
                       : Icons.radio_button_off,
                   color: isSelected
-                      ? CommunityColors.primary
+                      ? const Color(0xFF16A34A)
                       : Colors.grey[400],
                 ),
                 const SizedBox(width: 12),
@@ -619,7 +621,7 @@ class CompanyRadioTile extends StatelessWidget {
                     style: TextStyle(
                       fontWeight: FontWeight.w500,
                       color: isSelected
-                          ? CommunityColors.primary
+                          ? const Color(0xFF16A34A)
                           : Colors.grey[900],
                     ),
                   ),

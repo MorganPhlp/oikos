@@ -1,15 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/theme/admin_theme.dart';
 import 'package:oikos/core/theme/breakpoints.dart';
-import 'package:oikos/features/admin/domain/entities/community.dart';
+import 'package:oikos/core/domain/entities/user.dart';
+import 'package:oikos/features/admin/data/models/models.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_event.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_state.dart';
 import 'package:oikos/features/admin/presentation/widget/community_page/mobile_views.dart';
 import 'package:oikos/features/admin/presentation/widget/community_page/desktop_modals.dart';
 import 'package:oikos/features/admin/presentation/widget/community_page/card_widgets.dart';
-import 'package:oikos/features/admin/domain/entities/user.dart';
+
+
+
+enum MobileView {
+  /// Liste principale des communautés
+  list,
+
+  /// Liste des membres d'une communauté sélectionnée
+  members,
+
+  /// Formulaire de création d'une nouvelle communauté
+  createCommunity,
+
+  /// Formulaire de modification du code d'accès
+  editCode,
+
+  /// Formulaire pour changer un utilisateur de communauté
+  changeUser,
+
+  /// Confirmation de suppression d'une communauté
+  deleteConfirm,
+}
 
 class CommunityManagementPage extends StatelessWidget {
   const CommunityManagementPage({super.key});
@@ -45,7 +66,7 @@ class CommunityManagementPage extends StatelessWidget {
 
   /// Récupère les utilisateurs d'une communauté spécifique
   List<User> _getUsers(String communityId, List<User> users) {
-    return users.where((u) => u.communityId == communityId).toList();
+    return users.where((u) => u.codeCommunaute == communityId).toList();
   }
 
   // ============================================================================
@@ -115,7 +136,7 @@ class CommunityManagementPage extends StatelessWidget {
       case MobileView.members:
         return MobileMembersList(
           community: state.selectedCommunity!,
-          users: _getUsers(state.selectedCommunity!.id, users),
+          users: _getUsers(state.selectedCommunity!.code, users),
           onBack: () {
             _goBack(context);
             context.read<CommunityBloc>().add(ResetCommunityStatusEvent());
@@ -138,22 +159,28 @@ class CommunityManagementPage extends StatelessWidget {
         );
 
       case MobileView.editCode:
-        return MobileEditCode(onBack: () {
+        return MobileEditCode(
+          onBack: () {
             _goBack(context);
             context.read<CommunityBloc>().add(ResetCommunityStatusEvent());
-          });
+          },
+        );
 
       case MobileView.changeUser:
-        return MobileChangeUserCommunity(onBack: () {
+        return MobileChangeUserCommunity(
+          onBack: () {
             _goBack(context);
             context.read<CommunityBloc>().add(ResetCommunityStatusEvent());
-          });
+          },
+        );
 
       case MobileView.deleteConfirm:
-        return MobileDeleteConfirmation(onBack: () {
+        return MobileDeleteConfirmation(
+          onBack: () {
             _goBack(context);
             context.read<CommunityBloc>().add(ResetCommunityStatusEvent());
-          });
+          },
+        );
     }
   }
 
@@ -186,19 +213,17 @@ class CommunityManagementPage extends StatelessWidget {
           padding: EdgeInsets.all(padding),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [    
+            children: [
               // Bouton créer
               _buildCreateButton(context),
 
-              const SizedBox(height:24),
+              const SizedBox(height: 24),
 
               // Grille ou état vide
               if (communities.isEmpty)
                 _buildEmptyState(context)
               else
                 _buildCommunitiesGrid(context, crossAxisCount, state),
-
-              
             ],
           ),
         ),
@@ -272,7 +297,7 @@ class CommunityManagementPage extends StatelessWidget {
           ElevatedButton(
             onPressed: () => _showCreateCommunityModal(context),
             style: ElevatedButton.styleFrom(
-              backgroundColor: CommunityColors.primary,
+              backgroundColor: const Color(0xFF16A34A),
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
               shape: RoundedRectangleBorder(
@@ -296,7 +321,7 @@ class CommunityManagementPage extends StatelessWidget {
           icon: const Icon(Icons.add, size: 20),
           label: const Text('Créer une communauté'),
           style: ElevatedButton.styleFrom(
-            backgroundColor: CommunityColors.primary,
+            backgroundColor: const Color(0xFF16A34A),
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
             shape: RoundedRectangleBorder(
@@ -361,7 +386,7 @@ class CommunityManagementPage extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               context.read<CommunityBloc>().add(
-                DeleteCommunityEvent(communityId: community.id),
+                DeleteCommunityEvent(communityId: community.code),
               );
               Navigator.pop(ctx);
             },

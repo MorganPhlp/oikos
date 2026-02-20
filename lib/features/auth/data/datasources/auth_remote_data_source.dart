@@ -1,40 +1,42 @@
+import 'package:oikos/core/domain/entities/user.dart';
 import 'package:oikos/core/error/exceptions.dart';
-import 'package:oikos/features/auth/data/models/user_model.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as sup;
 
 abstract interface class AuthRemoteDataSource {
-  Session? get currentUserSession;
-  SupabaseClient get client;
+  sup.Session? get currentUserSession;
+  sup.SupabaseClient get client;
 
-  Future<UserModel> signUpWithEmailAndPassword({
+  Future<User> signUpWithEmailAndPassword({
     required String email,
     required String password,
     required String pseudo,
     required String communityCode,
   });
 
-  Future<UserModel> signInWithEmailAndPassword({
+  Future<User> signInWithEmailAndPassword({
     required String email,
     required String password,
   });
 
-  Future<UserModel?> getCurrentUserData();
+  Future<User?> getCurrentUserData();
+
+  Future<void> signOut();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
-  final SupabaseClient supabaseClient;
+  final sup.SupabaseClient supabaseClient;
 
   AuthRemoteDataSourceImpl({required this.supabaseClient});
 
   @override
-  Session? get currentUserSession => supabaseClient.auth.currentSession;
+  sup.Session? get currentUserSession => supabaseClient.auth.currentSession;
 
   // Pour utilisation dans le repository
   @override
-  SupabaseClient get client => supabaseClient;
+  sup.SupabaseClient get client => supabaseClient;
 
   @override
-  Future<UserModel> signUpWithEmailAndPassword({
+  Future<User> signUpWithEmailAndPassword({
     required String email,
     required String password,
     required String pseudo,
@@ -49,19 +51,26 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (response.user == null) {
         throw ServerException('User is null');
       }
-      //on ajoute les donnees supplementaires de l'utilisateur dans la table utilisateur
-      await supabaseClient.from('utilisateur').update({
-        'code_communaute': communityCode,
-      }).eq("id" , response.user!.id);
-      
-      return UserModel.fromJson(response.user!.toJson());
+      // on ajoute les donnees supplementaires de l'utilisateur dans la table utilisateur
+      await supabaseClient
+          .from('utilisateur')
+          .update({'code_communaute': communityCode})
+          .eq("id", response.user!.id);
+
+      final userData = await supabaseClient
+          .from('utilisateur')
+          .select()
+          .eq('id', response.user!.id)
+          .single();
+
+      return User.fromJson(userData);
     } catch (e) {
       throw ServerException(e.toString());
     }
   }
 
   @override
-  Future<UserModel> signInWithEmailAndPassword({
+  Future<User> signInWithEmailAndPassword({
     required String email,
     required String password,
   }) async {
@@ -77,29 +86,35 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       final userData = await supabaseClient
           .from('utilisateur')
           .select()
-          .eq('id', response.user!.id).single();
-      // on merge les deux maps
-      final mergedData = {
-        ...userData,
-        ...response.user!.toJson(),
-      };
-      return UserModel.fromJson(mergedData);
+          .eq('id', response.user!.id)
+          .single();
+
+      return User.fromJson(userData);
     } catch (e) {
       throw ServerException(e.toString());
     }
   }
 
   @override
-  Future<UserModel?> getCurrentUserData() async {
+  Future<User?> getCurrentUserData() async {
     try {
-      if(currentUserSession == null) {
+      if (currentUserSession == null) {
         return null;
       }
       final userData = await supabaseClient
           .from('utilisateur')
           .select()
           .eq('id', currentUserSession!.user.id);
-      return UserModel.fromJson(userData.first);
+      return User.fromJson(userData.first);
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+  }
+
+  @override
+  Future<void> signOut() async {
+    try {
+      await supabaseClient.auth.signOut();
     } catch (e) {
       throw ServerException(e.toString());
     }

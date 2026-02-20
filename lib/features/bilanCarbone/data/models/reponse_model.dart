@@ -21,8 +21,8 @@ sealed class ReponseUtilisateurModel with _$ReponseUtilisateurModel {
       _$ReponseUtilisateurModelFromJson(json);
 
   // Conversion vers l'entité du domaine
-  ReponseUtilisateurEntity toEntity() {
-    return ReponseUtilisateurEntity(
+  ReponseUser toEntity() {
+    return ReponseUser(
       id: id,
       bilanId: bilanId,
       questionId: questionId,
@@ -31,7 +31,7 @@ sealed class ReponseUtilisateurModel with _$ReponseUtilisateurModel {
   }
 
   // Création depuis l'entité du domaine
-  factory ReponseUtilisateurModel.fromEntity(ReponseUtilisateurEntity entity) {
+  factory ReponseUtilisateurModel.fromEntity(ReponseUser entity) {
     return ReponseUtilisateurModel(
       id: entity.id,
       bilanId: entity.bilanId,

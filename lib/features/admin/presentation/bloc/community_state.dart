@@ -1,7 +1,6 @@
-import 'package:oikos/features/admin/domain/entities/community.dart';
-import 'package:oikos/features/admin/domain/entities/user.dart' as u;
-import 'package:oikos/core/theme/breakpoints.dart';
-
+import 'package:oikos/core/domain/entities/user.dart';
+import 'package:oikos/features/admin/data/models/models.dart';
+import 'package:oikos/features/admin/presentation/pages/community_management_page.dart';
 abstract class CommunityState {}
 
 class CommunityInitial extends CommunityState {}
@@ -18,17 +17,17 @@ class CommunityLoaded extends CommunityState {
 
   /// Communauté sélectionnée (pour les actions)
   final Community? selectedCommunity;
-  final List<u.User>? selectedUsers;
+  final List<User>? selectedUsers;
 
   /// Utilisateur sélectionné (pour les actions)
-  final u.User? selectedUser;
+  final User? selectedUser;
 
   /// Nouvelle communauté sélectionnée (pour le changement de communauté)
   final String? selectedNewCommunityId;
   final String? selectedCompanyId;
 
-  final bool isSubmitting; // Pour afficher un petit loader sur le bouton
-  final bool updateSuccess; // Pour déclencher un SnackBar ou fermer une modal
+  final bool isSubmitting;
+  final bool updateSuccess;
 
   CommunityLoaded({
     required this.data,
@@ -40,20 +39,20 @@ class CommunityLoaded extends CommunityState {
     this.selectedCompanyId,
     this.isSubmitting = false,
     this.updateSuccess = false,
-    this.errorMessage
+    this.errorMessage,
   });
 
   CommunityLoaded copyWith({
     CommunityData? data,
     MobileView? currentMobileView,
     Community? selectedCommunity,
-    u.User? selectedUser,
-    List<u.User>? selectedUsers,
+    User? selectedUser,
+    List<User>? selectedUsers,
     String? selectedNewCommunityId,
     String? selectedCompanyId,
     bool? isSubmitting,
     bool? updateSuccess,
-    String? errorMessage
+    String? errorMessage,
   }) {
     return CommunityLoaded(
       data: data ?? this.data,
@@ -66,7 +65,7 @@ class CommunityLoaded extends CommunityState {
       selectedNewCommunityId:
           selectedNewCommunityId ?? this.selectedNewCommunityId,
       selectedCompanyId: selectedCompanyId ?? this.selectedCompanyId,
-      errorMessage: errorMessage ?? this.errorMessage
+      errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 }

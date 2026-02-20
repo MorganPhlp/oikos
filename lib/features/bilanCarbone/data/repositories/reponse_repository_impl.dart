@@ -10,8 +10,8 @@ class ReponseRepositoryImpl implements ReponseRepository {
 
   ReponseRepositoryImpl({required this.supabaseClient});
 
-@override
-  Future<void> saveReponse(ReponseUtilisateurEntity reponse) async {
+  @override
+  Future<void> saveReponse(ReponseUser reponse) async {
     try {
       final model = ReponseUtilisateurModel.fromEntity(reponse);
       final data = model.toJson();
@@ -19,14 +19,13 @@ class ReponseRepositoryImpl implements ReponseRepository {
       await supabaseClient
           .from('reponse_utilisateur')
           .upsert(data, onConflict: 'bilan_id, question_id');
-          
     } catch (e) {
       throw Exception('Erreur lors de la sauvegarde de la réponse : $e');
     }
   }
 
   @override
-  Future<List<ReponseUtilisateurEntity>> getReponses(int bilanId) async {
+  Future<List<ReponseUser>> getReponses(int bilanId) async {
     try {
       final response = await supabaseClient
           .from('reponse_utilisateur')
@@ -55,7 +54,7 @@ class ReponseRepositoryImpl implements ReponseRepository {
   }
 
   @override
-  Future<ReponseUtilisateurEntity?> getReponse(int bilanId, int questionId){
+  Future<ReponseUser?> getReponse(int bilanId, int questionId) {
     try {
       return supabaseClient
           .from('reponse_utilisateur')
@@ -71,7 +70,7 @@ class ReponseRepositoryImpl implements ReponseRepository {
     }
   }
 
-@override
+  @override
   Future<Map<String, dynamic>> chargerSituationDepuisVue() async {
     try {
       const bilanId = 0;
@@ -108,7 +107,7 @@ class ReponseRepositoryImpl implements ReponseRepository {
             }
             continue;
           } catch (e) {
-             // En cas d'erreur de parsing, on ne bloque pas la boucle
+            // En cas d'erreur de parsing, on ne bloque pas la boucle
           }
         }
 
@@ -122,9 +121,8 @@ class ReponseRepositoryImpl implements ReponseRepository {
               }
             });
             continue;
-          // ignore: empty_catches
-          } catch (e) {
-          }
+            // ignore: empty_catches
+          } catch (e) {}
         }
 
         // --- CAS 3 : VALEURS CLASSIQUES (Nombre ou Texte) ---

@@ -1,144 +1,200 @@
+import 'package:fpdart/fpdart.dart';
+import 'package:oikos/core/error/failures.dart';
 import 'package:oikos/core/logger.dart';
-import 'package:oikos/features/admin/domain/interfaces/community_rep.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:oikos/features/admin/data/models/company_model.dart';
-import 'package:oikos/features/admin/data/models/user_model.dart';
-import 'package:oikos/features/admin/domain/entities/user.dart' as u;
-import 'package:oikos/features/admin/data/models/community_model.dart';
-import 'package:oikos/features/admin/domain/entities/community.dart';
-import 'package:oikos/features/admin/domain/entities/company.dart';
+import 'package:oikos/core/domain/entities/user.dart';
+import 'package:oikos/features/admin/data/models/models.dart';
+import 'package:oikos/features/admin/domain/repositories/community_rep.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as supa;
 
 class CommunityImpl extends CommunityRep {
-  final SupabaseClient supabase;
+  final supa.SupabaseClient supabase;
 
   CommunityImpl(this.supabase);
 
   @override
-  Future<void> updateCode(String newCode, String communityId) async {
+  Future<Either<Failure, void>> updateCode(
+    String newCode,
+    String oldCode,
+  ) async {
     try {
-      if (newCode.isNotEmpty) {
-        await supabase
-            .from('communities')
-            .update({"code": newCode.toUpperCase()})
-            .eq("id", communityId);
-      }
-    } on PostgrestException catch (e) {
-      logger.e("Erreur Repository", error: e);
-      throw Exception("Erreur supabase : ${e.message} ");
-    } catch (e) {
-      logger.e("Erreur Repository", error: e);
-
-      throw Exception("une Erreur inattendu est survenue");
-    }
-  }
-
-  @override
-  Future<List<Community>> getCommunityData() async {
-    try {
-      // On interroge la vue SQL créée précédemment
-      final response = await supabase.from('community_card').select();
-
-      // On mappe la liste JSON en liste de CommunityModel (qui sont des Community)
-      return (response as List)
-          .map((json) => CommunityModel.fromJson(json))
-          .toList();
-    } catch (e) {
-      logger.e("Erreur Repository",error:e);
       
-      throw Exception("Erreur lors de la récupération des communautés : $e");
+      // if (newCode.isNotEmpty) {
+      //   await supabase
+      //       .from('communaute')
+      //       .update({"code": newCode.toUpperCase()})
+      //       .eq("code", oldCode);
+      // }
+      return right(null);
+    } on supa.PostgrestException catch (e) {
+      logger.e("Erreur Repository", error: e);
+      return left(Failure("Erreur supabase : ${e.message}"));
+    } catch (e) {
+      logger.e("Erreur Repository", error: e);
+      return left(Failure("Une erreur inattendue est survenue"));
     }
   }
 
   @override
-  Future<List<u.User>> getUserData() async {
+  Future<Either<Failure, List<Community>>> getCommunityData() async {
     try {
-      final response = await supabase
-          .from('users')
-          .select('id,email,pseudo,community_id');
+      // final response = await supabase.from('vue_communautes').select();
 
-      return (response as List)
-          .map((json) => UserModel.fromJson(json))
+      final mokResponse = [
+  {
+    "code": "VIV-DEV",
+    "nom": "Viveris Dev Team",
+    "entreprise_id": "comp-111",
+    "description": "Communauté des développeurs de Viveris.",
+    "nombre_membres": 3,
+    "bilan_moyen": 6.8
+  },
+  {
+    "code": "VIV-RH",
+    "nom": "Viveris RH & Admin",
+    "entreprise_id": "comp-111",
+    "description": "Équipe administrative Viveris.",
+    "nombre_membres": 2,
+    "bilan_moyen": 5.2
+  },
+  {
+    "code": "ECO-PROD",
+    "nom": "EcoCorp Production",
+    "entreprise_id": "comp-222",
+    "description": "L'usine responsable.",
+    "nombre_membres": 3,
+    "bilan_moyen": 8.1
+  },
+  {
+    "code": "ECO-MKT",
+    "nom": "EcoCorp Marketing",
+    "entreprise_id": "comp-222",
+    "description": "Marketing vert.",
+    "nombre_membres": 2,
+    "bilan_moyen": 0.0
+  }
+];
+      final communities = mokResponse
+          .map((json) => Community.fromJson(json))
           .toList();
-    } on PostgrestException catch (e) {
-      logger.e("Erreur Repository", error: e);
-      throw Exception("Erreur supabase : ${e.message} ");
+      return right(communities);
     } catch (e) {
       logger.e("Erreur Repository", error: e);
-
-      throw Exception("une Erreur inattendu est survenue");
+      return left(Failure("Erreur lors de la récupération des communautés"));
     }
   }
 
   @override
-  Future<List<Company>> getCompanyData() async {
+  Future<Either<Failure, List<User>>> getUserData() async {
     try {
-      final response = await supabase.from('companies').select();
-      return (response as List)
-          .map((json) => CompanyModel.fromJson(json))
-          .toList();
-    } on PostgrestException catch (e) {
+      // final response = await supabase
+      //     .from('utilisateur')
+      //     .select('id,email,pseudo,code_communaute');
+      final mokResponse = [
+  {"id": "u1", "email": "alice@viveris.fr", "pseudo": "Alice_V", "code_communaute": "VIV-DEV"},
+  {"id": "u2", "email": "bob@viveris.fr", "pseudo": "Bob_V", "code_communaute": "VIV-DEV"},
+  {"id": "u3", "email": "charlie@viveris.fr", "pseudo": "Charlie_V", "code_communaute": "VIV-DEV"},
+  
+  {"id": "u4", "email": "dora@viveris.fr", "pseudo": "Dora_RH", "code_communaute": "VIV-RH"},
+  {"id": "u5", "email": "eric@viveris.fr", "pseudo": "Eric_RH", "code_communaute": "VIV-RH"},
+  
+  {"id": "u6", "email": "frank@ecocorp.com", "pseudo": "Franky", "code_communaute": "ECO-PROD"},
+  {"id": "u7", "email": "grace@ecocorp.com", "pseudo": "Grace_E", "code_communaute": "ECO-PROD"},
+  {"id": "u8", "email": "heidi@ecocorp.com", "pseudo": "Heidi_P", "code_communaute": "ECO-PROD"},
+  
+  {"id": "u9", "email": "ivan@ecocorp.com", "pseudo": "Ivan_M", "code_communaute": "ECO-MKT"},
+  {"id": "u10", "email": "judy@ecocorp.com", "pseudo": "Judy_M", "code_communaute": "ECO-MKT"}
+];
+      final users = mokResponse.map((json) => User.fromJson(json)).toList();
+
+      return right(users);
+    } on supa.PostgrestException catch (e) {
       logger.e("Erreur Repository", error: e);
-      throw Exception("Erreur supabase : ${e.message} ");
+      return left(Failure("Erreur supabase : ${e.message}"));
     } catch (e) {
       logger.e("Erreur Repository", error: e);
-
-      throw Exception("une Erreur inattendu est survenue");
+      return left(Failure("Une erreur inattendue est survenue"));
     }
   }
 
   @override
-  Future<void> createCommunity({
-    required String name,
-    required String code,
-    required companyId,
-    required String id,
-  }) async {
+  Future<Either<Failure, List<Company>>> getCompanyData() async {
     try {
-      await supabase.from('communities').insert({
-        "id": id,
-        "name": name,
-        "code": code.toUpperCase(),
-        "company_id": companyId,
-      });
-    } on PostgrestException catch (e) {
+      // final response = await supabase.from('entreprise').select();
+
+      final mokResponse = 
+      [
+        {
+          "id": "comp-111",
+          "nom": "Viveris",
+          "logo_url": "https://logo.com/viveris.png",
+          "domaine_email": "viveris.fr",
+          "description": "Expertise en conseil et ingénierie informatique."
+        },
+        {
+          "id": "comp-222",
+          "nom": "EcoCorp",
+          "logo_url": null,
+          "domaine_email": "ecocorp.com",
+          "description": "Leader de solutions durables."
+        }
+      ];
+      
+
+      final companies = mokResponse.map((json) => Company.fromJson(json)).toList();
+      return right(companies);
+    } on supa.PostgrestException catch (e) {
       logger.e("Erreur Repository", error: e);
-      throw Exception("Erreur supabase : ${e.message} ");
+      return left(Failure("Erreur supabase : ${e.message}"));
     } catch (e) {
       logger.e("Erreur Repository", error: e);
-      throw Exception("une Erreur inattendu est survenue");
+      return left(Failure("Une erreur inattendue est survenue"));
     }
   }
 
   @override
-  Future<bool> checkExistCode(String code) async {
+  Future<Either<Failure, void>> createCommunity(Community community) async {
     try {
-      final response = await supabase.from('communities').select('code');
-
-      bool codeExist = false;
-
-      for (int i = 0; i < response.length; i++) {
-        if (response[i]['code'] == code) codeExist = true;
-      }
-      return codeExist;
-    } on PostgrestException catch (e) {
+      // await supabase.from('communaute').insert(community.toJson());
+      return right(null);
+    } on supa.PostgrestException catch (e) {
       logger.e("Erreur Repository", error: e);
-      throw Exception("Erreur supabase : ${e.message} ");
+      return left(Failure("Erreur supabase : ${e.message}"));
     } catch (e) {
       logger.e("Erreur Repository", error: e);
-      throw Exception("une Erreur inattendu est survenue");
+      return left(Failure("Une erreur inattendue est survenue"));
     }
   }
 
   @override
-  Future<void> deleteCommunity(String communityId) async {
+  Future<Either<Failure, bool>> checkExistCode(String code) async {
     try {
-      await supabase.from('communities').delete().eq('id', communityId);
-    } on PostgrestException catch (e) {
+      // final response = await supabase.from('communaute').select('code');
+      // bool codeExist = false;
+      // for (int i = 0; i < response.length; i++) {
+      //   if (response[i]['code'] == code) codeExist = true;
+      // }
+      // return right(codeExist);
+      return right(false);
+    } on supa.PostgrestException catch (e) {
       logger.e("Erreur Repository", error: e);
-      throw Exception("Erreur supabase : ${e.message} ");
+      return left(Failure("Erreur supabase : ${e.message}"));
     } catch (e) {
       logger.e("Erreur Repository", error: e);
-      throw Exception("une Erreur inattendu est survenue");
+      return left(Failure("Une erreur inattendue est survenue"));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteCommunity(String code) async {
+    try {
+      // await supabase.from('communaute').delete().eq('code', code);
+      return right(null);
+    } on supa.PostgrestException catch (e) {
+      logger.e("Erreur Repository", error: e);
+      return left(Failure("Erreur supabase : ${e.message}"));
+    } catch (e) {
+      logger.e("Erreur Repository", error: e);
+      return left(Failure("Une erreur inattendue est survenue"));
     }
   }
 }

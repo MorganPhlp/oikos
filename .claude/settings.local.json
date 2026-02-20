@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter analyze:*)",
+      "Bash(dart run build_runner build:*)",
+      "Bash(flutter pub run build_runner build:*)",
+      "Bash(del:*)",
+      "Bash(powershell -Command:*)"
+    ]
+  }
+}

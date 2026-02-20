@@ -15,7 +15,7 @@ class SessionLoading extends BilanSessionState {}
 
 class SessionRepriseDisponible extends BilanSessionState {
   final List<QuestionBilanEntity> questions;
-  final List<ReponseUtilisateurEntity> reponsesExistantes;
+  final List<ReponseUser> reponsesExistantes;
 
   const SessionRepriseDisponible({
     required this.questions,
@@ -29,7 +29,7 @@ class SessionRepriseDisponible extends BilanSessionState {
 /// État : Tout est prêt pour afficher la première (ou la prochaine) question.
 class SessionPrete extends BilanSessionState {
   final List<QuestionBilanEntity> questions;
-  final List<ReponseUtilisateurEntity> reponsesInitiales;
+  final List<ReponseUser> reponsesInitiales;
 
   const SessionPrete({
     required this.questions,

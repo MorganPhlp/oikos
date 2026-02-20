@@ -50,3 +50,5 @@ final class AuthValidatePseudo extends AuthEvent {
 
   AuthValidatePseudo({required this.pseudo});
 }
+
+final class AuthLogout extends AuthEvent {}

@@ -68,21 +68,24 @@ class _SignInPageState extends State<SignInPage> {
         ),
       ),
       body: SafeArea(
-        child: BlocConsumer<AuthBloc, AuthState>(
-          listener: (context, state) {
-            if (state is AuthSuccess) {
-              Navigator.popUntil(context, (route) => route.isFirst);
-            } else
-            if (state is AuthFailure) {
-              showSnackBar(context, state.message);
-            }
-          },
-          builder: (context, state) {
-            return Stack(
-              children: [
-                SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
-                  child: Form(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 480),
+            child: BlocConsumer<AuthBloc, AuthState>(
+              listener: (context, state) {
+                if (state is AuthSuccess) {
+                  Navigator.popUntil(context, (route) => route.isFirst);
+                } else
+                if (state is AuthFailure) {
+                  showSnackBar(context, state.message);
+                }
+              },
+              builder: (context, state) {
+                return Stack(
+                  children: [
+                    SingleChildScrollView(
+                      padding: const EdgeInsets.all(20),
+                      child: Form(
                     key: _formKey,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -196,6 +199,8 @@ class _SignInPageState extends State<SignInPage> {
               ],
             );
           },
+        ),
+          ),
         ),
       ),
     );

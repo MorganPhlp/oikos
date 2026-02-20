@@ -2,6 +2,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:oikos/core/common/cubits/app_user/app_user_cubit.dart';
+import 'package:oikos/core/domain/entities/user.dart';
+import 'package:oikos/core/presentation/widgets/admin_scaffold.dart';
+import 'package:oikos/core/theme/admin_theme.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:oikos/features/admin/presentation/pages/community_management_page.dart';
+import 'package:oikos/features/admin/presentation/pages/global_vue_page.dart';
+import 'package:oikos/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:oikos/features/auth/presentation/pages/intro_page.dart';
 import 'package:oikos/features/bilanCarbone/presentation/pages/bilan_flow.dart';
 import 'package:oikos/features/dashboard/presentation/pages/home_page.dart';
@@ -27,32 +34,139 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
         path: '/home',
         name: 'home',
         builder: (context, state) => const HomePage(),
-      ), 
-      // TO DO : ajouter les autres routes ici quand elles seront prêtes
-      /*
-      GoRoute(
-        path: '/home',
-        name: 'home',
-        builder: (context, state) => const HomePage(),
       ),
-      */
+      ShellRoute(
+        builder: (context, state, child) {
+          // Liste des chemins pour faire correspondre l'URL à l'index
+          final tabs = [
+            '/admin/dashboard',
+            '/admin/community',
+            '/admin/profil',
+          ];
+          // On cherche l'index correspondant au chemin actuel
+          final int currentIndex = tabs.indexWhere(
+            (path) => state.uri.path.startsWith(path),
+          );
+          return Theme(
+            data: AdminTheme.theme,
+            child: Builder(
+              builder: (themeContext) {
+                return Container(
+                  decoration: BoxDecoration(
+                    gradient: Theme.of(
+                      themeContext,
+                    ).extension<GradientBackground>()?.mainGradient,
+                  ),
+                  child: Builder(
+                    builder: (context) {
+                      final state = context.read<AppUserCubit>().state;
+                      if (state is AppUserLoggedIn && state.user.isAdmin) {
+                        return AdminScaffold(
+                          title: 'Oikos Admin',
+                          logo: Image.asset('assets/logos/v_viveris_noir.png'),
+                          currentIndex: currentIndex < 0
+                              ? 0
+                              : currentIndex, // Sécurité si index non trouvé
+                          destinations: [
+                            NavigationDestination(
+                              icon: Icon(Icons.dashboard_outlined),
+                              selectedIcon: Icon(Icons.dashboard),
+                              label: 'Vue Globale',
+                            ),
+                            NavigationDestination(
+                              icon: Icon(Icons.people_outlined),
+                              selectedIcon: const Icon(Icons.people),
+                              label: 'Communautés',
+                            ),
+                            NavigationDestination(
+                              icon: CircleAvatar(
+                                      radius: 12,
+                                      backgroundImage: NetworkImage(
+                                        state.user.avatarFullUrl,
+                                      ),
+                                    ),
+                              selectedIcon: CircleAvatar(
+                                      radius: 12,
+                                      backgroundImage: NetworkImage(
+                                        state.user.avatarFullUrl,
+                                      ),
+                                    ),
+                              label: 'Profil',
+                            ),
+                          ],
+                          onNavigationIndexChange: (index) {
+                            // Au lieu de setState, on utilise GoRouter pour changer l'URL
+                            if (index == 0) context.goNamed('adminDashboard');
+                            if (index == 1) context.goNamed('adminCommunity');
+                            if (index == 2) context.goNamed('adminProfil');
+                          },
+                          onLogout: () {
+                            context.read<AuthBloc>().add(AuthLogout());
+                          },
+                          body:
+                              child, // L'écran de la route actuelle injecté par GoRouter
+                        );
+                      }
+                    return IntroPage(); // Fallback si jamais l'état n'est pas celui attendu
+                    },
+                  ),
+                );
+              },
+            ),
+          );
+        },
+        routes: [
+          GoRoute(
+            path: '/admin/dashboard',
+            name: 'adminDashboard',
+            builder: (context, state) {
+              final appUserState = context.read<AppUserCubit>().state;
+
+              if (appUserState is AppUserLoggedIn) {
+                final User user = appUserState.user;
+                return GlobalVuePage(user: user);
+              }
+
+              return const IntroPage();
+            },
+          ),
+          GoRoute(
+            path: '/admin/community',
+            name: 'adminCommunity',
+            builder: (context, state) {
+              return const CommunityManagementPage();
+            },
+          ),
+          GoRoute(
+            path: '/admin/profil',
+            name: 'adminProfil',
+            builder: (context, state) {
+              // TODO : créer la page de profil admin
+              return Center(child: Text('Page de profil admin à venir'));
+            },
+          ),
+        ],
+      ),
     ],
 
     redirect: (context, state) {
       final authState = appUserCubit.state;
       final String location = state.matchedLocation;
 
-      if (authState is AppUserInitial) {
-        // On ne redirige pas tant que l'état n'est pas connu
-        return null;
-      }
       // 1. CAS : UTILISATEUR CONNECTÉ
       if (authState is AppUserLoggedIn) {
-        // Si l'utilisateur est sur l'intro (/) ou les pages auth, on le redirige
+        // Si l'utilisateur est sur l'intro (/), on le redirige selon son rôle
         if (location == '/') {
-          //TO DO : rediriger vers la home quand elle sera prête
+          if (authState.user.isAdmin) {
+            return '/admin/dashboard';
+          }
           return authState.user.hasCompletedBilan ? '/home' : '/bilan';
         }
+        // Admin sur une route non-admin → forcer vers /admin/dashboard
+        if (authState.user.isAdmin && !location.startsWith('/admin')) {
+          return '/admin/dashboard';
+        }
+        return null;
       }
 
       // 2. CAS : UTILISATEUR NON CONNECTÉ
@@ -61,7 +175,7 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
         return '/';
       }
 
-      return null; // Il est sur '/' et n'est pas connecté, c'est OK.
+      return null;
     },
   );
 }

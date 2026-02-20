@@ -21,7 +21,7 @@ class PreparerChoixObjectifsUseCase {
   >
   call() async {
     final (scoreEnKg, detailBilan) = await calculerBilanUseCase.call();
-    final objectifs = await obtenirObjectifsUseCase.call();
+    final objectifs = obtenirObjectifsUseCase.call();
 
     return (
       scoreActuel: scoreEnKg,

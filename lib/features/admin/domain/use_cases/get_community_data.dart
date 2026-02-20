@@ -1,28 +1,31 @@
-import 'package:oikos/features/admin/domain/entities/community.dart';
-import 'package:oikos/features/admin/domain/interfaces/community_rep.dart';
-
-class CommunityDataFetchedException implements Exception {
-  final String message;
-  CommunityDataFetchedException(this.message);
-}
+import 'package:fpdart/fpdart.dart';
+import 'package:oikos/core/error/failures.dart';
+import 'package:oikos/features/admin/data/models/models.dart';
+import 'package:oikos/features/admin/domain/repositories/community_rep.dart';
 
 class GetCommunityData {
   final CommunityRep repository;
 
   GetCommunityData(this.repository);
 
-  /// La méthode call permet d'appeler le use case comme une fonction : useCase()
-  Future<CommunityData> call() async {
+  Future<Either<Failure, CommunityData>> call() async {
+    final usersResult = await repository.getUserData();
+    final communitiesResult = await repository.getCommunityData();
+    final companiesResult = await repository.getCompanyData();
 
-    final users = await repository.getUserData();
-    final communities = await repository.getCommunityData();
-    final companies = await repository.getCompanyData();
-
-    return CommunityData(
-      users: users,
-      communities: communities,
-      companies: companies,
+    return usersResult.fold(
+      (failure) => left(failure),
+      (users) => communitiesResult.fold(
+        (failure) => left(failure),
+        (communities) => companiesResult.fold(
+          (failure) => left(failure),
+          (companies) => right(CommunityData(
+            users: users,
+            communities: communities,
+            companies: companies,
+          )),
+        ),
+      ),
     );
-
   }
 }

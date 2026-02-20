@@ -2,8 +2,8 @@ import 'package:oikos/features/admin/domain/entities/co2_performance_data.dart';
 
 abstract class CarbonStatsState {}
 
+class Co2PerformanceInitial extends CarbonStatsState {}
 
-class Co2PerformanceInitial extends CarbonStatsState{}
 class Co2PerformanceLoading extends CarbonStatsState {}
 
 class Co2PerformanceLoaded extends CarbonStatsState {

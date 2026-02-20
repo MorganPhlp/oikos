@@ -17,7 +17,7 @@ class RecupererReponsesUseCase {
     required this.authRepository,
   });
 
-  Future<List<ReponseUtilisateurEntity>> call() async {
+  Future<List<ReponseUser>> call() async {
     final userId = await authRepository.getUserId();
     if (userId == null) throw Exception("Action impossible sans connexion");
 

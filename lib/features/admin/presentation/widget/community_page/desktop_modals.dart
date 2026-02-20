@@ -1,11 +1,10 @@
-import 'package:oikos/features/admin/domain/entities/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/features/admin/domain/entities/community.dart';
+import 'package:oikos/core/domain/entities/user.dart';
+import 'package:oikos/features/admin/data/models/models.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_event.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_state.dart';
-import 'package:oikos/core/theme/admin_theme.dart';
 import 'form_widgets.dart';
 import 'card_widgets.dart';
 
@@ -75,7 +74,8 @@ class _CreateCommunityModalState extends State<CreateCommunityModal> {
 
   String? _validateCode(String code) {
     if (code.isEmpty) return 'Le code est requis';
-    if (code.length != 6) return 'Le code doit contenir exactement 6 caractères';
+    if (code.length != 6)
+      return 'Le code doit contenir exactement 6 caractères';
     return null;
   }
 
@@ -222,7 +222,7 @@ class _EditCodeModalState extends State<EditCodeModal> {
     final state = context.read<CommunityBloc>().state as CommunityLoaded;
     final community = state.selectedCommunity!;
     _codeController = TextEditingController(text: community.code);
-    _communityId = community.id;
+    _communityId = community.code;
     _communityName = community.name;
   }
 
@@ -255,7 +255,7 @@ class _EditCodeModalState extends State<EditCodeModal> {
                 _ModalHeader(
                   title: 'Modifier le code',
                   icon: Icons.vpn_key,
-                  iconColor: CommunityColors.primary,
+                  iconColor: const Color(0xFF16A34A),
                   onClose: () {
                     Navigator.pop(context);
                     context.read<CommunityBloc>().add(
@@ -371,7 +371,9 @@ class MembersListModal extends StatelessWidget {
                       ),
                       IconButton(
                         onPressed: () {
-                          context.read<CommunityBloc>().add(ResetCommunityStatusEvent());
+                          context.read<CommunityBloc>().add(
+                            ResetCommunityStatusEvent(),
+                          );
                           Navigator.pop(context);
                         },
                         icon: const Icon(Icons.close),
@@ -402,7 +404,9 @@ class MembersListModal extends StatelessWidget {
                     width: double.infinity,
                     child: OutlinedButton(
                       onPressed: () {
-                        context.read<CommunityBloc>().add(ResetCommunityStatusEvent());
+                        context.read<CommunityBloc>().add(
+                          ResetCommunityStatusEvent(),
+                        );
                         Navigator.pop(context);
                       },
                       style: OutlinedButton.styleFrom(
@@ -439,7 +443,7 @@ class MembersListModal extends StatelessWidget {
     List<Community> communities,
   ) {
     return ListView.separated(
-      key: ValueKey('members_${users.length}_${community.id}'),
+      key: ValueKey('members_${users.length}_${community.code}'),
       shrinkWrap: true,
       padding: const EdgeInsets.all(20),
       itemCount: users.length,
@@ -495,7 +499,7 @@ class ChangeUserCommunityModal extends StatelessWidget {
 
         final communities = state.data.communities;
         final selectedNewCommunityId =
-            state.selectedNewCommunityId ?? user.communityId;
+            state.selectedNewCommunityId ?? user.codeCommunaute;
         final isSubmitting = state.isSubmitting;
 
         return Dialog(
@@ -539,9 +543,9 @@ class ChangeUserCommunityModal extends StatelessWidget {
                       ...communities.map(
                         (c) => CommunityRadioTile(
                           community: c,
-                          isSelected: selectedNewCommunityId == c.id,
+                          isSelected: selectedNewCommunityId == c.code,
                           onTap: () => context.read<CommunityBloc>().add(
-                            SelectNewCommunityEvent(communityId: c.id),
+                            SelectNewCommunityEvent(communityId: c.code),
                           ),
                         ),
                       ),
@@ -657,7 +661,7 @@ class _ModalActions extends StatelessWidget {
             child: ElevatedButton(
               onPressed: onSubmit,
               style: ElevatedButton.styleFrom(
-                backgroundColor: CommunityColors.primary,
+                backgroundColor: const Color(0xFF16A34A),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(

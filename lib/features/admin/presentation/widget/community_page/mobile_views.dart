@@ -1,11 +1,10 @@
-import 'package:oikos/features/admin/domain/entities/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/features/admin/domain/entities/community.dart';
+import 'package:oikos/core/domain/entities/user.dart';
+import 'package:oikos/features/admin/data/models/models.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_event.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_state.dart';
-import 'package:oikos/core/theme/admin_theme.dart';
 import 'form_widgets.dart';
 import 'card_widgets.dart';
 
@@ -73,7 +72,7 @@ class MobileCommunityList extends StatelessWidget {
           IconButton(
             onPressed: onCreateCommunity,
             icon: const Icon(Icons.add_circle),
-            color: CommunityColors.primary,
+            color: const Color(0xFF16A34A),
             iconSize: 32,
           ),
         ],
@@ -223,8 +222,6 @@ class MobileMembersList extends StatelessWidget {
       },
     );
   }
-
-
 }
 
 // ============================================================================
@@ -235,10 +232,7 @@ class MobileMembersList extends StatelessWidget {
 class MobileCreateCommunity extends StatefulWidget {
   final VoidCallback onBack;
 
-  const MobileCreateCommunity({
-    super.key,
-    required this.onBack,
-  });
+  const MobileCreateCommunity({super.key, required this.onBack});
 
   @override
   State<MobileCreateCommunity> createState() => _MobileCreateCommunityState();
@@ -268,11 +262,17 @@ class _MobileCreateCommunityState extends State<MobileCreateCommunity> {
       _nomError = _validateName(_nomController.text.trim());
       _codeError = _validateCode(_codeController.text.trim());
 
-      if (_nomError == null && _codeError == null && selectedCompanyId != null) {
+      if (_nomError == null &&
+          _codeError == null &&
+          selectedCompanyId != null) {
         String name = _nomController.text;
         String code = _codeController.text;
         context.read<CommunityBloc>().add(
-          CreateNewCommunityEvent(name: name, code: code, companyId: selectedCompanyId),
+          CreateNewCommunityEvent(
+            name: name,
+            code: code,
+            companyId: selectedCompanyId,
+          ),
         );
       }
     });
@@ -280,7 +280,8 @@ class _MobileCreateCommunityState extends State<MobileCreateCommunity> {
 
   String? _validateCode(String code) {
     if (code.isEmpty) return 'Le code est requis';
-    if (code.length != 6) return 'Le code doit contenir exactement 6 caractères';
+    if (code.length != 6)
+      return 'Le code doit contenir exactement 6 caractères';
     return null;
   }
 
@@ -304,7 +305,7 @@ class _MobileCreateCommunityState extends State<MobileCreateCommunity> {
           companies = state.data.companies;
           selectedCompanyId = state.selectedCompanyId;
           errorMessage = state.errorMessage;
-        } 
+        }
 
         return Column(
           children: [
@@ -389,10 +390,7 @@ class _MobileCreateCommunityState extends State<MobileCreateCommunity> {
 class MobileEditCode extends StatefulWidget {
   final VoidCallback onBack;
 
-  const MobileEditCode({
-    super.key,
-    required this.onBack,
-  });
+  const MobileEditCode({super.key, required this.onBack});
 
   @override
   State<MobileEditCode> createState() => _MobileEditCodeState();
@@ -409,7 +407,7 @@ class _MobileEditCodeState extends State<MobileEditCode> {
     final state = context.read<CommunityBloc>().state as CommunityLoaded;
     final community = state.selectedCommunity!;
     _codeController = TextEditingController(text: community.code);
-    _communityId = community.id;
+    _communityId = community.code;
     _communityName = community.name;
   }
 
@@ -430,7 +428,7 @@ class _MobileEditCodeState extends State<MobileEditCode> {
           isSubmitting = state.isSubmitting;
           updateSuccess = state.updateSuccess;
           errorMessage = state.errorMessage;
-        } 
+        }
 
         return Column(
           children: [
@@ -442,10 +440,7 @@ class _MobileEditCodeState extends State<MobileEditCode> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ReadOnlyField(
-                      label: 'Communauté',
-                      value: _communityName,
-                    ),
+                    ReadOnlyField(label: 'Communauté', value: _communityName),
                     const SizedBox(height: 20),
                     FormTextField(
                       label: "Nouveau code d'accès *",
@@ -494,10 +489,7 @@ class _MobileEditCodeState extends State<MobileEditCode> {
 class MobileChangeUserCommunity extends StatelessWidget {
   final VoidCallback onBack;
 
-  const MobileChangeUserCommunity({
-    super.key,
-    required this.onBack,
-  });
+  const MobileChangeUserCommunity({super.key, required this.onBack});
 
   @override
   Widget build(BuildContext context) {
@@ -511,7 +503,8 @@ class MobileChangeUserCommunity extends StatelessWidget {
         if (user == null) return const SizedBox.shrink();
 
         final communities = state.data.communities;
-        final selectedNewCommunityId = state.selectedNewCommunityId ?? user.communityId;
+        final selectedNewCommunityId =
+            state.selectedNewCommunityId ?? user.codeCommunaute;
 
         return Column(
           children: [
@@ -542,9 +535,9 @@ class MobileChangeUserCommunity extends StatelessWidget {
                     ...communities.map(
                       (c) => CommunityRadioTile(
                         community: c,
-                        isSelected: selectedNewCommunityId == c.id,
+                        isSelected: selectedNewCommunityId == c.code,
                         onTap: () => context.read<CommunityBloc>().add(
-                          SelectNewCommunityEvent(communityId: c.id),
+                          SelectNewCommunityEvent(communityId: c.code),
                         ),
                       ),
                     ),
@@ -556,7 +549,9 @@ class MobileChangeUserCommunity extends StatelessWidget {
             FormActions(
               onCancel: onBack,
               onSubmit: () {
-                context.read<CommunityBloc>().add(ConfirmChangeUserCommunityEvent());
+                context.read<CommunityBloc>().add(
+                  ConfirmChangeUserCommunityEvent(),
+                );
                 onBack();
               },
               submitLabel: 'Confirmer',
@@ -576,10 +571,7 @@ class MobileChangeUserCommunity extends StatelessWidget {
 class MobileDeleteConfirmation extends StatelessWidget {
   final VoidCallback onBack;
 
-  const MobileDeleteConfirmation({
-    super.key,
-    required this.onBack,
-  });
+  const MobileDeleteConfirmation({super.key, required this.onBack});
 
   @override
   Widget build(BuildContext context) {
@@ -627,10 +619,7 @@ class MobileDeleteConfirmation extends StatelessWidget {
                       child: Text(
                         'Cette action est irréversible.',
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                       ),
                     ),
                   ],
@@ -659,7 +648,7 @@ class MobileDeleteConfirmation extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: () {
                         context.read<CommunityBloc>().add(
-                          DeleteCommunityEvent(communityId: community.id),
+                          DeleteCommunityEvent(communityId: community.code),
                         );
                         onBack();
                       },

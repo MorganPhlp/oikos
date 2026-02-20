@@ -12,7 +12,7 @@ abstract class QuestionnaireEvent extends Equatable {
 /// Initialise le moteur avec les données récupérées par le SessionBloc
 class InitQuestionnaireEvent extends QuestionnaireEvent {
   final List<QuestionBilanEntity> questions;
-  final List<ReponseUtilisateurEntity> reponsesInitiales;
+  final List<ReponseUser> reponsesInitiales;
 
   const InitQuestionnaireEvent({
     required this.questions,

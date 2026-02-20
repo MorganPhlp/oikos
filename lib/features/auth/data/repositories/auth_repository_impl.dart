@@ -1,9 +1,9 @@
 import 'package:fpdart/fpdart.dart';
+import 'package:oikos/core/domain/entities/user.dart';
 import 'package:oikos/core/error/exceptions.dart';
 import 'package:oikos/core/error/failures.dart';
 import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
-import 'package:oikos/core/common/entities/user.dart';
-import 'package:supabase_flutter/supabase_flutter.dart' hide User;
+import 'package:supabase_flutter/supabase_flutter.dart' as sup;
 import '../datasources/auth_remote_data_source.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -97,7 +97,7 @@ class AuthRepositoryImpl implements AuthRepository {
       }
 
       return right((nom, logoUrl));
-    } on AuthException catch (e) {
+    } on sup.AuthException catch (e) {
       return left(Failure(e.message));
     } on ServerException catch (e) {
       return left(Failure(e.message));
@@ -120,7 +120,7 @@ class AuthRepositoryImpl implements AuthRepository {
       }
 
       return right((result['nom'] as String));
-    } on AuthException catch (e) {
+    } on sup.AuthException catch (e) {
       return left(Failure(e.message));
     } on ServerException catch (e) {
       return left(Failure(e.message));
@@ -134,24 +134,36 @@ class AuthRepositoryImpl implements AuthRepository {
           .from('utilisateur')
           .select('pseudo')
           .eq('pseudo', pseudo)
-          .count(CountOption.exact);
+          .count(sup.CountOption.exact);
 
       final count = response.count;
       return right(count == 0);
-    } on AuthException catch (e) {
+    } on sup.AuthException catch (e) {
       return left(Failure(e.message));
     } on ServerException catch (e) {
       return left(Failure(e.message));
     }
   }
 
+  @override
+  Future<Either<Failure, void>> signOut() async {
+    try {
+      await remoteDataSource.signOut();
+      return right(null);
+    } on sup.AuthException catch (e) {
+      return left(Failure(e.message));
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+  
   // Helper method to reduce code duplication
   Future<Either<Failure, User>> _getUser(Future<User> Function() fn) async {
     try {
       final user = await fn();
 
       return right(user);
-    } on AuthException catch (e) {
+    } on sup.AuthException catch (e) {
       return left(Failure(e.message));
     } on ServerException catch (e) {
       return left(Failure(e.message));

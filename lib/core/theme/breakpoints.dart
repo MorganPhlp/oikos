@@ -9,7 +9,7 @@ class Breakpoints {
   // Helpers pour vérifier le type d'écran
   static bool isMobile(double width) => width < mobile;
   static bool isTablet(double width) => width >= mobile && width < tablet;
-  static bool isDesktop(double width) => width >= tablet && width < desktop;
+  static bool isDesktop(double width) => width >= tablet ;
 
   // Obtenir le type d'écran
   static ScreenType getScreenType(double width) {
@@ -28,31 +28,11 @@ extension ResponsiveExtension on double {
     required T mobile,
     T? tablet,
     T? desktop,
-    T? desktopLarge,
   }) {
-    if (this >= Breakpoints.desktop) return desktopLarge ?? desktop ?? tablet ?? mobile;
+    if (this >= Breakpoints.desktop) return desktop ?? tablet ?? mobile;
     if (this >= Breakpoints.tablet) return desktop ?? tablet ?? mobile;
     if (this >= Breakpoints.mobile) return tablet ?? mobile;
     return mobile;
   }
 }
 
-enum MobileView {
-  /// Liste principale des communautés
-  list,
-
-  /// Liste des membres d'une communauté sélectionnée
-  members,
-
-  /// Formulaire de création d'une nouvelle communauté
-  createCommunity,
-
-  /// Formulaire de modification du code d'accès
-  editCode,
-
-  /// Formulaire pour changer un utilisateur de communauté
-  changeUser,
-
-  /// Confirmation de suppression d'une communauté
-  deleteConfirm,
-}

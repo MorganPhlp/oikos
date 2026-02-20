@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:oikos/core/theme/admin_theme.dart';
+import 'package:oikos/core/theme/app_size.dart';
 import 'package:oikos/core/theme/breakpoints.dart';
-import 'package:oikos/features/admin/domain/entities/category_data.dart';
+import 'package:oikos/features/admin/data/models/models.dart';
 
 /// Widget de répartition par catégorie - Version Responsive
 class CategoryBreakdown extends StatefulWidget {
@@ -54,13 +56,21 @@ class _CategoryBreakdownState extends State<CategoryBreakdown> {
         final width = constraints.maxWidth;
         final dim = _ChartDimensions.fromWidth(width);
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Contenu : graphique + légende
-            _buildContent(dim),
-          ],
+        return Container(
+          
+          decoration: AdminTheme.cardDecoration,
+          padding: EdgeInsets.all(dim.spacing),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Consommation CO₂ par catégorie',
+                  style: AppSizes.headlineSize(context).copyWith(fontWeight: FontWeight.w600)
+              ),
+              _buildContent(dim)
+              
+            ],
+          ),
         );
       },
     );
@@ -71,11 +81,7 @@ class _CategoryBreakdownState extends State<CategoryBreakdown> {
     if (dim.isMobile) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: dim.chartHeight, child: _buildChart(dim)),
-          SizedBox(height: dim.spacing),
-          _buildLegend(dim),
-        ],
+        children: [SizedBox(height: dim.chartHeight, child: _buildChart(dim))],
       );
     }
 

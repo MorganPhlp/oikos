@@ -42,11 +42,7 @@ class EnregistrerReponseUseCase {
 
     // 2. Enregistrer la réponse dans la base de données (Persistance)
     await reponseRepo.saveReponse(
-      ReponseUtilisateurEntity(
-        bilanId: bilanId,
-        questionId: question.id,
-        valeur: valeur,
-      ),
+      ReponseUser(bilanId: bilanId, questionId: question.id, valeur: valeur),
     );
     // 3. Envoyer la réponse au moteur de simulation (État temporaire)
     final Map<String, dynamic> situationFormattee = _formaterPourSimulation(

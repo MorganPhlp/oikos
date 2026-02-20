@@ -52,8 +52,9 @@ class ReprendreBilanUseCase {
     if (bilanId == null) {
       throw Exception("Aucun bilan en cours pour reprendre les réponses.");
     }
-    final List<ReponseUtilisateurEntity> reponses = await reponseRepository
-        .getReponses(bilanId);
+    final List<ReponseUser> reponses = await reponseRepository.getReponses(
+      bilanId,
+    );
     //on retourne l'index de la derniere question repondue
     int id = reponses.fold<int>(0, (prev, e) => max(prev, e.questionId));
     int index = allQuestions.indexWhere((q) => q.id == id);

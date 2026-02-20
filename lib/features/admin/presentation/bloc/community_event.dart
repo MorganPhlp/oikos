@@ -1,7 +1,7 @@
-import 'package:oikos/features/admin/domain/entities/community.dart';
-import 'package:oikos/features/admin/domain/entities/user.dart';
-import 'package:oikos/core/theme/breakpoints.dart';
+import 'package:oikos/core/domain/entities/user.dart';
+import 'package:oikos/features/admin/data/models/models.dart';
 
+import 'package:oikos/features/admin/presentation/pages/community_management_page.dart';
 abstract class CommunityEvent {}
 
 // ============================================================================
@@ -108,6 +108,4 @@ class DeleteCommunityEvent extends CommunityEvent {
   DeleteCommunityEvent({required this.communityId});
 }
 
-class ResetCommunityStatusEvent extends CommunityEvent{
-  
-}
+class ResetCommunityStatusEvent extends CommunityEvent {}

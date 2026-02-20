@@ -1,10 +1,10 @@
-class ReponseUtilisateurEntity {
+class ReponseUser {
   final int? id;
   final int bilanId;
   final int questionId;
   final dynamic valeur;
 
-  const ReponseUtilisateurEntity({
+  const ReponseUser({
     this.id,
     required this.bilanId,
     required this.questionId,

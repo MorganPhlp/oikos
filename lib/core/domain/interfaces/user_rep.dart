@@ -1,4 +1,4 @@
-import 'package:oikos/features/admin/domain/entities/user.dart';
+import 'package:oikos/core/domain/entities/user.dart';
 
 abstract class UserRep {
   Future<void> updateUser(User user);

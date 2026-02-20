@@ -84,31 +84,34 @@ class _SignUpPageState extends State<SignUpPage> {
       ),
 
       // Corps de la page
-      body: BlocConsumer<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if (state is AuthFailure) {
-            setState(() {
-              _backendEmailError = state.message;
-            });
-            _formKey.currentState?.validate();
-          }
-          if (state is AuthEmailPasswordVerified) {
-            Navigator.push(
-              context,
-              PseudoPage.route(
-                email: _emailController.text.trim(),
-                password: _passwordController.text.trim(),
-              ),
-            );
-          }
-        },
-        builder: (context, state) {
-          return SafeArea(
-            child: Stack(
-              children: [
-                SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
-                  child: Form(
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 480),
+            child: BlocConsumer<AuthBloc, AuthState>(
+              listener: (context, state) {
+                if (state is AuthFailure) {
+                  setState(() {
+                    _backendEmailError = state.message;
+                  });
+                  _formKey.currentState?.validate();
+                }
+                if (state is AuthEmailPasswordVerified) {
+                  Navigator.push(
+                    context,
+                    PseudoPage.route(
+                      email: _emailController.text.trim(),
+                      password: _passwordController.text.trim(),
+                    ),
+                  );
+                }
+              },
+              builder: (context, state) {
+                return Stack(
+                  children: [
+                    SingleChildScrollView(
+                      padding: const EdgeInsets.all(20),
+                      child: Form(
                     key: _formKey,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     child: Column(
@@ -316,10 +319,12 @@ class _SignUpPageState extends State<SignUpPage> {
             // Loader par-dessus le formulaire si en chargement
             if (state is AuthLoading) const Loader(),
           ],
+        );
+      },
+    ),
+          ),
         ),
-      );
-    },
-  ),
+      ),
     );
   }
 }
