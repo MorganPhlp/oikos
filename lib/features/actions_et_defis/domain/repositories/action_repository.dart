@@ -26,4 +26,8 @@ abstract interface class ActionRepository {
     String actionId,
   );
   Future<Either<Failure, List<HabitudeEntity>>> getMyHabitudes(String userId);
+  Future<Either<Failure, void>> promoteActionToHabitude(
+    String userId,
+    String actionId,
+  );
 }

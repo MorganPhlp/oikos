@@ -39,7 +39,6 @@ class ActionsHeader extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Avatar
           Container(
             padding: const EdgeInsets.all(2),
             decoration: BoxDecoration(
@@ -76,7 +75,6 @@ class ActionsHeader extends StatelessWidget {
             ],
           ),
 
-          // Points + Notif
           Row(
             children: [
               Container(

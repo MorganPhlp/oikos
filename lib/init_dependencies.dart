@@ -7,7 +7,8 @@ import 'package:oikos/core/common/domain/repositories/categorie_empreinte_reposi
 import 'package:oikos/core/common/domain/repositories/utilisateur_repository.dart';
 import 'package:oikos/features/actions_et_defis/domain/entities/user_active_action_entity.dart';
 import 'package:oikos/features/actions_et_defis/domain/usecases/get_my_habitudes_use_case.dart';
-import 'package:oikos/features/actions_et_defis/presentation/bloc/promotion_cubit.dart';
+import 'package:oikos/features/actions_et_defis/domain/usecases/promote_to_habitude_use_case.dart';
+import 'package:oikos/features/actions_et_defis/presentation/bloc/habitudes_cubit.dart';
 import 'package:oikos/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:oikos/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
@@ -447,33 +448,37 @@ void _initStreak() {
 
 void _initActions() {
   // Datasource
-  serviceLocator.registerFactory<ActionRemoteDataSource>(
+  serviceLocator.registerLazySingleton<ActionRemoteDataSource>(
     () => ActionRemoteDataSourceImpl(serviceLocator<SupabaseClient>()),
   );
 
   // Repository
-  serviceLocator.registerFactory<ActionRepository>(
+  serviceLocator.registerLazySingleton<ActionRepository>(
     () => ActionRepositoryImpl(serviceLocator<ActionRemoteDataSource>()),
   );
 
   // Use Cases
-  serviceLocator.registerFactory(
+  serviceLocator.registerLazySingleton(
     () => GetActionsUseCase(serviceLocator<ActionRepository>()),
   );
-  serviceLocator.registerFactory(
+  serviceLocator.registerLazySingleton(
     () => GetMyActiveActionsUseCase(serviceLocator<ActionRepository>()),
   );
-  serviceLocator.registerFactory(
+  serviceLocator.registerLazySingleton(
     () => AddToMyActionsUseCase(serviceLocator<ActionRepository>()),
   );
-  serviceLocator.registerFactory(
+  serviceLocator.registerLazySingleton(
     () => ValidateActionUseCase(serviceLocator<ActionRepository>()),
   );
-  serviceLocator.registerFactory(
+  serviceLocator.registerLazySingleton(
     () => RemoveFromMyActionsUseCase(serviceLocator<ActionRepository>()),
   );
-  serviceLocator.registerFactory(
+  serviceLocator.registerLazySingleton(
     () => GetMyHabitudesUseCase(serviceLocator<ActionRepository>()),
+  );
+
+  serviceLocator.registerLazySingleton(
+    () => PromoteToHabitudeUseCase(serviceLocator<ActionRepository>()),
   );
 
   // Bloc
@@ -485,24 +490,23 @@ void _initActions() {
       validateAction: serviceLocator(),
       removeFromMyActions: serviceLocator(),
       getMyHabitudes: serviceLocator(),
+      promoteActionToHabitude: serviceLocator(),
     ),
   );
 
-  serviceLocator.registerFactoryParam<
-    PromoteActionsCubit,
-    List<UserActiveActionEntity>,
-    void
-  >((actions, _) => PromoteActionsCubit(actions: actions));
+  serviceLocator.registerFactory<HabitudeCubit>(
+    () => HabitudeCubit(getMyHabitudesUseCase: serviceLocator()),
+  );
 }
 
 void _initProfile() {
   // Repository
-  serviceLocator.registerFactory<ProfileBilanRepository>(
+  serviceLocator.registerLazySingleton<ProfileBilanRepository>(
     () => ProfileBilanRepositoryImpl(serviceLocator<SupabaseClient>()),
   );
 
   // Use Case
-  serviceLocator.registerFactory(
+  serviceLocator.registerLazySingleton(
     () =>
         GetQuestionsRestantesUseCase(serviceLocator<ProfileBilanRepository>()),
   );

@@ -32,12 +32,24 @@ class _StreakWidgetState extends State<StreakWidget> {
   bool showInfo = false;
   bool _isResetting = false;
   late StreakBloc _streakBloc;
+  OverlayEntry? _streakOverlayEntry;
 
   @override
   void initState() {
     super.initState();
     _streakBloc = serviceLocator.get<StreakBloc>();
     _initWatch();
+  }
+
+  @override
+  void dispose() {
+    _removeOverlay();
+    super.dispose();
+  }
+
+  void _removeOverlay() {
+    _streakOverlayEntry?.remove();
+    _streakOverlayEntry = null;
   }
 
   void _initWatch() {
@@ -64,18 +76,14 @@ class _StreakWidgetState extends State<StreakWidget> {
       value: _streakBloc,
       child: BlocConsumer<StreakBloc, StreakState>(
         listener: (context, state) {
-          // si saison finie on retourne à la vue normale
           if (state is StreakSeasonFinished && isFlipped) {
             setState(() => isFlipped = false);
           }
-          // Affichage de l'overlay de félicitations ou d'échec selon l'évolution du streak
           final current = state.streak.currentStreak;
           final lastSeen = state.streak.lastStreakSeen ?? 0;
           if (current == 0 && lastSeen == 0) return;
-          // Si le streak a augmenté depuis la dernière fois, afficher l'overlay de félicitations
           if (current > lastSeen) {
             _showStreakOverlay(context, state, isWin: true);
-            // sinon si le streak a été perdu (reset à 0 alors qu'il était > 0), afficher l'overlay de perte
           } else if (current < lastSeen) {
             _showStreakOverlay(context, state, isWin: false);
           }
@@ -92,9 +100,7 @@ class _StreakWidgetState extends State<StreakWidget> {
             onTap: _canFlip(state)
                 ? () => {
                     setState(() => isFlipped = !isFlipped),
-                    setState(
-                      () => showInfo = false,
-                    ), // fermer l'info si on flip
+                    setState(() => showInfo = false),
                   }
                 : null,
             child: TweenAnimationBuilder(
@@ -113,10 +119,8 @@ class _StreakWidgetState extends State<StreakWidget> {
                   child: Stack(
                     clipBehavior: Clip.none,
                     children: [
-                      // si on est sur la face avant
                       isFront
                           ? AnimatedSwitcher(
-                              // gerer la transition entre le streak normal et le streak saison fini
                               duration: 300.ms,
                               child: state is StreakSeasonFinished
                                   ? StreakFinishedView(
@@ -141,7 +145,6 @@ class _StreakWidgetState extends State<StreakWidget> {
     );
   }
 
-  // face avant de la streak
   Widget _buildFront(BuildContext blocContext, StreakState state) {
     final theme = Theme.of(context);
     final int maxPhase = state.streakSteps?.isNotEmpty == true
@@ -150,7 +153,6 @@ class _StreakWidgetState extends State<StreakWidget> {
     final bool isMaxLevel =
         state.streak.currentStreak >= maxPhase && maxPhase > 0;
 
-    // seuil pour afficher la section de progression vers l'étape suivante (0 si on est au max)
     final threshold = isMaxLevel
         ? 0
         : (state.streakSteps
@@ -212,12 +214,10 @@ class _StreakWidgetState extends State<StreakWidget> {
     final lastUpdated = state.streak.lastUpdated;
 
     return CountdownBadge(
-      // Si lastUpdated est null, on envoie null, ce qui affichera l'infini
       targetDate: lastUpdated?.add(const Duration(days: 14)),
       style: TextStyle(
         color: theme.colorScheme.primary,
         fontWeight: FontWeight.bold,
-        // On augmente un peu la taille si c'est le symbole infini pour le style
         fontSize: lastUpdated == null ? 18 : 14,
       ),
       icon: Icon(LucideIcons.clock, size: 16, color: theme.colorScheme.primary),
@@ -309,6 +309,8 @@ class _StreakWidgetState extends State<StreakWidget> {
     StreakState state, {
     required bool isWin,
   }) {
+    _removeOverlay();
+
     final streakBloc = context.read<StreakBloc>();
     final userCubit = context.read<AppUserCubit>();
 
@@ -322,30 +324,31 @@ class _StreakWidgetState extends State<StreakWidget> {
     final lastSeen = state.streak.lastStreakSeen ?? 0;
     final current = state.streak.currentStreak;
 
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: isWin ? "Win" : "Loss",
-      barrierColor: Colors.transparent,
-      pageBuilder: (dialogContext, anim1, anim2) {
-        if (isWin) {
-          return StreakCongratsPage(
-            oldLogoUrl: "$streakDirectory$lastSeen.png",
-            newLogoUrl: "$streakDirectory$current.png",
-            onClose: () => _markAsSeen(streakBloc, userCubit, current),
-          );
-        } else {
-          return StreakLossWidget(
-            oldLogoUrl: "$streakDirectory$lastSeen.png",
-            newLogoUrl: "$streakDirectory$current.png",
-            onClose: () {
-              _isResetting = false;
-              _markAsSeen(streakBloc, userCubit, current);
-            },
-          );
-        }
-      },
+    _streakOverlayEntry = OverlayEntry(
+      builder: (context) => Material(
+        color: Colors.black.withValues(alpha: 0.5),
+        child: isWin
+            ? StreakCongratsPage(
+                oldLogoUrl: "$streakDirectory$lastSeen.png",
+                newLogoUrl: "$streakDirectory$current.png",
+                onClose: () {
+                  _removeOverlay();
+                  _markAsSeen(streakBloc, userCubit, current);
+                },
+              )
+            : StreakLossWidget(
+                oldLogoUrl: "$streakDirectory$lastSeen.png",
+                newLogoUrl: "$streakDirectory$current.png",
+                onClose: () {
+                  _isResetting = false;
+                  _removeOverlay();
+                  _markAsSeen(streakBloc, userCubit, current);
+                },
+              ),
+      ),
     );
+
+    Overlay.of(context, rootOverlay: true).insert(_streakOverlayEntry!);
   }
 
   void _markAsSeen(StreakBloc bloc, AppUserCubit userCubit, int current) {

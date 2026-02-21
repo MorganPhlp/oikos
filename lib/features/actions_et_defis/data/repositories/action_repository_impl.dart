@@ -118,4 +118,17 @@ class ActionRepositoryImpl implements ActionRepository {
       return left(Failure(e.message));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> promoteActionToHabitude(
+    String userId,
+    String actionId,
+  ) async {
+    try {
+      await remoteDataSource.addToHabitudes(userId, actionId);
+      return right(null);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
 }

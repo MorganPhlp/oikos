@@ -3,13 +3,11 @@ import 'package:oikos/core/theme/action_card_theme.dart';
 
 import '../../../../core/theme/oikos_button_theme.dart';
 import '../../domain/entities/action_entity.dart';
-import 'action_card.dart';
 
 class ActionDetailModal extends StatelessWidget {
   final ActionEntity action;
   final Function(String freq) onJoin;
 
-  /// Si `true`, le bouton principal affiche "Déjà dans mes actions" et est désactivé.
   final bool isAlreadyAdded;
 
   const ActionDetailModal({
@@ -38,7 +36,6 @@ class ActionDetailModal extends StatelessWidget {
           ),
           child: Stack(
             children: [
-              // ── Contenu scrollable ──────────────────────────────
               ListView(
                 controller: controller,
                 padding: EdgeInsets.zero,
@@ -60,7 +57,6 @@ class ActionDetailModal extends StatelessWidget {
                         ),
                         const SizedBox(height: 20),
 
-                        // Accordéon : Comment faire ?
                         _buildAccordion(
                           context,
                           title: 'Comment faire ?',
@@ -117,7 +113,6 @@ class ActionDetailModal extends StatelessWidget {
                               ),
                               const SizedBox(height: 15),
 
-                              // Compteur social
                               Container(
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
@@ -163,10 +158,8 @@ class ActionDetailModal extends StatelessWidget {
                 ],
               ),
 
-              // Bouton fermer
               Positioned(top: 16, right: 16, child: _buildCloseButton(context)),
 
-              // Barre du bas
               Positioned(
                 bottom: 0,
                 left: 0,
@@ -179,8 +172,6 @@ class ActionDetailModal extends StatelessWidget {
       },
     );
   }
-
-  // ── Header avec stats fixes ────────────────────────────────────────────────
 
   Widget _buildHeader(BuildContext context, Color categoryColor) {
     final theme = Theme.of(context);
@@ -257,14 +248,11 @@ class ActionDetailModal extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // ── Stats fixées sous la catégorie ──
           _buildStatsRow(context, categoryColor),
         ],
       ),
     );
   }
-
-  // ── Stats row (fixe, dans le header) ───────────────────────────────────────
 
   Widget _buildStatsRow(BuildContext context, Color categoryColor) {
     final theme = Theme.of(context);
@@ -363,8 +351,6 @@ class ActionDetailModal extends StatelessWidget {
     }
   }
 
-  // ── Accordéon ──────────────────────────────────────────────────────────────
-
   Widget _buildAccordion(
     BuildContext context, {
     required String title,
@@ -411,8 +397,6 @@ class ActionDetailModal extends StatelessWidget {
       ),
     );
   }
-
-  // ── Barre du bas ───────────────────────────────────────────────────────────
 
   Widget _buildBottomBar(
     BuildContext context,
@@ -524,8 +508,6 @@ class ActionDetailModal extends StatelessWidget {
       ),
     );
   }
-
-  // ── Bouton fermer ──────────────────────────────────────────────────────────
 
   Widget _buildCloseButton(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;

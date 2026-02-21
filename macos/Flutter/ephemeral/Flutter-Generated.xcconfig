@@ -1,6 +1,6 @@
 // This is a generated file; do not edit or check into version control.
-FLUTTER_ROOT=D:\develop\flutter_windows_3.38.4-stable\flutter
-FLUTTER_APPLICATION_PATH=D:\Document\Ecole\ET5\oikos
+FLUTTER_ROOT=/Users/titouan_bvrg/Development/flutter
+FLUTTER_APPLICATION_PATH=/Users/titouan_bvrg/Documents/Ecole/ET5/Projet_Genie_Logiciel/oikos
 COCOAPODS_PARALLEL_CODE_SIGN=true
 FLUTTER_BUILD_DIR=build
 FLUTTER_BUILD_NAME=1.0.0

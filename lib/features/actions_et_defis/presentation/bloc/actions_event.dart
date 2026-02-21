@@ -16,6 +16,19 @@ class LoadAllActionsEvent extends ActionsEvent {
   List<Object?> get props => [userId];
 }
 
+class PromoteActionToHabitudeEvent extends ActionsEvent {
+  final String userId;
+  final String actionId;
+
+  const PromoteActionToHabitudeEvent({
+    required this.userId,
+    required this.actionId,
+  });
+
+  @override
+  List<Object?> get props => [userId, actionId];
+}
+
 class AddToMyActionsEvent extends ActionsEvent {
   final String userId;
   final String actionId;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../domain/entities/user_active_action_entity.dart';
 import '../../domain/entities/action_entity.dart';
@@ -41,11 +42,12 @@ class _MyActionsTabState extends State<MyActionsTab> {
 
   @override
   Widget build(BuildContext context) {
+    // si pas d'actions
+    if (widget.activeActions.isEmpty) {}
     final filteredList = widget.activeActions.where((e) {
       if (e.action.frequency == selectedFilter) return true;
       return false;
     }).toList();
-    // Sort: incomplete first, then completed
     filteredList.sort((a, b) {
       if (a.isCompletedForPeriod == b.isCompletedForPeriod) return 0;
       return a.isCompletedForPeriod ? 1 : -1;
@@ -275,13 +277,23 @@ class _MyActionsTabState extends State<MyActionsTab> {
             size: 60,
             color: colorScheme.onSurface.withValues(alpha: 0.2),
           ),
-          const SizedBox(height: 15),
+          const SizedBox(height: 16),
           Text(
             isLifestyle
                 ? 'Pas encore de trophées.'
-                : 'Aucune action ${_getFilterTitle(selectedFilter).toLowerCase()}',
+                : 'Aucune action ${(selectedFilter).toLowerCase()}',
             style: theme.textTheme.bodyMedium?.copyWith(
               color: colorScheme.onSurface.withValues(alpha: 0.5),
+            ),
+          ),
+          const SizedBox(height: 24), // Un peu plus d'espace pour le bouton
+          TextButton.icon(
+            onPressed: () => context.goNamed('catalogue'),
+            icon: const Text('Découvrir le catalogue'),
+            label: const Icon(LucideIcons.arrowRight, size: 16),
+            style: TextButton.styleFrom(
+              foregroundColor: colorScheme.primary,
+              textStyle: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
         ],

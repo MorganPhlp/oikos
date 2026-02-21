@@ -196,42 +196,59 @@ CREATE TRIGGER trg_on_action_validated
 BEFORE INSERT ON public.realisation_actions
 FOR EACH ROW EXECUTE FUNCTION public.calculer_et_ajouter_xp();
 
-CREATE OR REPLACE FUNCTION public.check_habitude_applicability()
+CREATE OR REPLACE FUNCTION public.remove_action_on_promote()
 RETURNS TRIGGER AS $$
-DECLARE
-    v_frequence text;
-    count int;
-    is_valid boolean := false;
 BEGIN
-    SELECT frequence, effective_count INTO v_frequence, count
-    FROM public.vue_actions_en_cours
+    DELETE FROM public.actions_en_cours 
     WHERE utilisateur_id = NEW.utilisateur_id AND action_id = NEW.action_id;
 
-    IF v_frequence IS NULL THEN
-        RAISE EXCEPTION 'Action ID % introuvable pour l''utilisateur %', NEW.action_id, NEW.utilisateur_id;
-    END IF;
-
-    CASE 
-        WHEN v_frequence = 'quotidienne' AND count >= 7 THEN
-            is_valid := true;
-        WHEN v_frequence = 'hebdomadaire' AND count >=4 THEN
-            is_valid := true;
-        WHEN v_frequence = 'mensuelle' AND count >= 3 THEN
-            is_valid := true;
-        WHEN v_frequence = 'bonus' AND count >= 1 THEN
-            is_valid := true;
-        ELSE
-            is_valid := false;
-    END CASE;
-    if is_valid THEN
-        RETURN NEW;
-    ELSE
-        RAISE EXCEPTION 'Action non applicable en tant qu''habitude. Fréquence: %, Count: %', v_frequence, count;
-    END IF;
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS trigger_check_habitude_applicability ON public.utilisateur_habitudes;
-CREATE TRIGGER trigger_check_habitude_applicability
-BEFORE INSERT ON public.utilisateur_habitudes
-FOR EACH ROW EXECUTE FUNCTION public.check_habitude_applicability();
+DROP TRIGGER IF EXISTS trg_remove_action_on_promote ON public.utilisateur_habitudes;
+CREATE TRIGGER trg_remove_action_on_promote
+AFTER INSERT ON public.utilisateur_habitudes
+FOR EACH ROW EXECUTE FUNCTION public.remove_action_on_promote();
+    
+
+-- -- Pour empecher qu'une action soit ajoutée en tant qu'habitude si elle n'est pas encore applicable selon sa fréquence et le nombre de réalisations
+-- CREATE OR REPLACE FUNCTION public.check_habitude_applicability()
+-- RETURNS TRIGGER AS $$
+-- DECLARE
+--     v_frequence text;
+--     count int;
+--     is_valid boolean := false;
+-- BEGIN
+--     SELECT frequence, effective_count INTO v_frequence, count
+--     FROM public.vue_actions_en_cours
+--     WHERE utilisateur_id = NEW.utilisateur_id AND action_id = NEW.action_id;
+
+--     IF v_frequence IS NULL THEN
+--         RAISE EXCEPTION 'Action ID % introuvable pour l''utilisateur %', NEW.action_id, NEW.utilisateur_id;
+--     END IF;
+
+--     CASE 
+--         WHEN v_frequence = 'quotidienne' AND count >= 7 THEN
+--             is_valid := true;
+--         WHEN v_frequence = 'hebdomadaire' AND count >=4 THEN
+--             is_valid := true;
+--         WHEN v_frequence = 'mensuelle' AND count >= 3 THEN
+--             is_valid := true;
+--         WHEN v_frequence = 'bonus' AND count >= 1 THEN
+--             is_valid := true;
+--         ELSE
+--             is_valid := false;
+--     END CASE;
+--     if is_valid THEN
+--         RETURN NEW;
+--     ELSE
+--         RAISE EXCEPTION 'Action non applicable en tant qu''habitude. Fréquence: %, Count: %', v_frequence, count;
+--     END IF;
+-- END;
+-- $$ LANGUAGE plpgsql;
+
+-- DROP TRIGGER IF EXISTS trigger_check_habitude_applicability ON public.utilisateur_habitudes;
+-- CREATE TRIGGER trigger_check_habitude_applicability
+-- BEFORE INSERT ON public.utilisateur_habitudes
+-- FOR EACH ROW EXECUTE FUNCTION public.check_habitude_applicability();

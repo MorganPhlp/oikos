@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/features/actions_et_defis/domain/usecases/get_my_habitudes_use_case.dart';
+import 'package:oikos/features/actions_et_defis/domain/usecases/promote_to_habitude_use_case.dart';
 
 import '../../domain/usecases/get_actions.dart';
 import '../../domain/usecases/get_my_active_actions_use_case.dart';
@@ -16,6 +17,7 @@ class ActionsBloc extends Bloc<ActionsEvent, ActionsState> {
   final ValidateActionUseCase _validateAction;
   final RemoveFromMyActionsUseCase _removeFromMyActions;
   final GetMyHabitudesUseCase _getMyHabitudes;
+  final PromoteToHabitudeUseCase _promoteActionToHabitude;
 
   ActionsBloc({
     required GetActionsUseCase getActions,
@@ -24,17 +26,20 @@ class ActionsBloc extends Bloc<ActionsEvent, ActionsState> {
     required ValidateActionUseCase validateAction,
     required RemoveFromMyActionsUseCase removeFromMyActions,
     required GetMyHabitudesUseCase getMyHabitudes,
+    required PromoteToHabitudeUseCase promoteActionToHabitude,
   }) : _getActions = getActions,
        _getMyActiveActions = getMyActiveActions,
        _addToMyActions = addToMyActions,
        _validateAction = validateAction,
        _removeFromMyActions = removeFromMyActions,
        _getMyHabitudes = getMyHabitudes,
+       _promoteActionToHabitude = promoteActionToHabitude,
        super(const ActionsInitial()) {
     on<LoadAllActionsEvent>(_onLoadAllActions);
     on<AddToMyActionsEvent>(_onAddToMyActions);
     on<ValidateActionEvent>(_onValidateAction);
     on<RemoveFromMyActionsEvent>(_onRemoveFromMyActions);
+    on<PromoteActionToHabitudeEvent>(_onPromoteToHabitude);
   }
 
   Future<void> _onLoadAllActions(
@@ -65,7 +70,6 @@ class ActionsBloc extends Bloc<ActionsEvent, ActionsState> {
       ActionsLoaded(
         catalogue: catalogueResult.getOrElse((_) => []),
         mesActions: activeActionsResult.getOrElse((_) => []),
-        mesHabitudes: habitudes.getOrElse((_) => []),
       ),
     );
   }
@@ -106,6 +110,17 @@ class ActionsBloc extends Bloc<ActionsEvent, ActionsState> {
       RemoveFromMyActionsParams(userId: event.userId, actionId: event.actionId),
     );
 
+    result.fold(
+      (failure) => emit(ActionsError(failure.message)),
+      (_) => add(LoadAllActionsEvent(event.userId)),
+    );
+  }
+
+  Future<void> _onPromoteToHabitude(
+    PromoteActionToHabitudeEvent event,
+    Emitter<ActionsState> emit,
+  ) async {
+    final result = await _promoteActionToHabitude(event.userId, event.actionId);
     result.fold(
       (failure) => emit(ActionsError(failure.message)),
       (_) => add(LoadAllActionsEvent(event.userId)),

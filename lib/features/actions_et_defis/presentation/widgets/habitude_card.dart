@@ -68,53 +68,47 @@ class HabitudeCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // 1. Icône avec fond stylisé
-                      Container(
-                        width: 46,
-                        height: 46,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              categoryColor.withValues(alpha: 0.1),
-                              categoryColor.withValues(alpha: 0.2),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: categoryColor.withValues(alpha: 0.2),
-                            width: 1,
-                          ),
-                        ),
-                        child: Icon(
-                          habitude.action.icon,
-                          color: categoryColor,
-                          size: 22,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Flexible(
-                            child: Text(
-                              habitude.action.title,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: theme.colorScheme.onSecondary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          _buildStats(context),
+                  Container(
+                    width: 46,
+                    height: 46,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          categoryColor.withValues(alpha: 0.1),
+                          categoryColor.withValues(alpha: 0.2),
                         ],
                       ),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: categoryColor.withValues(alpha: 0.2),
+                        width: 1,
+                      ),
+                    ),
+                    child: Icon(
+                      habitude.action.icon,
+                      color: categoryColor,
+                      size: 22,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          habitude.action.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSecondary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      _buildStats(context),
                     ],
                   ),
                   Container(

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/features/actions_et_defis/presentation/bloc/actions_event.dart';
-import 'package:oikos/features/actions_et_defis/presentation/bloc/promotion_cubit.dart';
+import 'package:oikos/features/actions_et_defis/presentation/bloc/habitudes_cubit.dart';
 import 'package:oikos/features/actions_et_defis/presentation/pages/my_habitudes_tab.dart';
 import 'package:oikos/features/actions_et_defis/presentation/widgets/promote_to_habitude_popup.dart';
 import 'package:oikos/init_dependencies.dart';
@@ -55,15 +55,14 @@ class _MyActionsPageState extends State<MyActionsPage>
                   .toList();
 
               if (promotableActions.isNotEmpty) {
+                final actionBloc = context.read<ActionsBloc>();
                 showDialog(
                   context: context,
-
-                  builder: (context) => BlocProvider<PromoteActionsCubit>(
-                    create: (context) => serviceLocator<PromoteActionsCubit>(
-                      param1: promotableActions,
+                  builder: (context) => BlocProvider.value(
+                    value: actionBloc,
+                    child: PromoteToHabitudeOverlay(
+                      promotableActions: promotableActions,
                     ),
-
-                    child: const PromoteToHabitudeOverlay(),
                   ),
                 );
               }
@@ -186,7 +185,7 @@ class _MyActionsPageState extends State<MyActionsPage>
                             );
                           },
                         ),
-                        MyHabitudesTab(habitudes: state.mesHabitudes),
+                        MyHabitudesTab(),
                       ],
                     ),
                   ),

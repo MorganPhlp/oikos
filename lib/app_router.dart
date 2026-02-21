@@ -6,6 +6,7 @@ import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.da
 import 'package:oikos/core/common/presentation/pages/pdf_viewer_page.dart';
 import 'package:oikos/core/common/presentation/widgets/header.dart';
 import 'package:oikos/core/common/presentation/widgets/navbar.dart';
+import 'package:oikos/features/actions_et_defis/presentation/bloc/habitudes_cubit.dart';
 import 'package:oikos/features/auth/presentation/pages/intro_page.dart';
 import 'package:oikos/features/auth/presentation/pages/update_password_page.dart';
 import 'package:oikos/features/bilanCarbone/presentation/pages/bilan_flow.dart';
@@ -108,10 +109,18 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
                   : '';
 
               final actionId = state.uri.queryParameters['actionId'];
-              return BlocProvider(
-                create: (_) =>
-                    serviceLocator<ActionsBloc>()
-                      ..add(LoadAllActionsEvent(userId)),
+              return MultiBlocProvider(
+                providers: [
+                  BlocProvider(
+                    create: (_) =>
+                        serviceLocator<ActionsBloc>()
+                          ..add(LoadAllActionsEvent(userId)),
+                  ),
+                  BlocProvider(
+                    create: (_) =>
+                        serviceLocator<HabitudeCubit>()..loadHabitudes(userId),
+                  ),
+                ],
                 child: ActionsCataloguePage(openedActionId: actionId),
               );
             },
@@ -126,10 +135,19 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
                             .user
                             .id
                       : '';
-                  return BlocProvider(
-                    create: (_) =>
-                        serviceLocator<ActionsBloc>()
-                          ..add(LoadAllActionsEvent(userId)),
+                  return MultiBlocProvider(
+                    providers: [
+                      BlocProvider(
+                        create: (_) =>
+                            serviceLocator<ActionsBloc>()
+                              ..add(LoadAllActionsEvent(userId)),
+                      ),
+                      BlocProvider(
+                        create: (_) =>
+                            serviceLocator<HabitudeCubit>()
+                              ..loadHabitudes(userId),
+                      ),
+                    ],
                     child: const MyActionsPage(),
                   );
                 },

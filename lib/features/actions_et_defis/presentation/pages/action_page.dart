@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
+import 'package:oikos/features/actions_et_defis/domain/util/ActionsFilterHandler.dart';
+import 'package:oikos/features/actions_et_defis/presentation/bloc/habitudes_cubit.dart';
+import 'package:oikos/features/actions_et_defis/presentation/bloc/habitudes_state.dart';
+import 'package:oikos/features/actions_et_defis/presentation/widgets/catalog_empty_state.dart';
+import 'package:oikos/features/actions_et_defis/presentation/widgets/catalog_search_bar.dart';
 import '../../domain/entities/action_entity.dart';
 import '../bloc/actions_bloc.dart';
 import '../bloc/actions_event.dart';
@@ -18,7 +23,7 @@ class ActionsCataloguePage extends StatefulWidget {
 }
 
 class _ActionsCataloguePageState extends State<ActionsCataloguePage> {
-  String searchQuery = '';
+  String _searchQuery = '';
   FilterData _filters = FilterData();
 
   bool get _hasActiveFilters =>
@@ -30,281 +35,85 @@ class _ActionsCataloguePageState extends State<ActionsCataloguePage> {
   @override
   void didUpdateWidget(covariant ActionsCataloguePage oldWidget) {
     super.didUpdateWidget(oldWidget);
-
-    final userId = switch (context.read<AppUserCubit>().state) {
-      AppUserLoggedIn(user: var u) => u.id,
-      _ => '',
-    };
     if (oldWidget.openedActionId != widget.openedActionId &&
         widget.openedActionId != null) {
-      final state = context.read<ActionsBloc>().state;
-      if (state is ActionsLoaded) {
+      _checkAndOpenInitialAction();
+    }
+  }
+
+  void _onActionsStateChanged(BuildContext context, ActionsState state) {
+    if (state is ActionsLoaded && widget.openedActionId != null) {
+      _checkAndOpenInitialAction();
+    }
+  }
+
+  void _checkAndOpenInitialAction() {
+    final state = context.read<ActionsBloc>().state;
+    if (state is ActionsLoaded) {
+      try {
         final action = state.catalogue.firstWhere(
           (a) => a.id == widget.openedActionId,
         );
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _showDetailModal(context, action, userId);
-        });
-      }
+        final userId = _getUserId();
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) => _showDetailModal(context, action, userId),
+        );
+      } catch (_) {}
     }
+  }
+
+  String _getUserId() {
+    final state = context.read<AppUserCubit>().state;
+    return state is AppUserLoggedIn ? state.user.id : '';
   }
 
   @override
   Widget build(BuildContext context) {
-    final appUserState = context.read<AppUserCubit>().state;
-    final String userId = (appUserState is AppUserLoggedIn)
-        ? appUserState.user.id
-        : '';
-
     return BlocListener<ActionsBloc, ActionsState>(
-      listener: (BuildContext context, ActionsState state) {
-        if (state is ActionsLoaded && widget.openedActionId != null) {
-          final action = state.catalogue.firstWhere(
-            (a) => a.id == widget.openedActionId,
-          );
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _showDetailModal(context, action, userId);
-          });
-        }
-      },
-      child: Column(
-        children: [
-          Expanded(
-            child: BlocBuilder<ActionsBloc, ActionsState>(
-              builder: (context, state) {
-                if (state is ActionsLoading) {
-                  return Center(
-                    child: CircularProgressIndicator(
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  );
-                }
-                if (state is ActionsLoaded) {
-                  return _buildCatalogueList(context, state, userId);
-                }
-                if (state is ActionsError) {
-                  return Center(child: Text(state.message));
-                }
-                return const SizedBox();
-              },
+      listener: _onActionsStateChanged,
+      child: Scaffold(
+        body: BlocBuilder<ActionsBloc, ActionsState>(
+          builder: (context, state) => switch (state) {
+            ActionsLoading() => const Center(
+              child: CircularProgressIndicator(),
             ),
-          ),
-        ],
+            ActionsLoaded s => _buildCatalogueContent(context, s),
+            ActionsError e => Center(child: Text(e.message)),
+            _ => const SizedBox.shrink(),
+          },
+        ),
       ),
     );
   }
 
-  List<ActionEntity> _applyFilters(List<ActionEntity> catalogue) {
-    var list = catalogue.where((action) {
-      if (_filters.frequency != null &&
-          action.frequency != _filters.frequency) {
-        return false;
-      }
-      if (_filters.category != null &&
-          action.categoryName != _filters.category) {
-        return false;
-      }
-      if (_filters.tags.isNotEmpty) {
-        final tags = action.tags.toSet();
-        if (!_filters.tags.any((t) => tags.contains(t))) return false;
-      }
-      if (searchQuery.isNotEmpty) {
-        final q = searchQuery.toLowerCase();
-        return action.title.toLowerCase().contains(q) ||
-            action.categoryName.toLowerCase().contains(q);
-      }
-      return true;
-    }).toList();
+  Widget _buildCatalogueContent(BuildContext context, ActionsLoaded state) {
+    final userId = _getUserId();
+    final habitudeState = context.watch<HabitudeCubit>().state;
 
-    switch (_filters.sortBy) {
-      case 'points_desc':
-        list.sort((a, b) => b.impactScore.compareTo(a.impactScore));
-        break;
-      case 'points_asc':
-        list.sort((a, b) => a.impactScore.compareTo(b.impactScore));
-        break;
-      case 'difficulty':
-        const order = {'Facile': 0, 'Moyen': 1, 'Difficile': 2};
-        list.sort(
-          (a, b) =>
-              (order[a.difficulty] ?? 3).compareTo(order[b.difficulty] ?? 3),
-        );
-        break;
+    if (habitudeState is HabitudeLoading) {
+      return const Center(child: CircularProgressIndicator());
     }
-    return list;
-  }
 
-  Widget _buildCatalogueList(
-    BuildContext context,
-    ActionsLoaded state,
-    String userId,
-  ) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final displayList = _applyFilters(state.catalogue);
-    final activeIds = state.activeActionIds;
+    final habitudesIds = habitudeState is HabitudeLoaded
+        ? habitudeState.habitueActionIds
+        : <String>[];
+    final displayList = state.catalogue.applyFilters(
+      searchQuery: _searchQuery,
+      filters: _filters,
+    );
 
     return Column(
       children: [
         const SizedBox(height: 16),
-
-        // Search bar + filter icon
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Row(
-            children: [
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  decoration: BoxDecoration(
-                    color: colorScheme.surface,
-                    borderRadius: BorderRadius.circular(15),
-                    border: Border.all(
-                      color:
-                          theme
-                              .inputDecorationTheme
-                              .enabledBorder
-                              ?.borderSide
-                              .color ??
-                          colorScheme.outline,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: colorScheme.shadow.withValues(alpha: 0.03),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: TextField(
-                    onChanged: (val) => setState(() => searchQuery = val),
-                    decoration: InputDecoration(
-                      hintText: 'Rechercher une action...',
-                      hintStyle: TextStyle(
-                        color: colorScheme.onSurface.withValues(alpha: 0.4),
-                      ),
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      icon: Icon(Icons.search, color: colorScheme.primary),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-
-              // Funnel filter button
-              GestureDetector(
-                onTap: () => _openFilterModal(context, state.catalogue),
-                child: Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: _hasActiveFilters
-                        ? colorScheme.primary
-                        : colorScheme.surface,
-                    borderRadius: BorderRadius.circular(15),
-                    border: Border.all(
-                      color: _hasActiveFilters
-                          ? Colors.transparent
-                          : colorScheme.outline,
-                    ),
-                    boxShadow: _hasActiveFilters
-                        ? [
-                            BoxShadow(
-                              color: colorScheme.primary.withValues(alpha: 0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
-                            ),
-                          ]
-                        : null,
-                  ),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Icon(
-                        Icons.filter_list,
-                        color: _hasActiveFilters
-                            ? colorScheme.onPrimary
-                            : colorScheme.onSurface.withValues(alpha: 0.5),
-                        size: 22,
-                      ),
-                      if (_hasActiveFilters)
-                        Positioned(
-                          top: 8,
-                          right: 8,
-                          child: Container(
-                            width: 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              color: colorScheme.tertiary,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
+        CatalogueSearchBar(
+          onSearchChanged: (val) => setState(() => _searchQuery = val),
+          onFilterTap: () => _openFilterModal(context, state.catalogue),
+          hasActiveFilters: _hasActiveFilters,
         ),
-
-        const SizedBox(height: 8),
-
-        // Active filter summary + clear
-        if (_hasActiveFilters)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-            child: Row(
-              children: [
-                Text(
-                  '${displayList.length} résultat${displayList.length > 1 ? 's' : ''}',
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: colorScheme.onSurface.withValues(alpha: 0.5),
-                  ),
-                ),
-                const Spacer(),
-                GestureDetector(
-                  onTap: () => setState(() {
-                    _filters = FilterData();
-                  }),
-                  child: Text(
-                    'Effacer les filtres',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: colorScheme.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-        const SizedBox(height: 4),
-
-        // List
+        if (_hasActiveFilters) _buildFilterSummary(displayList.length),
         Expanded(
           child: displayList.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.search_off,
-                        size: 48,
-                        color: colorScheme.onSurface.withValues(alpha: 0.2),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Aucune action trouvée',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.onSurface.withValues(alpha: 0.5),
-                        ),
-                      ),
-                    ],
-                  ),
-                )
+              ? const CatalogueEmptyState()
               : ListView.builder(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 20,
@@ -313,7 +122,9 @@ class _ActionsCataloguePageState extends State<ActionsCataloguePage> {
                   itemCount: displayList.length,
                   itemBuilder: (context, index) {
                     final action = displayList[index];
-                    final alreadyAdded = activeIds.contains(action.id);
+                    final alreadyAdded =
+                        state.activeActionIds.contains(action.id) ||
+                        habitudesIds.contains(action.id);
                     return ActionCard(
                       action: action,
                       onTap: () => _showDetailModal(
@@ -330,15 +141,40 @@ class _ActionsCataloguePageState extends State<ActionsCataloguePage> {
     );
   }
 
+  Widget _buildFilterSummary(int count) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
+      child: Row(
+        children: [
+          Text(
+            '$count résultat${count > 1 ? 's' : ''}',
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+            ),
+          ),
+          const Spacer(),
+          GestureDetector(
+            onTap: () => setState(() => _filters = FilterData()),
+            child: Text(
+              'Effacer les filtres',
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: theme.colorScheme.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _openFilterModal(BuildContext context, List<ActionEntity> catalogue) {
     final allCategories = catalogue.map((a) => a.categoryName).toSet().toList()
       ..sort();
-
-    final allTags = <String>{};
-    for (final a in catalogue) {
-      allTags.addAll(a.tags);
-    }
-    final sortedTags = allTags.toList()..sort();
+    final allTags = catalogue.expand((a) => a.tags).toSet().toList()..sort();
+    final allFrequencies = catalogue.map((a) => a.frequency).toSet().toList()
+      ..sort();
 
     showModalBottomSheet(
       context: context,
@@ -347,13 +183,12 @@ class _ActionsCataloguePageState extends State<ActionsCataloguePage> {
       builder: (_) => FilterSortModal(
         currentFilters: _filters,
         allCategories: allCategories,
-        allTags: sortedTags,
+        allTags: allTags,
+        allFrequencies: allFrequencies,
         onApply: (newFilters) => setState(() => _filters = newFilters),
       ),
     );
   }
-
-  // ── Detail modal ───────────────────────────────────────────────────────────
 
   void _showDetailModal(
     BuildContext context,
@@ -373,12 +208,9 @@ class _ActionsCataloguePageState extends State<ActionsCataloguePage> {
           context.read<ActionsBloc>().add(
             AddToMyActionsEvent(userId: userId, actionId: action.id),
           );
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('Action ajoutée !'),
-              backgroundColor: Theme.of(context).colorScheme.primary,
-            ),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Action ajoutée !')));
         },
       ),
     );

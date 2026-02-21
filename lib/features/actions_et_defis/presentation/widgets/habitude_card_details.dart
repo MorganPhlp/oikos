@@ -20,14 +20,12 @@ class _HabitudeCardDetailsState extends State<HabitudeCardDetails> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
     final animation = ModalRoute.of(context)?.animation;
-
     if (animation != null) {
       _routeAnimation = animation;
       _contentAnimation = CurvedAnimation(
         parent: _routeAnimation!,
-        curve: const Interval(0.6, 1.0, curve: Curves.easeIn),
+        curve: const Interval(0.6, 1.0, curve: Curves.easeOut),
       );
     }
   }
@@ -47,7 +45,7 @@ class _HabitudeCardDetailsState extends State<HabitudeCardDetails> {
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () => Navigator.pop(context),
-              child: Container(color: Colors.transparent),
+              child: Container(color: Colors.black.withValues(alpha: 0.1)),
             ),
           ),
           Center(
@@ -57,108 +55,109 @@ class _HabitudeCardDetailsState extends State<HabitudeCardDetails> {
                 tag: habitude.action.title,
                 child: Material(
                   color: categoryColor,
-                  borderRadius: BorderRadius.circular(20),
-                  elevation: 8,
+                  borderRadius: BorderRadius.circular(28),
+                  elevation: 12,
                   child: Container(
-                    margin: const EdgeInsets.only(top: 8),
+                    margin: const EdgeInsets.only(top: 10),
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.secondary,
-                      borderRadius: BorderRadius.circular(20),
+                      color: theme.colorScheme.surface,
+                      borderRadius: BorderRadius.circular(28),
                     ),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(28),
                       child: Stack(
                         children: [
                           SingleChildScrollView(
                             physics: const BouncingScrollPhysics(),
-                            padding: const EdgeInsets.all(24),
+                            padding: const EdgeInsets.fromLTRB(24, 40, 24, 24),
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Row(
-                                  children: [
-                                    Icon(
-                                      habitude.action.icon,
-                                      color: categoryColor,
-                                      size: 28,
-                                    ),
-                                    const SizedBox(width: 16),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            habitude.action.categoryName
-                                                .toUpperCase(),
-                                            style: TextStyle(
-                                              color: categoryColor,
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          Text(
-                                            habitude.action.title,
-                                            style: theme.textTheme.titleLarge
-                                                ?.copyWith(
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(width: 40),
-                                  ],
-                                ),
-                                FadeTransition(
-                                  opacity: _contentAnimation!,
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const SizedBox(height: 24),
-                                      Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          habitude.action.description,
-                                          style: theme.textTheme.bodyMedium
-                                              ?.copyWith(height: 1.5),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 32),
-                                      _buildActionButton(
-                                        context,
-                                        categoryColor,
-                                      ),
-                                    ],
+                                Center(
+                                  child: Icon(
+                                    habitude.action.icon,
+                                    color: categoryColor,
+                                    size: 48,
                                   ),
                                 ),
+                                const SizedBox(height: 20),
+                                Text(
+                                  habitude.action.categoryName.toUpperCase(),
+                                  style: theme.textTheme.labelLarge?.copyWith(
+                                    color: categoryColor,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.2,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  habitude.action.title,
+                                  textAlign: TextAlign.center,
+                                  style: theme.textTheme.headlineSmall
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: theme.colorScheme.onSurface,
+                                      ),
+                                ),
+
+                                // Contenu animé
+                                if (_contentAnimation != null)
+                                  FadeTransition(
+                                    opacity: _contentAnimation!,
+                                    child: Column(
+                                      children: [
+                                        const SizedBox(height: 24),
+                                        Divider(
+                                          color: categoryColor.withValues(
+                                            alpha: 0.2,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 24),
+                                        Text(
+                                          habitude.action.description,
+                                          textAlign: TextAlign.center,
+                                          style: theme.textTheme.bodyMedium
+                                              ?.copyWith(
+                                                height: 1.6,
+                                                color: theme
+                                                    .colorScheme
+                                                    .onSurfaceVariant,
+                                              ),
+                                        ),
+                                        const SizedBox(height: 40),
+                                        _buildActionButton(
+                                          context,
+                                          categoryColor,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                               ],
                             ),
                           ),
-                          Positioned(
-                            top: 24,
-                            right: 24,
-                            child: FadeTransition(
-                              opacity: _contentAnimation!,
-                              child: GestureDetector(
-                                onTap: () => context.goNamed(
-                                  'catalogue',
-                                  queryParameters: {
-                                    'actionId': habitude.action.id,
-                                  },
-                                ),
-                                child: Text(
-                                  "Voir dans le catalogue",
-                                  style: theme.textTheme.labelSmall?.copyWith(
-                                    color: categoryColor,
-                                    fontWeight: FontWeight.bold,
-                                    decoration: TextDecoration.underline,
-                                    decorationColor: categoryColor,
+
+                          if (_contentAnimation != null)
+                            Positioned(
+                              top: 20,
+                              right: 20,
+                              child: FadeTransition(
+                                opacity: _contentAnimation!,
+                                child: IconButton(
+                                  onPressed: () => context.goNamed(
+                                    'catalogue',
+                                    queryParameters: {
+                                      'actionId': habitude.action.id,
+                                    },
                                   ),
+                                  icon: Icon(
+                                    Icons.open_in_new,
+                                    size: 20,
+                                    color: categoryColor,
+                                  ),
+                                  tooltip: "Voir dans le catalogue",
                                 ),
                               ),
                             ),
-                          ),
                         ],
                       ),
                     ),
@@ -173,20 +172,32 @@ class _HabitudeCardDetailsState extends State<HabitudeCardDetails> {
   }
 
   Widget _buildActionButton(BuildContext context, Color color) {
-    final theme = Theme.of(context);
-    return SizedBox(
+    return Container(
       width: double.infinity,
-      height: 54,
+      height: 56,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
-          foregroundColor: theme.colorScheme.secondary,
+          foregroundColor: Colors.white,
           elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
         onPressed: () {},
         child: const Text(
           "Je ne veux plus de cette habitude",
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
       ),
     );

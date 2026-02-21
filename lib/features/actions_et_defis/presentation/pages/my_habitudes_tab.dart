@@ -1,42 +1,57 @@
 import 'package:flutter/material.dart';
-import 'package:oikos/features/actions_et_defis/domain/entities/habitude_entity.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:oikos/features/actions_et_defis/presentation/bloc/habitudes_cubit.dart';
+import 'package:oikos/features/actions_et_defis/presentation/bloc/habitudes_state.dart';
 import 'package:oikos/features/actions_et_defis/presentation/widgets/habitude_card.dart';
 import 'package:oikos/features/actions_et_defis/presentation/widgets/help_button.dart';
 
 class MyHabitudesTab extends StatelessWidget {
-  final List<HabitudeEntity> habitudes;
-  const MyHabitudesTab({super.key, required this.habitudes});
+  const MyHabitudesTab({super.key});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Stack(
-      children: [
-        Column(
-          children: [
-            Expanded(
-              child: GridView.builder(
-                padding: const EdgeInsets.all(16),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 1.7,
-                  mainAxisSpacing: 16,
-                  crossAxisSpacing: 16,
-                ),
-                itemCount: habitudes.length,
-                itemBuilder: (context, index) {
-                  return HabitudeCard(habitude: habitudes[index]);
-                },
+    return BlocBuilder<HabitudeCubit, HabitudeState>(
+      builder: (BuildContext context, HabitudeState state) {
+        if (state is HabitudeLoaded) {
+          return Stack(
+            children: [
+              Column(
+                children: [
+                  Expanded(
+                    child: GridView.builder(
+                      padding: const EdgeInsets.all(16),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 1,
+                            mainAxisSpacing: 16,
+                            crossAxisSpacing: 16,
+                          ),
+                      itemCount: state.habitudes.length,
+                      itemBuilder: (context, index) {
+                        return HabitudeCard(habitude: state.habitudes[index]);
+                      },
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
-        Positioned(
-          bottom: 20,
-          right: 15,
-          child: HelpButton(child: _buildInfoText(context)),
-        ),
-      ],
+              Positioned(
+                bottom: 20,
+                right: 15,
+                child: HelpButton(child: _buildInfoText(context)),
+              ),
+            ],
+          );
+        }
+        if (state is HabitudeLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (state is HabitudeError) {
+          return Center(child: Text(state.message));
+        }
+        return const Center(child: CircularProgressIndicator());
+      },
     );
   }
 

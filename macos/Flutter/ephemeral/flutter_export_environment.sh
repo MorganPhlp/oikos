@@ -1,7 +1,7 @@
 #!/bin/sh
 # This is a generated file; do not edit or check into version control.
-export "FLUTTER_ROOT=D:\develop\flutter_windows_3.38.4-stable\flutter"
-export "FLUTTER_APPLICATION_PATH=D:\Document\Ecole\ET5\oikos"
+export "FLUTTER_ROOT=/Users/titouan_bvrg/Development/flutter"
+export "FLUTTER_APPLICATION_PATH=/Users/titouan_bvrg/Documents/Ecole/ET5/Projet_Genie_Logiciel/oikos"
 export "COCOAPODS_PARALLEL_CODE_SIGN=true"
 export "FLUTTER_BUILD_DIR=build"
 export "FLUTTER_BUILD_NAME=1.0.0"

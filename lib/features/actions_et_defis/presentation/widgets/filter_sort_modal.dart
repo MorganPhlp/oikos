@@ -27,6 +27,7 @@ class FilterSortModal extends StatefulWidget {
   final FilterData currentFilters;
   final List<String> allCategories;
   final List<String> allTags;
+  final List<String> allFrequencies;
   final ValueChanged<FilterData> onApply;
 
   const FilterSortModal({
@@ -34,18 +35,12 @@ class FilterSortModal extends StatefulWidget {
     required this.currentFilters,
     required this.allCategories,
     required this.allTags,
+    required this.allFrequencies,
     required this.onApply,
   });
 
   @override
   State<FilterSortModal> createState() => _FilterSortModalState();
-
-  static const frequencyMap = {
-    'journalier': 'Quotidien',
-    'hebdomadaire': 'Hebdomadaire',
-    'mensuel': 'Mensuelle',
-    'unique': 'Bonus',
-  };
 }
 
 class _FilterSortModalState extends State<FilterSortModal> {
@@ -134,7 +129,7 @@ class _FilterSortModalState extends State<FilterSortModal> {
                     title: 'Fréquence',
                     icon: Icons.schedule,
                     selectedCount: _tmp.frequency != null ? 1 : 0,
-                    children: FilterSortModal.frequencyMap.entries.map((e) {
+                    children: widget.allFrequencies.map((freq) {
                       return CheckboxListTile(
                         dense: true,
                         visualDensity: VisualDensity.compact,
@@ -142,16 +137,16 @@ class _FilterSortModalState extends State<FilterSortModal> {
                         controlAffinity: ListTileControlAffinity.leading,
                         activeColor: colorScheme.primary,
                         title: Text(
-                          e.value,
+                          freq,
                           style: theme.textTheme.bodySmall?.copyWith(
-                            fontWeight: _tmp.frequency == e.key
+                            fontWeight: _tmp.frequency == freq
                                 ? FontWeight.bold
                                 : FontWeight.normal,
                           ),
                         ),
-                        value: _tmp.frequency == e.key,
+                        value: _tmp.frequency == freq,
                         onChanged: (checked) => setState(() {
-                          _tmp.frequency = (checked == true) ? e.key : null;
+                          _tmp.frequency = (checked == true) ? freq : null;
                         }),
                       );
                     }).toList(),
