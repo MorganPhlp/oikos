@@ -16,7 +16,7 @@ class QuickAccessWidget extends StatelessWidget {
         Text(
           "Tu veux en savoir plus sur :",
           style: theme.textTheme.titleMedium?.copyWith(
-            color: AppColors.lightTextPrimary.withValues(alpha: 0.6),
+            color: theme.colorScheme.onSecondary,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -25,10 +25,9 @@ class QuickAccessWidget extends StatelessWidget {
         _QuickAccessButton(
           title: "Mon Bilan Carbone",
           subtitle: "Découvre ton empreinte et tes progrès",
-          borderColor: AppColors.lightPrimary, 
+          borderColor: theme.colorScheme.primary,
           icon: LucideIcons.barChart3,
-          // TODO : remplacer par la route 
-          routeName: '', 
+          routeName: '/dashboard',
         ),
 
         const SizedBox(height: 12),
@@ -37,10 +36,9 @@ class QuickAccessWidget extends StatelessWidget {
         _QuickAccessButton(
           title: "Mes Actions en cours",
           subtitle: "Valide tes actions et progresse",
-          borderColor: AppColors.gradientGreenStart, // Bordure Lime
+          borderColor: theme.colorScheme.tertiary, // Bordure Lime
           icon: LucideIcons.target,
-          // TODO : remplacer par la route
-          routeName: '',
+          routeName: '/actions/mine',
         ),
       ],
     );
@@ -72,7 +70,7 @@ class _QuickAccessButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.colorScheme.onPrimary.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: borderColor, width: 2),
         ),
@@ -87,14 +85,16 @@ class _QuickAccessButton extends StatelessWidget {
                     title,
                     style: theme.textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: AppColors.lightTextPrimary,
+                      color: theme.colorScheme.onSecondary,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     subtitle,
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: AppColors.lightTextPrimary.withValues(alpha: 0.6),
+                      color: theme.colorScheme.onSecondary.withValues(
+                        alpha: 0.6,
+                      ),
                     ),
                   ),
                 ],
@@ -103,7 +103,7 @@ class _QuickAccessButton extends StatelessWidget {
             // Flèche de navigation
             Icon(
               LucideIcons.chevronRight,
-              color: AppColors.lightPrimary,
+              color: theme.colorScheme.primary,
               size: 20,
             ),
           ],

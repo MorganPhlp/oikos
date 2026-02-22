@@ -32,47 +32,59 @@ class _ActionsCataloguePageState extends State<ActionsCataloguePage> {
     final repo = ActionRepositoryImpl(dataSource);
 
     return BlocProvider(
-      create: (_) => ActionsBloc(repository: repo)..add(LoadAllDataEvent(userId)),
-      child: Scaffold(
-        backgroundColor: AppColors.lightBackground,
-        // On utilise Column pour empiler le Header Vert et le reste
-        body: Column(
-          children: [
-            // 1. LE HEADER VERT (Profil, Titre, Notif)
-            const ActionsHeader(
-              title: " Catalogue d'actions ",
-              subtitle: "  ",
-              userPoints: 1250, // il faudra connecter ça au Cubit User plus tard
-            ),
+      create: (_) =>
+          ActionsBloc(repository: repo)..add(LoadAllDataEvent(userId)),
+      child: Column(
+        children: [
+          // 1. LE HEADER VERT (Profil, Titre, Notif)
 
-            // 2. LE CONTENU (Recherche + Filtres + Liste)
-            Expanded(
-              child: BlocBuilder<ActionsBloc, ActionsState>(
-                builder: (context, state) {
-                  if (state is ActionsLoading) {
-                    return const Center(child: CircularProgressIndicator(color: AppColors.lightPrimary));
-                  }
-                  if (state is ActionsLoaded) {
-                    return _buildCatalogueList(context, state.catalogue, repo, userId);
-                  }
-                  return const SizedBox();
-                },
-              ),
+          // 2. LE CONTENU (Recherche + Filtres + Liste)
+          Expanded(
+            child: BlocBuilder<ActionsBloc, ActionsState>(
+              builder: (context, state) {
+                if (state is ActionsLoading) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.lightPrimary,
+                    ),
+                  );
+                }
+                if (state is ActionsLoaded) {
+                  return _buildCatalogueList(
+                    context,
+                    state.catalogue,
+                    repo,
+                    userId,
+                  );
+                }
+                return const SizedBox();
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildCatalogueList(BuildContext context, List<ActionEntity> catalogue, ActionRepositoryImpl repo, String userId) {
-    final Set<String> categoriesDisponibles = catalogue.map((e) => e.categoryName).toSet();
+  Widget _buildCatalogueList(
+    BuildContext context,
+    List<ActionEntity> catalogue,
+    ActionRepositoryImpl repo,
+    String userId,
+  ) {
+    final Set<String> categoriesDisponibles = catalogue
+        .map((e) => e.categoryName)
+        .toSet();
     List<String> filtres = ["Toutes", ...categoriesDisponibles];
 
     final displayList = catalogue.where((action) {
-      if (selectedCategory != "Toutes" && action.categoryName != selectedCategory) return false;
+      if (selectedCategory != "Toutes" &&
+          action.categoryName != selectedCategory)
+        return false;
       if (searchQuery.isNotEmpty) {
-        final match = action.title.toLowerCase().contains(searchQuery.toLowerCase());
+        final match = action.title.toLowerCase().contains(
+          searchQuery.toLowerCase(),
+        );
         if (!match) return false;
       }
       return true;
@@ -88,12 +100,16 @@ class _ActionsCataloguePageState extends State<ActionsCataloguePage> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 15),
             decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(15),
-                border: Border.all(color: AppColors.lightInputBorder),
-                boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))
-                ]
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              border: Border.all(color: AppColors.lightInputBorder),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.03),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             child: TextField(
               onChanged: (val) => setState(() => searchQuery = val),
@@ -114,7 +130,12 @@ class _ActionsCataloguePageState extends State<ActionsCataloguePage> {
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Row(
-            children: filtres.map((cat) => _buildFilterChip(context, cat, selectedCategory == cat)).toList(),
+            children: filtres
+                .map(
+                  (cat) =>
+                      _buildFilterChip(context, cat, selectedCategory == cat),
+                )
+                .toList(),
           ),
         ),
 
@@ -125,34 +146,47 @@ class _ActionsCataloguePageState extends State<ActionsCataloguePage> {
           child: displayList.isEmpty
               ? const Center(child: Text("Aucune action trouvée"))
               : ListView.builder(
-            padding: const EdgeInsets.all(20),
-            itemCount: displayList.length,
-            itemBuilder: (context, index) {
-              final action = displayList[index];
-              return ActionCard(
-                action: action,
-                onTap: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    builder: (_) => ActionDetailModal(
+                  padding: const EdgeInsets.all(20),
+                  itemCount: displayList.length,
+                  itemBuilder: (context, index) {
+                    final action = displayList[index];
+                    return ActionCard(
                       action: action,
-                      onJoin: (freq) async {
-                        Navigator.pop(context);
-                        try {
-                          await repo.joinChallenge(userId, action.id, freq);
+                      onTap: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (_) => ActionDetailModal(
+                            action: action,
+                            onJoin: (freq) async {
+                              Navigator.pop(context);
+                              try {
+                                await repo.joinChallenge(
+                                  userId,
+                                  action.id,
+                                  freq,
+                                );
 
-                          context.read<ActionsBloc>().add(LoadAllDataEvent(userId));
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Action ajoutée !"), backgroundColor: AppColors.lightPrimary));
-                        } catch (e) { /*...*/ }
+                                context.read<ActionsBloc>().add(
+                                  LoadAllDataEvent(userId),
+                                );
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Action ajoutée !"),
+                                    backgroundColor: AppColors.lightPrimary,
+                                  ),
+                                );
+                              } catch (e) {
+                                /*...*/
+                              }
+                            },
+                          ),
+                        );
                       },
-                    ),
-                  );
-                },
-              );
-            },
-          ),
+                    );
+                  },
+                ),
         ),
       ],
     );
@@ -172,10 +206,18 @@ class _ActionsCataloguePageState extends State<ActionsCataloguePage> {
             color: isSelected ? null : Colors.white,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: isSelected ? Colors.transparent : AppColors.lightInputBorder,
+              color: isSelected
+                  ? Colors.transparent
+                  : AppColors.lightInputBorder,
             ),
             boxShadow: isSelected
-                ? [BoxShadow(color: buttonTheme?.shadowColor ?? Colors.transparent, blurRadius: 8, offset: const Offset(0, 4))]
+                ? [
+                    BoxShadow(
+                      color: buttonTheme?.shadowColor ?? Colors.transparent,
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
                 : null,
           ),
           child: Text(

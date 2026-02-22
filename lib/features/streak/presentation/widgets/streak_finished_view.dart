@@ -37,7 +37,7 @@ class StreakFinishedView extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              "La saison est clôturée. Tes actions ne comptent plus pour cette streak. Reviens vite pour la prochaine !",
+              "La saison est malheureusement terminée. Tes actions ne comptent plus pour cette streak. Reviens vite pour la prochaine !",
               textAlign: TextAlign.center,
               style: theme.textTheme.bodySmall,
             ),

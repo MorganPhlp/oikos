@@ -15,18 +15,20 @@ class CommunityDashboardScreen extends StatefulWidget {
   const CommunityDashboardScreen({Key? key}) : super(key: key);
 
   @override
-  State<CommunityDashboardScreen> createState() => _CommunityDashboardScreenState();
+  State<CommunityDashboardScreen> createState() =>
+      _CommunityDashboardScreenState();
 }
 
 // Etat de l'écran de classement communautaire
-class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> with SingleTickerProviderStateMixin {
+class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
+    with SingleTickerProviderStateMixin {
   late CommunityRemoteDataSource _dataSource;
   late TabController _tabController;
 
   bool _isLoading = true;
   String? _error;
 
-  List<LeaderboardEntryModel> _userList = []; // Liste des utilisateurs 
+  List<LeaderboardEntryModel> _userList = []; // Liste des utilisateurs
   List<LeaderboardEntryModel> _communityList = []; // Liste des communautés
   List<CommunityActionModel> _actions = []; // Liste des actions
 
@@ -65,7 +67,10 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
 
   // Chargement des données
   Future<void> _loadData() async {
-    setState(() { _isLoading = true; _error = null; });
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
     try {
       final userId = Supabase.instance.client.auth.currentUser?.id;
       if (userId == null) throw Exception("Utilisateur non connecté");
@@ -77,7 +82,10 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
           .maybeSingle();
 
       if (userRes == null || userRes['code_communaute'] == null) {
-        setState(() { _isLoading = false; _error = "Rejoins une communauté d'abord."; });
+        setState(() {
+          _isLoading = false;
+          _error = "Rejoins une communauté d'abord.";
+        });
         return;
       }
 
@@ -87,26 +95,28 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
       // On récupère les données
       final results = await Future.wait([
         _dataSource.getUserLeaderboard(_myCommunityCode!),
-        _dataSource.getCommunityLeaderboard(_myEntrepriseId ?? '', _myCommunityCode!),
+        _dataSource.getCommunityLeaderboard(
+          _myEntrepriseId ?? '',
+          _myCommunityCode!,
+        ),
         _dataSource.getActions(),
       ]);
 
       if (!mounted) return;
 
       setState(() {
-        _userList = (results[0] as List<LeaderboardEntryModel>).map((entry){
+        _userList = (results[0] as List<LeaderboardEntryModel>).map((entry) {
           final isMe = entry.id == userId;
-             return entry.copyWith(
-               isMe: isMe,
-               // Si c'est l'utilisateur connecté, on affiche "Moi", sinon on garde le vrai nom
-               label: isMe ? "Moi" : entry.label, 
-             );
+          return entry.copyWith(
+            isMe: isMe,
+            // Si c'est l'utilisateur connecté, on affiche "Moi", sinon on garde le vrai nom
+            label: isMe ? "Moi" : entry.label,
+          );
         }).toList();
         _communityList = results[1] as List<LeaderboardEntryModel>;
         _actions = results[2] as List<CommunityActionModel>;
         _isLoading = false;
       });
-
     } catch (e) {
       if (!mounted) return;
     }
@@ -120,33 +130,19 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-            "Classement",
-            style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: isDark ? AppColors.darkForeground : AppColors.lightTextPrimary
-            )
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.notifications_outlined, color: isDark ? AppColors.darkForeground : AppColors.lightTextPrimary),
-            onPressed: () {},
-          )
-        ],
-      ),
       body: Column(
         children: [
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             height: 45,
             decoration: BoxDecoration(
-                color: isDark ? AppColors.darkInput : AppColors.lightInput,
-                borderRadius: BorderRadius.circular(25),
-                border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightInputBorder)
+              color: isDark ? AppColors.darkInput : AppColors.lightInput,
+              borderRadius: BorderRadius.circular(25),
+              border: Border.all(
+                color: isDark
+                    ? AppColors.darkBorder
+                    : AppColors.lightInputBorder,
+              ),
             ),
             child: TabBar(
               controller: _tabController,
@@ -154,10 +150,18 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
               indicator: BoxDecoration(
                 color: AppColors.lightPrimary,
                 borderRadius: BorderRadius.circular(25),
-                boxShadow: [BoxShadow(color: AppColors.lightPrimary.withOpacity(0.3), blurRadius: 4, offset: const Offset(0,2))],
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.lightPrimary.withOpacity(0.3),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               labelColor: Colors.white,
-              unselectedLabelColor: isDark ? Colors.grey : AppColors.lightMutedForeground,
+              unselectedLabelColor: isDark
+                  ? Colors.grey
+                  : AppColors.lightMutedForeground,
               labelStyle: const TextStyle(fontWeight: FontWeight.bold),
               dividerColor: Colors.transparent,
               tabs: const [
@@ -181,13 +185,17 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
     );
   }
 
-  Widget _buildLeaderboardView(List<LeaderboardEntry> list, {required bool isCommunity}) {
+  Widget _buildLeaderboardView(
+    List<LeaderboardEntry> list, {
+    required bool isCommunity,
+  }) {
     final theme = Theme.of(context);
     if (_isLoading) return const Center(child: CircularProgressIndicator());
-    if (list.isEmpty) return const Center(child: Text("Aucun classement disponible"));
+    if (list.isEmpty)
+      return const Center(child: Text("Aucun classement disponible"));
 
     List<LeaderboardEntry> displayList = [];
-    
+
     // On prend les 10 premiers maximum
     final top10 = list.take(10).toList();
     displayList.addAll(top10);
@@ -207,7 +215,9 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
 
     // Podium des 3 premiers
     final top3 = displayList.take(3).toList();
-    final rest = displayList.length > 3 ? displayList.sublist(3) : <LeaderboardEntry>[];
+    final rest = displayList.length > 3
+        ? displayList.sublist(3)
+        : <LeaderboardEntry>[];
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 10, 20, 100),
@@ -239,8 +249,8 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
                     ),
                   ),
                 _LeaderboardCard(
-                    entry: entry,
-                    onTap: () => _showRankingInfo(context, entry)
+                  entry: entry,
+                  onTap: () => _showRankingInfo(context, entry),
                 ),
               ],
             );
@@ -266,14 +276,22 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        if (second != null) _buildPodiumStep(second, 2, const Color(0xFFC0C0C0), 110),
-        if (first != null) _buildPodiumStep(first, 1, const Color(0xFFFFD700), 140),
-        if (third != null) _buildPodiumStep(third, 3, const Color(0xFFCD7F32), 90),
+        if (second != null)
+          _buildPodiumStep(second, 2, const Color(0xFFC0C0C0), 110),
+        if (first != null)
+          _buildPodiumStep(first, 1, const Color(0xFFFFD700), 140),
+        if (third != null)
+          _buildPodiumStep(third, 3, const Color(0xFFCD7F32), 90),
       ],
     );
   }
 
-  Widget _buildPodiumStep(LeaderboardEntry entry, int rank, Color color, double height) {
+  Widget _buildPodiumStep(
+    LeaderboardEntry entry,
+    int rank,
+    Color color,
+    double height,
+  ) {
     final theme = Theme.of(context);
 
     return Expanded(
@@ -287,7 +305,10 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
               children: [
                 Container(
                   padding: const EdgeInsets.all(3),
-                  decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: color, width: 3)),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: color, width: 3),
+                  ),
                   child: OikosAvatar(
                     avatarUrl: entry.avatarUrl,
                     label: entry.label,
@@ -297,22 +318,43 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
                 Transform.translate(
                   offset: const Offset(0, 10),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(10)),
-                    child: Text("#$rank", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: color,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      "#$rank",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
                   ),
-                )
+                ),
               ],
             ),
             const SizedBox(height: 15),
 
             Text(
-                entry.label,
-                style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis
+              entry.label,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-            Text("${entry.value}", style: TextStyle(color: AppColors.lightPrimary, fontWeight: FontWeight.bold)),
+            Text(
+              "${entry.value}",
+              style: TextStyle(
+                color: AppColors.lightPrimary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
 
             const SizedBox(height: 8),
 
@@ -322,16 +364,15 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
               margin: const EdgeInsets.symmetric(horizontal: 4),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      color.withOpacity(0.3),
-                      color.withOpacity(0.05),
-                    ]
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [color.withOpacity(0.3), color.withOpacity(0.05)],
                 ),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(8),
+                ),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -346,7 +387,12 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 12),
-          child: Text("Actions Collectives", style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+          child: Text(
+            "Actions Collectives",
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
 
         _ChallengeCard(
@@ -371,22 +417,21 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen> wit
             if (_myEntrepriseId != null) {
               showModalBottomSheet(
                 context: context,
-                isScrollControlled: true, 
-                backgroundColor: Colors.transparent, 
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
                 builder: (context) => CommunityChallengesSheet(
-                  actions: _actions, 
+                  actions: _actions,
                   entrepriseId: _myEntrepriseId!,
                   myCommunityCode: _myCommunityCode!,
                 ),
               );
             }
-          }
+          },
         ),
       ],
     );
   }
 }
-
 
 class _LeaderboardCard extends StatelessWidget {
   final LeaderboardEntry entry;
@@ -414,17 +459,26 @@ class _LeaderboardCard extends StatelessWidget {
           border: isMe
               ? Border.all(color: AppColors.lightPrimary)
               : Border.all(color: Colors.transparent),
-          boxShadow: isMe ? [] : [
-            BoxShadow(
-                color: Colors.black.withOpacity(0.03),
-                blurRadius: 5,
-                offset: const Offset(0, 2)
-            )
-          ],
+          boxShadow: isMe
+              ? []
+              : [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.03),
+                    blurRadius: 5,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
         ),
         child: Row(
           children: [
-            Text("#${entry.rank}", style: TextStyle(fontWeight: FontWeight.bold, color: theme.hintColor, fontSize: 16)),
+            Text(
+              "#${entry.rank}",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: theme.hintColor,
+                fontSize: 16,
+              ),
+            ),
             const SizedBox(width: 12),
             OikosAvatar(
               avatarUrl: entry.avatarUrl,
@@ -437,18 +491,22 @@ class _LeaderboardCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                      entry.label,
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? AppColors.darkForeground : AppColors.lightTextPrimary,
-                          fontSize: 15
-                      )
+                    entry.label,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: isDark
+                          ? AppColors.darkForeground
+                          : AppColors.lightTextPrimary,
+                      fontSize: 15,
+                    ),
                   ),
                   Text(
                     entry.isUser
                         ? "${entry.actionsCount} actions"
                         : "${entry.actionsCount} membres",
-                    style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.hintColor,
+                    ),
                   ),
                 ],
               ),
@@ -456,10 +514,20 @@ class _LeaderboardCard extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text("${entry.value}", style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.lightPrimary, fontSize: 16)),
-                Text("pts", style: theme.textTheme.bodySmall?.copyWith(fontSize: 10)),
+                Text(
+                  "${entry.value}",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.lightPrimary,
+                    fontSize: 16,
+                  ),
+                ),
+                Text(
+                  "pts",
+                  style: theme.textTheme.bodySmall?.copyWith(fontSize: 10),
+                ),
               ],
-            )
+            ),
           ],
         ),
       ),
@@ -491,9 +559,15 @@ class _ChallengeCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkInput : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightInputBorder),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.lightInputBorder,
+        ),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 5, offset: const Offset(0, 2))
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: Material(
@@ -521,26 +595,30 @@ class _ChallengeCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                          title,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
-                              color: isDark ? AppColors.darkForeground : AppColors.lightTextPrimary
-                          )
+                        title,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          color: isDark
+                              ? AppColors.darkForeground
+                              : AppColors.lightTextPrimary,
+                        ),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                          subtitle,
-                          style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor)
+                        subtitle,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.hintColor,
+                        ),
                       ),
                     ],
                   ),
                 ),
 
                 Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    size: 16,
-                    color: theme.hintColor.withOpacity(0.5)
+                  Icons.arrow_forward_ios_rounded,
+                  size: 16,
+                  color: theme.hintColor.withOpacity(0.5),
                 ),
               ],
             ),

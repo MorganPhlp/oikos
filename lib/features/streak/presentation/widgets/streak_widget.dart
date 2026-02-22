@@ -90,10 +90,15 @@ class _StreakWidgetState extends State<StreakWidget> {
 
           return GestureDetector(
             onTap: _canFlip(state)
-                ? () => setState(() => isFlipped = !isFlipped)
+                ? () => {
+                    setState(() => isFlipped = !isFlipped),
+                    setState(
+                      () => showInfo = false,
+                    ), // fermer l'info si on flip
+                  }
                 : null,
             child: TweenAnimationBuilder(
-              tween: Tween<double>(begin: 0, end: isFlipped ? 3.14159 : 0),
+              tween: Tween<double>(end: isFlipped ? 3.14159 : 0),
               duration: 600.ms,
               curve: Curves.easeInOut,
               builder: (context, value, _) {

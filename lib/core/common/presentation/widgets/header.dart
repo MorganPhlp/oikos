@@ -4,8 +4,11 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
 
-class Header extends StatelessWidget {
+class Header extends StatelessWidget implements PreferredSizeWidget {
   const Header({super.key});
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight + 20); // Hauteur du toolbar + padding
 
   @override
   Widget build(BuildContext context) {
@@ -104,15 +107,17 @@ class _CircleAvatarButton extends StatelessWidget {
               width: 1.5,
             ),
           ),
-          child: ClipOval(child: Image.asset(
+          child: ClipOval(
+            child: Image.asset(
               avatarPath,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) => Icon(
                 LucideIcons.user,
                 size: 20,
                 color: colorScheme.onSurface.withValues(alpha: 0.5),
-              )
-          )),
+              ),
+            ),
+          ),
         ),
       ),
     );

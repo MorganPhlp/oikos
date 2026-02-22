@@ -240,7 +240,7 @@ class ProductDetailsPage extends StatelessWidget {
                   label: 'Lance un nouveau scan',
                   onPressed: () {
                     //On retourne a la page de scan
-                    context.push('/scan');
+                    context.push('/scan/camera');
                   },
                 ),
               ),
@@ -294,7 +294,7 @@ class ProductDetailsPage extends StatelessWidget {
           InkWell(
             onTap: () {
               // Navigation récursive : on ouvre la même page mais avec le nouveau produit !
-              context.push('/product_details', extra: alternative);
+              context.push('/scan/details', extra: alternative);
             },
             child: Row(
               children: [

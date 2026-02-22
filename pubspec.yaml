@@ -46,8 +46,7 @@ dependencies:
   lucide_icons: ^0.257.0
   go_router: ^17.0.1
   syncfusion_flutter_pdfviewer: ^32.1.24
-  mobile_scanner: ^7.1.4
- #For QR code scanning
+  mobile_scanner: ^7.1.4 #For QR code scanning
   http: ^1.2.0 #For making HTTP requests
   flutter_dotenv: ^6.0.0
   font_awesome_flutter: ^10.12.0 #icons supplementaires
@@ -56,6 +55,7 @@ dependencies:
   flutter_animate: ^4.5.2
   flutter_confetti: ^0.5.1
   bloc_concurrency: ^0.3.0
+  flutter_launcher_icons: ^0.13.1 #Image appli dans menu
 
 
 dev_dependencies:
@@ -123,3 +123,11 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/logos/oikos_home.png" # Chemin vers image
+  # Optionnel ANDROID : Si le logo a un fond transparent, on peut ajouter une couleur de fond pour Android
+  adaptive_icon_background: "#1A1C19"
+  # adaptive_icon_foreground: "assets/logos/oikos_logo.png"
