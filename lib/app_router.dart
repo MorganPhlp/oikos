@@ -26,7 +26,7 @@ import 'package:oikos/features/actions_et_defis/presentation/pages/my_actions_pa
 
 GoRouter createRouter(AppUserCubit appUserCubit) {
   return GoRouter(
-    initialLocation: '/',
+    initialLocation: '/community',
     // On écoute le stream du Cubit pour relancer le redirect à chaque changement d'état
     refreshListenable: GoRouterRefreshStream(appUserCubit.stream),
 

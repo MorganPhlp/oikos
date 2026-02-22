@@ -1,18 +1,25 @@
-import '../../domain/entities/community_action.dart';
+class CommunityActionModel {
+  final String id;
+  final String title;
+  final String subtitle;
+  final int xpGain;
+  final String iconKey;
 
-// Modèle de données pour une action communautaire
-class CommunityActionModel extends CommunityAction {
   CommunityActionModel({
-    required super.id, required super.title, required super.subtitle, required super.xpGain, required super.iconKey
+    required this.id,
+    required this.title,
+    required this.subtitle,
+    required this.xpGain,
+    required this.iconKey,
   });
 
   factory CommunityActionModel.fromJson(Map<String, dynamic> json) {
     return CommunityActionModel(
-      id: json['id']?.toString() ?? '0',
-      title: json['titre'] as String? ?? 'Action inconnue',
-      subtitle: json['description'] as String? ?? '',
+      id: json['id']?.toString() ?? '',
+      title: json['titre'] ?? '',
+      subtitle: json['description'] ?? '',
       xpGain: (json['xp_gain'] as num?)?.toInt() ?? 0,
-      iconKey: json['icon_name'] as String? ?? 'zap',
+      iconKey: json['icon_name'] ?? 'bolt',
     );
   }
 }

@@ -44,7 +44,7 @@ class _StreakCarousselWidgetState extends State<StreakCarousselWidget> {
 
         return SizedBox(
           height: 200,
-          child: CarouselView.weightedBuilder(
+          /*child: CarouselView.weightedBuilder(
             flexWeights: [2, 4, 2],
             controller: controller,
             scrollDirection: Axis.horizontal,
@@ -99,7 +99,7 @@ class _StreakCarousselWidgetState extends State<StreakCarousselWidget> {
                 ),
               );
             },
-          ),
+          ),*/
         );
       },
     );
