@@ -4,11 +4,12 @@ import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.da
 import 'package:oikos/features/actions_et_defis/presentation/bloc/actions_event.dart';
 import 'package:oikos/features/actions_et_defis/presentation/bloc/habitudes_cubit.dart';
 import 'package:oikos/features/actions_et_defis/presentation/pages/my_habitudes_tab.dart';
+import 'package:oikos/features/actions_et_defis/presentation/widgets/congrats_action_bonus_complete.dart';
 import 'package:oikos/features/actions_et_defis/presentation/widgets/promote_to_habitude_popup.dart';
-import 'package:oikos/init_dependencies.dart';
 import '../bloc/actions_bloc.dart';
 import '../bloc/actions_state.dart';
 import '../pages/my_actions_tab.dart';
+import '../../domain/entities/user_active_action_entity.dart';
 
 class MyActionsPage extends StatefulWidget {
   const MyActionsPage({super.key});
@@ -44,22 +45,25 @@ class _MyActionsPageState extends State<MyActionsPage>
     return MultiBlocListener(
       listeners: [
         BlocListener<ActionsBloc, ActionsState>(
-          // On ne déclenche le dialogue QUE si l'état change et contient des actions
           listenWhen: (previous, current) =>
               current is ActionsLoaded &&
-              current.mesActions.where((a) => a.isPromotable()).isNotEmpty,
-          listener: (context, state) {
+              current.mesActions.where((a) => a.isCompleted()).isNotEmpty,
+          listener: (context, state) async {
             if (state is ActionsLoaded) {
               final promotableActions = state.mesActions
                   .where((a) => a.isPromotable())
                   .toList();
+              final actionBloc = context.read<ActionsBloc>();
+              final habitudeCubit = context.read<HabitudeCubit>();
 
               if (promotableActions.isNotEmpty) {
-                final actionBloc = context.read<ActionsBloc>();
-                showDialog(
+                await showDialog(
                   context: context,
-                  builder: (context) => BlocProvider.value(
-                    value: actionBloc,
+                  builder: (context) => MultiBlocProvider(
+                    providers: [
+                      BlocProvider.value(value: actionBloc),
+                      BlocProvider.value(value: habitudeCubit),
+                    ],
                     child: PromoteToHabitudeOverlay(
                       promotableActions: promotableActions,
                     ),
@@ -150,28 +154,15 @@ class _MyActionsPageState extends State<MyActionsPage>
                       children: [
                         MyActionsTab(
                           activeActions: state.mesActions,
-                          onValidate: (actionId) {
-                            context.read<ActionsBloc>().add(
-                              ValidateActionEvent(
-                                userId: userId,
-                                actionId: actionId,
-                              ),
-                            );
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: const Text(
-                                  'Action validée ! Continue comme ça !',
-                                ),
-                                backgroundColor: colorScheme.primary,
-                                duration: const Duration(milliseconds: 1500),
-                              ),
-                            );
+                          limiteActionsFreq: state.limiteActionsFreq,
+                          onValidate: (userActiveAction) {
+                            _validateAction(context, userActiveAction);
                           },
-                          onDelete: (actionId) {
+                          onDelete: (userActiveAction) {
                             context.read<ActionsBloc>().add(
                               RemoveFromMyActionsEvent(
                                 userId: userId,
-                                actionId: actionId,
+                                actionId: userActiveAction.action.id,
                               ),
                             );
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -197,5 +188,34 @@ class _MyActionsPageState extends State<MyActionsPage>
         },
       ),
     );
+  }
+
+  void _validateAction(
+    BuildContext context,
+    UserActiveActionEntity userActiveAction,
+  ) {
+    final userId = switch (context.read<AppUserCubit>().state) {
+      AppUserLoggedIn(user: var u) => u.id,
+      _ => '',
+    };
+    final actionBloc = context.read<ActionsBloc>();
+    context.read<ActionsBloc>().add(
+      ValidateActionEvent(userId: userId, actionId: userActiveAction.action.id),
+    );
+    // afficher les actions bonus validees
+    if (userActiveAction.action.frequency.toLowerCase() == 'bonus') {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => BlocProvider.value(
+          value: actionBloc,
+          child: CongratsActionBonusComplete(
+            activeAction: userActiveAction.copyWith(
+              streakCount: userActiveAction.streakCount + 1,
+            ),
+          ),
+        ),
+      );
+    }
   }
 }

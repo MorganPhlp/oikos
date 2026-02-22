@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:oikos/features/actions_et_defis/domain/usecases/get_limite_actions_freq_use_case.dart';
 import 'package:oikos/features/actions_et_defis/domain/usecases/get_my_habitudes_use_case.dart';
 import 'package:oikos/features/actions_et_defis/domain/usecases/promote_to_habitude_use_case.dart';
 
@@ -18,6 +19,7 @@ class ActionsBloc extends Bloc<ActionsEvent, ActionsState> {
   final RemoveFromMyActionsUseCase _removeFromMyActions;
   final GetMyHabitudesUseCase _getMyHabitudes;
   final PromoteToHabitudeUseCase _promoteActionToHabitude;
+  final GetLimiteActionsFreqUseCase _getLimiteActionsFreqUseCase;
 
   ActionsBloc({
     required GetActionsUseCase getActions,
@@ -27,6 +29,7 @@ class ActionsBloc extends Bloc<ActionsEvent, ActionsState> {
     required RemoveFromMyActionsUseCase removeFromMyActions,
     required GetMyHabitudesUseCase getMyHabitudes,
     required PromoteToHabitudeUseCase promoteActionToHabitude,
+    required GetLimiteActionsFreqUseCase getLimiteActionsFreq,
   }) : _getActions = getActions,
        _getMyActiveActions = getMyActiveActions,
        _addToMyActions = addToMyActions,
@@ -34,6 +37,7 @@ class ActionsBloc extends Bloc<ActionsEvent, ActionsState> {
        _removeFromMyActions = removeFromMyActions,
        _getMyHabitudes = getMyHabitudes,
        _promoteActionToHabitude = promoteActionToHabitude,
+       _getLimiteActionsFreqUseCase = getLimiteActionsFreq,
        super(const ActionsInitial()) {
     on<LoadAllActionsEvent>(_onLoadAllActions);
     on<AddToMyActionsEvent>(_onAddToMyActions);
@@ -51,15 +55,23 @@ class ActionsBloc extends Bloc<ActionsEvent, ActionsState> {
     final catalogueResult = await _getActions(event.userId);
     final activeActionsResult = await _getMyActiveActions(event.userId);
     final habitudes = await _getMyHabitudes(event.userId);
+    final limitActionsFreq = await _getLimiteActionsFreqUseCase();
 
     if (catalogueResult.isLeft() ||
         activeActionsResult.isLeft() ||
-        habitudes.isLeft()) {
+        habitudes.isLeft() ||
+        limitActionsFreq.isLeft()) {
       final errorMsg = catalogueResult.fold(
         (f) => f.message,
         (_) => activeActionsResult.fold(
           (f) => f.message,
-          (h) => habitudes.fold((f) => f.message, (_) => ''),
+          (_) => habitudes.fold(
+            (f) => f.message,
+            (_) => limitActionsFreq.fold(
+              (f) => f.message,
+              (_) => 'Erreur chargement des actions',
+            ),
+          ),
         ),
       );
       emit(ActionsError(errorMsg));
@@ -70,6 +82,7 @@ class ActionsBloc extends Bloc<ActionsEvent, ActionsState> {
       ActionsLoaded(
         catalogue: catalogueResult.getOrElse((_) => []),
         mesActions: activeActionsResult.getOrElse((_) => []),
+        limiteActionsFreq: limitActionsFreq.getOrElse((_) => []),
       ),
     );
   }

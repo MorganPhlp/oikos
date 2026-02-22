@@ -2,6 +2,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:oikos/core/error/exceptions.dart';
 import 'package:oikos/core/error/failures.dart';
 import 'package:oikos/features/actions_et_defis/domain/entities/habitude_entity.dart';
+import 'package:oikos/features/actions_et_defis/domain/entities/limite_action_freq_entity.dart';
 import 'package:oikos/features/actions_et_defis/domain/entities/user_active_action_entity.dart';
 
 import '../../domain/entities/action_entity.dart';
@@ -18,13 +19,7 @@ class ActionRepositoryImpl implements ActionRepository {
     String actionId,
   ) async {
     try {
-      // Logique métier : Vérification du quota de 5 actions
-      final currentActions = await remoteDataSource.fetchMyActiveActions(
-        userId,
-      );
-      if (currentActions.length >= 5) {
-        return left(Failure('Limite de 5 actions actives atteinte.'));
-      }
+      await remoteDataSource.fetchMyActiveActions(userId);
 
       await remoteDataSource.addToMyActions(userId, actionId);
       return right(null);
@@ -129,6 +124,17 @@ class ActionRepositoryImpl implements ActionRepository {
       return right(null);
     } on ServerException catch (e) {
       return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<LimiteActionFreqEntity>>>
+  getLimiteActionsFreq() async {
+    try {
+      final result = await remoteDataSource.getLimiteActionsFreq();
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(Failure(e.message));
     }
   }
 }

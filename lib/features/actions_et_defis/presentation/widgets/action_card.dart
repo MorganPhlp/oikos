@@ -34,7 +34,6 @@ class ActionCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Bande de couleur catégorie en haut
             Container(
               height: 4,
               decoration: BoxDecoration(
@@ -162,8 +161,6 @@ class ActionCard extends StatelessWidget {
       ),
     );
   }
-
-  // -- Helpers ---------------------------------------------------------------
 
   String _getFreqLabel(String freq) {
     switch (freq) {

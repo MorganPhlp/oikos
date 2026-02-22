@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
+import 'package:oikos/features/actions_et_defis/domain/entities/limite_action_freq_entity.dart';
 import 'package:oikos/features/actions_et_defis/domain/util/ActionsFilterHandler.dart';
 import 'package:oikos/features/actions_et_defis/presentation/bloc/habitudes_cubit.dart';
 import 'package:oikos/features/actions_et_defis/presentation/bloc/habitudes_state.dart';
@@ -48,16 +49,38 @@ class _ActionsCataloguePageState extends State<ActionsCataloguePage> {
   }
 
   void _checkAndOpenInitialAction() {
-    final state = context.read<ActionsBloc>().state;
-    if (state is ActionsLoaded) {
+    final actionsBloc = context.read<ActionsBloc>();
+    final habitudesBloc = context.read<HabitudeCubit>();
+
+    final actionsState = actionsBloc.state;
+    final habitudeState = habitudesBloc.state;
+
+    if (actionsState is ActionsLoaded) {
       try {
-        final action = state.catalogue.firstWhere(
+        final action = actionsState.catalogue.firstWhere(
           (a) => a.id == widget.openedActionId,
         );
+
         final userId = _getUserId();
-        WidgetsBinding.instance.addPostFrameCallback(
-          (_) => _showDetailModal(context, action, userId),
+
+        bool alreadyInActions = actionsState.activeActionIds.contains(
+          action.id,
         );
+        bool alreadyInHabitudes =
+            habitudeState is HabitudeLoaded &&
+            habitudeState.habitueActionIds.contains(action.id);
+
+        final isAlreadyAdded = alreadyInActions || alreadyInHabitudes;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            _showDetailModal(
+              context,
+              action,
+              userId,
+              isAlreadyAdded: isAlreadyAdded,
+            );
+          }
+        });
       } catch (_) {}
     }
   }
@@ -196,6 +219,12 @@ class _ActionsCataloguePageState extends State<ActionsCataloguePage> {
     String userId, {
     bool isAlreadyAdded = false,
   }) {
+    final state = context.read<ActionsBloc>().state;
+    if (state is! ActionsLoaded) return;
+
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -204,13 +233,67 @@ class _ActionsCataloguePageState extends State<ActionsCataloguePage> {
         action: action,
         isAlreadyAdded: isAlreadyAdded,
         onJoin: (freq) {
+          final limits = state.limiteActionsFreq;
+          final isLimitReached = state.mesActions.isLimitReached(
+            limits,
+            action,
+          );
+
+          if (isLimitReached) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                behavior: SnackBarBehavior.floating,
+                backgroundColor: colorScheme.errorContainer,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                content: Row(
+                  children: [
+                    Icon(Icons.lock_clock, color: colorScheme.error, size: 20),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Limite atteinte pour les actions "$freq".',
+                        style: TextStyle(color: colorScheme.onErrorContainer),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+            return;
+          }
+
           Navigator.pop(context);
           context.read<ActionsBloc>().add(
             AddToMyActionsEvent(userId: userId, actionId: action.id),
           );
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('Action ajoutée !')));
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: colorScheme.primaryContainer,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              content: Row(
+                children: [
+                  Icon(
+                    Icons.check_circle_outline,
+                    color: colorScheme.primary,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Action ajoutée !',
+                    style: TextStyle(color: colorScheme.onPrimaryContainer),
+                  ),
+                ],
+              ),
+            ),
+          );
         },
       ),
     );

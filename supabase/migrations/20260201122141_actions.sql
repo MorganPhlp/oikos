@@ -41,6 +41,11 @@ CREATE TABLE IF NOT EXISTS public.utilisateur_habitudes (
     UNIQUE(utilisateur_id, action_id)
 );
 
+CREATE TABLE IF NOT EXISTS public.limite_actions_freq(
+    frequence frequenceEnum PRIMARY KEY,
+    nombre INTEGER CONSTRAINT nombre_positif CHECK (nombre > 0)
+)
+
 CREATE OR REPLACE VIEW public.vue_actions_en_cours AS
 WITH recap_actions AS (
     SELECT 
@@ -54,6 +59,7 @@ WITH recap_actions AS (
                 WHEN a.frequence = 'quotidienne' THEN date_trunc('day', ra.date_realisation)
                 WHEN a.frequence = 'hebdomadaire' THEN date_trunc('week', ra.date_realisation)
                 WHEN a.frequence = 'mensuelle' THEN date_trunc('month', ra.date_realisation)
+                ELSE ra.date_realisation
             END
         ) FILTER (WHERE ra.date_realisation >= ac.date_dernier_reset) as count_since_reset
     FROM public.actions_en_cours ac
@@ -72,6 +78,7 @@ SELECT
              AND date_trunc('week', derniere_realisation) < date_trunc('week', now() - INTERVAL '1 week') THEN 0
         WHEN frequence = 'mensuelle' 
              AND date_trunc('month', derniere_realisation) < date_trunc('month', now() - INTERVAL '1 month') THEN 0  
+        WHEN frequence = 'bonus' AND count_since_reset >= 1 THEN 1 ELSE 0
         ELSE count_since_reset
     END AS effective_count
 FROM recap_actions;
@@ -129,7 +136,7 @@ FOR EACH ROW EXECUTE FUNCTION public.reset_actions_en_cours();
 
 
 
-CREATE OR REPLACE FUNCTION public.init_impact_score()
+CREATE OR REPLACE FUNCTION public.init_impact_score_actions()
 RETURNS TRIGGER AS $$
 DECLARE 
     base_score INTEGER;
@@ -164,7 +171,7 @@ DROP TRIGGER IF EXISTS init_impact_score_trigger ON public.actions;
 CREATE OR REPLACE TRIGGER init_impact_score_trigger
     BEFORE INSERT ON public.actions
     FOR EACH ROW
-    EXECUTE FUNCTION public.init_impact_score();
+    EXECUTE FUNCTION public.init_impact_score_actions();
 
 
 CREATE OR REPLACE FUNCTION public.calculer_et_ajouter_xp()
@@ -210,7 +217,55 @@ DROP TRIGGER IF EXISTS trg_remove_action_on_promote ON public.utilisateur_habitu
 CREATE TRIGGER trg_remove_action_on_promote
 AFTER INSERT ON public.utilisateur_habitudes
 FOR EACH ROW EXECUTE FUNCTION public.remove_action_on_promote();
+
+--pour empecher d'ajouter une habitude si l'action est bonus
+CREATE OR REPLACE FUNCTION public.check_bonus_before_habitude()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_frequence text;
+BEGIN
+    SELECT frequence INTO v_frequence
+    FROM public.actions WHERE id = NEW.action_id;
     
+    IF v_frequence = 'bonus' THEN
+        RAISE EXCEPTION 'Impossible d''ajouter une action bonus en tant qu''habitude';
+    END IF;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_check_bonus_before_habitude ON public.utilisateur_habitudes;
+CREATE TRIGGER trg_check_bonus_before_habitude
+BEFORE INSERT ON public.utilisateur_habitudes
+FOR EACH ROW EXECUTE FUNCTION public.check_bonus_before_habitude();
+
+-- supprimer automatiquement action bonus quand completee
+CREATE OR REPLACE FUNCTION public.supprimer_bonus_apres_realisation()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_frequence public.frequenceEnum;
+BEGIN
+    SELECT frequence INTO v_frequence 
+    FROM public.actions 
+    WHERE id = NEW.action_id;
+
+    IF v_frequence = 'bonus' THEN
+        DELETE FROM public.actions_en_cours 
+        WHERE utilisateur_id = NEW.utilisateur_id 
+          AND action_id = NEW.action_id;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+DROP TRIGGER IF EXISTS trg_supprimer_bonus_apres_realisation ON public.realisation_actions;
+
+CREATE TRIGGER trg_supprimer_bonus_apres_realisation
+AFTER INSERT ON public.realisation_actions
+FOR EACH ROW 
+EXECUTE FUNCTION public.supprimer_bonus_apres_realisation();
+
 
 -- -- Pour empecher qu'une action soit ajoutée en tant qu'habitude si elle n'est pas encore applicable selon sa fréquence et le nombre de réalisations
 -- CREATE OR REPLACE FUNCTION public.check_habitude_applicability()

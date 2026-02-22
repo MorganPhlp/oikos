@@ -1,6 +1,8 @@
 import 'package:oikos/core/error/exceptions.dart';
 import 'package:oikos/features/actions_et_defis/data/models/habitude_model.dart';
+import 'package:oikos/features/actions_et_defis/data/models/limite_actions_freq_model.dart';
 import 'package:oikos/features/actions_et_defis/data/models/user_active_action_model.dart.dart';
+import 'package:oikos/features/actions_et_defis/domain/entities/limite_action_freq_entity.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/action_model.dart';
@@ -14,6 +16,7 @@ abstract interface class ActionRemoteDataSource {
   Future<void> addToHabitudes(String userId, String actionId);
   Future<void> removeFromHabitudes(String userId, String actionId);
   Future<List<HabitudeModel>> fetchMyHabitudes(String userId);
+  Future<List<LimiteActionFreqEntity>> getLimiteActionsFreq();
 }
 
 class ActionRemoteDataSourceImpl implements ActionRemoteDataSource {
@@ -101,7 +104,8 @@ class ActionRemoteDataSourceImpl implements ActionRemoteDataSource {
         'action_id': actionId,
       });
     } on PostgrestException catch (e) {
-      if (e.code == '23505') throw const ServerException('Habitude déjà ajoutée.');
+      if (e.code == '23505')
+        throw const ServerException('Habitude déjà ajoutée.');
       throw ServerException(e.message);
     } catch (e) {
       throw ServerException('Erreur ajout habitude: $e');
@@ -122,9 +126,7 @@ class ActionRemoteDataSourceImpl implements ActionRemoteDataSource {
         return HabitudeModel.fromJson(json);
       }).toList();
     } catch (e) {
-      throw ServerException(
-        'Erreur lors du chargement des habitudes : $e',
-      );
+      throw ServerException('Erreur lors du chargement des habitudes : $e');
     }
   }
 
@@ -151,6 +153,20 @@ class ActionRemoteDataSourceImpl implements ActionRemoteDataSource {
           .eq('action_id', actionId);
     } catch (e) {
       throw ServerException('Erreur lors du retrait de l\'action : $e');
+    }
+  }
+
+  @override
+  Future<List<LimiteActionFreqEntity>> getLimiteActionsFreq() async {
+    try {
+      final response = await supabaseClient
+          .from('limite_actions_freq')
+          .select();
+
+      final data = response as List<dynamic>;
+      return data.map((json) => LimiteActionFreqModel.fromJson(json)).toList();
+    } catch (e) {
+      throw ServerException("Erreur lors de la récupération des limites : $e");
     }
   }
 }

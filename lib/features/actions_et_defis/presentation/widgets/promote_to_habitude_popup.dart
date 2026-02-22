@@ -10,6 +10,7 @@ import 'package:oikos/features/actions_et_defis/domain/entities/user_active_acti
 import 'package:oikos/features/actions_et_defis/presentation/bloc/actions_bloc.dart';
 import 'package:oikos/features/actions_et_defis/presentation/bloc/actions_event.dart';
 import 'package:oikos/features/actions_et_defis/presentation/bloc/actions_state.dart';
+import 'package:oikos/features/actions_et_defis/presentation/bloc/habitudes_cubit.dart';
 
 class PromoteToHabitudeOverlay extends StatefulWidget {
   final List<UserActiveActionEntity> promotableActions;
@@ -43,6 +44,7 @@ class _PromoteToHabitudeOverlayState extends State<PromoteToHabitudeOverlay> {
     return BlocListener<ActionsBloc, ActionsState>(
       listener: (context, state) {
         if (state is ActionsLoaded) {
+          context.read<HabitudeCubit>().loadHabitudes(userId);
           final remaining = state.mesActions
               .where((a) => a.isPromotable())
               .toList();

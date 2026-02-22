@@ -77,3 +77,10 @@ INSERT INTO public.actions (
 ('f7a714a1-1eb5-4413-b7a1-82a16f03b38d', 'Consommation & Dechets', 'Boîte Zen', 'Coller un "Stop Pub" sur sa boîte aux lettres', 'facile', 'markunread_mailbox', ARRAY['Demandez à la mairie', 'Imprimez-le'], 'bonus', ARRAY['zéro-déchet', 'papier', 'minimalisme']),
 ('c4f651e4-a398-4e9d-952b-7f4d5fccb32a', 'Energie & Eau', 'Quand il pleut, je stocke', 'Installer un récupérateur d''eau de pluie', 'difficile', 'cloud', ARRAY['Arrosez le jardin', 'Lavez la voiture'], 'bonus', ARRAY['eau', 'jardin', 'investissement'])
 ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO public.limite_actions_freq VALUES (
+    ('quotidienne',5),
+    ('hebdomadaire', 8),
+    ('mensuelle', 10),
+    ('bonus',null);
+)

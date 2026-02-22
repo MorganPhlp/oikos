@@ -1,6 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:oikos/core/error/failures.dart';
 import 'package:oikos/features/actions_et_defis/domain/entities/habitude_entity.dart';
+import 'package:oikos/features/actions_et_defis/domain/entities/limite_action_freq_entity.dart';
 import 'package:oikos/features/actions_et_defis/domain/entities/user_active_action_entity.dart';
 
 import '../entities/action_entity.dart';
@@ -30,4 +31,6 @@ abstract interface class ActionRepository {
     String userId,
     String actionId,
   );
+
+  Future<Either<Failure, List<LimiteActionFreqEntity>>> getLimiteActionsFreq();
 }

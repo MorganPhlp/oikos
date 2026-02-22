@@ -96,19 +96,14 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
             name: 'home',
             builder: (context, state) => const HomePage(),
           ),
-
-          GoRoute(
-            path: '/actions',
-            name: 'catalogue',
-            builder: (context, state) {
+          ShellRoute(
+            builder: (context, state, child) {
               final userId =
                   context.read<AppUserCubit>().state is AppUserLoggedIn
                   ? (context.read<AppUserCubit>().state as AppUserLoggedIn)
                         .user
                         .id
                   : '';
-
-              final actionId = state.uri.queryParameters['actionId'];
               return MultiBlocProvider(
                 providers: [
                   BlocProvider(
@@ -121,36 +116,26 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
                         serviceLocator<HabitudeCubit>()..loadHabitudes(userId),
                   ),
                 ],
-                child: ActionsCataloguePage(openedActionId: actionId),
+                child: child,
               );
             },
             routes: [
               GoRoute(
-                path: 'mine', // /actions/mine
-                name: 'my_actions',
+                path: '/actions',
+                name: 'catalogue',
                 builder: (context, state) {
-                  final userId =
-                      context.read<AppUserCubit>().state is AppUserLoggedIn
-                      ? (context.read<AppUserCubit>().state as AppUserLoggedIn)
-                            .user
-                            .id
-                      : '';
-                  return MultiBlocProvider(
-                    providers: [
-                      BlocProvider(
-                        create: (_) =>
-                            serviceLocator<ActionsBloc>()
-                              ..add(LoadAllActionsEvent(userId)),
-                      ),
-                      BlocProvider(
-                        create: (_) =>
-                            serviceLocator<HabitudeCubit>()
-                              ..loadHabitudes(userId),
-                      ),
-                    ],
-                    child: const MyActionsPage(),
-                  );
+                  final actionId = state.uri.queryParameters['actionId'];
+                  return ActionsCataloguePage(openedActionId: actionId);
                 },
+                routes: [
+                  GoRoute(
+                    path: 'mine', // /actions/mine
+                    name: 'my_actions',
+                    builder: (context, state) {
+                      return const MyActionsPage();
+                    },
+                  ),
+                ],
               ),
             ],
           ),

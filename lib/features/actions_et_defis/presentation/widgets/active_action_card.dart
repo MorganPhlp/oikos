@@ -1,29 +1,25 @@
 import 'package:flutter/material.dart';
-
-import '../../domain/entities/action_entity.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:oikos/core/theme/action_card_theme.dart';
+import 'package:oikos/features/actions_et_defis/domain/entities/user_active_action_entity.dart';
+import 'package:oikos/features/actions_et_defis/presentation/widgets/animated_progress_bar.dart';
 
 class ActiveActionCard extends StatelessWidget {
-  final ActionEntity action;
-  final String frequency;
-  final bool isCompleted;
-  final int streakCount;
+  final UserActiveActionEntity activeAction;
   final VoidCallback onValidate;
   final VoidCallback onDelete;
   final VoidCallback? onTap;
 
   const ActiveActionCard({
     super.key,
-    required this.action,
-    required this.frequency,
-    required this.isCompleted,
-    this.streakCount = 0,
+    required this.activeAction,
     required this.onValidate,
     required this.onDelete,
     this.onTap,
   });
 
   int get _targetForFrequency {
-    switch (frequency.toLowerCase()) {
+    switch (activeAction.action.frequency.toLowerCase()) {
       case 'quotidienne':
         return 7;
       case 'hebdomadaire':
@@ -36,7 +32,7 @@ class ActiveActionCard extends StatelessWidget {
   }
 
   String get _waitLabel {
-    switch (frequency.toLowerCase()) {
+    switch (activeAction.action.frequency.toLowerCase()) {
       case 'quotidienne':
         return 'Reviens demain !';
       case 'hebdomadaire':
@@ -44,7 +40,7 @@ class ActiveActionCard extends StatelessWidget {
       case 'mensuelle':
         return 'Reviens le mois prochain !';
       default:
-        return 'D\u00e9j\u00e0 valid\u00e9e !';
+        return 'Déjà validée !';
     }
   }
 
@@ -67,15 +63,18 @@ class ActiveActionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final mainColor = isCompleted
-        ? colorScheme.onSurface.withValues(alpha: 0.4)
-        : colorScheme.primary;
+    final isCompleted = activeAction.isCompleted();
+
     final bgColor = isCompleted
         ? colorScheme.onSurface.withValues(alpha: 0.03)
         : colorScheme.surface;
+    final actionColorScheme = Theme.of(context).extension<ActionCardTheme>()!;
+    final actionCategoryColor = actionColorScheme.getCategoryColor(
+      activeAction.action.categoryName,
+    );
 
     return Dismissible(
-      key: Key('active_action_${action.id}'),
+      key: Key('active_action_${activeAction.action.id}'),
       background: _buildSwipeBackground(
         context,
         alignment: Alignment.centerLeft,
@@ -102,7 +101,7 @@ class ActiveActionCard extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          margin: const EdgeInsets.only(bottom: 12),
+          margin: const EdgeInsets.only(top: 4),
           decoration: BoxDecoration(
             color: bgColor,
             borderRadius: BorderRadius.circular(20),
@@ -124,33 +123,31 @@ class ActiveActionCard extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
                 child: Row(
                   children: [
-                    // Icon
                     Container(
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(
-                        color: mainColor.withValues(alpha: 0.1),
+                        color: actionCategoryColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      child: Icon(action.icon, color: mainColor, size: 24),
+                      child: Icon(
+                        activeAction.action.icon,
+                        color: actionCategoryColor,
+                        size: 24,
+                      ),
                     ),
                     const SizedBox(width: 14),
-
-                    // Content
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            action.title,
+                            activeAction.action.title,
                             style: theme.textTheme.titleSmall?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: isCompleted
                                   ? colorScheme.onSurface.withValues(alpha: 0.4)
                                   : colorScheme.onSurface,
-                              decoration: isCompleted
-                                  ? TextDecoration.lineThrough
-                                  : null,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -158,20 +155,20 @@ class ActiveActionCard extends StatelessWidget {
                             children: [
                               _buildMiniTag(
                                 context,
-                                _getFreqLabel(action.frequency),
+                                _getFreqLabel(activeAction.action.frequency),
                                 colorScheme.primary,
                               ),
                               const SizedBox(width: 6),
                               _buildMiniTag(
                                 context,
-                                '+${action.impactScore} pts',
+                                '+${activeAction.action.impactScore} pts',
                                 colorScheme.tertiary,
                               ),
-                              if (streakCount > 0) ...[
+                              if (activeAction.streakCount > 0) ...[
                                 const SizedBox(width: 6),
                                 _buildMiniTag(
                                   context,
-                                  '🔥 $streakCount',
+                                  '🔥 ${activeAction.streakCount}',
                                   colorScheme.tertiary,
                                 ),
                               ],
@@ -180,20 +177,14 @@ class ActiveActionCard extends StatelessWidget {
                         ],
                       ),
                     ),
-
-                    // Check button
-                    _buildCheckButton(context, mainColor),
+                    _buildCheckButton(context),
                   ],
                 ),
               ),
-
-              // Progress bar
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
                 child: _buildProgressSection(context, theme, colorScheme),
               ),
-
-              // Completion badge – wait message
               if (isCompleted)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
@@ -241,11 +232,14 @@ class ActiveActionCard extends StatelessWidget {
     ColorScheme colorScheme,
   ) {
     final target = _targetForFrequency;
-    final current = streakCount.clamp(0, target);
+    final current = activeAction.streakCount.clamp(0, target);
     final progress = target > 0 ? current / target : 0.0;
-    final progressColor = isCompleted
+    final progressColor = activeAction.isCompleted()
         ? colorScheme.primary.withValues(alpha: 0.5)
         : colorScheme.primary;
+    final actionCategoryColor = Theme.of(context)
+        .extension<ActionCardTheme>()!
+        .getCategoryColor(activeAction.action.categoryName);
 
     return Column(
       children: [
@@ -270,11 +264,11 @@ class ActiveActionCard extends StatelessWidget {
         const SizedBox(height: 6),
         ClipRRect(
           borderRadius: BorderRadius.circular(6),
-          child: LinearProgressIndicator(
-            value: progress.clamp(0.0, 1.0),
-            backgroundColor: colorScheme.onSurface.withValues(alpha: 0.06),
-            color: progressColor,
-            minHeight: 5,
+          child: AnimatedProgressBar(
+            backgroundColor: actionCategoryColor.withValues(alpha: 0.1),
+            valueColor: actionCategoryColor,
+            activeAction: activeAction,
+            start: true,
           ),
         ),
         const SizedBox(height: 8),
@@ -282,44 +276,77 @@ class ActiveActionCard extends StatelessWidget {
     );
   }
 
-  Widget _buildCheckButton(BuildContext context, Color mainColor) {
+  Widget _buildCheckButton(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isCompleted = activeAction.isCompleted();
+
+    AnimationController? animController;
 
     return GestureDetector(
-      onTap: isCompleted ? null : onValidate,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        width: 42,
-        height: 42,
-        decoration: BoxDecoration(
-          gradient: isCompleted
-              ? null
-              : LinearGradient(
-                  colors: [
-                    colorScheme.primary,
-                    colorScheme.primary.withValues(alpha: 0.7),
-                  ],
-                ),
-          color: isCompleted
-              ? colorScheme.primary.withValues(alpha: 0.15)
-              : null,
-          shape: BoxShape.circle,
-          boxShadow: isCompleted
-              ? null
-              : [
-                  BoxShadow(
-                    color: colorScheme.primary.withValues(alpha: 0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
+      onTap: () {
+        if (!isCompleted) {
+          animController?.forward(from: 0);
+          onValidate();
+        }
+      },
+      child:
+          AnimatedContainer(
+                duration: const Duration(milliseconds: 400),
+                curve: Curves.easeInOut,
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: isCompleted
+                        ? [
+                            colorScheme.primary.withValues(alpha: 0.15),
+                            colorScheme.primary.withValues(alpha: 0.15),
+                          ]
+                        : [
+                            colorScheme.primary,
+                            colorScheme.primary.withValues(alpha: 0.7),
+                          ],
                   ),
-                ],
-        ),
-        child: Icon(
-          isCompleted ? Icons.check : Icons.check,
-          color: isCompleted ? colorScheme.primary : colorScheme.onPrimary,
-          size: 22,
-        ),
-      ),
+                  boxShadow: isCompleted
+                      ? []
+                      : [
+                          BoxShadow(
+                            color: colorScheme.primary.withValues(alpha: 0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                ),
+                child: Center(
+                  child: Icon(
+                    Icons.check,
+                    color: isCompleted
+                        ? colorScheme.primary
+                        : colorScheme.onPrimary,
+                    size: 22,
+                  ),
+                ),
+              )
+              .animate(autoPlay: false, onInit: (c) => animController = c)
+              .scale(
+                begin: const Offset(1, 1),
+                end: const Offset(1.3, 1.3),
+                duration: 250.ms,
+                curve: Curves.easeOut,
+              )
+              .then()
+              .scale(
+                begin: const Offset(1, 1),
+                end: const Offset(0.77, 0.77),
+                duration: 200.ms,
+                curve: Curves.bounceOut,
+              )
+              .shimmer(
+                delay: 150.ms,
+                duration: 500.ms,
+                color: colorScheme.onPrimary.withValues(alpha: 0.4),
+              ),
     );
   }
 

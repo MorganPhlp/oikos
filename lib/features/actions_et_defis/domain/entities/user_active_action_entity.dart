@@ -21,8 +21,23 @@ class UserActiveActionEntity {
         return streakCount >= 4;
       case 'mensuelle':
         return streakCount >= 3;
+
+      default:
+        return false;
+    }
+  }
+
+  bool isCompleted() {
+    switch (action.frequency.toLowerCase()) {
+      case 'quotidienne':
+        return streakCount >= 1;
+      case 'hebdomadaire':
+        return streakCount >= 1;
+      case 'mensuelle':
+        return streakCount >= 1;
       case 'bonus':
         return streakCount >= 1;
+
       default:
         return false;
     }
@@ -72,5 +87,38 @@ class UserActiveActionEntity {
       lastCompletedAt: lastCompletedAt ?? this.lastCompletedAt,
       isModeDeVie: isModeDeVie ?? this.isModeDeVie,
     );
+  }
+
+  int get maxCount {
+    switch (action.frequency.toLowerCase()) {
+      case 'quotidienne':
+        return 7;
+      case 'hebdomadaire':
+        return 4;
+      case 'mensuelle':
+        return 3;
+      case 'bonus':
+        return 1;
+      default:
+        return 0;
+    }
+  }
+
+  static List<UserActiveActionEntity> getCompletedBonusActions(
+    List<UserActiveActionEntity> actions,
+  ) {
+    return actions
+        .where(
+          (a) => a.isCompleted() && a.action.frequency.toLowerCase() == 'bonus',
+        )
+        .toList();
+  }
+}
+
+extension UserActiveActionListX on List<UserActiveActionEntity> {
+  List<UserActiveActionEntity> get completedBonusActions {
+    return where(
+      (a) => a.isCompleted() && a.action.frequency.toLowerCase() == 'bonus',
+    ).toList();
   }
 }

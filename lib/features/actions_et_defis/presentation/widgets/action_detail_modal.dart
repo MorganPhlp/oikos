@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:oikos/core/common/presentation/widgets/gradient_button.dart';
 import 'package:oikos/core/theme/action_card_theme.dart';
 
 import '../../../../core/theme/oikos_button_theme.dart';
@@ -447,38 +448,9 @@ class ActionDetailModal extends StatelessWidget {
               ),
             )
           else ...[
-            Container(
-              height: 52,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                gradient: buttonTheme?.primaryGradient,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: (buttonTheme?.shadowColor ?? colorScheme.primary)
-                        .withValues(alpha: 0.3),
-                    offset: const Offset(0, 4),
-                    blurRadius: 12,
-                  ),
-                ],
-              ),
-              child: ElevatedButton(
-                onPressed: () => onJoin(action.frequency),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                child: Text(
-                  'Ajouter à mes actions',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.onPrimary,
-                  ),
-                ),
-              ),
+            GradientButton(
+              onPressed: () => onJoin(action.frequency),
+              label: 'Ajouter à mes actions',
             ),
             const SizedBox(height: 10),
             TextButton.icon(

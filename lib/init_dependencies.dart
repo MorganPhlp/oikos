@@ -6,6 +6,7 @@ import 'package:oikos/core/common/data/utilisateur_repository_impl.dart';
 import 'package:oikos/core/common/domain/repositories/categorie_empreinte_repository.dart';
 import 'package:oikos/core/common/domain/repositories/utilisateur_repository.dart';
 import 'package:oikos/features/actions_et_defis/domain/entities/user_active_action_entity.dart';
+import 'package:oikos/features/actions_et_defis/domain/usecases/get_limite_actions_freq_use_case.dart';
 import 'package:oikos/features/actions_et_defis/domain/usecases/get_my_habitudes_use_case.dart';
 import 'package:oikos/features/actions_et_defis/domain/usecases/promote_to_habitude_use_case.dart';
 import 'package:oikos/features/actions_et_defis/presentation/bloc/habitudes_cubit.dart';
@@ -481,6 +482,10 @@ void _initActions() {
     () => PromoteToHabitudeUseCase(serviceLocator<ActionRepository>()),
   );
 
+  serviceLocator.registerLazySingleton(
+    () => GetLimiteActionsFreqUseCase(repository: serviceLocator()),
+  );
+
   // Bloc
   serviceLocator.registerFactory(
     () => ActionsBloc(
@@ -491,6 +496,7 @@ void _initActions() {
       removeFromMyActions: serviceLocator(),
       getMyHabitudes: serviceLocator(),
       promoteActionToHabitude: serviceLocator(),
+      getLimiteActionsFreq: serviceLocator(),
     ),
   );
 
