@@ -70,3 +70,36 @@ class OpenActionDetailsEvent extends ActionsEvent {
   @override
   List<Object?> get props => [actionId];
 }
+
+class EcarterActionEvent extends ActionsEvent {
+  final String userId;
+  final String actionId;
+
+  const EcarterActionEvent({required this.userId, required this.actionId});
+
+  @override
+  List<Object?> get props => [userId, actionId];
+}
+
+class EcarterCategorieEvent extends ActionsEvent {
+  final String userId;
+  final String categorieNom;
+
+  const EcarterCategorieEvent({
+    required this.userId,
+    required this.categorieNom,
+  });
+
+  @override
+  List<Object?> get props => [userId, categorieNom];
+}
+
+class EcarterTagEvent extends ActionsEvent {
+  final String userId;
+  final String tagNom;
+
+  const EcarterTagEvent({required this.userId, required this.tagNom});
+
+  @override
+  List<Object?> get props => [userId, tagNom];
+}

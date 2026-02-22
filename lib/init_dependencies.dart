@@ -6,6 +6,9 @@ import 'package:oikos/core/common/data/utilisateur_repository_impl.dart';
 import 'package:oikos/core/common/domain/repositories/categorie_empreinte_repository.dart';
 import 'package:oikos/core/common/domain/repositories/utilisateur_repository.dart';
 import 'package:oikos/features/actions_et_defis/domain/entities/user_active_action_entity.dart';
+import 'package:oikos/features/actions_et_defis/domain/usecases/ecarter_action_use_case.dart';
+import 'package:oikos/features/actions_et_defis/domain/usecases/ecarter_categorie_use_case.dart';
+import 'package:oikos/features/actions_et_defis/domain/usecases/ecarter_tag_use_case.dart';
 import 'package:oikos/features/actions_et_defis/domain/usecases/get_limite_actions_freq_use_case.dart';
 import 'package:oikos/features/actions_et_defis/domain/usecases/get_my_habitudes_use_case.dart';
 import 'package:oikos/features/actions_et_defis/domain/usecases/promote_to_habitude_use_case.dart';
@@ -119,8 +122,10 @@ Future<void> initDependencies() async {
   serviceLocator.registerLazySingleton(() => http.Client());
 
   // core
-  serviceLocator.registerLazySingleton(() => AppUserCubit());
 
+  serviceLocator.registerLazySingleton(
+    () => AppUserCubit(serviceLocator<UtilisateurRepository>()),
+  );
   // Then initialize auth and bilan after Supabase is ready
   _initAuth();
   _initBilan();
@@ -486,6 +491,16 @@ void _initActions() {
     () => GetLimiteActionsFreqUseCase(repository: serviceLocator()),
   );
 
+  serviceLocator.registerLazySingleton(
+    () => EcarterActionUseCase(repository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => EcarterCategorieUseCase(repository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => EcarterTagUseCase(repository: serviceLocator()),
+  );
+
   // Bloc
   serviceLocator.registerFactory(
     () => ActionsBloc(
@@ -497,6 +512,9 @@ void _initActions() {
       getMyHabitudes: serviceLocator(),
       promoteActionToHabitude: serviceLocator(),
       getLimiteActionsFreq: serviceLocator(),
+      ecarterAction: serviceLocator(),
+      ecarterCategorie: serviceLocator(),
+      ecarterTag: serviceLocator(),
     ),
   );
 

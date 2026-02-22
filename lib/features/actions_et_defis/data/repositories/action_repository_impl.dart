@@ -1,8 +1,11 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:oikos/core/error/exceptions.dart';
 import 'package:oikos/core/error/failures.dart';
+import 'package:oikos/features/actions_et_defis/domain/entities/action_ecartee_entity.dart';
+import 'package:oikos/features/actions_et_defis/domain/entities/categorie_ecartee_entity.dart';
 import 'package:oikos/features/actions_et_defis/domain/entities/habitude_entity.dart';
 import 'package:oikos/features/actions_et_defis/domain/entities/limite_action_freq_entity.dart';
+import 'package:oikos/features/actions_et_defis/domain/entities/tag_ecarte_entity.dart';
 import 'package:oikos/features/actions_et_defis/domain/entities/user_active_action_entity.dart';
 
 import '../../domain/entities/action_entity.dart';
@@ -135,6 +138,82 @@ class ActionRepositoryImpl implements ActionRepository {
       return Right(result);
     } on ServerException catch (e) {
       return Left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> ecarterAction(
+    String userId,
+    String actionId,
+  ) async {
+    try {
+      await remoteDataSource.ecarterAction(userId, actionId);
+      return right(null);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> ecarterCategorie(
+    String userId,
+    String categorieNom,
+  ) async {
+    try {
+      await remoteDataSource.ecarterCategorie(userId, categorieNom);
+      return right(null);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> ecarterTag(String userId, String tagNom) async {
+    try {
+      await remoteDataSource.ecarterTag(userId, tagNom);
+      return right(null);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<ActionEcarteeEntity>>> getActionsEcartees(
+    String userId,
+  ) async {
+    try {
+      final actionsEcartees = await remoteDataSource.fetchActionsEcartees(
+        userId,
+      );
+      return right(actionsEcartees);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<CategorieEcarteeEntity>>> getCategoriesEcartees(
+    String userId,
+  ) async {
+    try {
+      final categoriesEcartees = await remoteDataSource.fetchCategoriesEcartees(
+        userId,
+      );
+      return right(categoriesEcartees);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<TagEcarteEntity>>> getTagsEcartees(
+    String userId,
+  ) async {
+    try {
+      final tagsEcartees = await remoteDataSource.fetchTagsEcartees(userId);
+      return right(tagsEcartees);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
     }
   }
 }

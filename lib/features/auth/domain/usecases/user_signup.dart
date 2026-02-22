@@ -4,12 +4,12 @@ import 'package:oikos/core/common/domain/entities/user.dart';
 import '../../../../core/usecase/usecase.dart';
 import '../repository/auth_repository.dart';
 
-class UserSignup implements UseCase<User, UserSignupParams> {
+class UserSignup implements UseCase<UserEntity, UserSignupParams> {
   final AuthRepository authRepository;
   const UserSignup(this.authRepository);
 
   @override
-  Future<Either<Failure, User>> call(UserSignupParams params) async {
+  Future<Either<Failure, UserEntity>> call(UserSignupParams params) async {
     return await authRepository.signUpWithEmailPassword(
       email: params.email,
       password: params.password,

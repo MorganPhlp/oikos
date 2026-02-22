@@ -46,6 +46,25 @@ CREATE TABLE IF NOT EXISTS public.limite_actions_freq(
     nombre INTEGER CONSTRAINT nombre_positif CHECK (nombre > 0)
 )
 
+CREATE TABLE IF NOT EXISTS public.actions_ecartees(
+    utilisateur_id uuid NOT NULL REFERENCES public.utilisateur(id) ON DELETE CASCADE,
+    action_id uuid NOT NULL REFERENCES public.actions(id) ON DELETE CASCADE,
+    PRIMARY KEY(utilisateur_id, action_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.tags_ecartes(
+    utilisateur_id uuid NOT NULL REFERENCES public.utilisateur(id) ON DELETE CASCADE,
+    tag_nom VARCHAR(255) NOT NULL,
+    PRIMARY KEY(utilisateur_id, tag_nom)
+);
+
+CREATE TABLE IF NOT EXISTS public.categories_ecartees(
+    utilisateur_id uuid NOT NULL REFERENCES public.utilisateur(id) ON DELETE CASCADE,
+    categorie_nom VARCHAR(255) NOT NULL REFERENCES public.categorie_empreinte(nom) ON DELETE CASCADE,
+    PRIMARY KEY(utilisateur_id, categorie_nom)
+);
+
+
 CREATE OR REPLACE VIEW public.vue_actions_en_cours AS
 WITH recap_actions AS (
     SELECT 

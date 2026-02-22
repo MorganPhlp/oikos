@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:oikos/core/common/presentation/widgets/gradient_button.dart';
+import 'package:oikos/features/actions_et_defis/data/models/limite_actions_freq_model.dart';
 import 'package:oikos/features/actions_et_defis/domain/entities/limite_action_freq_entity.dart';
 import 'package:oikos/features/actions_et_defis/presentation/widgets/count_widget.dart';
 import '../../domain/entities/user_active_action_entity.dart';
@@ -28,18 +29,22 @@ class MyActionsTab extends StatefulWidget {
 }
 
 class _MyActionsTabState extends State<MyActionsTab> {
-  late ScrollController _scrollController;
+  final Map<String, ScrollController> _scrollControllers = {};
   String selectedFilter = 'quotidienne';
+  ScrollController _getScrollController(String filter) {
+    return _scrollControllers.putIfAbsent(filter, () => ScrollController());
+  }
 
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController();
   }
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    for (var controller in _scrollControllers.values) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -60,6 +65,7 @@ class _MyActionsTabState extends State<MyActionsTab> {
 
   @override
   Widget build(BuildContext context) {
+    final currentController = _getScrollController(selectedFilter);
     final filteredList = widget.activeActions.where((e) {
       if (e.action.frequency == selectedFilter) return true;
       return false;
@@ -131,7 +137,7 @@ class _MyActionsTabState extends State<MyActionsTab> {
                 child: filteredList.isEmpty
                     ? _buildEmptyState(context)
                     : ListView.builder(
-                        controller: _scrollController,
+                        controller: currentController,
                         key: ValueKey(selectedFilter),
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         itemCount: filteredList.length,
@@ -156,9 +162,20 @@ class _MyActionsTabState extends State<MyActionsTab> {
           child:
               CountWidget(
                     value: filteredList.length,
-                    max: widget.activeActions.length,
+                    max:
+                        widget.limiteActionsFreq
+                            .firstWhere(
+                              (e) => e.frequence == selectedFilter,
+
+                              orElse: () => LimiteActionFreqModel(
+                                frequence: selectedFilter,
+                                value: filteredList.length,
+                              ),
+                            )
+                            .value ??
+                        0,
                   )
-                  .animate(adapter: ScrollAdapter(_scrollController))
+                  .animate(adapter: ScrollAdapter(currentController))
                   .fade(begin: 1.0, end: 0.0),
         ),
       ],
@@ -172,7 +189,10 @@ class _MyActionsTabState extends State<MyActionsTab> {
       backgroundColor: Colors.transparent,
       builder: (_) => ActionDetailModal(
         action: entry.action,
-        onJoin: (_) => Navigator.pop(context),
+        onAdd: (_) => Navigator.pop(context),
+        onEcarter: (actionId) {
+          Navigator.pop(context);
+        },
         isAlreadyAdded: true,
       ),
     );

@@ -29,31 +29,35 @@ class GradientButton extends StatelessWidget {
     final buttonTheme = theme.extension<OikosButtonTheme>();
     final bool effectivelyDisabled = disabled || isLoading || onPressed == null;
 
-    // 1. On centralise la décoration
     final decoration = BoxDecoration(
       borderRadius: BorderRadius.circular(15),
-      color: effectivelyDisabled 
-              ? (buttonTheme?.disabledColor ?? theme.disabledColor) 
-              : (isSecondary 
-                  ? (buttonTheme?.secondaryGradient) 
-                  : null),
+      color: effectivelyDisabled
+          ? (buttonTheme?.disabledColor ?? theme.disabledColor)
+          : (isSecondary ? (buttonTheme?.secondaryGradient) : null),
 
       border: isSecondary && !effectivelyDisabled
-        ? Border.all(color: theme.colorScheme.primary, width: 2)
-        : null,
+          ? Border.all(color: theme.colorScheme.primary, width: 2)
+          : null,
 
-      gradient: (effectivelyDisabled || isSecondary) 
-          ? null 
-          : (isTertiary ? buttonTheme?.tertiaryGradient : buttonTheme?.primaryGradient),
-            boxShadow: effectivelyDisabled ? null : theme.brightness == Brightness.dark ? null : [
+      gradient: (effectivelyDisabled || isSecondary)
+          ? null
+          : (isTertiary
+                ? buttonTheme?.tertiaryGradient
+                : buttonTheme?.primaryGradient),
+      boxShadow: (effectivelyDisabled || isSecondary)
+          ? null
+          : theme.brightness == Brightness.dark
+          ? null
+          : [
               BoxShadow(
-                color: isTertiary ? (buttonTheme?.tertiaryShadowColor ?? Colors.orange) 
-                  : (buttonTheme?.shadowColor ?? Colors.black12),
-                blurRadius: 15,
-                offset: const Offset(0, 8),
+                color: isTertiary
+                    ? (buttonTheme?.tertiaryShadowColor ?? Colors.orange)
+                    : (buttonTheme?.shadowColor ?? Colors.black12),
+                blurRadius: 6,
+                offset: const Offset(0, 4),
               ),
             ],
-          );
+    );
 
     return Container(
       width: width ?? double.infinity,
@@ -64,13 +68,23 @@ class GradientButton extends StatelessWidget {
           fixedSize: const Size(double.infinity, 55),
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
-          surfaceTintColor: Colors.transparent, // Ajouté pour éviter les teintes M3
+          surfaceTintColor:
+              Colors.transparent, // Ajouté pour éviter les teintes M3
           elevation: 0,
           disabledBackgroundColor: Colors.transparent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
         ),
         child: isLoading
-            ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+            ? const SizedBox(
+                height: 24,
+                width: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              )
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -78,7 +92,11 @@ class GradientButton extends StatelessWidget {
                   Text(
                     label,
                     style: theme.textTheme.labelLarge?.copyWith(
-                      color: effectivelyDisabled ? theme.disabledColor : isSecondary ? theme.colorScheme.primary : theme.colorScheme.onPrimary,
+                      color: effectivelyDisabled
+                          ? theme.disabledColor
+                          : isSecondary
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.onPrimary,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),

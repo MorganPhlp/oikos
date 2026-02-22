@@ -224,7 +224,9 @@ class _ActionsCataloguePageState extends State<ActionsCataloguePage> {
 
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-
+    if (Navigator.of(context).canPop()) {
+      Navigator.pop(context);
+    }
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -232,11 +234,11 @@ class _ActionsCataloguePageState extends State<ActionsCataloguePage> {
       builder: (_) => ActionDetailModal(
         action: action,
         isAlreadyAdded: isAlreadyAdded,
-        onJoin: (freq) {
+        onAdd: (actionToAdd) {
           final limits = state.limiteActionsFreq;
           final isLimitReached = state.mesActions.isLimitReached(
             limits,
-            action,
+            actionToAdd,
           );
 
           if (isLimitReached) {
@@ -254,7 +256,7 @@ class _ActionsCataloguePageState extends State<ActionsCataloguePage> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Limite atteinte pour les actions "$freq".',
+                        'Limite atteinte pour les actions "$actionToAdd.frequency".',
                         style: TextStyle(color: colorScheme.onErrorContainer),
                       ),
                     ),
@@ -267,7 +269,7 @@ class _ActionsCataloguePageState extends State<ActionsCataloguePage> {
 
           Navigator.pop(context);
           context.read<ActionsBloc>().add(
-            AddToMyActionsEvent(userId: userId, actionId: action.id),
+            AddToMyActionsEvent(userId: userId, actionId: actionToAdd.id),
           );
 
           ScaffoldMessenger.of(context).showSnackBar(
@@ -294,6 +296,12 @@ class _ActionsCataloguePageState extends State<ActionsCataloguePage> {
               ),
             ),
           );
+        },
+        onEcarter: (actionId) {
+          context.read<ActionsBloc>().add(
+            EcarterActionEvent(userId: userId, actionId: actionId),
+          );
+          Navigator.pop(context);
         },
       ),
     );

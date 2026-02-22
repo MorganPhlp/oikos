@@ -1,4 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:oikos/features/actions_et_defis/domain/usecases/ecarter_action_use_case.dart';
+import 'package:oikos/features/actions_et_defis/domain/usecases/ecarter_categorie_use_case.dart';
+import 'package:oikos/features/actions_et_defis/domain/usecases/ecarter_tag_use_case.dart';
 import 'package:oikos/features/actions_et_defis/domain/usecases/get_limite_actions_freq_use_case.dart';
 import 'package:oikos/features/actions_et_defis/domain/usecases/get_my_habitudes_use_case.dart';
 import 'package:oikos/features/actions_et_defis/domain/usecases/promote_to_habitude_use_case.dart';
@@ -20,6 +23,9 @@ class ActionsBloc extends Bloc<ActionsEvent, ActionsState> {
   final GetMyHabitudesUseCase _getMyHabitudes;
   final PromoteToHabitudeUseCase _promoteActionToHabitude;
   final GetLimiteActionsFreqUseCase _getLimiteActionsFreqUseCase;
+  final EcarterActionUseCase _ecarterAction;
+  final EcarterCategorieUseCase _ecarterCategorie;
+  final EcarterTagUseCase _ecarterTag;
 
   ActionsBloc({
     required GetActionsUseCase getActions,
@@ -30,11 +36,17 @@ class ActionsBloc extends Bloc<ActionsEvent, ActionsState> {
     required GetMyHabitudesUseCase getMyHabitudes,
     required PromoteToHabitudeUseCase promoteActionToHabitude,
     required GetLimiteActionsFreqUseCase getLimiteActionsFreq,
+    required EcarterActionUseCase ecarterAction,
+    required EcarterCategorieUseCase ecarterCategorie,
+    required EcarterTagUseCase ecarterTag,
   }) : _getActions = getActions,
        _getMyActiveActions = getMyActiveActions,
        _addToMyActions = addToMyActions,
        _validateAction = validateAction,
        _removeFromMyActions = removeFromMyActions,
+       _ecarterAction = ecarterAction,
+       _ecarterCategorie = ecarterCategorie,
+       _ecarterTag = ecarterTag,
        _getMyHabitudes = getMyHabitudes,
        _promoteActionToHabitude = promoteActionToHabitude,
        _getLimiteActionsFreqUseCase = getLimiteActionsFreq,
@@ -44,13 +56,18 @@ class ActionsBloc extends Bloc<ActionsEvent, ActionsState> {
     on<ValidateActionEvent>(_onValidateAction);
     on<RemoveFromMyActionsEvent>(_onRemoveFromMyActions);
     on<PromoteActionToHabitudeEvent>(_onPromoteToHabitude);
+    on<EcarterActionEvent>(_onEcarterAction);
+    on<EcarterCategorieEvent>(_onEcarterCategorie);
+    on<EcarterTagEvent>(_onEcarterTag);
   }
 
   Future<void> _onLoadAllActions(
     LoadAllActionsEvent event,
     Emitter<ActionsState> emit,
   ) async {
-    emit(const ActionsLoading());
+    if (state is! ActionsLoaded) {
+      emit(const ActionsLoading());
+    }
 
     final catalogueResult = await _getActions(event.userId);
     final activeActionsResult = await _getMyActiveActions(event.userId);
@@ -134,6 +151,39 @@ class ActionsBloc extends Bloc<ActionsEvent, ActionsState> {
     Emitter<ActionsState> emit,
   ) async {
     final result = await _promoteActionToHabitude(event.userId, event.actionId);
+    result.fold(
+      (failure) => emit(ActionsError(failure.message)),
+      (_) => add(LoadAllActionsEvent(event.userId)),
+    );
+  }
+
+  Future<void> _onEcarterAction(
+    EcarterActionEvent event,
+    Emitter<ActionsState> emit,
+  ) async {
+    final result = await _ecarterAction(event.userId, event.actionId);
+    result.fold(
+      (failure) => emit(ActionsError(failure.message)),
+      (_) => add(LoadAllActionsEvent(event.userId)),
+    );
+  }
+
+  Future<void> _onEcarterCategorie(
+    EcarterCategorieEvent event,
+    Emitter<ActionsState> emit,
+  ) async {
+    final result = await _ecarterCategorie(event.userId, event.categorieNom);
+    result.fold(
+      (failure) => emit(ActionsError(failure.message)),
+      (_) => add(LoadAllActionsEvent(event.userId)),
+    );
+  }
+
+  Future<void> _onEcarterTag(
+    EcarterTagEvent event,
+    Emitter<ActionsState> emit,
+  ) async {
+    final result = await _ecarterTag(event.userId, event.tagNom);
     result.fold(
       (failure) => emit(ActionsError(failure.message)),
       (_) => add(LoadAllActionsEvent(event.userId)),

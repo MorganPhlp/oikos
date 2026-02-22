@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:oikos/core/theme/action_card_theme.dart';
 import 'package:oikos/features/actions_et_defis/domain/entities/user_active_action_entity.dart';
 import 'package:oikos/features/actions_et_defis/presentation/widgets/animated_progress_bar.dart';
+import 'package:oikos/features/actions_et_defis/presentation/widgets/tag.dart'; // Import du nouveau widget
 
 class ActiveActionCard extends StatelessWidget {
   final UserActiveActionEntity activeAction;
@@ -150,28 +151,29 @@ class ActiveActionCard extends StatelessWidget {
                                   : colorScheme.onSurface,
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          Row(
+                          const SizedBox(height: 6),
+                          // --- UTILISATION DES WIDGETS REUTILISABLES ---
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 4,
                             children: [
-                              _buildMiniTag(
-                                context,
-                                _getFreqLabel(activeAction.action.frequency),
-                                colorScheme.primary,
-                              ),
-                              const SizedBox(width: 6),
-                              _buildMiniTag(
-                                context,
-                                '+${activeAction.action.impactScore} pts',
-                                colorScheme.tertiary,
-                              ),
-                              if (activeAction.streakCount > 0) ...[
-                                const SizedBox(width: 6),
-                                _buildMiniTag(
-                                  context,
-                                  '🔥 ${activeAction.streakCount}',
-                                  colorScheme.tertiary,
+                              OikosTag(
+                                label: _getFreqLabel(
+                                  activeAction.action.frequency,
                                 ),
-                              ],
+                                color: colorScheme.primary,
+                              ),
+                              OikosTag(
+                                label:
+                                    '+${activeAction.action.impactScore} pts',
+                                color: colorScheme.tertiary,
+                              ),
+                              if (activeAction.streakCount > 0)
+                                OikosTag(
+                                  label: '${activeAction.streakCount}',
+                                  icon: Icons.local_fire_department,
+                                  color: Colors.orange,
+                                ),
                             ],
                           ),
                         ],
@@ -347,24 +349,6 @@ class ActiveActionCard extends StatelessWidget {
                 duration: 500.ms,
                 color: colorScheme.onPrimary.withValues(alpha: 0.4),
               ),
-    );
-  }
-
-  Widget _buildMiniTag(BuildContext context, String text, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        text,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: color,
-          fontWeight: FontWeight.w600,
-          fontSize: 10,
-        ),
-      ),
     );
   }
 

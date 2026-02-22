@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:oikos/core/common/presentation/widgets/gradient_button.dart';
 import 'package:oikos/core/theme/action_card_theme.dart';
+import 'package:oikos/features/actions_et_defis/presentation/widgets/action_stats.dart';
+import 'package:oikos/features/actions_et_defis/presentation/widgets/category_chip.dart';
 
 import '../../../../core/theme/oikos_button_theme.dart';
 import '../../domain/entities/action_entity.dart';
 
 class ActionDetailModal extends StatelessWidget {
   final ActionEntity action;
-  final Function(String freq) onJoin;
-
+  final Function(ActionEntity action) onAdd;
+  final Function(String actionId)? onEcarter;
   final bool isAlreadyAdded;
 
   const ActionDetailModal({
     super.key,
     required this.action,
-    required this.onJoin,
+    required this.onAdd,
+    this.onEcarter,
     this.isAlreadyAdded = false,
   });
 
@@ -25,6 +28,7 @@ class ActionDetailModal extends StatelessWidget {
     final buttonTheme = theme.extension<OikosButtonTheme>();
     final actionTheme = theme.extension<ActionCardTheme>()!;
     final categoryColor = actionTheme.getCategoryColor(action.categoryName);
+
     return DraggableScrollableSheet(
       initialChildSize: 0.92,
       minChildSize: 0.5,
@@ -42,8 +46,7 @@ class ActionDetailModal extends StatelessWidget {
                 padding: EdgeInsets.zero,
                 children: [
                   _buildHeader(context, categoryColor),
-                  const SizedBox(height: 20),
-
+                  const SizedBox(height: 24),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
@@ -56,8 +59,7 @@ class ActionDetailModal extends StatelessWidget {
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 20),
-
+                        const SizedBox(height: 24),
                         _buildAccordion(
                           context,
                           title: 'Comment faire ?',
@@ -65,102 +67,29 @@ class ActionDetailModal extends StatelessWidget {
                           initiallyExpanded: true,
                           content: Column(
                             children: action.tips
-                                .map(
-                                  (t) => Padding(
-                                    padding: const EdgeInsets.only(bottom: 10),
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Icon(
-                                          Icons.check_circle,
-                                          color: colorScheme.primary,
-                                          size: 20,
-                                        ),
-                                        const SizedBox(width: 10),
-                                        Expanded(
-                                          child: Text(
-                                            t,
-                                            style: theme.textTheme.bodyMedium
-                                                ?.copyWith(
-                                                  color: colorScheme.onSurface,
-                                                ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                )
+                                .map((t) => _buildTipRow(context, t))
                                 .toList(),
                           ),
                         ),
-
-                        const SizedBox(height: 10),
-
+                        const SizedBox(height: 12),
                         _buildAccordion(
                           context,
                           title: 'Pourquoi c\'est important ?',
                           icon: Icons.lightbulb_outline,
                           initiallyExpanded: false,
-                          content: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Chaque petit geste compte ! En adoptant cette habitude, vous contribuez à réduire votre empreinte environnementale.',
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: colorScheme.onSurface,
-                                  height: 1.5,
-                                ),
-                              ),
-                              const SizedBox(height: 15),
-
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: colorScheme.primary.withValues(
-                                    alpha: 0.05,
-                                  ),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: colorScheme.primary.withValues(
-                                      alpha: 0.1,
-                                    ),
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.groups,
-                                      color: colorScheme.primary,
-                                      size: 20,
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: Text(
-                                        '100 personnes ont déjà complété cette action !',
-                                        style: theme.textTheme.bodySmall
-                                            ?.copyWith(
-                                              fontWeight: FontWeight.bold,
-                                              color: colorScheme.onSurface,
-                                            ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
+                          content: _buildImportanceContent(context),
                         ),
-
-                        const SizedBox(height: 120),
+                        const SizedBox(
+                          height: 140,
+                        ), // Espace pour la bottom bar
                       ],
                     ),
                   ),
                 ],
               ),
-
+              // Bouton Fermer
               Positioned(top: 16, right: 16, child: _buildCloseButton(context)),
-
+              // Barre d'action fixe en bas
               Positioned(
                 bottom: 0,
                 left: 0,
@@ -176,16 +105,14 @@ class ActionDetailModal extends StatelessWidget {
 
   Widget _buildHeader(BuildContext context, Color categoryColor) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 50, 20, 0),
       child: Column(
         children: [
-          // Icône
+          // Cercle Icone
           Container(
-            width: 64,
-            height: 64,
+            width: 72,
+            height: 72,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
@@ -201,155 +128,211 @@ class ActionDetailModal extends StatelessWidget {
                 width: 2,
               ),
             ),
-            child: Icon(action.icon, size: 30, color: categoryColor),
+            child: Icon(action.icon, size: 32, color: categoryColor),
           ),
-          const SizedBox(height: 14),
-
-          // Titre
+          const SizedBox(height: 16),
           Text(
             action.title,
             style: theme.textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.bold,
-              color: colorScheme.onSurface,
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 8),
-
-          // Tag catégorie
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-            decoration: BoxDecoration(
-              color: categoryColor.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: categoryColor.withValues(alpha: 0.2)),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: categoryColor,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  action.categoryName,
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: categoryColor,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ],
-            ),
+          const SizedBox(height: 12),
+          // Badge Catégorie réutilisable
+          CategoryChip(
+            categoryName: action.categoryName,
+            style: CategoryChipStyle.filled,
           ),
-          const SizedBox(height: 16),
-
-          _buildStatsRow(context, categoryColor),
+          const SizedBox(height: 24),
+          // Ligne de Stats réutilisable
+          OikosActionStats(
+            impactScore: action.impactScore,
+            difficulty: action.difficulty,
+            frequencyLabel: _getFreqLabel(action.frequency),
+            primaryColor: categoryColor,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildStatsRow(BuildContext context, Color categoryColor) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-      decoration: BoxDecoration(
-        color: colorScheme.onSurface.withValues(alpha: 0.03),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
-      ),
+  Widget _buildTipRow(BuildContext context, String tip) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _statItem(
-            context,
-            Icons.bolt,
-            '${action.impactScore} pts',
-            'Gain',
-            categoryColor,
-          ),
-          _divider(colorScheme),
-          _statItem(
-            context,
-            Icons.speed,
-            action.difficulty,
-            'Niveau',
-            colorScheme.onSurface.withValues(alpha: 0.6),
-          ),
-          _divider(colorScheme),
-          _statItem(
-            context,
-            Icons.schedule,
-            _getFreqLabel(action.frequency),
-            'Fréquence',
-            colorScheme.onSurface.withValues(alpha: 0.6),
+          Icon(Icons.check_circle, color: colorScheme.primary, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(tip, style: Theme.of(context).textTheme.bodyMedium),
           ),
         ],
       ),
     );
   }
 
-  Widget _divider(ColorScheme cs) {
-    return Container(
-      width: 1,
-      height: 28,
-      color: cs.onSurface.withValues(alpha: 0.1),
-    );
-  }
-
-  Widget _statItem(
-    BuildContext context,
-    IconData icon,
-    String val,
-    String label,
-    Color color,
-  ) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
+  Widget _buildImportanceContent(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: color, size: 18),
-        const SizedBox(height: 3),
         Text(
-          val,
-          style: theme.textTheme.bodySmall?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: colorScheme.onSurface,
-          ),
+          'Chaque petit geste compte ! En adoptant cette habitude, vous contribuez à réduire votre empreinte environnementale.',
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.5),
         ),
-        Text(
-          label,
-          style: theme.textTheme.labelSmall?.copyWith(
-            color: colorScheme.onSurface.withValues(alpha: 0.45),
-            fontSize: 10,
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: colorScheme.primary.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: colorScheme.primary.withValues(alpha: 0.1),
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.groups, color: colorScheme.primary, size: 20),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text('Rejoignez des milliers de citoyens engagés !'),
+              ),
+            ],
           ),
         ),
       ],
     );
   }
 
-  String _getFreqLabel(String freq) {
-    switch (freq) {
-      case 'journalier':
-        return 'Quotidien';
-      case 'hebdomadaire':
-        return 'Hebdo';
-      case 'mensuel':
-        return 'Mensuel';
-      case 'unique':
-        return 'Bonus';
-      default:
-        return freq;
-    }
+  Widget _buildBottomBar(
+    BuildContext context,
+    OikosButtonTheme? buttonTheme,
+    Color categoryColor,
+  ) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 36),
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.shadow.withValues(alpha: 0.08),
+            blurRadius: 15,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (isAlreadyAdded)
+            _buildAlreadyAddedBadge(theme, colorScheme, categoryColor)
+          else ...[
+            GradientButton(
+              onPressed: () => onAdd(action),
+              label: 'Ajouter à mes actions',
+            ),
+            if (onEcarter != null) ...[
+              const SizedBox(height: 12),
+              _buildDismissButton(context, theme, colorScheme),
+            ],
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAlreadyAddedBadge(
+    ThemeData theme,
+    ColorScheme colorScheme,
+    Color categoryColor,
+  ) {
+    return Container(
+      height: 56,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: colorScheme.onSurface.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.check_circle, size: 22, color: categoryColor),
+          const SizedBox(width: 10),
+          Text(
+            'Déjà dans mes actions',
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface.withValues(alpha: 0.4),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDismissButton(
+    BuildContext context,
+    ThemeData theme,
+    ColorScheme colorScheme,
+  ) {
+    return TextButton(
+      onPressed: () => _showDismissDialog(context, theme, colorScheme),
+      child: Text(
+        'Pas pour moi',
+        style: theme.textTheme.bodySmall?.copyWith(
+          color: colorScheme.onSurface.withValues(alpha: 0.5),
+          decoration: TextDecoration.underline,
+        ),
+      ),
+    );
+  }
+
+  void _showDismissDialog(
+    BuildContext context,
+    ThemeData theme,
+    ColorScheme colorScheme,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text(
+          'Écarter cette action ?',
+          textAlign: TextAlign.center,
+        ),
+        content: const Text(
+          'Elle ne sera plus visible dans votre catalogue, mais vous pourrez la retrouver dans vos paramètres.',
+          textAlign: TextAlign.center,
+        ),
+        actions: [
+          Column(
+            children: [
+              GradientButton(
+                isTertiary: true,
+                onPressed: () {
+                  onEcarter?.call(action.id);
+                  Navigator.pop(context); // Ferme Dialog
+                  Navigator.pop(context); // Ferme Modal
+                },
+                label: "Oui, écarter",
+              ),
+              const SizedBox(height: 12),
+              GradientButton(
+                isSecondary: true,
+                onPressed: () => Navigator.pop(context),
+                label: "Annuler",
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildAccordion(
@@ -361,31 +344,22 @@ class ActionDetailModal extends StatelessWidget {
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: colorScheme.surface,
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.15)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Theme(
         data: theme.copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
           initiallyExpanded: initiallyExpanded,
-          leading: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: colorScheme.primary.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: colorScheme.primary, size: 20),
-          ),
+          leading: Icon(icon, color: colorScheme.primary, size: 22),
           title: Text(
             title,
             style: theme.textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.bold,
-              color: colorScheme.onSurface,
             ),
           ),
           children: [
@@ -399,104 +373,23 @@ class ActionDetailModal extends StatelessWidget {
     );
   }
 
-  Widget _buildBottomBar(
-    BuildContext context,
-    OikosButtonTheme? buttonTheme,
-    Color categoryColor,
-  ) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 30),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        boxShadow: [
-          BoxShadow(
-            color: colorScheme.shadow.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -5),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (isAlreadyAdded)
-            Container(
-              height: 52,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: colorScheme.onSurface.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Center(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.check_circle, size: 20, color: categoryColor),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Déjà dans mes actions',
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.onSurface.withValues(alpha: 0.5),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            )
-          else ...[
-            GradientButton(
-              onPressed: () => onJoin(action.frequency),
-              label: 'Ajouter à mes actions',
-            ),
-            const SizedBox(height: 10),
-            TextButton.icon(
-              onPressed: () => Navigator.pop(context),
-              icon: Icon(
-                Icons.close,
-                size: 16,
-                color: colorScheme.onSurface.withValues(alpha: 0.3),
-              ),
-              label: Text(
-                'Pas pour moi',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurface.withValues(alpha: 0.45),
-                ),
-              ),
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-            ),
-          ],
-        ],
-      ),
+  Widget _buildCloseButton(BuildContext context) {
+    return IconButton.filledTonal(
+      onPressed: () => Navigator.pop(context),
+      icon: const Icon(Icons.close, size: 20),
     );
   }
 
-  Widget _buildCloseButton(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return GestureDetector(
-      onTap: () => Navigator.pop(context),
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: colorScheme.onSurface.withValues(alpha: 0.08),
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          Icons.close,
-          size: 20,
-          color: colorScheme.onSurface.withValues(alpha: 0.6),
-        ),
-      ),
-    );
+  String _getFreqLabel(String freq) {
+    switch (freq.toLowerCase()) {
+      case 'journalier':
+        return 'Quotidien';
+      case 'hebdomadaire':
+        return 'Hebdo';
+      case 'mensuel':
+        return 'Mensuel';
+      default:
+        return 'Unique';
+    }
   }
 }

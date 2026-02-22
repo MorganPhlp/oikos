@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:oikos/core/theme/action_card_theme.dart';
 import 'package:oikos/features/actions_et_defis/domain/entities/habitude_entity.dart';
+import 'package:oikos/features/actions_et_defis/presentation/widgets/action_stats.dart';
 
 class HabitudeCardDetails extends StatefulWidget {
   final HabitudeEntity habitude;
@@ -106,13 +107,22 @@ class _HabitudeCardDetailsState extends State<HabitudeCardDetails> {
                                     opacity: _contentAnimation!,
                                     child: Column(
                                       children: [
-                                        const SizedBox(height: 24),
+                                        const SizedBox(height: 20),
+                                        OikosActionStats(
+                                          impactScore:
+                                              habitude.action.impactScore,
+                                          difficulty:
+                                              habitude.action.difficulty,
+                                          frequencyLabel:
+                                              habitude.action.frequency,
+                                        ),
+                                        const SizedBox(height: 20),
                                         Divider(
                                           color: categoryColor.withValues(
                                             alpha: 0.2,
                                           ),
                                         ),
-                                        const SizedBox(height: 24),
+                                        const SizedBox(height: 20),
                                         Text(
                                           habitude.action.description,
                                           textAlign: TextAlign.center,

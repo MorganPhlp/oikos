@@ -1,7 +1,10 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:oikos/core/error/failures.dart';
+import 'package:oikos/features/actions_et_defis/domain/entities/action_ecartee_entity.dart';
+import 'package:oikos/features/actions_et_defis/domain/entities/categorie_ecartee_entity.dart';
 import 'package:oikos/features/actions_et_defis/domain/entities/habitude_entity.dart';
 import 'package:oikos/features/actions_et_defis/domain/entities/limite_action_freq_entity.dart';
+import 'package:oikos/features/actions_et_defis/domain/entities/tag_ecarte_entity.dart';
 import 'package:oikos/features/actions_et_defis/domain/entities/user_active_action_entity.dart';
 
 import '../entities/action_entity.dart';
@@ -33,4 +36,19 @@ abstract interface class ActionRepository {
   );
 
   Future<Either<Failure, List<LimiteActionFreqEntity>>> getLimiteActionsFreq();
+
+  Future<Either<Failure, void>> ecarterAction(String userId, String actionId);
+  Future<Either<Failure, void>> ecarterCategorie(
+    String userId,
+    String categorieNom,
+  );
+  Future<Either<Failure, void>> ecarterTag(String userId, String tagNom);
+
+  Future<Either<Failure, List<ActionEcarteeEntity>>> getActionsEcartees(
+    String userId,
+  );
+  Future<Either<Failure, List<CategorieEcarteeEntity>>> getCategoriesEcartees(
+    String userId,
+  );
+  Future<Either<Failure, List<TagEcarteEntity>>> getTagsEcartees(String userId);
 }
