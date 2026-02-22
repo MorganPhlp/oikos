@@ -6,7 +6,7 @@ import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.da
 import 'package:oikos/core/common/presentation/pages/pdf_viewer_page.dart';
 import 'package:oikos/core/common/presentation/widgets/header.dart';
 import 'package:oikos/core/common/presentation/widgets/navbar.dart';
-import 'package:oikos/features/actions_et_defis/presentation/bloc/habitudes_cubit.dart';
+import 'package:oikos/features/actions/presentation/bloc/habitudes_cubit.dart';
 import 'package:oikos/features/auth/presentation/pages/intro_page.dart';
 import 'package:oikos/features/auth/presentation/pages/update_password_page.dart';
 import 'package:oikos/features/bilanCarbone/presentation/pages/bilan_flow.dart';
@@ -22,10 +22,11 @@ import 'features/codeBarre/domain/entities/aliment_entity.dart';
 import 'features/codeBarre/presentation/pages/home_scan_page.dart';
 import 'features/codeBarre/presentation/pages/product_details_page.dart';
 import 'features/codeBarre/presentation/pages/scan_page.dart';
-import 'package:oikos/features/actions_et_defis/presentation/pages/action_page.dart';
-import 'package:oikos/features/actions_et_defis/presentation/pages/my_actions_page.dart';
-import 'package:oikos/features/actions_et_defis/presentation/bloc/actions_bloc.dart';
-import 'package:oikos/features/actions_et_defis/presentation/bloc/actions_event.dart';
+import 'package:oikos/features/actions/presentation/pages/action_page.dart';
+import 'package:oikos/features/actions/presentation/pages/my_actions_page.dart';
+import 'package:oikos/features/actions/presentation/bloc/actions_bloc.dart';
+import 'package:oikos/features/actions/presentation/bloc/actions_event.dart';
+import 'package:oikos/features/home/presentation/bloc/home_stats_cubit.dart';
 
 GoRouter createRouter(AppUserCubit appUserCubit) {
   GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -94,7 +95,19 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
           GoRoute(
             path: '/home',
             name: 'home',
-            builder: (context, state) => const HomePage(),
+            builder: (context, state) {
+              final userId =
+                  context.read<AppUserCubit>().state is AppUserLoggedIn
+                  ? (context.read<AppUserCubit>().state as AppUserLoggedIn)
+                        .user
+                        .id
+                  : '';
+              return BlocProvider(
+                create: (context) =>
+                    serviceLocator<HomeStatsCubit>()..loadStats(userId),
+                child: const HomePage(),
+              );
+            },
           ),
           ShellRoute(
             builder: (context, state, child) {

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/features/community/presentation/widgets/community_challenges_card_widget.dart';
-import 'package:oikos/features/home/domain/entities/stats_cards_entitie.dart';
+import 'package:oikos/features/home/presentation/bloc/home_stats_cubit.dart';
+import 'package:oikos/features/home/presentation/bloc/home_stats_state.dart';
 import 'package:oikos/features/home/presentation/widgets/quick_access_widget.dart';
 import 'package:oikos/features/home/presentation/widgets/stats_caroussel_widget.dart';
 import 'package:oikos/features/streak/presentation/widgets/streak_widget.dart';
@@ -34,12 +35,32 @@ class HomePage extends StatelessWidget {
                   StreakWidget(),
                   const SizedBox(height: 32),
 
-                  StatsCarousselWidget(
-                    allStatsCards: [
-                      StatsCardsEntitie.mock1(),
-                      StatsCardsEntitie.mock2(),
-                      StatsCardsEntitie.mock3(),
-                    ],
+                  BlocBuilder<HomeStatsCubit, HomeStatsState>(
+                    builder: (context, statsState) {
+                      if (statsState is HomeStatsLoading) {
+                        return const SizedBox(
+                          height: 160,
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+                      if (statsState is HomeStatsLoaded) {
+                        return StatsCarousselWidget(
+                          allStatsCards: statsState.statsCards,
+                        );
+                      }
+                      if (statsState is HomeStatsError) {
+                        return SizedBox(
+                          height: 160,
+                          child: Center(
+                            child: Text(
+                              'Impossible de charger les stats',
+                              style: TextStyle(color: theme.colorScheme.error),
+                            ),
+                          ),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
                   ),
 
                   const SizedBox(height: 32),

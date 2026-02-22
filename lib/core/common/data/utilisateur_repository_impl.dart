@@ -21,7 +21,6 @@ class UtilisateurRepositoryImpl implements UtilisateurRepository {
 
   @override
   Future<void> setObjetifsUtilisateur(double objectifRatio) async {
-    // Implémentation de la méthode pour définir les objectifs d'un utilisateur
     final id = _supabase.auth.currentUser?.id;
     if (id == null) throw Exception('Utilisateur non authentifié');
     await _supabase

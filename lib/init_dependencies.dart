@@ -5,14 +5,13 @@ import 'package:oikos/core/common/data/category_empreinte_repository_impl.dart';
 import 'package:oikos/core/common/data/utilisateur_repository_impl.dart';
 import 'package:oikos/core/common/domain/repositories/categorie_empreinte_repository.dart';
 import 'package:oikos/core/common/domain/repositories/utilisateur_repository.dart';
-import 'package:oikos/features/actions_et_defis/domain/entities/user_active_action_entity.dart';
-import 'package:oikos/features/actions_et_defis/domain/usecases/ecarter_action_use_case.dart';
-import 'package:oikos/features/actions_et_defis/domain/usecases/ecarter_categorie_use_case.dart';
-import 'package:oikos/features/actions_et_defis/domain/usecases/ecarter_tag_use_case.dart';
-import 'package:oikos/features/actions_et_defis/domain/usecases/get_limite_actions_freq_use_case.dart';
-import 'package:oikos/features/actions_et_defis/domain/usecases/get_my_habitudes_use_case.dart';
-import 'package:oikos/features/actions_et_defis/domain/usecases/promote_to_habitude_use_case.dart';
-import 'package:oikos/features/actions_et_defis/presentation/bloc/habitudes_cubit.dart';
+import 'package:oikos/features/actions/domain/usecases/ecarter_action_use_case.dart';
+import 'package:oikos/features/actions/domain/usecases/ecarter_categorie_use_case.dart';
+import 'package:oikos/features/actions/domain/usecases/ecarter_tag_use_case.dart';
+import 'package:oikos/features/actions/domain/usecases/get_limite_actions_freq_use_case.dart';
+import 'package:oikos/features/actions/domain/usecases/get_my_habitudes_use_case.dart';
+import 'package:oikos/features/actions/domain/usecases/promote_to_habitude_use_case.dart';
+import 'package:oikos/features/actions/presentation/bloc/habitudes_cubit.dart';
 import 'package:oikos/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:oikos/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
@@ -92,15 +91,23 @@ import 'package:oikos/features/codeBarre/presentation/bloc/scan_bloc.dart';
 import 'features/codeBarre/domain/usecases/get_alternative_product.dart';
 import 'features/codeBarre/presentation/cubit/alternative_product_cubit.dart';
 
-import 'package:oikos/features/actions_et_defis/data/datasources/action_remote_data_source.dart';
-import 'package:oikos/features/actions_et_defis/data/repositories/action_repository_impl.dart';
-import 'package:oikos/features/actions_et_defis/domain/repositories/action_repository.dart';
-import 'package:oikos/features/actions_et_defis/domain/usecases/get_actions.dart';
-import 'package:oikos/features/actions_et_defis/domain/usecases/get_my_active_actions_use_case.dart';
-import 'package:oikos/features/actions_et_defis/domain/usecases/add_to_my_actions_use_case.dart';
-import 'package:oikos/features/actions_et_defis/domain/usecases/validate_action_use_case.dart';
-import 'package:oikos/features/actions_et_defis/domain/usecases/remove_from_my_actions_use_case.dart';
-import 'package:oikos/features/actions_et_defis/presentation/bloc/actions_bloc.dart';
+import 'package:oikos/features/actions/data/datasources/action_remote_data_source.dart';
+import 'package:oikos/features/actions/data/repositories/action_repository_impl.dart';
+import 'package:oikos/features/actions/domain/repositories/action_repository.dart';
+import 'package:oikos/features/actions/domain/usecases/get_actions.dart';
+import 'package:oikos/features/actions/domain/usecases/get_my_active_actions_use_case.dart';
+import 'package:oikos/features/actions/domain/usecases/add_to_my_actions_use_case.dart';
+import 'package:oikos/features/actions/domain/usecases/validate_action_use_case.dart';
+import 'package:oikos/features/actions/domain/usecases/remove_from_my_actions_use_case.dart';
+import 'package:oikos/features/actions/presentation/bloc/actions_bloc.dart';
+
+// Home
+import 'package:oikos/features/home/data/datasources/home_stats_remote_data_source.dart';
+import 'package:oikos/features/home/data/repositories/home_stats_repository_impl.dart';
+import 'package:oikos/features/home/domain/repositories/home_stats_repository.dart';
+import 'package:oikos/features/home/domain/usecases/get_home_stats_use_case.dart';
+import 'package:oikos/features/home/domain/usecases/build_stats_cards_use_case.dart';
+import 'package:oikos/features/home/presentation/bloc/home_stats_cubit.dart';
 
 final serviceLocator = GetIt.instance;
 
@@ -134,6 +141,7 @@ Future<void> initDependencies() async {
   _initProfile();
   _initDashboard();
   _initActions();
+  _initHome();
 }
 
 void _initAuth() {
@@ -538,5 +546,31 @@ void _initProfile() {
   // Bloc
   serviceLocator.registerFactory(
     () => ProfileBilanCubit(getQuestionsRestantesUseCase: serviceLocator()),
+  );
+}
+
+void _initHome() {
+  // Data source
+  serviceLocator.registerLazySingleton<HomeStatsRemoteDataSource>(
+    () => HomeStatsRemoteDataSourceImpl(serviceLocator<SupabaseClient>()),
+  );
+
+  // Repository
+  serviceLocator.registerLazySingleton<HomeStatsRepository>(
+    () => HomeStatsRepositoryImpl(serviceLocator<HomeStatsRemoteDataSource>()),
+  );
+
+  // Use cases
+  serviceLocator.registerLazySingleton(
+    () => GetHomeStatsUseCase(serviceLocator<HomeStatsRepository>()),
+  );
+  serviceLocator.registerLazySingleton(() => BuildStatsCardsUseCase());
+
+  // Cubit
+  serviceLocator.registerFactory(
+    () => HomeStatsCubit(
+      getHomeStats: serviceLocator(),
+      buildStatsCards: serviceLocator(),
+    ),
   );
 }

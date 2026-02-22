@@ -27,7 +27,11 @@ class _StreakLossWidgetState extends State<StreakLossWidget> {
 
     void handleClose() {
       widget.onClose?.call();
-      context.pop();
+      if (context.canPop()) {
+        context.pop();
+      } else {
+        widget.onClose?.call();
+      }
     }
 
     return Scaffold(

@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS public.utilisateur_habitudes (
 CREATE TABLE IF NOT EXISTS public.limite_actions_freq(
     frequence frequenceEnum PRIMARY KEY,
     nombre INTEGER CONSTRAINT nombre_positif CHECK (nombre > 0)
-)
+);
 
 CREATE TABLE IF NOT EXISTS public.actions_ecartees(
     utilisateur_id uuid NOT NULL REFERENCES public.utilisateur(id) ON DELETE CASCADE,
@@ -97,7 +97,7 @@ SELECT
              AND date_trunc('week', derniere_realisation) < date_trunc('week', now() - INTERVAL '1 week') THEN 0
         WHEN frequence = 'mensuelle' 
              AND date_trunc('month', derniere_realisation) < date_trunc('month', now() - INTERVAL '1 month') THEN 0  
-        WHEN frequence = 'bonus' AND count_since_reset >= 1 THEN 1 ELSE 0
+        WHEN frequence = 'bonus' AND count_since_reset >= 1 THEN 1 
         ELSE count_since_reset
     END AS effective_count
 FROM recap_actions;
