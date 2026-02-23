@@ -6,8 +6,10 @@ import 'package:oikos/core/domain/entities/user.dart';
 import 'package:oikos/core/presentation/widgets/admin_scaffold.dart';
 import 'package:oikos/core/theme/admin_theme.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:oikos/features/admin/data/models/models.dart';
 import 'package:oikos/features/admin/presentation/pages/community_management_page.dart';
 import 'package:oikos/features/admin/presentation/pages/global_vue_page.dart';
+import 'package:oikos/features/admin/presentation/pages/profil_page.dart';
 import 'package:oikos/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:oikos/features/auth/presentation/pages/intro_page.dart';
 import 'package:oikos/features/bilanCarbone/presentation/pages/bilan_flow.dart';
@@ -60,10 +62,13 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
                   child: Builder(
                     builder: (context) {
                       final state = context.read<AppUserCubit>().state;
-                      if (state is AppUserLoggedIn && state.user.isAdmin) {
+                      if (state is AppUserLoggedIn &&
+                          state.user.isAdmin &&
+                          state.company != null) {
+                        Company company = state.company!;
                         return AdminScaffold(
-                          title: 'Oikos Admin',
-                          logo: Image.asset('assets/logos/v_viveris_noir.png'),
+                          title: 'Oikos',
+                          logo: Image.network(company.logoFullUrl),
                           currentIndex: currentIndex < 0
                               ? 0
                               : currentIndex, // Sécurité si index non trouvé
@@ -80,17 +85,17 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
                             ),
                             NavigationDestination(
                               icon: CircleAvatar(
-                                      radius: 12,
-                                      backgroundImage: NetworkImage(
-                                        state.user.avatarFullUrl,
-                                      ),
-                                    ),
+                                radius: 12,
+                                backgroundImage: NetworkImage(
+                                  state.user.avatarFullUrl,
+                                ),
+                              ),
                               selectedIcon: CircleAvatar(
-                                      radius: 12,
-                                      backgroundImage: NetworkImage(
-                                        state.user.avatarFullUrl,
-                                      ),
-                                    ),
+                                radius: 12,
+                                backgroundImage: NetworkImage(
+                                  state.user.avatarFullUrl,
+                                ),
+                              ),
                               label: 'Profil',
                             ),
                           ],
@@ -107,7 +112,7 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
                               child, // L'écran de la route actuelle injecté par GoRouter
                         );
                       }
-                    return IntroPage(); // Fallback si jamais l'état n'est pas celui attendu
+                      return IntroPage(); // Fallback si jamais l'état n'est pas celui attendu
                     },
                   ),
                 );
@@ -124,7 +129,8 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
 
               if (appUserState is AppUserLoggedIn) {
                 final User user = appUserState.user;
-                return GlobalVuePage(user: user);
+                final Company? company = appUserState.company;
+                return GlobalVuePage(user: user, company: company!);
               }
 
               return const IntroPage();
@@ -134,15 +140,27 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
             path: '/admin/community',
             name: 'adminCommunity',
             builder: (context, state) {
-              return const CommunityManagementPage();
+              final appUserState = context.read<AppUserCubit>().state;
+
+              if (appUserState is AppUserLoggedIn) {
+                final User user = appUserState.user;
+                final Company? company = appUserState.company;
+                return CommunityManagementPage(user: user, company: company!);
+              }
+              return const IntroPage();
             },
           ),
           GoRoute(
             path: '/admin/profil',
             name: 'adminProfil',
             builder: (context, state) {
-              // TODO : créer la page de profil admin
-              return Center(child: Text('Page de profil admin à venir'));
+              final appUserState = context.read<AppUserCubit>().state;
+              if (appUserState is AppUserLoggedIn) {
+                final User user = appUserState.user;
+                final Company? company = appUserState.company;
+                return ProfilPage(user: user, company: company!);
+              }
+              return const IntroPage();
             },
           ),
         ],

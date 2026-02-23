@@ -1,40 +1,35 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:oikos/core/error/failures.dart';
-import 'package:oikos/features/admin/domain/entities/co2_performance_data.dart';
-import 'package:oikos/features/admin/domain/repositories/co2_performance_rep.dart';
+import 'package:oikos/features/admin/domain/entities/carbon_foot_print.dart';
+import 'package:oikos/features/admin/domain/repositories/carbon_foot_print_rep.dart';
 
-class GetCo2Performance {
-  final Co2PerformanceRep rep;
+class GetCarbonFootPrint {
+  final CarbonFootPrintRep rep;
 
-  GetCo2Performance(this.rep);
+  GetCarbonFootPrint(this.rep);
 
-  Future<Either<Failure, Co2PerformanceData>> call() async {
-    final monthlyResult = await rep.getCo2Performance('month');
-    final yearResult = await rep.getCo2Performance('year');
-    final globalInsightsStatsResult = await rep.getGlobalInsightsData();
-    final categoriesResult = await rep.getCategoryData();
-    final completionRateCarbonResult = await rep.getCompletionRateCarbon();
+  Future<Either<Failure, CarbonFootPrintData>> call(String companyId) async {
+    final monthlyResult = await rep.getCarbonFootPrint('month', companyId);
+    final yearResult = await rep.getCarbonFootPrint('year', companyId);
+    final kpiStatsResult = await rep.getKpiStats(companyId);
+    final categoriesResult = await rep.getCategoryData(companyId);
 
     return monthlyResult.fold(
       (failure) => left(failure),
       (monthly) => yearResult.fold(
         (failure) => left(failure),
-        (yearly) => globalInsightsStatsResult.fold(
+        (yearly) => kpiStatsResult.fold(
           (failure) => left(failure),
-          (globalInsightsStats) => categoriesResult.fold(
+          (kpiStats) => categoriesResult.fold(
             (failure) => left(failure),
-            (categories) => completionRateCarbonResult.fold(
-              (failure) => left(failure),
-              (completionRateCarbon) =>       
-                right(Co2PerformanceData(
-                  categories: categories,
-                  co2PerformanceMonthly: monthly,
-                  co2PerformanceYear: yearly,
-                  globalInsightsStats: globalInsightsStats,
-                  completionRateCarbon: completionRateCarbon,
-                  
-                )),
-            )
+            (categories) => right(
+              CarbonFootPrintData(
+                co2PerformanceMonthly: monthly,
+                co2PerformanceYear: yearly,
+                kpiStats: kpiStats,
+                categories: categories,
+              ),
+            ),
           ),
         ),
       ),

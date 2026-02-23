@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$User {
 
- String get id; String get email; String get pseudo;@JsonKey(name: 'avatar_url') String? get avatarUrl;@JsonKey(name: 'code_communaute') String get codeCommunaute;@JsonKey(name: 'entreprise_id') String get entrepriseId; RoleUtilisateur get role;@JsonKey(name: 'etat_compte') EtatCompte get etatCompte;@JsonKey(name: 'est_compte_valide') bool get estCompteValide;@JsonKey(name: 'impact_score_xp') int get impactScoreXp;@JsonKey(name: 'co2_economise_total') double get co2EconomiseTotal;@JsonKey(name: 'a_accepte_cgu') bool get aAccepteCgu;@JsonKey(name: 'communaute_nom') String get communauteNom;@JsonKey(name: 'a_complete_bilan') bool get hasCompletedBilan;// Ce champ n'existe pas dans ta table SQL 'utilisateur'. 
+ String get id; String get email; String get pseudo;@JsonKey(name: 'avatar_url') String? get avatarUrl;@JsonKey(name: 'code_communaute') String get codeCommunaute;@JsonKey(name: 'entreprise_id') String get entrepriseId; RoleUtilisateur get role;@JsonKey(name: 'etat_compte') EtatCompte get etatCompte;@JsonKey(name: 'est_compte_valide') bool get estCompteValide;@JsonKey(name: 'impact_score_xp') int get impactScoreXp;@JsonKey(name: 'co2_economise_total') double get co2EconomiseTotal;@JsonKey(name: 'a_accepte_cgu') bool get aAccepteCgu;@JsonKey(name: 'communaute_nom') String get communauteNom;@JsonKey(name: 'a_complete_bilan') bool get hasCompletedBilan;// Ce champ n'existe pas dans ta table SQL 'utilisateur'.
 // S'il vient d'une jointure ou d'un calcul, garde-le, sinon il sera ignoré par Supabase.
  int get objectif;
 /// Create a copy of User
@@ -236,7 +236,7 @@ class _User implements User {
 @override@JsonKey(name: 'a_accepte_cgu') final  bool aAccepteCgu;
 @override@JsonKey(name: 'communaute_nom') final  String communauteNom;
 @override@JsonKey(name: 'a_complete_bilan') final  bool hasCompletedBilan;
-// Ce champ n'existe pas dans ta table SQL 'utilisateur'. 
+// Ce champ n'existe pas dans ta table SQL 'utilisateur'.
 // S'il vient d'une jointure ou d'un calcul, garde-le, sinon il sera ignoré par Supabase.
 @override@JsonKey() final  int objectif;
 

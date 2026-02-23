@@ -1,3 +1,7 @@
 abstract class CarbonStatsEvent {}
 
-class Co2Performancefetched extends CarbonStatsEvent{}
+class CarbonFootPrintfetched extends CarbonStatsEvent {
+  String companyId;
+
+  CarbonFootPrintfetched({required this.companyId});
+}

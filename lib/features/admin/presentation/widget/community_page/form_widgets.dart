@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:oikos/core/theme/admin_theme.dart';
+
 /// Header pour les formulaires mobile (plein écran)
 ///
 /// Affiche un titre avec un bouton de fermeture à gauche.
@@ -13,9 +15,9 @@ class FormHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AdminTheme.spacingMd),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AdminTheme.background,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -26,14 +28,18 @@ class FormHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
-          IconButton(onPressed: onBack, icon: const Icon(Icons.close)),
-          const SizedBox(width: 8),
+          IconButton(
+            onPressed: onBack,
+            icon: const Icon(Icons.close),
+            color: AdminTheme.mutedForeground,
+          ),
+          const SizedBox(width: AdminTheme.spacingSm),
           Text(
             title,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Colors.grey[900],
+              color: AdminTheme.foreground,
             ),
           ),
         ],
@@ -65,7 +71,7 @@ class FormTextField extends StatelessWidget {
     this.maxLength,
     this.textCapitalization = TextCapitalization.none,
     this.onChanged,
-    this.success
+    this.success,
   });
 
   @override
@@ -77,8 +83,11 @@ class FormTextField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Label
-        Text(label, style: TextStyle(fontSize: 14, color: Colors.grey[700])),
-        const SizedBox(height: 8),
+        Text(
+          label,
+          style: TextStyle(fontSize: 14, color: AdminTheme.mutedForeground),
+        ),
+        const SizedBox(height: AdminTheme.spacingSm),
 
         // TextField
         TextField(
@@ -88,17 +97,15 @@ class FormTextField extends StatelessWidget {
           inputFormatters: [
             FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
             TextInputFormatter.withFunction((oldValue, newValue) {
-              return newValue.copyWith(
-                text: newValue.text.toUpperCase(),
-              );
+              return newValue.copyWith(text: newValue.text.toUpperCase());
             }),
           ],
           onChanged: onChanged,
           decoration: InputDecoration(
             hintText: hint,
-            counterText: '', // Cache le compteur de caractères
+            counterText: '',
             filled: true,
-            fillColor: Colors.white,
+            fillColor: AdminTheme.background,
             border: _buildBorder(hasError, false),
             enabledBorder: _buildBorder(hasError, false),
             focusedBorder: _buildBorder(hasError, true),
@@ -111,30 +118,36 @@ class FormTextField extends StatelessWidget {
             padding: const EdgeInsets.only(top: 6),
             child: Text(
               error!,
-              style: const TextStyle(fontSize: 12, color: Colors.red),
+              style: const TextStyle(
+                fontSize: 12,
+                color: AdminTheme.errorForeground,
+              ),
             ),
           ),
-        if(hasSuccess)
+        if (hasSuccess)
           Padding(
             padding: const EdgeInsets.only(top: 6),
             child: Text(
               success!,
-              style: const TextStyle(fontSize: 12, color: Colors.green),
+              style: const TextStyle(
+                fontSize: 12,
+                color: AdminTheme.successForeground,
+              ),
             ),
-          ), 
+          ),
       ],
     );
   }
 
   OutlineInputBorder _buildBorder(bool hasError, bool isFocused) {
     return OutlineInputBorder(
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
       borderSide: BorderSide(
         color: hasError
-            ? Colors.red
+            ? AdminTheme.errorForeground
             : isFocused
-            ? const Color(0xFF16A34A)
-            : Colors.grey[300]!,
+            ? AdminTheme.actionGreen
+            : AdminTheme.border,
         width: isFocused ? 2 : 1,
       ),
     );
@@ -161,14 +174,14 @@ class FormActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AdminTheme.spacingMd),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AdminTheme.background,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 4,
-            offset: const Offset(0, -2), // Ombre vers le haut
+            offset: const Offset(0, -2),
           ),
         ],
       ),
@@ -179,27 +192,31 @@ class FormActions extends StatelessWidget {
             child: OutlinedButton(
               onPressed: onCancel,
               style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                side: BorderSide(color: Colors.grey[300]!),
+                padding: const EdgeInsets.symmetric(
+                  vertical: AdminTheme.spacingMd,
+                ),
+                side: const BorderSide(color: AdminTheme.border),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
                 ),
               ),
               child: const Text('Annuler'),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: AdminTheme.spacingMd),
 
           // Bouton principal
           Expanded(
             child: ElevatedButton(
               onPressed: onSubmit,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF16A34A),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
+                backgroundColor: AdminTheme.actionGreen,
+                foregroundColor: AdminTheme.actionGreenForeground,
+                padding: const EdgeInsets.symmetric(
+                  vertical: AdminTheme.spacingMd,
+                ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
                 ),
               ),
               child: isSubmitting == true
@@ -214,7 +231,7 @@ class FormActions extends StatelessWidget {
                             strokeWidth: 2,
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: AdminTheme.spacingSm),
                         Text(submitLabel),
                       ],
                     )
@@ -247,23 +264,32 @@ class ReadOnlyField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: 14, color: Colors.grey[700])),
-        const SizedBox(height: 8),
+        Text(
+          label,
+          style: TextStyle(fontSize: 14, color: AdminTheme.mutedForeground),
+        ),
+        const SizedBox(height: AdminTheme.spacingSm),
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(AdminTheme.spacingMd),
           decoration: BoxDecoration(
-            color: Colors.grey[100],
-            borderRadius: BorderRadius.circular(8),
+            color: AdminTheme.pageBackground,
+            borderRadius: BorderRadius.circular(AdminTheme.radiusSm),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(value, style: const TextStyle(fontWeight: FontWeight.w600)),
+              Text(
+                value,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
               if (subtitle != null)
                 Text(
                   subtitle!,
-                  style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: AdminTheme.mutedForeground,
+                  ),
                 ),
             ],
           ),
@@ -275,7 +301,7 @@ class ReadOnlyField extends StatelessWidget {
 
 /// Boîte d'avertissement
 ///
-/// Affiche un message d'avertissement avec un emoji et un fond jaune.
+/// Affiche un message d'avertissement avec une icône et un fond jaune.
 class WarningBox extends StatelessWidget {
   final String message;
 
@@ -284,19 +310,28 @@ class WarningBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(AdminTheme.spacingMd),
       decoration: BoxDecoration(
-        color: Colors.yellow[50],
-        border: Border.all(color: Colors.yellow[200]!),
-        borderRadius: BorderRadius.circular(8),
+        color: AdminTheme.warningBackground,
+        border: Border.all(color: AdminTheme.warningBorder),
+        borderRadius: BorderRadius.circular(AdminTheme.radiusSm),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('⚠️ ', style: TextStyle(fontSize: 16)),
+          Icon(
+            Icons.warning_amber_rounded,
+            size: 18,
+            color: AdminTheme.warningForeground,
+          ),
+          const SizedBox(width: AdminTheme.spacingSm),
           Expanded(
             child: Text(
               message,
-              style: TextStyle(fontSize: 13, color: Colors.yellow[900]),
+              style: TextStyle(
+                fontSize: 13,
+                color: AdminTheme.warningForeground,
+              ),
             ),
           ),
         ],

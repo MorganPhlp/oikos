@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/core/domain/entities/user.dart';
+import 'package:oikos/features/admin/domain/use_cases/get_company_info.dart';
 import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
 import 'package:oikos/features/auth/domain/usecases/current_user.dart';
 import 'package:oikos/features/auth/domain/usecases/user_signin.dart';
@@ -22,6 +23,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository _authRepository;
   final ValidateEmailPassword _validateEmailPassword;
   final ValidatePseudo _validatePseudo;
+  final GetCompanyInfo _getCompanyInfo;
 
   AuthBloc({
     required UserSignup userSignup,
@@ -31,6 +33,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required AuthRepository authRepository,
     required ValidateEmailPassword validateEmailPassword,
     required ValidatePseudo validatePseudo,
+     required GetCompanyInfo getCompanyInfo,
   }) : _userSignin = userSignin,
        _userSignup = userSignup,
        _currentUser = currentUser,
@@ -38,6 +41,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
        _authRepository = authRepository,
        _validateEmailPassword = validateEmailPassword,
        _validatePseudo = validatePseudo,
+       _getCompanyInfo = getCompanyInfo,
        super(AuthInitial()) {
     // Suppression du handler global qui causait les bugs de chargement et d'erreurs
     on<AuthSignUp>(_onAuthSignUp);
@@ -57,9 +61,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     final res = await _currentUser(NoParams());
 
-    res.fold(
-      (failure) => emit(AuthFailure(failure.message)),
-      (user) => _emitAuthSuccess(user, emit),
+    await res.fold(
+      (failure) async => emit(AuthFailure(failure.message)),
+      (user) async => await _emitAuthSuccess(user, emit),
     );
   }
 
@@ -74,9 +78,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       ),
     );
 
-    res.fold(
-      (failure) => emit(AuthFailure(failure.message)),
-      (user) => _emitAuthSuccess(user, emit),
+    await res.fold(
+      (failure) async => emit(AuthFailure(failure.message)),
+      (user) async => await _emitAuthSuccess(user, emit),
     );
   }
 
@@ -86,9 +90,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       UserSigninParams(email: event.email, password: event.password),
     );
 
-    res.fold(
-      (failure) => emit(AuthFailure(failure.message)),
-      (user) => _emitAuthSuccess(user, emit),
+    await res.fold(
+      (failure) async => emit(AuthFailure(failure.message)),
+      (user) async => await _emitAuthSuccess(user, emit),
     );
   }
 
@@ -162,8 +166,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
   }
 
-  void _emitAuthSuccess(User user, Emitter<AuthState> emit) {
-    _appUserCubit.updateUser(user);
+  Future<void> _emitAuthSuccess(User user, Emitter<AuthState> emit) async {
+    if (user.entrepriseId.isNotEmpty) {
+      final companyRes = await _getCompanyInfo(user.entrepriseId);
+      companyRes.fold(
+        (_) => _appUserCubit.updateUser(user),
+        (company) => _appUserCubit.updateUser(user, company: company),
+      );
+    } else {
+      _appUserCubit.updateUser(user);
+    }
+
     emit(AuthSuccess(user));
   }
 }

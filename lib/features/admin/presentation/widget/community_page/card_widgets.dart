@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/domain/entities/user.dart';
+import 'package:oikos/core/theme/admin_theme.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_state.dart';
+
 // ============================================================================
 // CARTES COMMUNAUTÉ
 // ============================================================================
 
 /// Carte communauté pour desktop (affichée dans une grille)
-///
-/// Affiche toutes les informations de la communauté avec des boutons d'action.
 class CommunityCard extends StatelessWidget {
   final int index;
   final VoidCallback onEditCode;
   final VoidCallback onViewMembers;
   final VoidCallback onDelete;
+  final VoidCallback onEditLogo;
 
   const CommunityCard({
     super.key,
@@ -23,6 +24,7 @@ class CommunityCard extends StatelessWidget {
     required this.onEditCode,
     required this.onViewMembers,
     required this.onDelete,
+    required this.onEditLogo,
   });
 
   @override
@@ -30,41 +32,42 @@ class CommunityCard extends StatelessWidget {
     final state = context.watch<CommunityBloc>().state as CommunityLoaded;
     final community = state.data.communities[index];
     final rank = index + 1;
+
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+      decoration: AdminTheme.cardDecoration,
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AdminTheme.spacingLg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header avec nom et bouton supprimer
+            // Header : logo + nom + supprimer
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                _CommunityLogo(
+                  logoUrl: community.logoFullUrl,
+                  size: 40,
+                  onTap: onEditLogo,
+                ),
+                const SizedBox(width: AdminTheme.spacingSm),
                 Expanded(
                   child: Text(
                     community.name,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Colors.grey[900],
+                      color: AdminTheme.foreground,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.delete, size: 20, color: Colors.grey[600]),
+                  icon: Icon(
+                    Icons.delete_outline_rounded,
+                    size: 20,
+                    color: AdminTheme.mutedForeground,
+                  ),
                   onPressed: onDelete,
                   tooltip: 'Supprimer',
                   padding: EdgeInsets.zero,
@@ -72,28 +75,31 @@ class CommunityCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AdminTheme.spacingMd),
 
             // Code d'accès
             _buildInfoRow(
-              icon: Icons.vpn_key,
+              icon: Icons.vpn_key_rounded,
               child: _CodeBadge(code: community.code),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AdminTheme.spacingSm),
 
             // Nombre de membres
             _buildInfoRow(
-              icon: Icons.people,
+              icon: Icons.people_rounded,
               child: Text(
                 '${community.membersCount ?? 0} membre${(community.membersCount ?? 0) > 1 ? 's' : ''}',
-                style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                style: TextStyle(
+                  fontSize: 13,
+                  color: AdminTheme.mutedForeground,
+                ),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AdminTheme.spacingSm),
 
             // Rang
             _buildInfoRow(
-              icon: Icons.emoji_events,
+              icon: Icons.emoji_events_rounded,
               iconColor: _getRankColor(rank),
               child: Text(
                 'Rang $rank',
@@ -104,18 +110,21 @@ class CommunityCard extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AdminTheme.spacingSm),
 
-            // Score CO2
-            _buildInfoRow(
-              icon: Icons.eco,
-              child: Text(
-                'Score ${community.avgScore?.toStringAsFixed(2) ?? '-'} kg CO2e',
-                style: TextStyle(fontSize: 13, color: Colors.grey[600]),
-              ),
-            ),
+            // // Score CO2
+            // _buildInfoRow(
+            //   icon: Icons.eco_rounded,
+            //   child: Text(
+            //     'Score ${community.avgScore?.toStringAsFixed(2) ?? '-'} kg CO2e',
+            //     style: TextStyle(
+            //       fontSize: 13,
+            //       color: AdminTheme.mutedForeground,
+            //     ),
+            //   ),
+            // ),
 
-            const Spacer(),
+            // const Spacer(),
 
             // Boutons d'action
             _ActionButtons(
@@ -135,8 +144,12 @@ class CommunityCard extends StatelessWidget {
   }) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: iconColor ?? Colors.grey[500]),
-        const SizedBox(width: 8),
+        Icon(
+          icon,
+          size: 16,
+          color: iconColor ?? AdminTheme.mutedForeground,
+        ),
+        const SizedBox(width: AdminTheme.spacingSm),
         child,
       ],
     );
@@ -145,26 +158,25 @@ class CommunityCard extends StatelessWidget {
   Color _getRankColor(int rank) {
     switch (rank) {
       case 1:
-        return const Color(0xFFFFD700); // Or
+        return const Color(0xFFD97706); // Ambre (or)
       case 2:
-        return const Color(0xFFA0A0A0); // Argent
+        return const Color(0xFF6B7280); // Gris (argent)
       case 3:
-        return const Color(0xFFCD7F32); // Bronze
+        return const Color(0xFFB45309); // Bronze
       default:
-        return Colors.grey[600]!;
+        return AdminTheme.mutedForeground;
     }
   }
 }
 
-/// Carte communauté compacte pour mobile (affichée dans une liste)
-///
-/// Version simplifiée avec navigation au tap.
+/// Carte communauté compacte pour mobile
 class MobileCommunityCard extends StatelessWidget {
   final Community community;
   final int rank;
   final VoidCallback onViewMembers;
   final VoidCallback onEditCode;
   final VoidCallback onDelete;
+  final VoidCallback onEditLogo;
 
   const MobileCommunityCard({
     super.key,
@@ -173,67 +185,67 @@ class MobileCommunityCard extends StatelessWidget {
     required this.onViewMembers,
     required this.onEditCode,
     required this.onDelete,
+    required this.onEditLogo,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      decoration: AdminTheme.cardDecorationCompact,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onViewMembers,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AdminTheme.radiusXl),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AdminTheme.spacingMd),
             child: Row(
               children: [
-                // Informations principales
+                _CommunityLogo(
+                  logoUrl: community.logoFullUrl,
+                  size: 48,
+                  onTap: onEditLogo,
+                ),
+                const SizedBox(width: AdminTheme.spacingMd),
+
+                // Informations
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         community.name,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
-                          color: Colors.grey[900],
+                          color: AdminTheme.foreground,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      // Code et membres
+                      const SizedBox(height: AdminTheme.spacingSm),
                       Row(
                         children: [
                           _CodeBadge(code: community.code, small: true),
-                          const SizedBox(width: 12),
-                          Icon(Icons.people, size: 14, color: Colors.grey[500]),
+                          const SizedBox(width: AdminTheme.spacingMd),
+                          Icon(
+                            Icons.people_rounded,
+                            size: 14,
+                            color: AdminTheme.mutedForeground,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             '${community.membersCount ?? 0}',
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.grey[600],
+                              color: AdminTheme.mutedForeground,
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8),
-                      // Rang et Score
+                      const SizedBox(height: AdminTheme.spacingSm),
                       Row(
                         children: [
                           Icon(
-                            Icons.emoji_events,
+                            Icons.emoji_events_rounded,
                             size: 14,
                             color: _getRankColor(rank),
                           ),
@@ -246,14 +258,21 @@ class MobileCommunityCard extends StatelessWidget {
                               color: _getRankColor(rank),
                             ),
                           ),
-                          const SizedBox(width: 16),
-                          Icon(Icons.eco, size: 14, color: Colors.grey[500]),
+                          const SizedBox(width: AdminTheme.spacingMd),
+                          Icon(
+                            Icons.eco_rounded,
+                            size: 14,
+                            color: AdminTheme.mutedForeground,
+                          ),
                           const SizedBox(width: 4),
-                          Text(
-                            'Score ${community.avgScore?.toStringAsFixed(2) ?? '-'} kg CO2e',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
+                          Flexible(
+                            child: Text(
+                              '${community.avgScore?.toStringAsFixed(1) ?? '-'} kg',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AdminTheme.mutedForeground,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
@@ -265,14 +284,20 @@ class MobileCommunityCard extends StatelessWidget {
                 // Boutons d'action
                 IconButton(
                   onPressed: onEditCode,
-                  icon: const Icon(Icons.edit, size: 20),
-                  color: Colors.grey[600],
+                  icon: const Icon(Icons.edit_rounded, size: 20),
+                  color: AdminTheme.mutedForeground,
+                  tooltip: 'Modifier le code',
                 ),
                 IconButton(
                   onPressed: onDelete,
-                  icon: Icon(Icons.delete, size: 20, color: Colors.grey[600]),
+                  icon: const Icon(Icons.delete_outline_rounded, size: 20),
+                  color: AdminTheme.mutedForeground,
+                  tooltip: 'Supprimer',
                 ),
-                const Icon(Icons.chevron_right, color: Colors.grey),
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  color: AdminTheme.mutedForeground,
+                ),
               ],
             ),
           ),
@@ -284,14 +309,82 @@ class MobileCommunityCard extends StatelessWidget {
   Color _getRankColor(int rank) {
     switch (rank) {
       case 1:
-        return const Color(0xFFFFD700); // Or
+        return const Color(0xFFD97706);
       case 2:
-        return const Color(0xFFA0A0A0); // Argent
+        return const Color(0xFF6B7280);
       case 3:
-        return const Color(0xFFCD7F32); // Bronze
+        return const Color(0xFFB45309);
       default:
-        return Colors.grey[600]!;
+        return AdminTheme.mutedForeground;
     }
+  }
+}
+
+// ============================================================================
+// WIDGET LOGO COMMUNAUTÉ
+// ============================================================================
+
+/// Avatar du logo d'une communauté avec icône d'édition superposée
+class _CommunityLogo extends StatelessWidget {
+  final String logoUrl;
+  final double size;
+  final VoidCallback onTap;
+
+  const _CommunityLogo({
+    required this.logoUrl,
+    required this.size,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final editSize = size * 0.38;
+    return GestureDetector(
+      onTap: onTap,
+      child: Stack(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(size / 2),
+            child: Image.network(
+              logoUrl,
+              width: size,
+              height: size,
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => Container(
+                width: size,
+                height: size,
+                decoration: BoxDecoration(
+                  color: AdminTheme.pageBackground,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.groups_rounded,
+                  size: size * 0.5,
+                  color: AdminTheme.mutedForeground,
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: Container(
+              width: editSize,
+              height: editSize,
+              decoration: const BoxDecoration(
+                color: AdminTheme.actionGreen,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.edit_rounded,
+                size: editSize * 0.55,
+                color: AdminTheme.actionGreenForeground,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -310,15 +403,17 @@ class _CodeBadge extends StatelessWidget {
         vertical: small ? 2 : 4,
       ),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(small ? 4 : 6),
+        color: AdminTheme.pageBackground,
+        borderRadius: BorderRadius.circular(
+          small ? AdminTheme.radiusSm : AdminTheme.radiusMd,
+        ),
       ),
       child: Text(
         code,
         style: TextStyle(
           fontSize: small ? 11 : 13,
           fontFamily: 'monospace',
-          color: Colors.grey[700],
+          color: AdminTheme.mutedForeground,
         ),
       ),
     );
@@ -336,39 +431,40 @@ class _ActionButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Modifier le code
         SizedBox(
           width: double.infinity,
           child: OutlinedButton.icon(
             onPressed: onEditCode,
-            icon: const Icon(Icons.edit, size: 16),
+            icon: const Icon(Icons.edit_rounded, size: 16),
             label: const Text('Modifier le code'),
             style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.grey[700],
-              side: BorderSide(color: Colors.grey[300]!),
-              padding: const EdgeInsets.symmetric(vertical: 10),
+              foregroundColor: AdminTheme.mutedForeground,
+              side: const BorderSide(color: AdminTheme.border),
+              padding: const EdgeInsets.symmetric(
+                vertical: AdminTheme.spacingSm,
+              ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
               ),
             ),
           ),
         ),
-        const SizedBox(height: 8),
-
-        // Voir les membres
+        const SizedBox(height: AdminTheme.spacingSm),
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
             onPressed: onViewMembers,
-            icon: const Icon(Icons.visibility, size: 16),
+            icon: const Icon(Icons.visibility_rounded, size: 16),
             label: const Text('Voir les membres'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFDCFCE7),
-              foregroundColor: const Color(0xFF16A34A),
+              backgroundColor: AdminTheme.actionGreenLight,
+              foregroundColor: AdminTheme.actionGreen,
               elevation: 0,
-              padding: const EdgeInsets.symmetric(vertical: 10),
+              padding: const EdgeInsets.symmetric(
+                vertical: AdminTheme.spacingSm,
+              ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
               ),
             ),
           ),
@@ -398,63 +494,56 @@ class MemberCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AdminTheme.spacingMd),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(12),
+        color: AdminTheme.pageBackground,
+        borderRadius: BorderRadius.circular(AdminTheme.radiusXl),
       ),
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Ligne supérieure : nom, email, actions
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      user.pseudo,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey[900],
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      user.email,
-                      style: TextStyle(fontSize: 13, color: Colors.grey[600]),
-                    ),
-                  ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  user.pseudo,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: AdminTheme.foreground,
+                  ),
                 ),
+                const SizedBox(height: 4),
+                Text(
+                  user.email,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: AdminTheme.mutedForeground,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Row(
+            children: [
+              _ActionIconButton(
+                icon: Icons.swap_horiz_rounded,
+                color: Colors.blue,
+                onTap: onChangeCommunity,
+                tooltip: 'Changer de communauté',
               ),
-
-              // Boutons d'action
-              Row(
-                children: [
-                  _ActionIconButton(
-                    icon: Icons.swap_horiz,
-                    color: Colors.blue,
-                    onTap: onChangeCommunity,
-                    tooltip: 'Changer de communauté',
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    icon: Icon(Icons.delete, size: 18, color: Colors.grey[600]),
-                    onPressed: onRemoveFromCommunity,
-                    tooltip: 'Retirer de la communauté',
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                  // _ActionIconButton(
-                  //   icon: Icons.delete,
-                  //   color: Colors.red,
-                  //   onTap: null,
-                  //   tooltip: 'Supprimer',
-                  // ),
-                ],
+              const SizedBox(width: AdminTheme.spacingSm),
+              IconButton(
+                icon: Icon(
+                  Icons.delete_outline_rounded,
+                  size: 18,
+                  color: AdminTheme.mutedForeground,
+                ),
+                onPressed: onRemoveFromCommunity,
+                tooltip: 'Retirer de la communauté',
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
               ),
             ],
           ),
@@ -482,12 +571,12 @@ class _ActionIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final button = Material(
       color: color.withValues(alpha: 0.1),
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
         child: Padding(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(AdminTheme.spacingSm),
           child: Icon(icon, size: 18, color: color),
         ),
       ),
@@ -501,7 +590,7 @@ class _ActionIconButton extends StatelessWidget {
 }
 
 // ============================================================================
-// RADIO TILE POUR SÉLECTION DE COMMUNAUTÉ
+// RADIO TILES
 // ============================================================================
 
 /// Tuile radio pour sélectionner une communauté
@@ -520,29 +609,26 @@ class CommunityRadioTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: AdminTheme.spacingSm),
       child: Material(
-        color: isSelected ? const Color(0xFFDCFCE7) : Colors.grey[50],
-        borderRadius: BorderRadius.circular(10),
+        color: isSelected ? AdminTheme.actionGreenLight : AdminTheme.pageBackground,
+        borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
           child: Padding(
             padding: const EdgeInsets.all(14),
             child: Row(
               children: [
-                // Icône radio
                 Icon(
                   isSelected
                       ? Icons.radio_button_checked
                       : Icons.radio_button_off,
                   color: isSelected
-                      ? const Color(0xFF16A34A)
-                      : Colors.grey[400],
+                      ? AdminTheme.actionGreen
+                      : AdminTheme.mutedForeground,
                 ),
-                const SizedBox(width: 12),
-
-                // Informations
+                const SizedBox(width: AdminTheme.spacingMd),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -552,13 +638,16 @@ class CommunityRadioTile extends StatelessWidget {
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
                           color: isSelected
-                              ? const Color(0xFF16A34A)
-                              : Colors.grey[900],
+                              ? AdminTheme.actionGreen
+                              : AdminTheme.foreground,
                         ),
                       ),
                       Text(
                         community.code,
-                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AdminTheme.mutedForeground,
+                        ),
                       ),
                     ],
                   ),
@@ -571,10 +660,6 @@ class CommunityRadioTile extends StatelessWidget {
     );
   }
 }
-
-// ============================================================================
-// RADIO TILE POUR SÉLECTION D'ENTREPRISE
-// ============================================================================
 
 /// Tuile radio pour sélectionner une entreprise
 class CompanyRadioTile extends StatelessWidget {
@@ -592,37 +677,34 @@ class CompanyRadioTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: AdminTheme.spacingSm),
       child: Material(
-        color: isSelected ? const Color(0xFFDCFCE7) : Colors.grey[50],
-        borderRadius: BorderRadius.circular(10),
+        color: isSelected ? AdminTheme.actionGreenLight : AdminTheme.pageBackground,
+        borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
           child: Padding(
             padding: const EdgeInsets.all(14),
             child: Row(
               children: [
-                // Icône radio
                 Icon(
                   isSelected
                       ? Icons.radio_button_checked
                       : Icons.radio_button_off,
                   color: isSelected
-                      ? const Color(0xFF16A34A)
-                      : Colors.grey[400],
+                      ? AdminTheme.actionGreen
+                      : AdminTheme.mutedForeground,
                 ),
-                const SizedBox(width: 12),
-
-                // Informations
+                const SizedBox(width: AdminTheme.spacingMd),
                 Expanded(
                   child: Text(
                     company.name,
                     style: TextStyle(
                       fontWeight: FontWeight.w500,
                       color: isSelected
-                          ? const Color(0xFF16A34A)
-                          : Colors.grey[900],
+                          ? AdminTheme.actionGreen
+                          : AdminTheme.foreground,
                     ),
                   ),
                 ),

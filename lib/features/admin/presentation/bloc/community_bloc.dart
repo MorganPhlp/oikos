@@ -1,9 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/domain/entities/user.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
 import 'package:oikos/features/admin/domain/use_cases/create_community.dart';
 import 'package:oikos/features/admin/domain/use_cases/delete_community.dart';
+import 'package:oikos/features/admin/domain/use_cases/get_logos.dart';
 import 'package:oikos/features/admin/domain/use_cases/update_community_code.dart';
+import 'package:oikos/features/admin/domain/use_cases/update_community_logo.dart';
 import 'package:oikos/features/admin/domain/use_cases/update_user.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_event.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_state.dart';
@@ -17,6 +18,8 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
   final UpdateUser updateUser;
   final CreateCommunity createCommunity;
   final DeleteCommunity deleteCommunity;
+  final GetLogos getLogos;
+  final UpdateCommunityLogo updateCommunityLogo;
 
   CommunityBloc({
     required this.getCommunityData,
@@ -24,11 +27,13 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     required this.updateUser,
     required this.createCommunity,
     required this.deleteCommunity,
+    required this.getLogos,
+    required this.updateCommunityLogo,
   }) : super(CommunityInitial()) {
     // --- CHARGEMENT DES DONNÉES ---
     on<CommunityDataFetched>((event, emit) async {
       emit(CommunityLoading());
-      final result = await getCommunityData.call();
+      final result = await getCommunityData.call(event.companyId);
       result.fold(
         (failure) => emit(CommunityFetchingError(message: failure.message)),
         (data) => emit(CommunityLoaded(data: data)),
@@ -39,7 +44,13 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     on<UpdateCommunityCodeEvent>((event, emit) async {
       final currentState = state;
       if (currentState is CommunityLoaded) {
-        emit(currentState.copyWith(isSubmitting: true, updateSuccess: false));
+        emit(
+          currentState.copyWith(
+            operationStatus: SectionStatus.loading,
+            clearOperationError: true,
+            clearSuccessMessage: true,
+          ),
+        );
 
         final result = await updateCommunityCode.call(
           event.newCode,
@@ -48,8 +59,8 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
         result.fold(
           (failure) => emit(
             currentState.copyWith(
-              errorMessage: failure.message,
-              isSubmitting: false,
+              operationStatus: SectionStatus.failure,
+              operationError: failure.message,
             ),
           ),
           (_) {
@@ -63,7 +74,13 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
               communities: updatedCommunities,
             );
 
-            emit(CommunityLoaded(data: newData, updateSuccess: true));
+            emit(
+              CommunityLoaded(
+                data: newData,
+                operationStatus: SectionStatus.success,
+                successMessage: "Code d'accès mis à jour",
+              ),
+            );
           },
         );
       }
@@ -73,14 +90,20 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     on<UpdateUserEvent>((event, emit) async {
       final currentState = state;
       if (currentState is CommunityLoaded) {
-        emit(currentState.copyWith(isSubmitting: true, updateSuccess: false));
+        emit(
+          currentState.copyWith(
+            operationStatus: SectionStatus.loading,
+            clearOperationError: true,
+            clearSuccessMessage: true,
+          ),
+        );
 
         final result = await updateUser.call(event.user);
         result.fold(
           (failure) => emit(
             currentState.copyWith(
-              errorMessage: failure.message,
-              isSubmitting: false,
+              operationStatus: SectionStatus.failure,
+              operationError: failure.message,
             ),
           ),
           (_) {
@@ -89,7 +112,13 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
             }).toList();
 
             final newData = currentState.data.copyWith(users: updatedUsers);
-            emit(CommunityLoaded(data: newData, updateSuccess: true));
+            emit(
+              CommunityLoaded(
+                data: newData,
+                operationStatus: SectionStatus.success,
+                successMessage: 'Membre mis à jour',
+              ),
+            );
           },
         );
       }
@@ -111,13 +140,14 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
       }
     });
 
+    // --- REMISE À ZÉRO DU STATUT après affichage du feedback ---
     on<ResetCommunityStatusEvent>((event, emit) {
       if (state is CommunityLoaded) {
         emit(
           (state as CommunityLoaded).copyWith(
-            updateSuccess: false,
-            isSubmitting: false,
-            errorMessage: null,
+            operationStatus: SectionStatus.idle,
+            clearOperationError: true,
+            clearSuccessMessage: true,
           ),
         );
       }
@@ -127,7 +157,13 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     on<ChangeUserCommunityEvent>((event, emit) async {
       final currentState = state;
       if (currentState is CommunityLoaded) {
-        emit(currentState.copyWith(isSubmitting: true, updateSuccess: false));
+        emit(
+          currentState.copyWith(
+            operationStatus: SectionStatus.loading,
+            clearOperationError: true,
+            clearSuccessMessage: true,
+          ),
+        );
 
         final user = currentState.data.users.firstWhere(
           (u) => u.id == event.userId,
@@ -138,8 +174,8 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
         result.fold(
           (failure) => emit(
             currentState.copyWith(
-              errorMessage: failure.message,
-              isSubmitting: false,
+              operationStatus: SectionStatus.failure,
+              operationError: failure.message,
             ),
           ),
           (_) {
@@ -175,8 +211,9 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
               currentState.copyWith(
                 data: newData,
                 selectedUsers: newSelectedUsers,
-                isSubmitting: false,
-                updateSuccess: true,
+                operationStatus: SectionStatus.success,
+                successMessage: 'Communauté du membre modifiée',
+                clearOperationError: true,
               ),
             );
           },
@@ -188,7 +225,13 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     on<RemoveUserFromCommunityEvent>((event, emit) async {
       final currentState = state;
       if (currentState is CommunityLoaded) {
-        emit(currentState.copyWith(isSubmitting: true, updateSuccess: false));
+        emit(
+          currentState.copyWith(
+            operationStatus: SectionStatus.loading,
+            clearOperationError: true,
+            clearSuccessMessage: true,
+          ),
+        );
 
         final user = currentState.data.users.firstWhere(
           (u) => u.id == event.userId,
@@ -200,8 +243,8 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
         result.fold(
           (failure) => emit(
             currentState.copyWith(
-              errorMessage: failure.message,
-              isSubmitting: false,
+              operationStatus: SectionStatus.failure,
+              operationError: failure.message,
             ),
           ),
           (_) {
@@ -235,8 +278,9 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
               currentState.copyWith(
                 data: newData,
                 selectedUsers: newSelectedUsers,
-                isSubmitting: false,
-                updateSuccess: true,
+                operationStatus: SectionStatus.success,
+                successMessage: 'Membre retiré de la communauté',
+                clearOperationError: true,
               ),
             );
           },
@@ -267,6 +311,7 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
           case MobileView.createCommunity:
           case MobileView.editCode:
           case MobileView.deleteConfirm:
+          case MobileView.editLogo:
             emit(
               currentState.copyWith(
                 currentMobileView: MobileView.list,
@@ -327,7 +372,13 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
         if (user == null || newCommunityId == null) return;
         if (user.codeCommunaute == newCommunityId) return;
 
-        emit(currentState.copyWith(isSubmitting: true, updateSuccess: false));
+        emit(
+          currentState.copyWith(
+            operationStatus: SectionStatus.loading,
+            clearOperationError: true,
+            clearSuccessMessage: true,
+          ),
+        );
 
         final updatedUser = user.copyWith(codeCommunaute: newCommunityId);
         final result = await updateUser.call(updatedUser);
@@ -335,8 +386,8 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
         result.fold(
           (failure) => emit(
             currentState.copyWith(
-              errorMessage: failure.message,
-              isSubmitting: false,
+              operationStatus: SectionStatus.failure,
+              operationError: failure.message,
             ),
           ),
           (_) {
@@ -372,8 +423,9 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
               currentState.copyWith(
                 data: newData,
                 selectedUsers: newSelectedUsers,
-                isSubmitting: false,
-                updateSuccess: true,
+                operationStatus: SectionStatus.success,
+                successMessage: 'Communauté du membre modifiée',
+                clearOperationError: true,
               ),
             );
           },
@@ -384,7 +436,13 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     on<CreateNewCommunityEvent>((event, emit) async {
       final currentState = state;
       if (currentState is CommunityLoaded) {
-        emit(currentState.copyWith(isSubmitting: true, updateSuccess: false));
+        emit(
+          currentState.copyWith(
+            operationStatus: SectionStatus.loading,
+            clearOperationError: true,
+            clearSuccessMessage: true,
+          ),
+        );
 
         final newCommunity = Community(
           code: event.code,
@@ -398,8 +456,8 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
         result.fold(
           (failure) => emit(
             currentState.copyWith(
-              errorMessage: failure.message,
-              isSubmitting: false,
+              operationStatus: SectionStatus.failure,
+              operationError: failure.message,
             ),
           ),
           (_) {
@@ -412,9 +470,10 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
             );
             emit(
               currentState.copyWith(
-                updateSuccess: true,
-                isSubmitting: false,
                 data: newData,
+                operationStatus: SectionStatus.success,
+                successMessage: 'Communauté créée avec succès',
+                clearOperationError: true,
               ),
             );
           },
@@ -426,14 +485,20 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     on<DeleteCommunityEvent>((event, emit) async {
       final currentState = state;
       if (currentState is CommunityLoaded) {
-        emit(currentState.copyWith(isSubmitting: true, updateSuccess: false));
+        emit(
+          currentState.copyWith(
+            operationStatus: SectionStatus.loading,
+            clearOperationError: true,
+            clearSuccessMessage: true,
+          ),
+        );
 
         final result = await deleteCommunity.call(event.communityId);
         result.fold(
           (failure) => emit(
             currentState.copyWith(
-              errorMessage: failure.message,
-              isSubmitting: false,
+              operationStatus: SectionStatus.failure,
+              operationError: failure.message,
             ),
           ),
           (_) {
@@ -448,8 +513,9 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
             emit(
               currentState.copyWith(
                 data: newData,
-                isSubmitting: false,
-                updateSuccess: true,
+                operationStatus: SectionStatus.success,
+                successMessage: 'Communauté supprimée',
+                clearOperationError: true,
               ),
             );
           },
@@ -457,6 +523,77 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
       }
     });
 
-    add(CommunityDataFetched());
+    // --- CHARGEMENT DES LOGOS DISPONIBLES ---
+    on<FetchLogosEvent>((event, emit) async {
+      final currentState = state;
+      if (currentState is CommunityLoaded) {
+        emit(currentState.copyWith(isLoadingLogos: true));
+        final result = await getLogos.call();
+        result.fold(
+          (failure) => emit(currentState.copyWith(isLoadingLogos: false)),
+          (logos) => emit(
+            currentState.copyWith(
+              availableLogos: logos,
+              isLoadingLogos: false,
+            ),
+          ),
+        );
+      }
+    });
+
+    // --- MISE À JOUR DU LOGO ---
+    on<UpdateCommunityLogoEvent>((event, emit) async {
+      final currentState = state;
+      if (currentState is CommunityLoaded) {
+        emit(
+          currentState.copyWith(
+            operationStatus: SectionStatus.loading,
+            clearOperationError: true,
+            clearSuccessMessage: true,
+          ),
+        );
+
+        final result = await updateCommunityLogo.call(
+          event.communityCode,
+          event.logoUrl,
+        );
+        result.fold(
+          (failure) => emit(
+            currentState.copyWith(
+              operationStatus: SectionStatus.failure,
+              operationError: failure.message,
+            ),
+          ),
+          (_) {
+            final updatedCommunities = currentState.data.communities.map((c) {
+              return c.code == event.communityCode
+                  ? c.copyWith(logoUrl: event.logoUrl)
+                  : c;
+            }).toList();
+
+            final newData = currentState.data.copyWith(
+              communities: updatedCommunities,
+            );
+
+            final updatedSelected = currentState.selectedCommunity?.code ==
+                    event.communityCode
+                ? currentState.selectedCommunity!.copyWith(
+                    logoUrl: event.logoUrl,
+                  )
+                : currentState.selectedCommunity;
+
+            emit(
+              currentState.copyWith(
+                data: newData,
+                selectedCommunity: updatedSelected,
+                operationStatus: SectionStatus.success,
+                successMessage: 'Logo mis à jour',
+                clearOperationError: true,
+              ),
+            );
+          },
+        );
+      }
+    });
   }
 }

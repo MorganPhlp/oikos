@@ -1,6 +1,12 @@
 import 'package:oikos/core/domain/entities/user.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
+import 'package:oikos/features/admin/presentation/bloc/profile_state.dart'
+    show SectionStatus;
 import 'package:oikos/features/admin/presentation/pages/community_management_page.dart';
+
+export 'package:oikos/features/admin/presentation/bloc/profile_state.dart'
+    show SectionStatus;
+
 abstract class CommunityState {}
 
 class CommunityInitial extends CommunityState {}
@@ -10,7 +16,14 @@ class CommunityLoading extends CommunityState {}
 class CommunityLoaded extends CommunityState {
   final CommunityData data;
 
-  final String? errorMessage;
+  /// Statut de l'opération en cours (création, modification, suppression…)
+  final SectionStatus operationStatus;
+
+  /// Message d'erreur de l'opération (null si pas d'erreur)
+  final String? operationError;
+
+  /// Message de succès de l'opération (null si pas de succès)
+  final String? successMessage;
 
   /// Vue mobile actuelle
   final MobileView currentMobileView;
@@ -26,46 +39,57 @@ class CommunityLoaded extends CommunityState {
   final String? selectedNewCommunityId;
   final String? selectedCompanyId;
 
-  final bool isSubmitting;
-  final bool updateSuccess;
+  /// Logos disponibles depuis le storage (null = pas encore chargés)
+  final List<String>? availableLogos;
+  final bool isLoadingLogos;
 
   CommunityLoaded({
     required this.data,
+    this.operationStatus = SectionStatus.idle,
+    this.operationError,
+    this.successMessage,
     this.currentMobileView = MobileView.list,
     this.selectedCommunity,
     this.selectedUser,
     this.selectedUsers,
     this.selectedNewCommunityId,
     this.selectedCompanyId,
-    this.isSubmitting = false,
-    this.updateSuccess = false,
-    this.errorMessage,
+    this.availableLogos,
+    this.isLoadingLogos = false,
   });
 
   CommunityLoaded copyWith({
     CommunityData? data,
+    SectionStatus? operationStatus,
+    String? operationError,
+    String? successMessage,
+    bool clearOperationError = false,
+    bool clearSuccessMessage = false,
     MobileView? currentMobileView,
     Community? selectedCommunity,
     User? selectedUser,
     List<User>? selectedUsers,
     String? selectedNewCommunityId,
     String? selectedCompanyId,
-    bool? isSubmitting,
-    bool? updateSuccess,
-    String? errorMessage,
+    List<String>? availableLogos,
+    bool? isLoadingLogos,
   }) {
     return CommunityLoaded(
       data: data ?? this.data,
+      operationStatus: operationStatus ?? this.operationStatus,
+      operationError:
+          clearOperationError ? null : (operationError ?? this.operationError),
+      successMessage:
+          clearSuccessMessage ? null : (successMessage ?? this.successMessage),
       currentMobileView: currentMobileView ?? this.currentMobileView,
       selectedCommunity: selectedCommunity ?? this.selectedCommunity,
       selectedUser: selectedUser ?? this.selectedUser,
-      isSubmitting: isSubmitting ?? this.isSubmitting,
-      updateSuccess: updateSuccess ?? this.updateSuccess,
       selectedUsers: selectedUsers ?? this.selectedUsers,
       selectedNewCommunityId:
           selectedNewCommunityId ?? this.selectedNewCommunityId,
       selectedCompanyId: selectedCompanyId ?? this.selectedCompanyId,
-      errorMessage: errorMessage ?? this.errorMessage,
+      availableLogos: availableLogos ?? this.availableLogos,
+      isLoadingLogos: isLoadingLogos ?? this.isLoadingLogos,
     );
   }
 }

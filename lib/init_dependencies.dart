@@ -1,17 +1,27 @@
 import 'package:oikos/features/admin/data/repositories/community_impl.dart';
+import 'package:oikos/features/admin/data/repositories/company_impl.dart';
+import 'package:oikos/features/admin/data/repositories/logos_impl.dart';
 import 'package:oikos/features/admin/data/repositories/user_impl.dart';
-import 'package:oikos/features/admin/domain/repositories/co2_performance_rep.dart';
-import 'package:oikos/features/admin/data/repositories/co2_performance_impl.dart';
+import 'package:oikos/features/admin/domain/repositories/carbon_foot_print_rep.dart';
+import 'package:oikos/features/admin/data/repositories/carbon_foot_print.dart';
 import 'package:oikos/features/admin/domain/repositories/community_rep.dart';
+import 'package:oikos/features/admin/domain/repositories/company_rep.dart';
+import 'package:oikos/features/admin/domain/repositories/logos_rep.dart';
 import 'package:oikos/features/admin/domain/repositories/user_rep.dart';
 import 'package:oikos/features/admin/domain/use_cases/create_community.dart';
 import 'package:oikos/features/admin/domain/use_cases/delete_community.dart';
+import 'package:oikos/features/admin/domain/use_cases/get_avatars.dart';
+import 'package:oikos/features/admin/domain/use_cases/get_logos.dart';
+import 'package:oikos/features/admin/domain/use_cases/get_company_info.dart';
 import 'package:oikos/features/admin/domain/use_cases/get_co2_performance.dart';
 import 'package:oikos/features/admin/domain/use_cases/get_community_data.dart';
 import 'package:oikos/features/admin/domain/use_cases/update_community_code.dart';
+import 'package:oikos/features/admin/domain/use_cases/update_community_logo.dart';
+import 'package:oikos/features/admin/domain/use_cases/update_company.dart';
 import 'package:oikos/features/admin/domain/use_cases/update_user.dart';
 import 'package:oikos/features/admin/presentation/bloc/carbon_stats_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_bloc.dart';
+import 'package:oikos/features/admin/presentation/bloc/profile_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:oikos/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:oikos/features/auth/data/repositories/auth_repository_impl.dart';
@@ -83,12 +93,12 @@ Future<void> initDependencies() async {
 
   // Enregistrement dans GetIt
   serviceLocator.registerLazySingleton<SupabaseClient>(
-    () => externalClient, 
+    () => externalClient,
     instanceName: "supabaseExternal",
   );
 
   serviceLocator.registerLazySingleton<SupabaseClient>(
-    () => localClient, 
+    () => localClient,
     instanceName: "supabaseLocal",
   );
 
@@ -109,7 +119,9 @@ void _initAuth() {
   // Data source
   serviceLocator.registerFactory<AuthRemoteDataSource>(
     () => AuthRemoteDataSourceImpl(
-      supabaseClient: serviceLocator<SupabaseClient>(instanceName: "supabaseExternal"),
+      supabaseClient: serviceLocator<SupabaseClient>(
+        instanceName: "supabaseExternal",
+      ),
     ),
   );
 
@@ -141,6 +153,7 @@ void _initAuth() {
       authRepository: serviceLocator(),
       validateEmailPassword: serviceLocator(),
       validatePseudo: serviceLocator(),
+      getCompanyInfo: serviceLocator(),
     ),
   );
 }
@@ -153,16 +166,24 @@ void _initBilan() {
     () => PublicodesService(),
   );
   serviceLocator.registerLazySingleton<QuestionRepository>(
-    () => QuestionRepositoryImpl(supabaseClient: serviceLocator(instanceName: "supabaseExternal")),
+    () => QuestionRepositoryImpl(
+      supabaseClient: serviceLocator(instanceName: "supabaseExternal"),
+    ),
   );
   serviceLocator.registerLazySingleton<ReponseRepository>(
-    () => ReponseRepositoryImpl(supabaseClient: serviceLocator(instanceName: "supabaseExternal")),
+    () => ReponseRepositoryImpl(
+      supabaseClient: serviceLocator(instanceName: "supabaseExternal"),
+    ),
   );
   serviceLocator.registerLazySingleton<BilanSessionRepository>(
-    () => BilanSessionRepositoryImpl(supabaseClient: serviceLocator(instanceName: "supabaseExternal")),
+    () => BilanSessionRepositoryImpl(
+      supabaseClient: serviceLocator(instanceName: "supabaseExternal"),
+    ),
   );
   serviceLocator.registerLazySingleton<CarboneEquivalentRepository>(
-    () => CarboneEquivalentRepositoryImpl(supabaseClient: serviceLocator(instanceName: "supabaseExternal")),
+    () => CarboneEquivalentRepositoryImpl(
+      supabaseClient: serviceLocator(instanceName: "supabaseExternal"),
+    ),
   );
 
   // ==========================================================
@@ -313,23 +334,38 @@ void _initHome() {
 
   // Bloc
   serviceLocator.registerFactory(() => HomeBloc(getMyPseudo: serviceLocator()));
-
 }
+
 void _initAdmin() {
   //Repositories
-  serviceLocator.registerLazySingleton<Co2PerformanceRep>(
-    () => Co2PerformanceImpl(serviceLocator<SupabaseClient>(instanceName: "supabaseLocal")),
+  serviceLocator.registerLazySingleton<CarbonFootPrintRep>(
+    () => CarbonFootPrintImpl(
+      serviceLocator<SupabaseClient>(instanceName: "supabaseLocal"),
+    ),
   );
   serviceLocator.registerLazySingleton<CommunityRep>(
-    () => CommunityImpl(serviceLocator<SupabaseClient>(instanceName: "supabaseLocal")),
+    () => CommunityImpl(
+      serviceLocator<SupabaseClient>(instanceName: "supabaseLocal"),
+    ),
   );
   serviceLocator.registerLazySingleton<UserRep>(
-    () => UserImpl(serviceLocator<SupabaseClient>(instanceName: "supabaseLocal")),
+    () =>
+        UserImpl(serviceLocator<SupabaseClient>(instanceName: "supabaseLocal")),
+  );
+  serviceLocator.registerLazySingleton<CompanyRep>(
+    () => CompanyImpl(
+      serviceLocator<SupabaseClient>(instanceName: "supabaseExternal"),
+    ),
+  );
+  serviceLocator.registerLazySingleton<LogosRep>(
+    () => LogosImpl(
+      serviceLocator<SupabaseClient>(instanceName: "supabaseExternal"),
+    ),
   );
 
   //UseCases
   serviceLocator.registerFactory(
-    () => GetCo2Performance(serviceLocator<Co2PerformanceRep>()),
+    () => GetCarbonFootPrint(serviceLocator<CarbonFootPrintRep>()),
   );
   serviceLocator.registerFactory(
     () => UpdateCommunityCode(serviceLocator<CommunityRep>()),
@@ -344,10 +380,22 @@ void _initAdmin() {
   serviceLocator.registerFactory(
     () => DeleteCommunity(serviceLocator<CommunityRep>()),
   );
+  serviceLocator.registerFactory(
+    () => GetCompanyInfo(serviceLocator<CompanyRep>()),
+  );
+  serviceLocator.registerFactory(() => GetLogos(serviceLocator<LogosRep>()));
+  serviceLocator.registerFactory(
+    () => UpdateCommunityLogo(serviceLocator<CommunityRep>()),
+  );
+  serviceLocator.registerFactory(() => GetAvatars(serviceLocator<LogosRep>()));
+
+  serviceLocator.registerFactory(
+    () => UpdateCompany(serviceLocator<CompanyRep>()),
+  );
 
   //Bloc
   serviceLocator.registerFactory(
-    () => Co2PerformanceBloc(serviceLocator<GetCo2Performance>()),
+    () => CarbonFootPrintBloc(serviceLocator<GetCarbonFootPrint>()),
   );
   serviceLocator.registerFactory(
     () => CommunityBloc(
@@ -356,6 +404,17 @@ void _initAdmin() {
       updateUser: serviceLocator<UpdateUser>(),
       createCommunity: serviceLocator<CreateCommunity>(),
       deleteCommunity: serviceLocator<DeleteCommunity>(),
+      getLogos: serviceLocator<GetLogos>(),
+      updateCommunityLogo: serviceLocator<UpdateCommunityLogo>(),
+    ),
+  );
+  serviceLocator.registerFactory(
+    () => ProfileBloc(
+      updateUser: serviceLocator<UpdateUser>(),
+      getCompanyInfo: serviceLocator<GetCompanyInfo>(),
+      updateCompanyInfo: serviceLocator<UpdateCompany>(),
+      getAvatars: serviceLocator<GetAvatars>(),
+      getLogos: serviceLocator<GetLogos>(),
     ),
   );
 }

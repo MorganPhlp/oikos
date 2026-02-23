@@ -1,17 +1,16 @@
 import 'package:oikos/features/admin/data/models/models.dart';
+import 'package:oikos/features/admin/domain/entities/kpi_stats.dart';
 
-class Co2PerformanceData {
+class CarbonFootPrintData {
   final List<CarbonFootprintData> co2PerformanceMonthly;
   final List<CarbonFootprintData> co2PerformanceYear;
-  final GlobalInsightsStats globalInsightsStats;
+  final KpiStats kpiStats;
   final List<CategoryData> categories;
-  final CarbonFootprintCompletionRate completionRateCarbon;
 
-  Co2PerformanceData({
+  CarbonFootPrintData({
     required this.co2PerformanceMonthly,
     required this.co2PerformanceYear,
-    required this.globalInsightsStats,
+    required this.kpiStats,
     required this.categories,
-    required this.completionRateCarbon,
   });
 }

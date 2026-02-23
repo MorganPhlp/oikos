@@ -30,7 +30,7 @@ extension ResponsiveExtension on double {
     T? desktop,
   }) {
     if (this >= Breakpoints.desktop) return desktop ?? tablet ?? mobile;
-    if (this >= Breakpoints.tablet) return desktop ?? tablet ?? mobile;
+    if (this >= Breakpoints.tablet) return tablet ?? mobile; // Corrigé : n'utilise plus desktop en fallback
     if (this >= Breakpoints.mobile) return tablet ?? mobile;
     return mobile;
   }

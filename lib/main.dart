@@ -10,6 +10,7 @@ import 'package:oikos/init_dependencies.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:oikos/features/admin/presentation/bloc/carbon_stats_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_bloc.dart';
+import 'package:oikos/features/admin/presentation/bloc/profile_bloc.dart';
 import 'package:oikos/core/app_bloc_observer.dart';
 
 // Importe ici le fichier où tu as mis ton createRouter (ex: core/navigation/app_router.dart)
@@ -26,14 +27,16 @@ void main() async {
         BlocProvider(create: (_) => serviceLocator<AppUserCubit>()),
         BlocProvider(create: (_) => serviceLocator<AuthBloc>()),
         BlocProvider(create: (_) => serviceLocator<HomeBloc>()),
-        BlocProvider(create: (context) => serviceLocator<Co2PerformanceBloc>()),
+        BlocProvider(
+          create: (context) => serviceLocator<CarbonFootPrintBloc>(),
+        ),
         BlocProvider(create: (context) => serviceLocator<CommunityBloc>()),
+        BlocProvider(create: (context) => serviceLocator<ProfileBloc>()),
       ],
       child: const MyApp(),
     ),
   );
 }
-
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});

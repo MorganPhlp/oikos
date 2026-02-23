@@ -35,7 +35,7 @@ class CommunityImpl extends CommunityRep {
   }
 
   @override
-  Future<Either<Failure, List<Community>>> getCommunityData() async {
+  Future<Either<Failure, List<Community>>> getCommunityData(String companyId) async {
     try {
       // final response = await supabase.from('vue_communautes').select();
 
@@ -43,7 +43,7 @@ class CommunityImpl extends CommunityRep {
   {
     "code": "VIV-DEV",
     "nom": "Viveris Dev Team",
-    "entreprise_id": "comp-111",
+    "entreprise_id": "2efcc515-54c1-4beb-a45a-90cc251d5792",
     "description": "Communauté des développeurs de Viveris.",
     "nombre_membres": 3,
     "bilan_moyen": 6.8
@@ -51,7 +51,7 @@ class CommunityImpl extends CommunityRep {
   {
     "code": "VIV-RH",
     "nom": "Viveris RH & Admin",
-    "entreprise_id": "comp-111",
+    "entreprise_id": "2efcc515-54c1-4beb-a45a-90cc251d5792",
     "description": "Équipe administrative Viveris.",
     "nombre_membres": 2,
     "bilan_moyen": 5.2
@@ -59,7 +59,7 @@ class CommunityImpl extends CommunityRep {
   {
     "code": "ECO-PROD",
     "nom": "EcoCorp Production",
-    "entreprise_id": "comp-222",
+    "entreprise_id": "2efcc515-54c1-4beb-a45a-90cc251d5792",
     "description": "L'usine responsable.",
     "nombre_membres": 3,
     "bilan_moyen": 8.1
@@ -67,7 +67,7 @@ class CommunityImpl extends CommunityRep {
   {
     "code": "ECO-MKT",
     "nom": "EcoCorp Marketing",
-    "entreprise_id": "comp-222",
+    "entreprise_id": "2efcc515-54c1-4beb-a45a-90cc251d5792",
     "description": "Marketing vert.",
     "nombre_membres": 2,
     "bilan_moyen": 0.0
@@ -84,7 +84,7 @@ class CommunityImpl extends CommunityRep {
   }
 
   @override
-  Future<Either<Failure, List<User>>> getUserData() async {
+  Future<Either<Failure, List<User>>> getUserData(String companyId) async {
     try {
       // final response = await supabase
       //     .from('utilisateur')
@@ -117,7 +117,7 @@ class CommunityImpl extends CommunityRep {
   }
 
   @override
-  Future<Either<Failure, List<Company>>> getCompanyData() async {
+  Future<Either<Failure, List<Company>>> getCompanyData(String companyId) async {
     try {
       // final response = await supabase.from('entreprise').select();
 
@@ -188,6 +188,26 @@ class CommunityImpl extends CommunityRep {
   Future<Either<Failure, void>> deleteCommunity(String code) async {
     try {
       // await supabase.from('communaute').delete().eq('code', code);
+      return right(null);
+    } on supa.PostgrestException catch (e) {
+      logger.e("Erreur Repository", error: e);
+      return left(Failure("Erreur supabase : ${e.message}"));
+    } catch (e) {
+      logger.e("Erreur Repository", error: e);
+      return left(Failure("Une erreur inattendue est survenue"));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> updateLogo(
+    String communityCode,
+    String logoFileName,
+  ) async {
+    try {
+      // await supabase
+      //     .from('communaute')
+      //     .update({'logo_url': logoFileName})
+      //     .eq('code', communityCode);
       return right(null);
     } on supa.PostgrestException catch (e) {
       logger.e("Erreur Repository", error: e);

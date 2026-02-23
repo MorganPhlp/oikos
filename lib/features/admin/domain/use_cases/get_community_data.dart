@@ -8,10 +8,10 @@ class GetCommunityData {
 
   GetCommunityData(this.repository);
 
-  Future<Either<Failure, CommunityData>> call() async {
-    final usersResult = await repository.getUserData();
-    final communitiesResult = await repository.getCommunityData();
-    final companiesResult = await repository.getCompanyData();
+  Future<Either<Failure, CommunityData>> call(String companyId) async {
+    final usersResult = await repository.getUserData(companyId);
+    final communitiesResult = await repository.getCommunityData(companyId);
+    final companiesResult = await repository.getCompanyData(companyId);
 
     return usersResult.fold(
       (failure) => left(failure),

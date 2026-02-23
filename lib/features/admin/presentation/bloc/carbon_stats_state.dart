@@ -1,18 +1,18 @@
-import 'package:oikos/features/admin/domain/entities/co2_performance_data.dart';
+import 'package:oikos/features/admin/domain/entities/carbon_foot_print.dart';
 
 abstract class CarbonStatsState {}
 
-class Co2PerformanceInitial extends CarbonStatsState {}
+class CarbonFootPrintInitial extends CarbonStatsState {}
 
-class Co2PerformanceLoading extends CarbonStatsState {}
+class CarbonFootPrintLoading extends CarbonStatsState {}
 
-class Co2PerformanceLoaded extends CarbonStatsState {
-  final Co2PerformanceData data;
+class CarbonFootPrintLoaded extends CarbonStatsState {
+  final CarbonFootPrintData data;
 
-  Co2PerformanceLoaded({required this.data});
+  CarbonFootPrintLoaded({required this.data});
 }
 
-class Co2PerformanceError extends CarbonStatsState {
+class CarbonFootPrintError extends CarbonStatsState {
   final String message;
-  Co2PerformanceError({required this.message});
+  CarbonFootPrintError({required this.message});
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:oikos/core/theme/admin_theme.dart';
 import 'package:oikos/core/theme/breakpoints.dart';
 import 'package:oikos/core/domain/entities/user.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
@@ -9,8 +10,6 @@ import 'package:oikos/features/admin/presentation/bloc/community_state.dart';
 import 'package:oikos/features/admin/presentation/widget/community_page/mobile_views.dart';
 import 'package:oikos/features/admin/presentation/widget/community_page/desktop_modals.dart';
 import 'package:oikos/features/admin/presentation/widget/community_page/card_widgets.dart';
-
-
 
 enum MobileView {
   /// Liste principale des communautés
@@ -30,10 +29,64 @@ enum MobileView {
 
   /// Confirmation de suppression d'une communauté
   deleteConfirm,
+
+  /// Sélection du logo d'une communauté
+  editLogo,
 }
 
-class CommunityManagementPage extends StatelessWidget {
-  const CommunityManagementPage({super.key});
+class CommunityManagementPage extends StatefulWidget {
+  final User user;
+  final Company company;
+  const CommunityManagementPage({
+    super.key,
+    required this.user,
+    required this.company,
+  });
+
+  @override
+  State<CommunityManagementPage> createState() =>
+      _CommunityManagementPageState();
+}
+
+class _CommunityManagementPageState extends State<CommunityManagementPage> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<CommunityBloc>().add(
+      CommunityDataFetched(companyId: widget.company.id),
+    );
+  }
+
+  User get user => widget.user;
+  Company get company => widget.company;
+
+  // ============================================================================
+  // FEEDBACK
+  // ============================================================================
+
+  void _showSnackBar(String message, {bool isError = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              isError ? Icons.error_rounded : Icons.check_circle_rounded,
+              color: Colors.white,
+              size: 16,
+            ),
+            const SizedBox(width: AdminTheme.spacingSm),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor:
+            isError ? AdminTheme.errorForeground : AdminTheme.actionGreen,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+        ),
+      ),
+    );
+  }
 
   // ============================================================================
   // NAVIGATION MOBILE
@@ -75,14 +128,31 @@ class CommunityManagementPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CommunityBloc, CommunityState>(
+    return BlocConsumer<CommunityBloc, CommunityState>(
+      listenWhen: (prev, curr) {
+        if (prev is! CommunityLoaded || curr is! CommunityLoaded) return false;
+        return prev.operationStatus != curr.operationStatus;
+      },
+      listener: (context, state) {
+        if (state is! CommunityLoaded) return;
+
+        if (state.operationStatus == SectionStatus.success) {
+          _showSnackBar(state.successMessage ?? 'Opération réussie');
+          context.read<CommunityBloc>().add(ResetCommunityStatusEvent());
+        } else if (state.operationStatus == SectionStatus.failure) {
+          _showSnackBar(
+            state.operationError ?? 'Une erreur est survenue',
+            isError: true,
+          );
+          context.read<CommunityBloc>().add(ResetCommunityStatusEvent());
+        }
+      },
       builder: (context, state) {
         if (state is CommunityLoading) {
           return const Center(child: CircularProgressIndicator());
         }
 
         if (state is CommunityFetchingError) {
-          // final String message = state.message;
           return Center(
             child: Text(
               "Erreur du chargement des données",
@@ -131,16 +201,15 @@ class CommunityManagementPage extends StatelessWidget {
               _navigateTo(context, MobileView.editCode, community: c),
           onDelete: (c) =>
               _navigateTo(context, MobileView.deleteConfirm, community: c),
+          onEditLogo: (c) =>
+              _navigateTo(context, MobileView.editLogo, community: c),
         );
 
       case MobileView.members:
         return MobileMembersList(
           community: state.selectedCommunity!,
           users: _getUsers(state.selectedCommunity!.code, users),
-          onBack: () {
-            _goBack(context);
-            context.read<CommunityBloc>().add(ResetCommunityStatusEvent());
-          },
+          onBack: () => _goBack(context),
           onChangeUserCommunity: (u) =>
               _navigateTo(context, MobileView.changeUser, user: u),
           onRemoveUserFromCommunity: (u) {
@@ -152,27 +221,15 @@ class CommunityManagementPage extends StatelessWidget {
 
       case MobileView.createCommunity:
         return MobileCreateCommunity(
-          onBack: () {
-            _goBack(context);
-            context.read<CommunityBloc>().add(ResetCommunityStatusEvent());
-          },
+          company: company,
+          onBack: () => _goBack(context),
         );
 
       case MobileView.editCode:
-        return MobileEditCode(
-          onBack: () {
-            _goBack(context);
-            context.read<CommunityBloc>().add(ResetCommunityStatusEvent());
-          },
-        );
+        return MobileEditCode(onBack: () => _goBack(context));
 
       case MobileView.changeUser:
-        return MobileChangeUserCommunity(
-          onBack: () {
-            _goBack(context);
-            context.read<CommunityBloc>().add(ResetCommunityStatusEvent());
-          },
-        );
+        return MobileChangeUserCommunity(onBack: () => _goBack(context));
 
       case MobileView.deleteConfirm:
         return MobileDeleteConfirmation(
@@ -181,6 +238,9 @@ class CommunityManagementPage extends StatelessWidget {
             context.read<CommunityBloc>().add(ResetCommunityStatusEvent());
           },
         );
+
+      case MobileView.editLogo:
+        return MobileEditLogo(onBack: () => _goBack(context));
     }
   }
 
@@ -246,7 +306,6 @@ class CommunityManagementPage extends StatelessWidget {
         mainAxisSpacing: 24,
         childAspectRatio: 0.95,
       ),
-
       itemCount: communities.length,
       itemBuilder: (context, index) {
         final community = communities[index];
@@ -255,6 +314,7 @@ class CommunityManagementPage extends StatelessWidget {
           onEditCode: () => _showEditCodeModal(context, index),
           onViewMembers: () => _showMembersModal(context, index),
           onDelete: () => _showDeleteConfirmation(context, community),
+          onEditLogo: () => _showLogoPickerModal(context, index),
         );
       },
     );
@@ -264,44 +324,41 @@ class CommunityManagementPage extends StatelessWidget {
   Widget _buildEmptyState(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(48),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+      padding: const EdgeInsets.all(AdminTheme.spacingXxl),
+      decoration: AdminTheme.cardDecoration,
       child: Column(
         children: [
-          Icon(Icons.groups, size: 64, color: Colors.grey[400]),
-          const SizedBox(height: 16),
-          Text(
+          Icon(
+            Icons.groups_rounded,
+            size: 64,
+            color: AdminTheme.mutedForeground,
+          ),
+          const SizedBox(height: AdminTheme.spacingMd),
+          const Text(
             'Aucune communauté',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Colors.grey[900],
+              color: AdminTheme.foreground,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AdminTheme.spacingSm),
           Text(
             'Commencez par créer votre première communauté',
-            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+            style: TextStyle(fontSize: 14, color: AdminTheme.mutedForeground),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AdminTheme.spacingXl),
           ElevatedButton(
             onPressed: () => _showCreateCommunityModal(context),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF16A34A),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+              backgroundColor: AdminTheme.actionGreen,
+              foregroundColor: AdminTheme.actionGreenForeground,
+              padding: const EdgeInsets.symmetric(
+                horizontal: AdminTheme.spacingXl,
+                vertical: AdminTheme.spacingMd,
+              ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
               ),
             ),
             child: const Text('Créer une communauté'),
@@ -315,17 +372,20 @@ class CommunityManagementPage extends StatelessWidget {
   Widget _buildCreateButton(BuildContext context) {
     return Column(
       children: [
-        const SizedBox(height: 40),
+        const SizedBox(height: AdminTheme.spacingXxl),
         ElevatedButton.icon(
           onPressed: () => _showCreateCommunityModal(context),
-          icon: const Icon(Icons.add, size: 20),
+          icon: const Icon(Icons.add_rounded, size: 20),
           label: const Text('Créer une communauté'),
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF16A34A),
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            backgroundColor: AdminTheme.actionGreen,
+            foregroundColor: AdminTheme.actionGreenForeground,
+            padding: const EdgeInsets.symmetric(
+              horizontal: AdminTheme.spacingLg,
+              vertical: AdminTheme.spacingMd,
+            ),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
             ),
           ),
         ),
@@ -342,8 +402,10 @@ class CommunityManagementPage extends StatelessWidget {
     final bloc = context.read<CommunityBloc>();
     showDialog(
       context: context,
-      builder: (_) =>
-          BlocProvider.value(value: bloc, child: CreateCommunityModal()),
+      builder: (_) => BlocProvider.value(
+        value: bloc,
+        child: CreateCommunityModal(company: company),
+      ),
     );
   }
 
@@ -368,12 +430,26 @@ class CommunityManagementPage extends StatelessWidget {
     );
   }
 
+  /// Affiche le sélecteur de logo pour une communauté
+  void _showLogoPickerModal(BuildContext context, int index) {
+    final bloc = context.read<CommunityBloc>();
+    bloc.add(SelectedCommunityEvent(index: index));
+    bloc.add(FetchLogosEvent());
+    showDialog(
+      context: context,
+      builder: (_) =>
+          BlocProvider.value(value: bloc, child: const LogoPickerModal()),
+    );
+  }
+
   /// Affiche la confirmation de suppression d'une communauté
   void _showDeleteConfirmation(BuildContext context, Community community) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AdminTheme.radiusXl),
+        ),
         title: const Text('Supprimer la communauté'),
         content: Text(
           'Voulez-vous vraiment supprimer la communauté "${community.name}" ?\n\nCette action est irréversible.',
@@ -391,7 +467,7 @@ class CommunityManagementPage extends StatelessWidget {
               Navigator.pop(ctx);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: AdminTheme.errorForeground,
               foregroundColor: Colors.white,
             ),
             child: const Text('Supprimer'),

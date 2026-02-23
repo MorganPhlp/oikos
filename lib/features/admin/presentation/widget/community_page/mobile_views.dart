@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/domain/entities/user.dart';
+import 'package:oikos/core/theme/admin_theme.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_event.dart';
@@ -20,6 +21,7 @@ class MobileCommunityList extends StatelessWidget {
   final Function(Community) onViewMembers;
   final Function(Community) onEditCode;
   final Function(Community) onDelete;
+  final Function(Community) onEditLogo;
 
   const MobileCommunityList({
     super.key,
@@ -29,16 +31,14 @@ class MobileCommunityList extends StatelessWidget {
     required this.onViewMembers,
     required this.onEditCode,
     required this.onDelete,
+    required this.onEditLogo,
   });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Header avec titre et bouton +
         _buildHeader(),
-
-        // Liste des communautés
         Expanded(
           child: communities.isEmpty ? _buildEmptyState() : _buildList(),
         ),
@@ -48,31 +48,34 @@ class MobileCommunityList extends StatelessWidget {
 
   Widget _buildHeader() {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AdminTheme.spacingMd),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 'Communautés',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.grey[900],
+                  color: AdminTheme.foreground,
                 ),
               ),
               Text(
                 '${communities.length} communauté${communities.length > 1 ? 's' : ''}',
-                style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                style: TextStyle(
+                  fontSize: 13,
+                  color: AdminTheme.mutedForeground,
+                ),
               ),
             ],
           ),
           IconButton(
             onPressed: onCreateCommunity,
-            icon: const Icon(Icons.add_circle),
-            color: const Color(0xFF16A34A),
+            icon: const Icon(Icons.add_circle_rounded),
+            color: AdminTheme.actionGreen,
             iconSize: 32,
           ),
         ],
@@ -85,20 +88,24 @@ class MobileCommunityList extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.groups, size: 64, color: Colors.grey[400]),
-          const SizedBox(height: 16),
-          Text(
+          Icon(
+            Icons.groups_rounded,
+            size: 64,
+            color: AdminTheme.mutedForeground,
+          ),
+          const SizedBox(height: AdminTheme.spacingMd),
+          const Text(
             'Aucune communauté',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: Colors.grey[900],
+              color: AdminTheme.foreground,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AdminTheme.spacingSm),
           Text(
             'Appuyez sur + pour créer',
-            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+            style: TextStyle(fontSize: 14, color: AdminTheme.mutedForeground),
           ),
         ],
       ),
@@ -107,9 +114,12 @@ class MobileCommunityList extends StatelessWidget {
 
   Widget _buildList() {
     return ListView.separated(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AdminTheme.spacingMd,
+        vertical: AdminTheme.spacingSm,
+      ),
       itemCount: communities.length,
-      separatorBuilder: (_, _) => const SizedBox(height: 12),
+      separatorBuilder: (_, _) => const SizedBox(height: AdminTheme.spacingMd),
       itemBuilder: (context, index) {
         final community = communities[index];
         return MobileCommunityCard(
@@ -118,6 +128,7 @@ class MobileCommunityList extends StatelessWidget {
           onViewMembers: () => onViewMembers(community),
           onEditCode: () => onEditCode(community),
           onDelete: () => onDelete(community),
+          onEditLogo: () => onEditLogo(community),
         );
       },
     );
@@ -149,16 +160,13 @@ class MobileMembersList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Header avec bouton retour
         _buildHeader(),
-
-        // Liste des membres
         Expanded(
           child: users.isEmpty
               ? Center(
                   child: Text(
                     'Aucun membre',
-                    style: TextStyle(color: Colors.grey[500]),
+                    style: TextStyle(color: AdminTheme.mutedForeground),
                   ),
                 )
               : _buildList(context),
@@ -169,9 +177,9 @@ class MobileMembersList extends StatelessWidget {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AdminTheme.spacingMd),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AdminTheme.background,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -182,22 +190,29 @@ class MobileMembersList extends StatelessWidget {
       ),
       child: Row(
         children: [
-          IconButton(onPressed: onBack, icon: const Icon(Icons.arrow_back)),
+          IconButton(
+            onPressed: onBack,
+            icon: const Icon(Icons.arrow_back_rounded),
+            color: AdminTheme.mutedForeground,
+          ),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   community.name,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Colors.grey[900],
+                    color: AdminTheme.foreground,
                   ),
                 ),
                 Text(
                   '${users.length} membre${users.length > 1 ? 's' : ''}',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AdminTheme.mutedForeground,
+                  ),
                 ),
               ],
             ),
@@ -209,9 +224,9 @@ class MobileMembersList extends StatelessWidget {
 
   Widget _buildList(BuildContext context) {
     return ListView.separated(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AdminTheme.spacingMd),
       itemCount: users.length,
-      separatorBuilder: (_, _) => const SizedBox(height: 12),
+      separatorBuilder: (_, _) => const SizedBox(height: AdminTheme.spacingMd),
       itemBuilder: (context, index) {
         final user = users[index];
         return MemberCard(
@@ -231,8 +246,13 @@ class MobileMembersList extends StatelessWidget {
 /// Écran mobile de création d'une communauté
 class MobileCreateCommunity extends StatefulWidget {
   final VoidCallback onBack;
+  final Company company;
 
-  const MobileCreateCommunity({super.key, required this.onBack});
+  const MobileCreateCommunity({
+    super.key,
+    required this.onBack,
+    required this.company,
+  });
 
   @override
   State<MobileCreateCommunity> createState() => _MobileCreateCommunityState();
@@ -252,26 +272,16 @@ class _MobileCreateCommunityState extends State<MobileCreateCommunity> {
   }
 
   void _submit() {
-    final state = context.read<CommunityBloc>().state;
-    String? selectedCompanyId;
-    if (state is CommunityLoaded) {
-      selectedCompanyId = state.selectedCompanyId;
-    }
-
     setState(() {
       _nomError = _validateName(_nomController.text.trim());
       _codeError = _validateCode(_codeController.text.trim());
 
-      if (_nomError == null &&
-          _codeError == null &&
-          selectedCompanyId != null) {
-        String name = _nomController.text;
-        String code = _codeController.text;
+      if (_nomError == null && _codeError == null) {
         context.read<CommunityBloc>().add(
           CreateNewCommunityEvent(
-            name: name,
-            code: code,
-            companyId: selectedCompanyId,
+            name: _nomController.text,
+            code: _codeController.text,
+            companyId: widget.company.id,
           ),
         );
       }
@@ -280,8 +290,7 @@ class _MobileCreateCommunityState extends State<MobileCreateCommunity> {
 
   String? _validateCode(String code) {
     if (code.isEmpty) return 'Le code est requis';
-    if (code.length != 6)
-      return 'Le code doit contenir exactement 6 caractères';
+    if (code.length != 6) return 'Le code doit contenir exactement 6 caractères';
     return null;
   }
 
@@ -293,18 +302,27 @@ class _MobileCreateCommunityState extends State<MobileCreateCommunity> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CommunityBloc, CommunityState>(
+    return BlocConsumer<CommunityBloc, CommunityState>(
+      listenWhen: (prev, curr) {
+        if (prev is! CommunityLoaded || curr is! CommunityLoaded) return false;
+        return prev.operationStatus != curr.operationStatus;
+      },
+      listener: (context, state) {
+        if (state is! CommunityLoaded) return;
+        if (state.operationStatus == SectionStatus.success) {
+          widget.onBack();
+        }
+      },
       builder: (context, state) {
-        bool updateSuccess = false;
+        bool isSubmitting = false;
         String? errorMessage;
-        List<dynamic> companies = [];
-        String? selectedCompanyId;
 
         if (state is CommunityLoaded) {
-          updateSuccess = state.updateSuccess;
-          companies = state.data.companies;
-          selectedCompanyId = state.selectedCompanyId;
-          errorMessage = state.errorMessage;
+          isSubmitting = state.operationStatus == SectionStatus.loading;
+          errorMessage =
+              state.operationStatus == SectionStatus.failure
+                  ? state.operationError
+                  : null;
         }
 
         return Column(
@@ -313,7 +331,7 @@ class _MobileCreateCommunityState extends State<MobileCreateCommunity> {
 
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AdminTheme.spacingMd),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -324,7 +342,7 @@ class _MobileCreateCommunityState extends State<MobileCreateCommunity> {
                       hint: 'Ex: Éco-Warriors Paris',
                       onChanged: (_) => setState(() => _nomError = null),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: AdminTheme.spacingLg),
                     FormTextField(
                       label: "Code d'accès *",
                       controller: _codeController,
@@ -334,37 +352,23 @@ class _MobileCreateCommunityState extends State<MobileCreateCommunity> {
                       textCapitalization: TextCapitalization.characters,
                       onChanged: (_) => setState(() => _codeError = null),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: AdminTheme.spacingSm),
                     Text(
                       'Le code sera automatiquement converti en majuscules',
-                      style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AdminTheme.mutedForeground,
+                      ),
                     ),
-                    const SizedBox(height: 20),
-                    Text(
-                      'Entreprise *',
-                      style: TextStyle(fontSize: 14, color: Colors.grey[700]),
-                    ),
-                    const SizedBox(height: 8),
-                    ...companies.map(
-                      (c) => CompanyRadioTile(
-                        company: c,
-                        isSelected: selectedCompanyId == c.id,
-                        onTap: () => context.read<CommunityBloc>().add(
-                          SelectCompanyEvent(companyId: c.id),
+                    if (errorMessage != null) ...[
+                      const SizedBox(height: AdminTheme.spacingMd),
+                      Text(
+                        errorMessage,
+                        style: const TextStyle(
+                          color: AdminTheme.errorForeground,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    if (updateSuccess)
-                      const Text(
-                        "Communauté créée avec succès !",
-                        style: TextStyle(color: Colors.green),
-                      ),
-                    if (errorMessage != null)
-                      const Text(
-                        "Une erreur est survenue lors de la création de la communauté",
-                        style: TextStyle(color: Colors.red),
-                      ),
+                    ],
                   ],
                 ),
               ),
@@ -374,6 +378,7 @@ class _MobileCreateCommunityState extends State<MobileCreateCommunity> {
               onCancel: widget.onBack,
               onSubmit: _submit,
               submitLabel: 'Créer',
+              isSubmitting: isSubmitting,
             ),
           ],
         );
@@ -419,15 +424,27 @@ class _MobileEditCodeState extends State<MobileEditCode> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CommunityBloc, CommunityState>(
+    return BlocConsumer<CommunityBloc, CommunityState>(
+      listenWhen: (prev, curr) {
+        if (prev is! CommunityLoaded || curr is! CommunityLoaded) return false;
+        return prev.operationStatus != curr.operationStatus;
+      },
+      listener: (context, state) {
+        if (state is! CommunityLoaded) return;
+        if (state.operationStatus == SectionStatus.success) {
+          widget.onBack();
+        }
+      },
       builder: (context, state) {
         bool isSubmitting = false;
-        bool updateSuccess = false;
         String? errorMessage;
+
         if (state is CommunityLoaded) {
-          isSubmitting = state.isSubmitting;
-          updateSuccess = state.updateSuccess;
-          errorMessage = state.errorMessage;
+          isSubmitting = state.operationStatus == SectionStatus.loading;
+          errorMessage =
+              state.operationStatus == SectionStatus.failure
+                  ? state.operationError
+                  : null;
         }
 
         return Column(
@@ -436,22 +453,21 @@ class _MobileEditCodeState extends State<MobileEditCode> {
 
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AdminTheme.spacingMd),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ReadOnlyField(label: 'Communauté', value: _communityName),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: AdminTheme.spacingLg),
                     FormTextField(
                       label: "Nouveau code d'accès *",
                       controller: _codeController,
                       error: errorMessage,
-                      success: updateSuccess ? "Mise à jour réussie !" : null,
                       hint: 'Ex: ECO2023',
                       maxLength: 6,
                       textCapitalization: TextCapitalization.characters,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AdminTheme.spacingMd),
                     const WarningBox(
                       message:
                           'Les membres devront utiliser le nouveau code pour rejoindre.',
@@ -512,26 +528,24 @@ class MobileChangeUserCommunity extends StatelessWidget {
 
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AdminTheme.spacingMd),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Info utilisateur
                     ReadOnlyField(
                       label: 'Membre',
                       value: user.pseudo,
                       subtitle: user.email,
                     ),
-                    const SizedBox(height: 24),
-
-                    // Sélection communauté
+                    const SizedBox(height: AdminTheme.spacingXl),
                     Text(
                       'Nouvelle communauté',
-                      style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AdminTheme.mutedForeground,
+                      ),
                     ),
-                    const SizedBox(height: 12),
-
-                    // Liste des communautés avec radio
+                    const SizedBox(height: AdminTheme.spacingMd),
                     ...communities.map(
                       (c) => CommunityRadioTile(
                         community: c,
@@ -590,36 +604,39 @@ class MobileDeleteConfirmation extends StatelessWidget {
 
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AdminTheme.spacingMd),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 24),
+                    const SizedBox(height: AdminTheme.spacingXl),
                     Center(
                       child: Icon(
                         Icons.warning_amber_rounded,
                         size: 64,
-                        color: Colors.red[400],
+                        color: AdminTheme.errorForeground,
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: AdminTheme.spacingXl),
                     Center(
                       child: Text(
                         'Voulez-vous vraiment supprimer la communauté "${community.name}" ?',
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Colors.grey[900],
+                          color: AdminTheme.foreground,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AdminTheme.spacingMd),
                     Center(
                       child: Text(
                         'Cette action est irréversible.',
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AdminTheme.mutedForeground,
+                        ),
                       ),
                     ),
                   ],
@@ -628,22 +645,25 @@ class MobileDeleteConfirmation extends StatelessWidget {
             ),
 
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AdminTheme.spacingMd),
               child: Row(
                 children: [
                   Expanded(
                     child: OutlinedButton(
                       onPressed: onBack,
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AdminTheme.spacingMd,
+                        ),
+                        side: const BorderSide(color: AdminTheme.border),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
                         ),
                       ),
                       child: const Text('Annuler'),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AdminTheme.spacingMd),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
@@ -653,11 +673,13 @@ class MobileDeleteConfirmation extends StatelessWidget {
                         onBack();
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
+                        backgroundColor: AdminTheme.errorForeground,
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AdminTheme.spacingMd,
+                        ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
                         ),
                       ),
                       child: const Text('Supprimer'),
@@ -665,6 +687,197 @@ class MobileDeleteConfirmation extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+// ============================================================================
+// SÉLECTION DU LOGO (MOBILE)
+// ============================================================================
+
+/// Écran mobile de sélection du logo d'une communauté
+class MobileEditLogo extends StatefulWidget {
+  final VoidCallback onBack;
+
+  const MobileEditLogo({super.key, required this.onBack});
+
+  @override
+  State<MobileEditLogo> createState() => _MobileEditLogoState();
+}
+
+class _MobileEditLogoState extends State<MobileEditLogo> {
+  String? _selectedLogoUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    final state = context.read<CommunityBloc>().state;
+    if (state is CommunityLoaded) {
+      _selectedLogoUrl = state.selectedCommunity?.logoUrl;
+      if (state.availableLogos == null) {
+        context.read<CommunityBloc>().add(FetchLogosEvent());
+      }
+    }
+  }
+
+  void _submit() {
+    if (_selectedLogoUrl == null) {
+      widget.onBack();
+      return;
+    }
+    final state = context.read<CommunityBloc>().state;
+    if (state is CommunityLoaded && state.selectedCommunity != null) {
+      context.read<CommunityBloc>().add(
+        UpdateCommunityLogoEvent(
+          communityCode: state.selectedCommunity!.code,
+          logoUrl: _selectedLogoUrl!,
+        ),
+      );
+    }
+    widget.onBack();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<CommunityBloc, CommunityState>(
+      builder: (context, state) {
+        if (state is! CommunityLoaded) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final community = state.selectedCommunity;
+        if (community == null) return const SizedBox.shrink();
+
+        final logos = state.availableLogos;
+        final isLoadingLogos = state.isLoadingLogos;
+
+        return Column(
+          children: [
+            FormHeader(title: 'Changer le logo', onBack: widget.onBack),
+
+            // Logo actuel
+            Padding(
+              padding: const EdgeInsets.all(AdminTheme.spacingMd),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(AdminTheme.radiusXxl),
+                    child: Image.network(
+                      community.logoFullUrl,
+                      width: 48,
+                      height: 48,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, _, _) => CircleAvatar(
+                        radius: 24,
+                        backgroundColor: AdminTheme.pageBackground,
+                        child: Icon(
+                          Icons.groups_rounded,
+                          color: AdminTheme.mutedForeground,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: AdminTheme.spacingMd),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          community.name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                            color: AdminTheme.foreground,
+                          ),
+                        ),
+                        Text(
+                          'Sélectionnez un nouveau logo',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AdminTheme.mutedForeground,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1, color: AdminTheme.border),
+
+            // Grille de logos
+            Expanded(
+              child: isLoadingLogos
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: AdminTheme.actionGreen,
+                      ),
+                    )
+                  : logos == null || logos.isEmpty
+                      ? Center(
+                          child: Text(
+                            'Aucun logo disponible',
+                            style: TextStyle(color: AdminTheme.mutedForeground),
+                          ),
+                        )
+                      : GridView.builder(
+                          padding: const EdgeInsets.all(AdminTheme.spacingMd),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 4,
+                            crossAxisSpacing: AdminTheme.spacingMd,
+                            mainAxisSpacing: AdminTheme.spacingMd,
+                          ),
+                          itemCount: logos.length,
+                          itemBuilder: (context, index) {
+                            final url = logos[index];
+                            final isSelected = _selectedLogoUrl == url;
+                            return GestureDetector(
+                              onTap: () =>
+                                  setState(() => _selectedLogoUrl = url),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 150),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(
+                                    AdminTheme.radiusLg,
+                                  ),
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? AdminTheme.actionGreen
+                                        : AdminTheme.border,
+                                    width: isSelected ? 3 : 1,
+                                  ),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(
+                                    AdminTheme.radiusMd,
+                                  ),
+                                  child: Image.network(
+                                    url,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, _, _) => Container(
+                                      color: AdminTheme.pageBackground,
+                                      child: Icon(
+                                        Icons.broken_image_rounded,
+                                        color: AdminTheme.mutedForeground,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+            ),
+
+            FormActions(
+              onCancel: widget.onBack,
+              onSubmit: _submit,
+              submitLabel: 'Enregistrer',
             ),
           ],
         );

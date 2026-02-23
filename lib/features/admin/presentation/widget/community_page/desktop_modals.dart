@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/domain/entities/user.dart';
+import 'package:oikos/core/theme/admin_theme.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_event.dart';
@@ -9,12 +10,227 @@ import 'form_widgets.dart';
 import 'card_widgets.dart';
 
 // ============================================================================
+// MODAL SÉLECTION DU LOGO
+// ============================================================================
+
+/// Modal permettant de choisir un logo parmi ceux disponibles dans le storage
+class LogoPickerModal extends StatefulWidget {
+  const LogoPickerModal({super.key});
+
+  @override
+  State<LogoPickerModal> createState() => _LogoPickerModalState();
+}
+
+class _LogoPickerModalState extends State<LogoPickerModal> {
+  String? _selectedLogoUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    final state = context.read<CommunityBloc>().state;
+    if (state is CommunityLoaded) {
+      _selectedLogoUrl = state.selectedCommunity?.logoUrl;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<CommunityBloc, CommunityState>(
+      builder: (context, state) {
+        if (state is! CommunityLoaded) return const SizedBox.shrink();
+
+        final community = state.selectedCommunity;
+        if (community == null) return const SizedBox.shrink();
+
+        final logos = state.availableLogos;
+        final isLoadingLogos = state.isLoadingLogos;
+
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AdminTheme.radiusXl),
+          ),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 500, maxHeight: 560),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Header
+                _ModalHeader(
+                  title: 'Changer le logo',
+                  icon: Icons.image_outlined,
+                  iconColor: AdminTheme.actionGreen,
+                  onClose: () {
+                    Navigator.pop(context);
+                    context.read<CommunityBloc>().add(
+                      ResetCommunityStatusEvent(),
+                    );
+                  },
+                ),
+                const Divider(height: 1, color: AdminTheme.border),
+
+                // Logo actuel + nom communauté
+                Padding(
+                  padding: const EdgeInsets.all(AdminTheme.spacingMd),
+                  child: Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(AdminTheme.radiusXxl),
+                        child: Image.network(
+                          community.logoFullUrl,
+                          width: 48,
+                          height: 48,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => CircleAvatar(
+                            radius: 24,
+                            backgroundColor: AdminTheme.pageBackground,
+                            child: Icon(
+                              Icons.groups_rounded,
+                              color: AdminTheme.mutedForeground,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: AdminTheme.spacingMd),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              community.name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15,
+                                color: AdminTheme.foreground,
+                              ),
+                            ),
+                            Text(
+                              'Sélectionnez un nouveau logo ci-dessous',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AdminTheme.mutedForeground,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(height: 1, color: AdminTheme.border),
+
+                // Grille de logos
+                Flexible(
+                  child: isLoadingLogos
+                      ? const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(32),
+                            child: CircularProgressIndicator(
+                              color: AdminTheme.actionGreen,
+                            ),
+                          ),
+                        )
+                      : logos == null || logos.isEmpty
+                          ? Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(32),
+                                child: Text(
+                                  'Aucun logo disponible',
+                                  style: TextStyle(
+                                    color: AdminTheme.mutedForeground,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : GridView.builder(
+                              padding: const EdgeInsets.all(AdminTheme.spacingMd),
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 4,
+                                crossAxisSpacing: AdminTheme.spacingMd,
+                                mainAxisSpacing: AdminTheme.spacingMd,
+                              ),
+                              itemCount: logos.length,
+                              itemBuilder: (context, index) {
+                                final url = logos[index];
+                                final isSelected = _selectedLogoUrl == url;
+                                return GestureDetector(
+                                  onTap: () =>
+                                      setState(() => _selectedLogoUrl = url),
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 150),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(
+                                        AdminTheme.radiusLg,
+                                      ),
+                                      border: Border.all(
+                                        color: isSelected
+                                            ? AdminTheme.actionGreen
+                                            : AdminTheme.border,
+                                        width: isSelected ? 3 : 1,
+                                      ),
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(
+                                        AdminTheme.radiusMd,
+                                      ),
+                                      child: Image.network(
+                                        url,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (_, _, _) => Container(
+                                          color: AdminTheme.pageBackground,
+                                          child: Icon(
+                                            Icons.broken_image_rounded,
+                                            color: AdminTheme.mutedForeground,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                ),
+
+                const Divider(height: 1, color: AdminTheme.border),
+
+                // Actions
+                _ModalActions(
+                  onCancel: () {
+                    Navigator.pop(context);
+                    context.read<CommunityBloc>().add(
+                      ResetCommunityStatusEvent(),
+                    );
+                  },
+                  onSubmit: () {
+                    if (_selectedLogoUrl != null) {
+                      context.read<CommunityBloc>().add(
+                        UpdateCommunityLogoEvent(
+                          communityCode: community.code,
+                          logoUrl: _selectedLogoUrl!,
+                        ),
+                      );
+                    }
+                    Navigator.pop(context);
+                  },
+                  submitLabel: 'Enregistrer',
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ============================================================================
 // MODAL CRÉATION COMMUNAUTÉ
 // ============================================================================
 
 /// Modal de création d'une nouvelle communauté (desktop)
 class CreateCommunityModal extends StatefulWidget {
-  const CreateCommunityModal({super.key});
+  final Company company;
+  const CreateCommunityModal({super.key, required this.company});
 
   @override
   State<CreateCommunityModal> createState() => _CreateCommunityModalState();
@@ -27,11 +243,6 @@ class _CreateCommunityModalState extends State<CreateCommunityModal> {
   String? _codeError;
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void dispose() {
     _nomController.dispose();
     _codeController.dispose();
@@ -39,43 +250,25 @@ class _CreateCommunityModalState extends State<CreateCommunityModal> {
   }
 
   void _submit() {
-    final state = context.read<CommunityBloc>().state;
-    String? selectedCompanyId;
-    if (state is CommunityLoaded) {
-      selectedCompanyId = state.selectedCompanyId;
-    }
-
     setState(() {
       _nomError = _validateName(_nomController.text.trim());
       _codeError = _validateCode(_codeController.text.trim());
 
-      if (_nomError == null &&
-          _codeError == null &&
-          selectedCompanyId != null) {
-        String name = _nomController.text;
-        String code = _codeController.text;
+      if (_nomError == null && _codeError == null) {
         context.read<CommunityBloc>().add(
           CreateNewCommunityEvent(
-            name: name,
-            code: code,
-            companyId: selectedCompanyId,
+            name: _nomController.text,
+            code: _codeController.text,
+            companyId: widget.company.id,
           ),
         );
       }
     });
   }
 
-  // void _onTextChanged() {
-  //   // Cette fonction s'exécute à CHAQUE lettre tapée ou effacée
-
-  //   // Exemple : Tu peux envoyer un événement au Bloc ici
-  //   // context.read<CommunityBloc>().add(SearchChanged(_controller.text));
-  // }
-
   String? _validateCode(String code) {
     if (code.isEmpty) return 'Le code est requis';
-    if (code.length != 6)
-      return 'Le code doit contenir exactement 6 caractères';
+    if (code.length != 6) return 'Le code doit contenir exactement 6 caractères';
     return null;
   }
 
@@ -88,26 +281,39 @@ class _CreateCommunityModalState extends State<CreateCommunityModal> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AdminTheme.radiusXl),
+      ),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 420),
-        child: BlocBuilder<CommunityBloc, CommunityState>(
+        child: BlocConsumer<CommunityBloc, CommunityState>(
+          listenWhen: (prev, curr) {
+            if (prev is! CommunityLoaded || curr is! CommunityLoaded) {
+              return false;
+            }
+            return prev.operationStatus != curr.operationStatus;
+          },
+          listener: (context, state) {
+            if (state is! CommunityLoaded) return;
+            if (state.operationStatus == SectionStatus.success) {
+              Navigator.pop(context);
+            }
+          },
           builder: (context, state) {
-            bool updateSuccess = false;
+            bool isSubmitting = false;
             String? errorMessage;
-            List<dynamic> companies = [];
-            String? selectedCompanyId;
 
             if (state is CommunityLoaded) {
-              updateSuccess = state.updateSuccess;
-              companies = state.data.companies;
-              selectedCompanyId = state.selectedCompanyId;
-              errorMessage = state.errorMessage;
+              isSubmitting = state.operationStatus == SectionStatus.loading;
+              errorMessage =
+                  state.operationStatus == SectionStatus.failure
+                      ? state.operationError
+                      : null;
             }
+
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Header
                 _ModalHeader(
                   title: 'Créer une communauté',
                   onClose: () {
@@ -117,11 +323,10 @@ class _CreateCommunityModalState extends State<CreateCommunityModal> {
                     );
                   },
                 ),
-                const Divider(height: 1),
+                const Divider(height: 1, color: AdminTheme.border),
 
-                // Formulaire
                 Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(AdminTheme.spacingLg),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -130,56 +335,39 @@ class _CreateCommunityModalState extends State<CreateCommunityModal> {
                         controller: _nomController,
                         error: _nomError,
                         hint: 'Ex: Éco-Warriors Paris',
-                        onChanged: (_) => setState(() {
-                          _nomError = null;
-                        }),
+                        onChanged: (_) => setState(() => _nomError = null),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: AdminTheme.spacingMd),
                       FormTextField(
                         label: "Code d'accès *",
                         controller: _codeController,
                         error: _codeError,
                         hint: 'Ex: ECO2023',
-                        maxLength: 10,
+                        maxLength: 6,
                         textCapitalization: TextCapitalization.characters,
                         onChanged: (_) => setState(() => _codeError = null),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         'Le code sera automatiquement converti en majuscules',
-                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AdminTheme.mutedForeground,
+                        ),
                       ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Entreprise *',
-                        style: TextStyle(fontSize: 14, color: Colors.grey[700]),
-                      ),
-                      const SizedBox(height: 8),
-                      ...companies.map(
-                        (c) => CompanyRadioTile(
-                          company: c,
-                          isSelected: selectedCompanyId == c.id,
-                          onTap: () => context.read<CommunityBloc>().add(
-                            SelectCompanyEvent(companyId: c.id),
+                      if (errorMessage != null) ...[
+                        const SizedBox(height: AdminTheme.spacingMd),
+                        Text(
+                          errorMessage,
+                          style: const TextStyle(
+                            color: AdminTheme.errorForeground,
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      if (updateSuccess)
-                        const Text(
-                          "Communauté créée avec succès !",
-                          style: TextStyle(color: Colors.green),
-                        ),
-                      if (errorMessage != null)
-                        const Text(
-                          "Une erreur est survenue lors de la création de la communauté",
-                          style: TextStyle(color: Colors.red),
-                        ),
+                      ],
                     ],
                   ),
                 ),
 
-                // Actions
                 _ModalActions(
                   onCancel: () {
                     Navigator.pop(context);
@@ -189,6 +377,7 @@ class _CreateCommunityModalState extends State<CreateCommunityModal> {
                   },
                   onSubmit: _submit,
                   submitLabel: 'Créer',
+                  isSubmitting: isSubmitting,
                 ),
               ],
             );
@@ -235,27 +424,43 @@ class _EditCodeModalState extends State<EditCodeModal> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AdminTheme.radiusXl),
+      ),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 420),
-        child: BlocBuilder<CommunityBloc, CommunityState>(
+        child: BlocConsumer<CommunityBloc, CommunityState>(
+          listenWhen: (prev, curr) {
+            if (prev is! CommunityLoaded || curr is! CommunityLoaded) {
+              return false;
+            }
+            return prev.operationStatus != curr.operationStatus;
+          },
+          listener: (context, state) {
+            if (state is! CommunityLoaded) return;
+            if (state.operationStatus == SectionStatus.success) {
+              Navigator.pop(context);
+            }
+          },
           builder: (context, state) {
             bool isSubmitting = false;
-            bool updateSuccess = false;
             String? errorMessage;
+
             if (state is CommunityLoaded) {
-              isSubmitting = state.isSubmitting;
-              updateSuccess = state.updateSuccess;
-              errorMessage = state.errorMessage;
+              isSubmitting = state.operationStatus == SectionStatus.loading;
+              errorMessage =
+                  state.operationStatus == SectionStatus.failure
+                      ? state.operationError
+                      : null;
             }
+
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Header avec icône
                 _ModalHeader(
                   title: 'Modifier le code',
-                  icon: Icons.vpn_key,
-                  iconColor: const Color(0xFF16A34A),
+                  icon: Icons.vpn_key_rounded,
+                  iconColor: AdminTheme.actionGreen,
                   onClose: () {
                     Navigator.pop(context);
                     context.read<CommunityBloc>().add(
@@ -263,19 +468,21 @@ class _EditCodeModalState extends State<EditCodeModal> {
                     );
                   },
                 ),
-                const Divider(height: 1),
+                const Divider(height: 1, color: AdminTheme.border),
                 Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(AdminTheme.spacingLg),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ReadOnlyField(label: 'Communauté', value: _communityName),
-                      const SizedBox(height: 16),
+                      ReadOnlyField(
+                        label: 'Communauté',
+                        value: _communityName,
+                      ),
+                      const SizedBox(height: AdminTheme.spacingMd),
                       FormTextField(
                         label: "Nouveau code d'accès *",
                         controller: _codeController,
                         error: errorMessage,
-                        success: updateSuccess ? "Mise à jour réussie !" : null,
                         hint: 'Ex: ECO2023',
                         maxLength: 6,
                         textCapitalization: TextCapitalization.characters,
@@ -283,7 +490,6 @@ class _EditCodeModalState extends State<EditCodeModal> {
                     ],
                   ),
                 ),
-                // Actions
                 _ModalActions(
                   onCancel: () {
                     Navigator.pop(context);
@@ -323,19 +529,15 @@ class MembersListModal extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<CommunityBloc, CommunityState>(
       builder: (context, state) {
-        if (state is! CommunityLoaded) {
-          return const SizedBox.shrink();
-        }
+        if (state is! CommunityLoaded) return const SizedBox.shrink();
 
         final users = state.selectedUsers ?? [];
         final community = state.selectedCommunity;
         if (community == null) return const SizedBox.shrink();
 
-        final communities = state.data.communities;
-
         return Dialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(AdminTheme.radiusXl),
           ),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 600, maxHeight: 500),
@@ -344,7 +546,7 @@ class MembersListModal extends StatelessWidget {
               children: [
                 // Header
                 Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(AdminTheme.spacingLg),
                   child: Row(
                     children: [
                       Expanded(
@@ -353,17 +555,17 @@ class MembersListModal extends StatelessWidget {
                           children: [
                             Text(
                               'Membres de ${community.name}',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.grey[900],
+                                color: AdminTheme.foreground,
                               ),
                             ),
                             Text(
                               '${users.length} membre${users.length > 1 ? 's' : ''}',
                               style: TextStyle(
                                 fontSize: 13,
-                                color: Colors.grey[600],
+                                color: AdminTheme.mutedForeground,
                               ),
                             ),
                           ],
@@ -377,29 +579,25 @@ class MembersListModal extends StatelessWidget {
                           Navigator.pop(context);
                         },
                         icon: const Icon(Icons.close),
+                        color: AdminTheme.mutedForeground,
                       ),
                     ],
                   ),
                 ),
-                const Divider(height: 1),
+                const Divider(height: 1, color: AdminTheme.border),
 
                 // Liste des membres
                 Flexible(
                   child: users.isEmpty
                       ? _buildEmptyState()
-                      : _buildMembersList(
-                          context,
-                          users,
-                          community,
-                          communities,
-                        ),
+                      : _buildMembersList(context, users, community),
                 ),
 
-                const Divider(height: 1),
+                const Divider(height: 1, color: AdminTheme.border),
 
                 // Footer
                 Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(AdminTheme.spacingLg),
                   child: SizedBox(
                     width: double.infinity,
                     child: OutlinedButton(
@@ -410,9 +608,12 @@ class MembersListModal extends StatelessWidget {
                         Navigator.pop(context);
                       },
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AdminTheme.spacingMd,
+                        ),
+                        side: const BorderSide(color: AdminTheme.border),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
                         ),
                       ),
                       child: const Text('Fermer'),
@@ -431,7 +632,10 @@ class MembersListModal extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(40),
-        child: Text('Aucun membre', style: TextStyle(color: Colors.grey[500])),
+        child: Text(
+          'Aucun membre',
+          style: TextStyle(color: AdminTheme.mutedForeground),
+        ),
       ),
     );
   }
@@ -440,14 +644,14 @@ class MembersListModal extends StatelessWidget {
     BuildContext context,
     List<User> users,
     Community community,
-    List<Community> communities,
   ) {
     return ListView.separated(
       key: ValueKey('members_${users.length}_${community.code}'),
       shrinkWrap: true,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(AdminTheme.spacingLg),
       itemCount: users.length,
-      separatorBuilder: (_, _) => const SizedBox(height: 12),
+      separatorBuilder: (_, _) =>
+          const SizedBox(height: AdminTheme.spacingMd),
       itemBuilder: (context, index) {
         final user = users[index];
         return MemberCard(
@@ -466,7 +670,6 @@ class MembersListModal extends StatelessWidget {
 
   void _showChangeModal(BuildContext context, User user) {
     final bloc = context.read<CommunityBloc>();
-    // Sélectionne l'utilisateur dans le bloc avant d'ouvrir la modal
     bloc.add(SelectUserEvent(user: user));
     showDialog(
       context: context,
@@ -490,9 +693,7 @@ class ChangeUserCommunityModal extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<CommunityBloc, CommunityState>(
       builder: (context, state) {
-        if (state is! CommunityLoaded) {
-          return const SizedBox.shrink();
-        }
+        if (state is! CommunityLoaded) return const SizedBox.shrink();
 
         final user = state.selectedUser;
         if (user == null) return const SizedBox.shrink();
@@ -500,18 +701,17 @@ class ChangeUserCommunityModal extends StatelessWidget {
         final communities = state.data.communities;
         final selectedNewCommunityId =
             state.selectedNewCommunityId ?? user.codeCommunaute;
-        final isSubmitting = state.isSubmitting;
+        final isSubmitting = state.operationStatus == SectionStatus.loading;
 
         return Dialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(AdminTheme.radiusXl),
           ),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 400),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Header
                 _ModalHeader(
                   title: 'Changer de communauté',
                   onClose: () {
@@ -521,11 +721,10 @@ class ChangeUserCommunityModal extends StatelessWidget {
                     );
                   },
                 ),
-                const Divider(height: 1),
+                const Divider(height: 1, color: AdminTheme.border),
 
-                // Contenu
                 Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(AdminTheme.spacingLg),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -534,12 +733,15 @@ class ChangeUserCommunityModal extends StatelessWidget {
                         value: user.pseudo,
                         subtitle: user.email,
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: AdminTheme.spacingLg),
                       Text(
                         'Nouvelle communauté',
-                        style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AdminTheme.mutedForeground,
+                        ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: AdminTheme.spacingMd),
                       ...communities.map(
                         (c) => CommunityRadioTile(
                           community: c,
@@ -553,7 +755,6 @@ class ChangeUserCommunityModal extends StatelessWidget {
                   ),
                 ),
 
-                // Actions
                 _ModalActions(
                   onCancel: () {
                     Navigator.pop(context);
@@ -600,24 +801,28 @@ class _ModalHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(AdminTheme.spacingLg),
       child: Row(
         children: [
           if (icon != null) ...[
-            Icon(icon, color: iconColor ?? Colors.grey[700]),
-            const SizedBox(width: 12),
+            Icon(icon, color: iconColor ?? AdminTheme.mutedForeground),
+            const SizedBox(width: AdminTheme.spacingMd),
           ],
           Expanded(
             child: Text(
               title,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey[900],
+                color: AdminTheme.foreground,
               ),
             ),
           ),
-          IconButton(onPressed: onClose, icon: const Icon(Icons.close)),
+          IconButton(
+            onPressed: onClose,
+            icon: const Icon(Icons.close),
+            color: AdminTheme.mutedForeground,
+          ),
         ],
       ),
     );
@@ -641,53 +846,60 @@ class _ModalActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+      padding: const EdgeInsets.fromLTRB(
+        AdminTheme.spacingLg,
+        0,
+        AdminTheme.spacingLg,
+        AdminTheme.spacingLg,
+      ),
       child: Row(
         children: [
           Expanded(
             child: OutlinedButton(
               onPressed: onCancel,
               style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  vertical: AdminTheme.spacingMd,
+                ),
+                side: const BorderSide(color: AdminTheme.border),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
                 ),
               ),
               child: const Text('Annuler'),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: AdminTheme.spacingMd),
           Expanded(
             child: ElevatedButton(
               onPressed: onSubmit,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF16A34A),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
+                backgroundColor: AdminTheme.actionGreen,
+                foregroundColor: AdminTheme.actionGreenForeground,
+                padding: const EdgeInsets.symmetric(
+                  vertical: AdminTheme.spacingMd,
+                ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
                 ),
               ),
-              child: Builder(
-                builder: (context) {
-                  if (isSubmitting == true) {
-                    return Row(
+              child: isSubmitting == true
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       spacing: 5.0,
                       children: [
-                        const SizedBox(width: 10),
                         const SizedBox(
                           height: 20,
                           width: 20,
-                          child: CircularProgressIndicator(color: Colors.white),
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
                         ),
                         Text(submitLabel),
                       ],
-                    );
-                  }
-
-                  return Text(submitLabel);
-                },
-              ),
+                    )
+                  : Text(submitLabel),
             ),
           ),
         ],

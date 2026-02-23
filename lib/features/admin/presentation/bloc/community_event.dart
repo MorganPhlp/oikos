@@ -20,7 +20,11 @@ class NavigateToMobileViewEvent extends CommunityEvent {
 /// Retourne à la vue précédente (navigation mobile)
 class GoBackMobileEvent extends CommunityEvent {}
 
-class CommunityDataFetched extends CommunityEvent {}
+class CommunityDataFetched extends CommunityEvent {
+  final String companyId;
+
+  CommunityDataFetched({required this.companyId});
+}
 
 class CommunityRefreshRequested extends CommunityEvent {}
 
@@ -93,11 +97,15 @@ class CreateNewCommunityEvent extends CommunityEvent {
   final String name;
   final String code;
   final String companyId;
+  final String? logoUrl;
+  final String? description;
 
   CreateNewCommunityEvent({
     required this.name,
     required this.code,
     required this.companyId,
+    this.logoUrl,
+    this.description,
   });
 }
 
@@ -109,3 +117,21 @@ class DeleteCommunityEvent extends CommunityEvent {
 }
 
 class ResetCommunityStatusEvent extends CommunityEvent {}
+
+// ============================================================================
+// GESTION DU LOGO DE COMMUNAUTÉ
+// ============================================================================
+
+/// Charge la liste des logos disponibles depuis le storage
+class FetchLogosEvent extends CommunityEvent {}
+
+/// Met à jour le logo d'une communauté
+class UpdateCommunityLogoEvent extends CommunityEvent {
+  final String communityCode;
+  final String logoUrl;
+
+  UpdateCommunityLogoEvent({
+    required this.communityCode,
+    required this.logoUrl,
+  });
+}

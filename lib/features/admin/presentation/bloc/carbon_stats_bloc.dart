@@ -3,18 +3,18 @@ import 'package:oikos/features/admin/presentation/bloc/carbon_stats_event.dart';
 import 'package:oikos/features/admin/presentation/bloc/carbon_stats_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class Co2PerformanceBloc extends Bloc<CarbonStatsEvent, CarbonStatsState> {
-  final GetCo2Performance getCo2Performance;
+class CarbonFootPrintBloc extends Bloc<CarbonStatsEvent, CarbonStatsState> {
+  final GetCarbonFootPrint getCarbonFootPrint;
 
-  Co2PerformanceBloc(this.getCo2Performance) : super(Co2PerformanceInitial()) {
-    on<Co2Performancefetched>((event, emit) async {
-      emit(Co2PerformanceLoading());
-      final result = await getCo2Performance.call();
+  CarbonFootPrintBloc(this.getCarbonFootPrint)
+    : super(CarbonFootPrintInitial()) {
+    on<CarbonFootPrintfetched>((event, emit) async {
+      emit(CarbonFootPrintLoading());
+      final result = await getCarbonFootPrint.call(event.companyId);
       result.fold(
-        (failure) => emit(Co2PerformanceError(message: failure.message)),
-        (data) => emit(Co2PerformanceLoaded(data: data)),
+        (failure) => emit(CarbonFootPrintError(message: failure.message)),
+        (data) => emit(CarbonFootPrintLoaded(data: data)),
       );
     });
-    add(Co2Performancefetched());
   }
 }
