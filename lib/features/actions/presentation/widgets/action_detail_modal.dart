@@ -199,7 +199,7 @@ class ActionDetailModal extends StatelessWidget {
               Icon(Icons.groups, color: colorScheme.primary, size: 20),
               const SizedBox(width: 12),
               const Expanded(
-                child: Text('Rejoignez des milliers de citoyens engagés !'),
+                child: Text('Rejoins des milliers de citoyens engagés !'),
               ),
             ],
           ),
