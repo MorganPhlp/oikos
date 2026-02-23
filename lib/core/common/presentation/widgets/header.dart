@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/core/common/presentation/widgets/score_badge.dart';
+import 'package:oikos/features/notifications/presentation/bloc/notifications_cubit.dart';
+import 'package:oikos/features/notifications/presentation/bloc/notifications_state.dart';
 
 class Header extends StatelessWidget implements PreferredSizeWidget {
   const Header({super.key});
@@ -62,10 +64,17 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
               const Spacer(),
               ScoreBadge(score: score),
               const SizedBox(width: 8),
-              _CircleIconButton(
-                icon: LucideIcons.bell,
-                hasNotification: true,
-                onTap: () => context.pushNamed('notifications'),
+              BlocBuilder<NotificationsCubit, NotificationsState>(
+                builder: (context, state) {
+                  final unreadCount = state.notifications
+                      .where((notif) => !notif.isRead)
+                      .length;
+                  return _CircleIconButton(
+                    icon: LucideIcons.bell,
+                    notificationCount: unreadCount,
+                    onTap: () => context.pushNamed('notifications'),
+                  );
+                },
               ),
             ],
           );
@@ -127,12 +136,12 @@ class _CircleAvatarButton extends StatelessWidget {
 
 class _CircleIconButton extends StatelessWidget {
   final IconData icon;
-  final bool hasNotification;
+  final int notificationCount;
   final VoidCallback? onTap;
 
   const _CircleIconButton({
     required this.icon,
-    this.hasNotification = false,
+    this.notificationCount = 0,
     this.onTap,
   });
 
@@ -166,7 +175,7 @@ class _CircleIconButton extends StatelessWidget {
             ),
           ),
         ),
-        if (hasNotification)
+        if (notificationCount > 0)
           Positioned(
             top: -2,
             right: -2,
@@ -180,7 +189,7 @@ class _CircleIconButton extends StatelessWidget {
               ),
               child: Center(
                 child: Text(
-                  "3",
+                  notificationCount.toString(),
                   style: TextStyle(
                     color: colorScheme.onError,
                     fontSize: 8,

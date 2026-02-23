@@ -47,6 +47,12 @@ import 'package:oikos/features/bilanCarbone/domain/use_cases/recuperer_questions
 import 'package:oikos/features/bilanCarbone/domain/use_cases/recuperer_reponses_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/reprendre_bilan_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/verifier_bilan_en_cours_use_case.dart';
+import 'package:oikos/features/notifications/data/datasources/notifications_datasource.dart';
+import 'package:oikos/features/notifications/data/repositories/notifications_repository_impl.dart';
+import 'package:oikos/features/notifications/domain/repositories/notifications_repository.dart';
+import 'package:oikos/features/notifications/domain/usecases/mark_as_read_use_case.dart';
+import 'package:oikos/features/notifications/domain/usecases/watch_notifications_use_case.dart';
+import 'package:oikos/features/notifications/presentation/bloc/notifications_cubit.dart';
 import 'package:oikos/features/profile/data/repositories/bilan_repository_impl.dart';
 import 'package:oikos/features/profile/domain/repositories/bilan_repository.dart';
 import 'package:oikos/features/profile/domain/use_cases/get_interests_data_use_case.dart';
@@ -149,6 +155,7 @@ Future<void> initDependencies() async {
   _initDashboard();
   _initActions();
   _initHome();
+  _initNotifications();
 }
 
 void _initAuth() {
@@ -562,11 +569,11 @@ void _initProfile() {
   );
   serviceLocator.registerFactory(
     () =>
-        GetInterestsDataUseCase(serviceLocator<CategorieEmpreinteRepository>())
+        GetInterestsDataUseCase(serviceLocator<CategorieEmpreinteRepository>()),
   );
   serviceLocator.registerFactory(
     () =>
-        UpdateInterestsUseCase(serviceLocator<CategorieEmpreinteRepository>())
+        UpdateInterestsUseCase(serviceLocator<CategorieEmpreinteRepository>()),
   );
 
   // Bloc
@@ -603,6 +610,44 @@ void _initHome() {
     () => HomeStatsCubit(
       getHomeStats: serviceLocator(),
       buildStatsCards: serviceLocator(),
+    ),
+  );
+}
+
+void _initNotifications() {
+  serviceLocator.registerLazySingleton<NotificationsDatasource>(
+    () => NotificationsDatasource(serviceLocator<SupabaseClient>()),
+  );
+
+  serviceLocator.registerLazySingleton<NotificationsRepository>(
+    () => NotificationsRepositoryImpl(
+      datasource: serviceLocator<NotificationsDatasource>(),
+    ),
+  );
+
+  serviceLocator.registerLazySingleton(
+    () => NotificationsRepositoryImpl(
+      datasource: serviceLocator<NotificationsDatasource>(),
+    ),
+  );
+
+  serviceLocator.registerLazySingleton(
+    () => MarkAsReadUseCase(
+      repository: serviceLocator<NotificationsRepository>(),
+    ),
+  );
+
+  serviceLocator.registerLazySingleton(
+    () => WatchNotificationsUseCase(
+      repository: serviceLocator<NotificationsRepository>(),
+    ),
+  );
+
+  serviceLocator.registerFactory(
+    () => NotificationsCubit(
+      appUserCubit: serviceLocator<AppUserCubit>(),
+      markAsReadUseCase: serviceLocator<MarkAsReadUseCase>(),
+      watchNotificationsUseCase: serviceLocator<WatchNotificationsUseCase>(),
     ),
   );
 }
