@@ -15,6 +15,7 @@ import 'package:oikos/features/bilanCarbone/presentation/pages/bilan_page.dart';
 import 'package:oikos/features/bilanCarbone/presentation/pages/choix_categories_page.dart';
 import 'package:oikos/features/bilanCarbone/presentation/pages/choix_objectifs.dart';
 import 'package:oikos/features/bilanCarbone/presentation/pages/resultats_page.dart';
+import 'package:oikos/features/bilanCarbone/presentation/widgets/on_se_connait.dart';
 import 'package:oikos/features/bilanCarbone/presentation/widgets/resume_bilan_dialog.dart';
 import 'package:oikos/init_dependencies.dart';
 
@@ -94,6 +95,10 @@ class _BilanFlowState extends State<BilanFlow> {
                 listener: (context, state) {
                   if (state is QuestionnaireTermine) {
                     if (widget.mode == 'full') {
+                      showDialog(
+                        context: context,
+                        builder: (context) => OnSeConnait(),
+                      );
                       innerContext.read<BilanResultatBloc>().add(
                         DemarrerAnalyseEvent(),
                       );

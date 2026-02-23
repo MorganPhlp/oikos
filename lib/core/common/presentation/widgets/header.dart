@@ -62,9 +62,10 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
               const Spacer(),
               ScoreBadge(score: score),
               const SizedBox(width: 8),
-              const _CircleIconButton(
+              _CircleIconButton(
                 icon: LucideIcons.bell,
                 hasNotification: true,
+                onTap: () => context.pushNamed('notifications'),
               ),
             ],
           );

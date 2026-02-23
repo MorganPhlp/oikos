@@ -63,11 +63,16 @@ class MyActionsProgressCard extends StatelessWidget {
           const SizedBox(height: 8),
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
-            child: LinearProgressIndicator(
-              value: progress,
-              backgroundColor: colorScheme.onSurface.withValues(alpha: 0.05),
-              color: isLifestyle ? colorScheme.primary : colorScheme.tertiary,
-              minHeight: 8,
+            child: TweenAnimationBuilder(
+              tween: Tween<double>(begin: 0, end: progress),
+              curve: Curves.easeInOut,
+              duration: const Duration(seconds: 1),
+              builder: (context, value, child) => LinearProgressIndicator(
+                value: value,
+                backgroundColor: colorScheme.onSurface.withValues(alpha: 0.05),
+                color: isLifestyle ? colorScheme.primary : colorScheme.tertiary,
+                minHeight: 8,
+              ),
             ),
           ),
         ],

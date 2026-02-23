@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -16,6 +17,7 @@ import 'package:oikos/features/community/presentation/pages/community_dashboard_
 import 'package:oikos/features/home/presentation/pages/home_page.dart';
 import 'package:oikos/features/dashboard/presentation/pages/dashboard_page.dart';
 import 'package:oikos/features/dashboard/presentation/bloc/dashboard_bloc.dart';
+import 'package:oikos/features/notifications/presentation/pages/notifications_page.dart';
 import 'package:oikos/features/profile/presentation/pages/security_page.dart';
 import 'package:oikos/init_dependencies.dart';
 import 'package:oikos/features/profile/presentation/pages/profile_page.dart';
@@ -88,6 +90,41 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
             child: const DashboardPage(),
           ),
         ),
+      ),
+
+      GoRoute(
+        path: '/notifications',
+        name: 'notifications',
+        pageBuilder: (context, state) {
+          return CustomTransitionPage(
+            transitionDuration: const Duration(milliseconds: 400),
+            reverseTransitionDuration: const Duration(milliseconds: 400),
+            child: const NotificationsPage(),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              // Animation du flou (on part de 10 pour finir à 0 quand la page est là)
+
+              return AnimatedBuilder(
+                animation: animation,
+                builder: (context, child) {
+                  return SlideTransition(
+                    position:
+                        Tween<Offset>(
+                          begin: const Offset(1, 0),
+                          end: Offset.zero,
+                        ).animate(
+                          CurvedAnimation(
+                            parent: animation,
+                            curve: Curves.easeInOut,
+                          ),
+                        ),
+                    child: child,
+                  );
+                },
+                child: child,
+              );
+            },
+          );
+        },
       ),
 
       ShellRoute(

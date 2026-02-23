@@ -28,8 +28,8 @@ CREATE TABLE IF NOT EXISTS public.streak_steps(
     required_actions_communautaires int not null
 );
 
-CREATE OR REPLACE FUNCTION public.calculer_streak()
-RETURNS trigger AS $$
+CREATE OR REPLACE FUNCTION public.execute_calcul_streak(p_user_id uuid, p_date_ref timestamptz)
+RETURNS void AS $$
 DECLARE
     u_entreprise_id uuid;
     d_debut_saison timestamptz;
@@ -48,67 +48,94 @@ DECLARE
     n_actions_communautaires INT := 0;
     n_requis_communautaires INT := 0;
 BEGIN
-    SELECT entreprise_id INTO u_entreprise_id FROM public.utilisateur WHERE id = NEW.utilisateur_id;
+    -- Récupération de l'entreprise
+    SELECT entreprise_id INTO u_entreprise_id FROM public.utilisateur WHERE id = p_user_id;
     
+    -- Récupération de l'état actuel de la streak et de la saison
     SELECT s.start_date, us.last_updated, us.current_streak, us.last_streak_seen
     INTO d_debut_saison, old_updated, old_streak, old_seen
     FROM public.utilisateur_streak us
     LEFT JOIN public.saison s ON s.entreprise_id = u_entreprise_id 
         AND CURRENT_TIMESTAMP BETWEEN s.start_date AND s.end_date
-    WHERE us.utilisateur_id = NEW.utilisateur_id;
+    WHERE us.utilisateur_id = p_user_id;
 
     next_streak := old_streak;
     next_seen := old_seen;
     next_updated := old_updated;
 
+    -- Reset de la streak si inactivité > 2 semaines ou nouvelle saison
     IF old_updated <= (CURRENT_TIMESTAMP - INTERVAL '2 weeks') OR old_updated <= d_debut_saison THEN
         next_streak := 0;
-        next_updated := NEW.date_realisation - INTERVAL '1 microsecond';
+        next_updated := p_date_ref - INTERVAL '1 microsecond';
     END IF;
 
+    -- Calcul de progression (limité à la phase 4 dans ton exemple)
     IF d_debut_saison IS NOT NULL AND next_streak < 4 THEN
-    -- On compte les actions quotidiennes réalisées depuis le début de la saison
+        -- Actions quotidiennes
         SELECT COUNT(*) INTO n_actions_quotidiennes
         FROM public.realisation_actions ra
         JOIN public.actions a ON ra.action_id = a.id
-        WHERE ra.utilisateur_id = NEW.utilisateur_id 
+        WHERE ra.utilisateur_id = p_user_id 
           AND (ra.date_realisation > next_updated) 
           AND ra.date_realisation >= d_debut_saison
           AND a.frequence = 'quotidienne';
 
-        -- On recupere le nombre d'actions quotidiennes et communautaites requises pour passer à la prochaine phase
-        SELECT required_actions_quotidiennes, required_actions_communautaires INTO n_requis_quotidiennes, n_requis_communautaires
+        -- Paliers requis
+        SELECT required_actions_quotidiennes, required_actions_communautaires 
+        INTO n_requis_quotidiennes, n_requis_communautaires
         FROM public.streak_steps WHERE from_streak_phase = next_streak;
 
-    -- On compte les actions communautaires réalisées depuis le début de la saison
+        -- Actions communautaires
         SELECT COUNT(*) INTO n_actions_communautaires
         FROM public.action_communautaire_participation
-        WHERE user_id = NEW.utilisateur_id 
+        WHERE user_id = p_user_id 
           AND created_at > next_updated
           AND created_at >= d_debut_saison;
 
+        -- Vérification du passage au palier suivant
         IF n_actions_quotidiennes >= n_requis_quotidiennes AND n_actions_communautaires >= n_requis_communautaires THEN
             next_seen := next_streak;
             next_streak := next_streak + 1;
-            next_updated := NEW.date_realisation; 
+            next_updated := p_date_ref; 
         END IF;
     END IF;
 
+    -- Mise à jour finale
     UPDATE public.utilisateur_streak
     SET 
         current_streak = next_streak,
         last_streak_seen = next_seen,
         last_updated = next_updated,
-        last_action_date = NEW.date_realisation
-    WHERE utilisateur_id = NEW.utilisateur_id;
+        last_action_date = p_date_ref
+    WHERE utilisateur_id = p_user_id;
+END;
+$$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION public.tg_calculer_streak_actions()
+RETURNS trigger AS $$
+BEGIN
+    PERFORM public.execute_calcul_streak(NEW.utilisateur_id, NEW.date_realisation);
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION public.tg_calculer_streak_actions_communautaires()
+RETURNS trigger AS $$
+BEGIN
+    PERFORM public.execute_calcul_streak(NEW.user_id,NEW.created_at);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trigger_calculer_streak_on_action ON public.realisation_actions;
+DROP TRIGGER IF EXISTS trigger_calculer_streak_on_action_communautaire ON public.action_communautaire_participation;
 CREATE TRIGGER trigger_calculer_streak_on_action
 AFTER INSERT ON public.realisation_actions
-FOR EACH ROW EXECUTE FUNCTION public.calculer_streak();
+FOR EACH ROW EXECUTE FUNCTION public.tg_calculer_streak_actions();
+
+CREATE TRIGGER trigger_calculer_streak_on_action_communautaire
+AFTER INSERT ON public.action_communautaire_participation
+FOR EACH ROW EXECUTE FUNCTION public.tg_calculer_streak_actions_communautaires();
 
 CREATE OR REPLACE VIEW public.vue_utilisateur_streak_live AS
 SELECT 
