@@ -57,6 +57,7 @@ dependencies:
   bloc_concurrency: ^0.3.0
   flutter_card_swiper: ^7.2.0
   animations: ^2.1.1
+  radar_chart_plus: 2.2.1
 
 dev_dependencies:
   flutter_test:
