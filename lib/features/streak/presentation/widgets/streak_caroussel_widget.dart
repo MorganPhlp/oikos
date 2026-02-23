@@ -38,13 +38,13 @@ class _StreakCarousselWidgetState extends State<StreakCarousselWidget> {
         final String? logoUrl = streak.logoUrl;
 
         final String streakDirectory =
-        (logoUrl != null && logoUrl.contains('/'))
+            (logoUrl != null && logoUrl.contains('/'))
             ? logoUrl.substring(0, logoUrl.lastIndexOf('/') + 1)
             : "";
 
         return SizedBox(
           height: 200,
-          /*child: CarouselView.weightedBuilder(
+          child: CarouselView.weightedBuilder(
             flexWeights: [2, 4, 2],
             controller: controller,
             scrollDirection: Axis.horizontal,
@@ -99,7 +99,7 @@ class _StreakCarousselWidgetState extends State<StreakCarousselWidget> {
                 ),
               );
             },
-          ),*/
+          ),
         );
       },
     );
