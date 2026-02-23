@@ -184,7 +184,7 @@ class _ChallengeCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          "$activeUsers participants",
+                          "$activeUsers participant(s)",
                           style: const TextStyle(
                             fontSize: 11,
                             color: Colors.grey,

@@ -273,7 +273,7 @@ class _CommunityChallengesSheetState extends State<CommunityChallengesSheet> {
                     },
                     child: _isLoading 
                       ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                      : Text(isAlreadyActive ? "Défi déjà en cours ⏳" : "Lance ce défi", style: const TextStyle(fontWeight: FontWeight.bold)),
+                      : Text(isAlreadyActive ? "Défi déjà en cours..." : "Lance ce défi", style: const TextStyle(fontWeight: FontWeight.bold)),
                   ),
                 ),
               ],

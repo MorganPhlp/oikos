@@ -1,4 +1,4 @@
--- Catalogue des défis créés par les admins
+-- Table des défis créés par les admins
 CREATE TABLE  IF NOT EXISTS defis (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     entreprise_id UUID REFERENCES entreprise(id),
@@ -14,17 +14,13 @@ CREATE TABLE  IF NOT EXISTS defis (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Suivi des défis lancés (Duels ou Globaux)
+-- Suivi des défis lancés
 CREATE TABLE IF NOT EXISTS defis_communautes (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     defi_id UUID REFERENCES defis(id),
     entreprise_id UUID REFERENCES entreprise(id),
-    
-    -- Pour un duel : codes des deux communautés
     communaute_demandeur_code TEXT, 
     communaute_cible_code TEXT,
-    
-    -- Pour un défi admin global
     is_global BOOLEAN DEFAULT FALSE,
     
     date_expiration TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -32,7 +28,7 @@ CREATE TABLE IF NOT EXISTS defis_communautes (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Table pour gérer les votes de lancement (le seuil des 60%)
+-- Table pour gérer les votes de lancement (seuil de 60%)
 CREATE TABLE IF NOT EXISTS votes_lancement_defi (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     defi_communaute_id UUID REFERENCES defis_communautes(id),
@@ -49,17 +45,14 @@ DECLARE
   active_members_count INT;
   votes_count INT;
 BEGIN
-  -- 1. Compter les membres 'ACTIF'
   SELECT count(*) INTO active_members_count 
   FROM utilisateur 
   WHERE code_communaute = community_code_param AND etat_compte = 'ACTIF';
 
-  -- 2. Compter les votes pour ce défi
   SELECT count(*) INTO votes_count 
   FROM votes_lancement_defi 
   WHERE defi_communaute_id = defi_id_param AND code_communaute = community_code_param;
 
-  -- 3. Si 60% atteint, passer le statut à 'EN_ATTENTE_CIBLE'
   IF active_members_count > 0 AND (votes_count::float / active_members_count::float) >= 0.6 THEN
     UPDATE defis_communautes 
     SET statut = 'EN_ATTENTE_CIBLE' 
@@ -69,7 +62,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 create table IF NOT EXISTS validations_defis (
-  id uuid id default gen_random_uuid() primary key,
+  id uuid default gen_random_uuid() primary key,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   defi_id uuid references public.defis(id) on delete cascade,
   user_id uuid references auth.users(id),

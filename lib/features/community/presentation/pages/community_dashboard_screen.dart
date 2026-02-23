@@ -684,8 +684,8 @@ class _LeaderboardCard extends StatelessWidget {
                   ),
                   Text(
                     entry.isUser
-                        ? "${entry.actionsCount} actions"
-                        : "${entry.actionsCount} membres",
+                        ? "${entry.actionsCount} action(s)"
+                        : "${entry.actionsCount} membre(s)",
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.hintColor,
                     ),

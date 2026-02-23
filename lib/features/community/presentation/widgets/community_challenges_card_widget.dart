@@ -216,7 +216,7 @@ class _ChallengeCard extends StatelessWidget {
                   children: [
                     const Icon(LucideIcons.users, size: 14, color: Colors.grey),
                     const SizedBox(width: 4),
-                    Text("$activeUsers participants", style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                    Text("$activeUsers participant(s)", style: const TextStyle(fontSize: 12, color: Colors.grey)),
                   ],
                 ),
                 Container(

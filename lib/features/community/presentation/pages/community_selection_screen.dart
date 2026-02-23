@@ -70,7 +70,7 @@ class _CommunitySelectionScreenState extends State<CommunitySelectionScreen> {
                     return ListTile(
                       leading: OikosAvatar(avatarUrl: community.avatarUrl, label: community.label),
                       title: Text(community.label, style: const TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text("${community.membersCount} membres"),
+                      subtitle: Text("${community.membersCount} membre(s)"),
                       trailing: const Icon(Icons.group_add, color: Colors.green),
                       onTap: () => Navigator.pop(context, community),
                     );

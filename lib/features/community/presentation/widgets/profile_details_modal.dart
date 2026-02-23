@@ -110,9 +110,9 @@ class _ProfileDetailsModalState extends State<ProfileDetailsModal> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         _buildStatBox(context, Icons.emoji_events, "${entry.value}", "XP Total"),
-                        _buildStatBox(context, Icons.flash_on, "${entry.actionsCount}", "Actions"),
+                        _buildStatBox(context, Icons.flash_on, "${entry.actionsCount}", "Action(s)"),
                         if (isCommunity)
-                          _buildStatBox(context, Icons.group, "${entry.membersCount}", "Membres"),
+                          _buildStatBox(context, Icons.group, "${entry.membersCount}", "Membre(s)"),
                       ],
                     ),
 
