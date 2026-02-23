@@ -21,7 +21,6 @@ class BuildStatsCardsUseCase {
 
     // ── Cartes positives ──
     _addEmpreintePositiveCard(positiveCards, stats);
-    _addComparaisonPositiveCard(positiveCards, stats);
     _addActionsRealiseesCard(positiveCards, stats);
     _addActionsEnCoursCard(positiveCards, stats);
     _addHabitudesCard(positiveCards, stats);
@@ -88,26 +87,6 @@ class BuildStatsCardsUseCase {
             : tonnes <= 5
             ? 'Super résultat, continue comme ça !'
             : 'En bonne voie, chaque geste compte !',
-      ),
-    );
-  }
-
-  // ── Comparaison moyenne : version positive ────────────────
-  void _addComparaisonPositiveCard(
-    List<StatsCardsEntitie> cards,
-    HomeStatsEntity s,
-  ) {
-    if (s.scoreTotalCo2 == null || s.scoreTotalCo2! <= 0) return;
-    final tonnes = s.scoreTotalCo2! / 1000;
-    if (tonnes >= _moyenneFrancaiseTonnes) return; // Pas positive
-    final diff = (_moyenneFrancaiseTonnes - tonnes);
-    cards.add(
-      StatsCardsEntitie(
-        icon: '📉',
-        value: diff,
-        unit: 't CO₂/an',
-        text1: 'de moins que la moyenne 🇫🇷',
-        text2: 'Bravo ! Mieux que ${_moyenneFrancaiseTonnes}t ',
       ),
     );
   }

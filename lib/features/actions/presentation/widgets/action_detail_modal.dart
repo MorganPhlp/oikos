@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:oikos/core/common/presentation/widgets/confirm_modal.dart';
 import 'package:oikos/core/common/presentation/widgets/gradient_button.dart';
 import 'package:oikos/core/theme/action_card_theme.dart';
 import 'package:oikos/features/actions/presentation/widgets/action_stats.dart';
@@ -282,7 +283,7 @@ class ActionDetailModal extends StatelessWidget {
     ColorScheme colorScheme,
   ) {
     return TextButton(
-      onPressed: () => _showDismissDialog(context, theme, colorScheme),
+      onPressed: () => _showDismissDialog(context),
       child: Text(
         'Pas pour moi',
         style: theme.textTheme.bodySmall?.copyWith(
@@ -293,44 +294,22 @@ class ActionDetailModal extends StatelessWidget {
     );
   }
 
-  void _showDismissDialog(
-    BuildContext context,
-    ThemeData theme,
-    ColorScheme colorScheme,
-  ) {
+  void _showDismissDialog(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text(
-          'Écarter cette action ?',
-          textAlign: TextAlign.center,
-        ),
-        content: const Text(
-          'Elle ne sera plus visible dans votre catalogue, mais vous pourrez la retrouver dans vos paramètres.',
-          textAlign: TextAlign.center,
-        ),
-        actions: [
-          Column(
-            children: [
-              GradientButton(
-                isTertiary: true,
-                onPressed: () {
-                  onEcarter?.call(action.id);
-                  Navigator.pop(context); // Ferme Dialog
-                  Navigator.pop(context); // Ferme Modal
-                },
-                label: "Oui, écarter",
-              ),
-              const SizedBox(height: 12),
-              GradientButton(
-                isSecondary: true,
-                onPressed: () => Navigator.pop(context),
-                label: "Annuler",
-              ),
-            ],
-          ),
-        ],
+      builder: (ctx) => OikosConfirmModal(
+        confirmColor: colorScheme.primary,
+        title: 'Écarter cette action ?',
+        message:
+            'Elle ne sera plus visible dans votre catalogue, mais vous pourrez la retrouver dans vos paramètres.',
+        confirmLabel: 'Oui, écarter',
+        onConfirm: () {
+          onEcarter?.call(action.id);
+          Navigator.pop(
+            context,
+          ); // Ferme la Modal de détail (la modale de confirmation est fermée par le composant)
+        },
       ),
     );
   }

@@ -45,3 +45,11 @@ class ActionsError extends ActionsState {
   @override
   List<Object?> get props => [message];
 }
+
+class ActionOperationSuccess extends ActionsState {
+  final String message;
+  const ActionOperationSuccess(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}

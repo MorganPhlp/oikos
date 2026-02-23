@@ -109,4 +109,4 @@ VALUES
     ('quotidienne', 5),
     ('hebdomadaire', 8),
     ('mensuelle', 10),
-    ('bonus', null);
+    ('bonus', 5);

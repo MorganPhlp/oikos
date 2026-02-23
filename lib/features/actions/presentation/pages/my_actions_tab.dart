@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:oikos/core/common/presentation/widgets/confirm_modal.dart';
 import 'package:oikos/core/common/presentation/widgets/gradient_button.dart';
 import 'package:oikos/features/actions/data/models/limite_actions_freq_model.dart';
 import 'package:oikos/features/actions/domain/entities/limite_action_freq_entity.dart';
 import 'package:oikos/features/actions/presentation/widgets/count_widget.dart';
+import 'package:oikos/features/actions/presentation/widgets/my_actions_progress_card.dart';
 import '../../domain/entities/user_active_action_entity.dart';
 import '../widgets/action_detail_modal.dart';
 import '../widgets/active_action_card.dart';
@@ -29,277 +31,120 @@ class MyActionsTab extends StatefulWidget {
 }
 
 class _MyActionsTabState extends State<MyActionsTab> {
-  final Map<String, ScrollController> _scrollControllers = {};
+  final Map<String, ScrollController> _controllers = {};
   String selectedFilter = 'quotidienne';
-  ScrollController _getScrollController(String filter) {
-    return _scrollControllers.putIfAbsent(filter, () => ScrollController());
-  }
 
-  @override
-  void initState() {
-    super.initState();
-  }
+  List<UserActiveActionEntity> get _filteredList =>
+      widget.activeActions
+          .where((e) => e.action.frequency == selectedFilter)
+          .toList()
+        ..sort(
+          (a, b) => a.isCompletedForPeriod == b.isCompletedForPeriod
+              ? 0
+              : (a.isCompletedForPeriod ? 1 : -1),
+        );
 
   @override
   void dispose() {
-    for (var controller in _scrollControllers.values) {
-      controller.dispose();
+    for (var c in _controllers.values) {
+      c.dispose();
     }
     super.dispose();
   }
 
-  String _getFilterTitle(String filter) {
-    switch (filter) {
-      case 'quotidienne':
-        return 'Quotidien';
-      case 'hebdomadaire':
-        return 'Hebdo';
-      case 'mensuelle':
-        return 'Mensuel';
-      case 'bonus':
-        return 'Bonus';
-      default:
-        return '';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final currentController = _getScrollController(selectedFilter);
-    final filteredList = widget.activeActions.where((e) {
-      if (e.action.frequency == selectedFilter) return true;
-      return false;
-    }).toList();
-    filteredList.sort((a, b) {
-      if (a.isCompletedForPeriod == b.isCompletedForPeriod) return 0;
-      return a.isCompletedForPeriod ? 1 : -1;
-    });
-
-    final totalActions = filteredList.length;
-    final actionsDone = filteredList
-        .where((e) => e.isCompletedForPeriod)
-        .length;
-    final globalProgress = (selectedFilter == 'lifestyle')
+    final actions = _filteredList;
+    final controller = _controllers.putIfAbsent(
+      selectedFilter,
+      () => ScrollController(),
+    );
+    final done = actions.where((e) => e.isCompletedForPeriod).length;
+    final progress = (selectedFilter == 'lifestyle')
         ? 1.0
-        : (totalActions == 0 ? 0.0 : actionsDone / totalActions);
+        : (actions.isEmpty ? 0.0 : done / actions.length);
 
     return Stack(
       children: [
         Column(
           children: [
-            _buildGlobalProgressCard(
-              context,
-              globalProgress,
-              actionsDone,
-              totalActions,
+            MyActionsProgressCard(
+              progress: progress,
+              done: done,
+              total: actions.length,
+              isLifestyle: selectedFilter == 'lifestyle',
             ),
-
-            // Filtres
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                children: [
-                  _buildTabFilter(context, 'Quotidien', 'quotidienne'),
-                  const SizedBox(width: 10),
-                  _buildTabFilter(context, 'Hebdo', 'hebdomadaire'),
-                  const SizedBox(width: 10),
-                  _buildTabFilter(context, 'Mensuel', 'mensuelle'),
-                  const SizedBox(width: 10),
-                  _buildTabFilter(context, 'Bonus', 'bonus'),
-                  const SizedBox(width: 10),
-                ],
-              ),
-            ),
+            _buildFilterBar(),
             const SizedBox(height: 20),
-
             Expanded(
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 250),
-                transitionBuilder: (child, animation) {
-                  return SlideTransition(
-                    position:
-                        Tween<Offset>(
-                          begin: const Offset(0, -0.2),
-                          end: Offset.zero,
-                        ).animate(
-                          CurvedAnimation(
-                            parent: animation,
-                            curve: Curves.easeInOut,
-                          ),
-                        ),
-                    child: FadeTransition(opacity: animation, child: child),
-                  );
-                },
-                layoutBuilder: (currentChild, previousChildren) {
-                  return currentChild!;
-                },
-                child: filteredList.isEmpty
-                    ? _buildEmptyState(context)
-                    : ListView.builder(
-                        controller: currentController,
-                        key: ValueKey(selectedFilter),
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        itemCount: filteredList.length,
-                        itemBuilder: (context, index) {
-                          final entry = filteredList[index];
-                          return ActiveActionCard(
-                            activeAction: entry,
-                            onValidate: () => widget.onValidate(entry),
-                            onDelete: () => _confirmDelete(context, entry),
-                            onTap: () => _showActionDetail(context, entry),
-                          );
-                        },
-                      ),
+                child: actions.isEmpty
+                    ? _buildEmptyState()
+                    : _buildList(actions, controller),
               ),
             ),
           ],
         ),
-        Positioned(
-          bottom: 20,
-          left: 0,
-          right: 0,
-          child:
-              CountWidget(
-                    value: filteredList.length,
-                    max:
-                        widget.limiteActionsFreq
-                            .firstWhere(
-                              (e) => e.frequence == selectedFilter,
-
-                              orElse: () => LimiteActionFreqModel(
-                                frequence: selectedFilter,
-                                value: filteredList.length,
-                              ),
-                            )
-                            .value ??
-                        0,
-                  )
-                  .animate(adapter: ScrollAdapter(currentController))
-                  .fade(begin: 1.0, end: 0.0),
-        ),
+        _buildFloatingCounter(actions.length, controller),
       ],
     );
   }
 
-  void _showActionDetail(BuildContext context, UserActiveActionEntity entry) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => ActionDetailModal(
-        action: entry.action,
-        onAdd: (_) => Navigator.pop(context),
-        onEcarter: (actionId) {
-          Navigator.pop(context);
-        },
-        isAlreadyAdded: true,
-      ),
-    );
-  }
+  Widget _buildList(
+    List<UserActiveActionEntity> actions,
+    ScrollController controller,
+  ) => ListView.builder(
+    controller: controller,
+    key: ValueKey(selectedFilter),
+    padding: const EdgeInsets.symmetric(horizontal: 20),
+    itemCount: actions.length,
+    itemBuilder: (context, index) => ActiveActionCard(
+      activeAction: actions[index],
+      onValidate: () => widget.onValidate(actions[index]),
+      onDelete: () => _confirmDelete(actions[index]),
+      onTap: () => _showDetail(actions[index]),
+    ),
+  );
 
-  Widget _buildGlobalProgressCard(
-    BuildContext context,
-    double globalProgress,
-    int actionsDoneToday,
-    int totalActions,
-  ) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final isLifestyle = selectedFilter == 'lifestyle';
+  Widget _buildFilterBar() => SingleChildScrollView(
+    scrollDirection: Axis.horizontal,
+    padding: const EdgeInsets.symmetric(horizontal: 20),
+    child: Row(
+      children: [
+        _filterChip('Quotidien', 'quotidienne'),
+        const SizedBox(width: 10),
+        _filterChip('Hebdo', 'hebdomadaire'),
+        const SizedBox(width: 10),
+        _filterChip('Mensuel', 'mensuelle'),
+        const SizedBox(width: 10),
+        _filterChip('Bonus', 'bonus'),
+      ],
+    ),
+  );
 
-    return Container(
-      margin: const EdgeInsets.all(20),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: colorScheme.shadow.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  isLifestyle ? 'Mes habitudes acquises' : 'Ma progression ',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.onSurface,
-                  ),
-                ),
-              ),
-              Icon(
-                isLifestyle ? Icons.favorite : Icons.emoji_events,
-                color: isLifestyle ? colorScheme.error : colorScheme.tertiary,
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          if (!isLifestyle)
-            Text(
-              '$actionsDoneToday/$totalActions actions avancées aujourd\'hui',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: colorScheme.onSurface.withValues(alpha: 0.6),
-              ),
-            ),
-          const SizedBox(height: 8),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: LinearProgressIndicator(
-              value: globalProgress,
-              backgroundColor: colorScheme.onSurface.withValues(alpha: 0.05),
-              color: isLifestyle ? colorScheme.primary : colorScheme.tertiary,
-              minHeight: 8,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTabFilter(BuildContext context, String label, String value) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+  Widget _filterChip(String label, String value) {
     final isSelected = selectedFilter == value;
-    final activeColor = isSelected
-        ? colorScheme.primary
-        : colorScheme.onSurface.withValues(alpha: 0.3);
-
+    final theme = Theme.of(context);
     return GestureDetector(
       onTap: () => setState(() => selectedFilter = value),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? activeColor : colorScheme.surface,
+          color: isSelected
+              ? theme.colorScheme.primary
+              : theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(25),
           border: Border.all(
-            color: isSelected ? Colors.transparent : (colorScheme.outline),
+            color: isSelected ? Colors.transparent : theme.colorScheme.outline,
           ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: activeColor.withValues(alpha: 0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : null,
         ),
         child: Text(
           label,
-          style: theme.textTheme.bodySmall?.copyWith(
+          style: TextStyle(
             color: isSelected
-                ? colorScheme.onPrimary
-                : colorScheme.onSurface.withValues(alpha: 0.5),
+                ? theme.colorScheme.onPrimary
+                : theme.colorScheme.onSurface.withValues(alpha: 0.5),
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -307,89 +152,79 @@ class _MyActionsTabState extends State<MyActionsTab> {
     );
   }
 
-  Widget _buildEmptyState(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            LucideIcons.star,
-            size: 60,
-            color: colorScheme.onSurface.withValues(alpha: 0.2),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Aucune action ${(selectedFilter).toLowerCase()}',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurface.withValues(alpha: 0.5),
-            ),
-          ),
-          const SizedBox(height: 24),
-          TextButton.icon(
-            onPressed: () => context.goNamed('catalogue'),
-            icon: const Text('Découvrir le catalogue'),
-            label: const Icon(LucideIcons.arrowRight, size: 16),
-            style: TextButton.styleFrom(
-              foregroundColor: colorScheme.primary,
-              textStyle: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _confirmDelete(BuildContext context, UserActiveActionEntity entry) {
-    final colorScheme = Theme.of(context).colorScheme;
+  // Remplace ton ancienne méthode par celle-ci
+  void _confirmDelete(UserActiveActionEntity entry) {
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        backgroundColor: colorScheme.surface,
-        titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-        contentPadding: const EdgeInsets.fromLTRB(24, 12, 24, 20),
-        title: const Center(
-          child: Text(
-            'Retirer cette action ?',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ),
-        content: Text(
-          'Tu pourras la reprendre plus tard dans le catalogue.',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6)),
-        ),
-        actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        actions: [
-          Column(
-            children: [
-              SizedBox(
-                width: double.infinity,
-                child: GradientButton(
-                  isTertiary: true,
-                  onPressed: () {
-                    Navigator.pop(ctx);
-                    widget.onDelete(entry);
-                  },
-                  label: 'Confirmer le retrait',
-                ),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(ctx),
-                child: Text(
-                  'Annuler',
-                  style: TextStyle(
-                    color: colorScheme.onSurface.withValues(alpha: 0.5),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
+      builder: (ctx) => OikosConfirmModal(
+        title: 'Retirer cette action ?',
+        message: 'Tu pourras la reprendre plus tard dans le catalogue.',
+        confirmLabel: 'Confirmer le retrait',
+        onConfirm: () => widget.onDelete(entry),
       ),
     );
   }
+
+  Widget _buildFloatingCounter(
+    int count,
+    ScrollController controller,
+  ) => Positioned(
+    bottom: 20,
+    left: 0,
+    right: 0,
+    child: CountWidget(
+      value: count,
+      max:
+          widget.limiteActionsFreq
+              .firstWhere(
+                (e) => e.frequence == selectedFilter,
+                orElse: () => LimiteActionFreqModel(
+                  frequence: selectedFilter,
+                  value: count,
+                ),
+              )
+              .value ??
+          0,
+    ).animate(adapter: ScrollAdapter(controller)).fade(begin: 1.0, end: 0.0),
+  );
+
+  void _showDetail(UserActiveActionEntity entry) => showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (_) => ActionDetailModal(
+      action: entry.action,
+      onAdd: (_) => Navigator.pop(context),
+      onEcarter: (_) => Navigator.pop(context),
+      isAlreadyAdded: true,
+    ),
+  );
+
+  Widget _buildEmptyState() => Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          LucideIcons.star,
+          size: 60,
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          'Aucune action $selectedFilter',
+          style: TextStyle(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.5),
+          ),
+        ),
+        const SizedBox(height: 24),
+        TextButton.icon(
+          onPressed: () => context.goNamed('catalogue'),
+          icon: const Text('Découvrir le catalogue'),
+          label: const Icon(LucideIcons.arrowRight, size: 16),
+        ),
+      ],
+    ),
+  );
 }

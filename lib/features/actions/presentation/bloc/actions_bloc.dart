@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:oikos/features/actions/domain/entities/limite_action_freq_entity.dart';
 import 'package:oikos/features/actions/domain/usecases/ecarter_action_use_case.dart';
 import 'package:oikos/features/actions/domain/usecases/ecarter_categorie_use_case.dart';
 import 'package:oikos/features/actions/domain/usecases/ecarter_tag_use_case.dart';
@@ -65,7 +66,7 @@ class ActionsBloc extends Bloc<ActionsEvent, ActionsState> {
     LoadAllActionsEvent event,
     Emitter<ActionsState> emit,
   ) async {
-    if (state is! ActionsLoaded) {
+    if (state is! ActionsLoaded && state is! ActionOperationSuccess) {
       emit(const ActionsLoading());
     }
 
@@ -108,14 +109,36 @@ class ActionsBloc extends Bloc<ActionsEvent, ActionsState> {
     AddToMyActionsEvent event,
     Emitter<ActionsState> emit,
   ) async {
-    final result = await _addToMyActions(
-      AddToMyActionsParams(userId: event.userId, actionId: event.actionId),
-    );
+    final currentState = state;
+    if (currentState is ActionsLoaded) {
+      final actionToAdd = currentState.catalogue.firstWhere(
+        (a) => a.id == event.actionId,
+      );
 
-    result.fold(
-      (failure) => emit(ActionsError(failure.message)),
-      (_) => add(LoadAllActionsEvent(event.userId)),
-    );
+      final isLimitReached = currentState.mesActions.isLimitReached(
+        currentState.limiteActionsFreq,
+        actionToAdd,
+      );
+
+      if (isLimitReached) {
+        emit(
+          ActionsError(
+            'Limite atteinte pour les actions ${actionToAdd.frequency}.',
+          ),
+        );
+        emit(currentState);
+        return;
+      }
+
+      final result = await _addToMyActions(
+        AddToMyActionsParams(userId: event.userId, actionId: event.actionId),
+      );
+
+      result.fold((failure) => emit(ActionsError(failure.message)), (_) {
+        emit(const ActionOperationSuccess('Action ajoutée !'));
+        add(LoadAllActionsEvent(event.userId));
+      });
+    }
   }
 
   Future<void> _onValidateAction(

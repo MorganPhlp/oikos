@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
-import 'package:oikos/features/actions/domain/entities/limite_action_freq_entity.dart';
+import 'package:oikos/core/common/presentation/widgets/snackbar.dart';
 import 'package:oikos/features/actions/domain/util/ActionsFilterHandler.dart';
 import 'package:oikos/features/actions/presentation/bloc/habitudes_cubit.dart';
 import 'package:oikos/features/actions/presentation/bloc/habitudes_state.dart';
@@ -33,6 +33,43 @@ class _ActionsCataloguePageState extends State<ActionsCataloguePage> {
       _filters.tags.isNotEmpty ||
       _filters.sortBy != 'default';
 
+  void _onActionsStateChanged(BuildContext context, ActionsState state) {
+    final theme = Theme.of(context);
+
+    if (state is ActionsError) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: theme.colorScheme.errorContainer,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          content: OikosSnackBarContent(message: state.message, isError: true),
+        ),
+      );
+    }
+
+    if (state is ActionOperationSuccess) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: theme.colorScheme.primaryContainer,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          content: OikosSnackBarContent(message: state.message, isError: false),
+        ),
+      );
+    }
+
+    if (state is ActionsLoaded && widget.openedActionId != null) {
+      _checkAndOpenInitialAction();
+    }
+  }
+
   @override
   void didUpdateWidget(covariant ActionsCataloguePage oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -42,16 +79,9 @@ class _ActionsCataloguePageState extends State<ActionsCataloguePage> {
     }
   }
 
-  void _onActionsStateChanged(BuildContext context, ActionsState state) {
-    if (state is ActionsLoaded && widget.openedActionId != null) {
-      _checkAndOpenInitialAction();
-    }
-  }
-
   void _checkAndOpenInitialAction() {
     final actionsBloc = context.read<ActionsBloc>();
     final habitudesBloc = context.read<HabitudeCubit>();
-
     final actionsState = actionsBloc.state;
     final habitudeState = habitudesBloc.state;
 
@@ -60,24 +90,19 @@ class _ActionsCataloguePageState extends State<ActionsCataloguePage> {
         final action = actionsState.catalogue.firstWhere(
           (a) => a.id == widget.openedActionId,
         );
-
         final userId = _getUserId();
+        final alreadyAdded =
+            actionsState.activeActionIds.contains(action.id) ||
+            (habitudeState is HabitudeLoaded &&
+                habitudeState.habitueActionIds.contains(action.id));
 
-        bool alreadyInActions = actionsState.activeActionIds.contains(
-          action.id,
-        );
-        bool alreadyInHabitudes =
-            habitudeState is HabitudeLoaded &&
-            habitudeState.habitueActionIds.contains(action.id);
-
-        final isAlreadyAdded = alreadyInActions || alreadyInHabitudes;
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
             _showDetailModal(
               context,
               action,
               userId,
-              isAlreadyAdded: isAlreadyAdded,
+              isAlreadyAdded: alreadyAdded,
             );
           }
         });
@@ -96,13 +121,21 @@ class _ActionsCataloguePageState extends State<ActionsCataloguePage> {
       listener: _onActionsStateChanged,
       child: Scaffold(
         body: BlocBuilder<ActionsBloc, ActionsState>(
-          builder: (context, state) => switch (state) {
-            ActionsLoading() => const Center(
-              child: CircularProgressIndicator(),
-            ),
-            ActionsLoaded s => _buildCatalogueContent(context, s),
-            ActionsError e => Center(child: Text(e.message)),
-            _ => const SizedBox.shrink(),
+          buildWhen: (previous, current) => current is! ActionOperationSuccess,
+          builder: (context, state) {
+            if (state is ActionsLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (state is ActionsLoaded) {
+              return _buildCatalogueContent(context, state);
+            }
+
+            if (state is ActionsError) {
+              return Center(child: Text(state.message));
+            }
+
+            return const SizedBox.shrink();
           },
         ),
       ),
@@ -156,6 +189,7 @@ class _ActionsCataloguePageState extends State<ActionsCataloguePage> {
                         userId,
                         isAlreadyAdded: alreadyAdded,
                       ),
+                      isInMyActions: alreadyAdded,
                     );
                   },
                 ),
@@ -219,12 +253,7 @@ class _ActionsCataloguePageState extends State<ActionsCataloguePage> {
     String userId, {
     bool isAlreadyAdded = false,
   }) {
-    final state = context.read<ActionsBloc>().state;
-    if (state is! ActionsLoaded) return;
-
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    if (Navigator.of(context).canPop()) {
+    if (Navigator.canPop(context)) {
       Navigator.pop(context);
     }
     showModalBottomSheet(
@@ -235,66 +264,9 @@ class _ActionsCataloguePageState extends State<ActionsCataloguePage> {
         action: action,
         isAlreadyAdded: isAlreadyAdded,
         onAdd: (actionToAdd) {
-          final limits = state.limiteActionsFreq;
-          final isLimitReached = state.mesActions.isLimitReached(
-            limits,
-            actionToAdd,
-          );
-
-          if (isLimitReached) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                behavior: SnackBarBehavior.floating,
-                backgroundColor: colorScheme.errorContainer,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                content: Row(
-                  children: [
-                    Icon(Icons.lock_clock, color: colorScheme.error, size: 20),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'Limite atteinte pour les actions "$actionToAdd.frequency".',
-                        style: TextStyle(color: colorScheme.onErrorContainer),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-            return;
-          }
-
           Navigator.pop(context);
           context.read<ActionsBloc>().add(
             AddToMyActionsEvent(userId: userId, actionId: actionToAdd.id),
-          );
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              behavior: SnackBarBehavior.floating,
-              backgroundColor: colorScheme.primaryContainer,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              content: Row(
-                children: [
-                  Icon(
-                    Icons.check_circle_outline,
-                    color: colorScheme.primary,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'Action ajoutée !',
-                    style: TextStyle(color: colorScheme.onPrimaryContainer),
-                  ),
-                ],
-              ),
-            ),
           );
         },
         onEcarter: (actionId) {

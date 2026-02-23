@@ -91,7 +91,7 @@ class _OikosNavBarState extends State<OikosNavBar> {
           icon: BouncingIcon(
             index: 2,
             currentIndex: _calculateSelectedIndex(context),
-            child: const Icon(Icons.star, color: Colors.grey),
+            child: Icon(Icons.star, color: Colors.grey),
           ),
           selectedIcon: BouncingIcon(
             index: 2,
