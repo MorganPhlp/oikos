@@ -30,7 +30,7 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
   GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>();
 
   return GoRouter(
-    initialLocation: '/',
+    initialLocation: '/community',
     refreshListenable: GoRouterRefreshStream(appUserCubit.stream),
     navigatorKey: rootNavigatorKey,
 

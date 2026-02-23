@@ -9,8 +9,12 @@ import '../../data/models/community_action_model.dart';
 import '../../domain/entities/leaderboard_entry.dart';
 import '../widgets/ranking_action_modal.dart';
 import '../widgets/profile_details_modal.dart';
+import 'community_selection_screen.dart'; 
+import '../widgets/setup_duel_modal.dart';
+import '../widgets/community_defi_list_widget.dart'; // Assure-toi que le nom du fichier match
+import '../widgets/defi_vote_widget.dart';
 
-// Ecran pour le dahsboard de communautés
+// Ecran pour le dashboard de communautés
 class CommunityDashboardScreen extends StatefulWidget {
   const CommunityDashboardScreen({Key? key}) : super(key: key);
 
@@ -24,6 +28,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
     with SingleTickerProviderStateMixin {
   late CommunityRemoteDataSource _dataSource;
   late TabController _tabController;
+  List<dynamic> _communityDefis = [];
 
   bool _isLoading = true;
   String? _error;
@@ -35,26 +40,20 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
   String? _myCommunityCode;
   String? _myEntrepriseId;
 
-  // Affichage du classement
-  void _showRankingInfo(BuildContext context, LeaderboardEntry entry) {
-    showDialog(
-      context: context,
-      builder: (context) => RankingActionModal(
-        name: entry.label,
-        avatarUrl: entry.avatarUrl ?? '',
-        isCommunity: !entry.isUser,
-        onSeeProfile: () {
-          Navigator.pop(context);
-          showDialog(
-            context: context,
-            builder: (context) => ProfileDetailsModal(entry: entry),
-          );
-        },
-        onDuel: () {
-          Navigator.pop(context);
-        },
-      ),
-    );
+  int get _notificationCount {
+    // 1. Compter les invitations reçues à accepter (statut EN_ATTENTE_CIBLE)
+    final incomingCount = _communityDefis.where((d) => 
+      d['communaute_cible_code'] == _myCommunityCode && 
+      d['statut'] == 'EN_ATTENTE_CIBLE'
+    ).length;
+
+    // 2. Compter les votes internes à donner (statut VOTE_LANCEMENT)
+    final votingCount = _communityDefis.where((d) => 
+      d['statut'] == 'VOTE_LANCEMENT' && 
+      d['is_joined'] == false // L'utilisateur n'a pas encore voté
+    ).length;
+
+    return incomingCount + votingCount;
   }
 
   @override
@@ -93,33 +92,275 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
       _myEntrepriseId = userRes['entreprise_id'];
 
       // On récupère les données
+      // On récupère les données
       final results = await Future.wait([
         _dataSource.getUserLeaderboard(_myCommunityCode!),
-        _dataSource.getCommunityLeaderboard(
-          _myEntrepriseId ?? '',
-          _myCommunityCode!,
-        ),
+        _dataSource.getCommunityLeaderboard(_myEntrepriseId ?? '', _myCommunityCode!),
         _dataSource.getActions(),
+        
+        // MODIFICATION ICI : On utilise la nouvelle méthode
+        _dataSource.getMyCommunityDefis(_myCommunityCode!), 
       ]);
 
       if (!mounted) return;
 
       setState(() {
         _userList = (results[0] as List<LeaderboardEntryModel>).map((entry) {
-          final isMe = entry.id == userId;
-          return entry.copyWith(
-            isMe: isMe,
-            // Si c'est l'utilisateur connecté, on affiche "Moi", sinon on garde le vrai nom
-            label: isMe ? "Moi" : entry.label,
-          );
+          final isMe = entry.id == Supabase.instance.client.auth.currentUser?.id;
+          return entry.copyWith(isMe: isMe, label: isMe ? "Moi" : entry.label);
         }).toList();
         _communityList = results[1] as List<LeaderboardEntryModel>;
         _actions = results[2] as List<CommunityActionModel>;
+        _communityDefis = results[3] as List<dynamic>; 
+        
         _isLoading = false;
       });
     } catch (e) {
       if (!mounted) return;
+      setState(() { _isLoading = false; });
     }
+  }
+
+  // Affichage du classement
+  void _showRankingInfo(BuildContext context, LeaderboardEntry entry) {
+    showDialog(
+      context: context,
+      builder: (context) => RankingActionModal(
+        name: entry.label,
+        avatarUrl: entry.avatarUrl ?? '',
+        isCommunity: !entry.isUser,
+        onSeeProfile: () {
+          Navigator.pop(context);
+          showDialog(
+            context: context,
+            builder: (context) => ProfileDetailsModal(entry: entry),
+          );
+        },
+        onDuel: () {
+          Navigator.pop(context);
+        },
+      ),
+    );
+  }
+
+  Future<void> _handleChallengeResponse(String challengeId, bool accept) async {
+    try {
+      await _dataSource.respondToChallenge(challengeId, accept);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(accept ? "Défi accepté ! Bonne chance 🚀" : "Défi décliné."),
+            backgroundColor: accept ? Colors.green : Colors.red,
+          )
+        );
+        _loadData(); // Rafraîchir l'écran
+      }
+    } catch (e) {
+      debugPrint("Erreur réponse défi: $e");
+    }
+  }
+
+  // Widget d'affichage de l'invitation reçue
+  Widget _buildIncomingChallengeSection() {
+    final incomingDefis = _communityDefis.where((d) => 
+      d['communaute_cible_code'] == _myCommunityCode && 
+      d['statut'] == 'EN_ATTENTE_CIBLE'
+    ).toList();
+
+    if (incomingDefis.isEmpty) return const SizedBox();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(left: 4, bottom: 12, top: 10),
+          child: Text("🔥 Nouveau défi reçu !", 
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange, fontSize: 16)),
+        ),
+        ...incomingDefis.map((defi) => Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.orange.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.orange.withOpacity(0.3), width: 1.5),
+          ),
+          child: Column(
+            children: [
+              const Icon(Icons.flash_on, color: Colors.orange, size: 30),
+              const SizedBox(height: 12),
+              Text(
+                "Une communauté vous défie sur ${defi['titre'] ?? ''} !",
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      onPressed: () => _handleChallengeResponse(defi['id'], true),
+                      child: const Text("Accepter"),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.red),
+                        foregroundColor: Colors.red,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      onPressed: () => _handleChallengeResponse(defi['id'], false),
+                      child: const Text("Refuser"),
+                    ),
+                  ),
+                ],
+              )
+            ],
+          ),
+        )).toList(),
+      ],
+    );
+  }
+
+  Widget _buildActiveVotesSection() {
+    final votingDefis = _communityDefis.where((d) => d['statut'] == 'VOTE_LANCEMENT').toList();
+
+    if (votingDefis.isEmpty) return const SizedBox();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 12),
+          child: Text("Votes de défis (Propositions de membres)", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        ),
+        ...votingDefis.map((defi) => Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: DefiVoteWidget(
+            title: defi['titre'] ?? "Défi",
+            currentVotes: (defi['participants_count'] as num?)?.toInt() ?? 0,
+            totalRequired: 20, // À dynamiser : (membres_actifs * 0.6)
+            hasVoted: defi['is_joined'] ?? false,
+            onVote: () async {
+              await _dataSource.voteForDefiLaunch(defi['id'], _myCommunityCode!);
+              _loadData(); // Rafraîchit pour mettre à jour la jauge
+            },
+          ),
+        )).toList(),
+      ],
+    );
+  }
+
+  // MÉTHODES DE NAVIGATION DES BOUTONS D'ACTIONS
+  Future<void> _openCommunitySelection() async {
+    if (_myEntrepriseId == null || _myCommunityCode == null) return;
+
+    final adversary = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CommunitySelectionScreen(
+          entrepriseId: _myEntrepriseId!,
+          myCommunityCode: _myCommunityCode!,
+        ),
+      ),
+    );
+
+    if (adversary != null && mounted) {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) => SetupDuelModal(
+          targetCommunity: adversary,
+          myCommunityCode: _myCommunityCode!,
+          entrepriseId: _myEntrepriseId!,
+        ),
+      );
+    }
+  }
+
+  void _openCommunityActions() {
+    if (_myEntrepriseId == null || _myCommunityCode == null) return;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => CommunityChallengesSheet(
+        actions: _actions,
+        entrepriseId: _myEntrepriseId!,
+        myCommunityCode: _myCommunityCode!,
+      ),
+    );
+  }
+
+  // Mise à jour de la section Challenges
+  Widget _buildChallengesSection(bool isCommunity) {
+    final theme = Theme.of(context);
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 1. INVITATIONS REÇUES (Duel adverse à accepter)
+        _buildIncomingChallengeSection(), 
+
+        // 2. DÉFIS DISPONIBLES (À voter - Table defis_communautes)
+        _buildActiveVotesSection(), 
+
+        const SizedBox(height: 20),
+
+        // 3. DÉFIS ACTIFS (En cours - Table defis)
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 12),
+          child: Row(
+            children: [
+              const Icon(Icons.bolt, color: Colors.orange, size: 20),
+              const SizedBox(width: 8),
+              Text("Défis actifs de l'entreprise", 
+                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            ],
+          ),
+        ),
+        // Widget pointant sur les défis validés/admin
+        CommunityDefisListWidget(entrepriseId: _myEntrepriseId ?? ''),
+
+        const SizedBox(height: 32),
+
+        // 4. ACTIONS COLLECTIVES (Boutons de lancement)
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 16),
+          child: Text("Défis et actions communautaires", 
+            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+        ),
+
+        _ChallengeCard(
+          title: "Propose un défi",
+          subtitle: "Affronte une autre équipe",
+          icon: Icons.flash_on,
+          color: AppColors.lightPrimary,
+          onTap: () => _openCommunitySelection(),
+        ),
+
+        const SizedBox(height: 12),
+
+        _ChallengeCard(
+          title: "Actions communautaires",
+          subtitle: "Lance-toi dans un défi collectif",
+          icon: Icons.emoji_events,
+          color: Colors.orange,
+          onTap: () => _openCommunityActions(),
+        ),
+      ],
+    );
   }
 
   // Construction de la fenêtre
@@ -127,6 +368,9 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+
+    if (_isLoading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (_error != null) return Scaffold(body: Center(child: Text(_error!)));
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -139,36 +383,55 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
               color: isDark ? AppColors.darkInput : AppColors.lightInput,
               borderRadius: BorderRadius.circular(25),
               border: Border.all(
-                color: isDark
-                    ? AppColors.darkBorder
-                    : AppColors.lightInputBorder,
+                color: isDark ? AppColors.darkBorder : AppColors.lightInputBorder,
               ),
             ),
             child: TabBar(
               controller: _tabController,
+              dividerColor: Colors.transparent, // Retire le trait sous les onglets
+              indicatorColor: Colors.transparent, // Retire le trait de sélection
               indicatorSize: TabBarIndicatorSize.tab,
               indicator: BoxDecoration(
                 color: AppColors.lightPrimary,
                 borderRadius: BorderRadius.circular(25),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.lightPrimary.withOpacity(0.3),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
               ),
               labelColor: Colors.white,
-              unselectedLabelColor: isDark
-                  ? Colors.grey
-                  : AppColors.lightMutedForeground,
-              labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-              dividerColor: Colors.transparent,
-              tabs: const [
-                Tab(text: "Individuel"),
-                Tab(text: "Communautés"),
+              unselectedLabelColor: isDark ? Colors.grey : AppColors.lightMutedForeground,
+              tabs: [
+                const Tab(text: "Individuel"),
+                Tab(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text("Communautés"),
+                      if (_notificationCount > 0) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 18,
+                            minHeight: 18,
+                          ),
+                          child: Text(
+                            '$_notificationCount',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
               ],
-            ),
+            )
           ),
 
           Expanded(
@@ -185,50 +448,32 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
     );
   }
 
-  Widget _buildLeaderboardView(
-    List<LeaderboardEntry> list, {
-    required bool isCommunity,
-  }) {
-    final theme = Theme.of(context);
-    if (_isLoading) return const Center(child: CircularProgressIndicator());
-    if (list.isEmpty)
-      return const Center(child: Text("Aucun classement disponible"));
+  Widget _buildLeaderboardView(List<LeaderboardEntry> list, {required bool isCommunity}) {
+    if (list.isEmpty) return const Center(child: Text("Aucun classement disponible"));
 
     List<LeaderboardEntry> displayList = [];
-
-    // On prend les 10 premiers maximum
     final top10 = list.take(10).toList();
     displayList.addAll(top10);
 
-    // On vérifie si l'utilisateur connecté est dans le Top 10
     bool amIInTop10 = top10.any((e) => e.isMe);
 
-    // Sinon on ajoute l'utilisateur connecté à la fin
     if (!amIInTop10) {
       try {
         final myEntry = list.firstWhere((e) => e.isMe);
         displayList.add(myEntry);
-      } catch (_) {
-        // Cas où l'utilisateur n'est pas trouvé dans la liste complète
-      }
+      } catch (_) {}
     }
 
-    // Podium des 3 premiers
     final top3 = displayList.take(3).toList();
-    final rest = displayList.length > 3
-        ? displayList.sublist(3)
-        : <LeaderboardEntry>[];
+    final rest = displayList.length > 3 ? displayList.sublist(3) : <LeaderboardEntry>[];
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 10, 20, 100),
       child: Column(
         children: [
-          // Affichage du podium
           if (top3.isNotEmpty) _buildPodium(top3, isCommunity),
-
           const SizedBox(height: 20),
 
-          // Affichage du reste
           ...rest.map((entry) {
             final isMeAndFar = entry.isMe && !amIInTop10;
 
@@ -239,12 +484,12 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
                     child: Row(
                       children: [
-                        Expanded(child: Divider(color: theme.hintColor)),
+                        Expanded(child: Divider(color: Theme.of(context).hintColor)),
                         Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8),
-                          child: Icon(Icons.more_horiz, color: theme.hintColor),
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Icon(Icons.more_horiz, color: Theme.of(context).hintColor),
                         ),
-                        Expanded(child: Divider(color: theme.hintColor)),
+                        Expanded(child: Divider(color: Theme.of(context).hintColor)),
                       ],
                     ),
                   ),
@@ -258,7 +503,8 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
 
           const SizedBox(height: 30),
 
-          _buildChallengesSection(isCommunity),
+          // L'unique appel de la section Défis
+          if (isCommunity) _buildChallengesSection(isCommunity),
         ],
       ),
     );
@@ -286,12 +532,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
     );
   }
 
-  Widget _buildPodiumStep(
-    LeaderboardEntry entry,
-    int rank,
-    Color color,
-    double height,
-  ) {
+  Widget _buildPodiumStep(LeaderboardEntry entry, int rank, Color color, double height) {
     final theme = Theme.of(context);
 
     return Expanded(
@@ -350,7 +591,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
             ),
             Text(
               "${entry.value}",
-              style: TextStyle(
+              style: const TextStyle(
                 color: AppColors.lightPrimary,
                 fontWeight: FontWeight.bold,
               ),
@@ -376,59 +617,6 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
           ],
         ),
       ),
-    );
-  }
-
-  // Widget des défis
-  Widget _buildChallengesSection(bool isCommunity) {
-    final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 12),
-          child: Text(
-            "Actions Collectives",
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-
-        _ChallengeCard(
-          title: "Défi de communautés",
-          subtitle: "Affronte une autre équipe",
-          icon: Icons.flash_on,
-          color: AppColors.lightPrimary,
-          onTap: () {
-            // Action à définir
-          },
-        ),
-
-        const SizedBox(height: 12),
-
-        _ChallengeCard(
-          title: "Actions communautaires",
-          subtitle: "Lance-toi dans un défi collectif avec ta communauté",
-          icon: Icons.emoji_events,
-          color: Colors.orange,
-          onTap: () {
-            // --- ON OUVRE LE BOTTOM SHEET ICI ---
-            if (_myEntrepriseId != null) {
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (context) => CommunityChallengesSheet(
-                  actions: _actions,
-                  entrepriseId: _myEntrepriseId!,
-                  myCommunityCode: _myCommunityCode!,
-                ),
-              );
-            }
-          },
-        ),
-      ],
     );
   }
 }

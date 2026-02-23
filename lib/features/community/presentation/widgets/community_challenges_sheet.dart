@@ -76,7 +76,7 @@ class _CommunityChallengesSheetState extends State<CommunityChallengesSheet> {
               Expanded(
                 child: Text(
                   _currentView == 0 ? "Défis de communautés" 
-                : _currentView == 1 ? "ACtions en cours" 
+                : _currentView == 1 ? "Actions en cours" 
                 : "Lancer un défi",
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
