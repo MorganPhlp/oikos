@@ -3,12 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
+import 'package:oikos/core/common/presentation/widgets/score_badge.dart';
 
 class Header extends StatelessWidget implements PreferredSizeWidget {
   const Header({super.key});
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight + 20); // Hauteur du toolbar + padding
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight + 20);
 
   @override
   Widget build(BuildContext context) {
@@ -28,47 +29,46 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
           ),
         ],
       ),
-      child: Row(
-        children: [
-          BlocBuilder<AppUserCubit, AppUserState>(
-            builder: (context, state) {
-              String? avatarPath;
-              if (state is AppUserLoggedIn) {
-                avatarPath = state.user.avatar;
-              }
+      child: BlocBuilder<AppUserCubit, AppUserState>(
+        builder: (context, state) {
+          String avatarPath = 'assets/avatars/avatar_1.png';
+          int score = 0;
 
-              avatarPath ??= 'assets/avatars/avatar_1.png'; // Avatar par défaut
+          if (state is AppUserLoggedIn) {
+            avatarPath = state.user.avatar ?? avatarPath;
+            score = state.user.impactScoreXp;
+          }
 
-              return _CircleAvatarButton(
+          return Row(
+            children: [
+              _CircleAvatarButton(
                 avatarPath: avatarPath,
                 onTap: () => context.pushNamed('profile'),
-              );
-            },
-          ),
-          const Spacer(),
-          Image.asset(
-            "assets/logos/oikos_logo.png",
-            height: 32,
-            fit: BoxFit.contain,
-          ),
-          const SizedBox(width: 12),
-          Container(
-            width: 1,
-            height: 24,
-            color: colorScheme.outline.withValues(alpha: 0.2),
-          ),
-          const SizedBox(width: 12),
-          Icon(LucideIcons.leaf, color: colorScheme.primary),
-          const Spacer(),
-          const _ScoreBadge(
-            score: "1250",
-          ), // TODO: Récupérer le score réel de l'utilisateur
-          const SizedBox(width: 8),
-          const _CircleIconButton(
-            icon: LucideIcons.bell,
-            hasNotification: true,
-          ),
-        ],
+              ),
+              const Spacer(),
+              Image.asset(
+                "assets/logos/oikos_logo.png",
+                height: 32,
+                fit: BoxFit.contain,
+              ),
+              const SizedBox(width: 12),
+              Container(
+                width: 1,
+                height: 24,
+                color: colorScheme.outline.withValues(alpha: 0.2),
+              ),
+              const SizedBox(width: 12),
+              Icon(LucideIcons.leaf, color: colorScheme.primary),
+              const Spacer(),
+              ScoreBadge(score: score),
+              const SizedBox(width: 8),
+              const _CircleIconButton(
+                icon: LucideIcons.bell,
+                hasNotification: true,
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -132,7 +132,7 @@ class _CircleIconButton extends StatelessWidget {
   const _CircleIconButton({
     required this.icon,
     this.hasNotification = false,
-    this.onTap, // TODO: Passer en required une fois que les boutons font quelque chose
+    this.onTap,
   });
 
   @override
@@ -190,38 +190,6 @@ class _CircleIconButton extends StatelessWidget {
             ),
           ),
       ],
-    );
-  }
-}
-
-class _ScoreBadge extends StatelessWidget {
-  final String score;
-  const _ScoreBadge({required this.score});
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: colorScheme.primary.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
-      ),
-      child: Row(
-        children: [
-          Icon(LucideIcons.zap, size: 16, color: colorScheme.primary),
-          const SizedBox(width: 6),
-          Text(
-            score,
-            style: TextStyle(
-              color: colorScheme.onSurface,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

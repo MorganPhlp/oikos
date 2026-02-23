@@ -1,0 +1,219 @@
+import 'package:fpdart/fpdart.dart';
+import 'package:oikos/core/error/exceptions.dart';
+import 'package:oikos/core/error/failures.dart';
+import 'package:oikos/features/actions/domain/entities/action_ecartee_entity.dart';
+import 'package:oikos/features/actions/domain/entities/categorie_ecartee_entity.dart';
+import 'package:oikos/features/actions/domain/entities/habitude_entity.dart';
+import 'package:oikos/features/actions/domain/entities/limite_action_freq_entity.dart';
+import 'package:oikos/features/actions/domain/entities/tag_ecarte_entity.dart';
+import 'package:oikos/features/actions/domain/entities/user_active_action_entity.dart';
+
+import '../../domain/entities/action_entity.dart';
+import '../../domain/repositories/action_repository.dart';
+import '../datasources/action_remote_data_source.dart';
+
+class ActionRepositoryImpl implements ActionRepository {
+  final ActionRemoteDataSource remoteDataSource;
+  ActionRepositoryImpl(this.remoteDataSource);
+
+  @override
+  Future<Either<Failure, void>> addToMyActions(
+    String userId,
+    String actionId,
+  ) async {
+    try {
+      await remoteDataSource.fetchMyActiveActions(userId);
+
+      await remoteDataSource.addToMyActions(userId, actionId);
+      return right(null);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> validateAction(
+    String userId,
+    String actionId,
+  ) async {
+    try {
+      await remoteDataSource.validateAction(userId, actionId);
+      return right(null);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<ActionEntity>>> getActions(String userId) async {
+    try {
+      final actions = await remoteDataSource.fetchActions(userId);
+      return right(actions);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<UserActiveActionEntity>>> getMyActiveActions(
+    String userId,
+  ) async {
+    try {
+      final actions = await remoteDataSource.fetchMyActiveActions(userId);
+      return right(actions);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> removeFromMyActions(
+    String userId,
+    String actionId,
+  ) async {
+    try {
+      await remoteDataSource.removeFromMyActions(userId, actionId);
+      return right(null);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> addToHabitudes(
+    String userId,
+    String actionId,
+  ) async {
+    try {
+      await remoteDataSource.addToHabitudes(userId, actionId);
+      return right(null);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> removeFromHabitudes(
+    String userId,
+    String actionId,
+  ) async {
+    try {
+      await remoteDataSource.removeFromHabitudes(userId, actionId);
+      return right(null);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<HabitudeEntity>>> getMyHabitudes(
+    String userId,
+  ) async {
+    try {
+      final habitudes = await remoteDataSource.fetchMyHabitudes(userId);
+      return right(habitudes);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> promoteActionToHabitude(
+    String userId,
+    String actionId,
+  ) async {
+    try {
+      await remoteDataSource.addToHabitudes(userId, actionId);
+      return right(null);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<LimiteActionFreqEntity>>>
+  getLimiteActionsFreq() async {
+    try {
+      final result = await remoteDataSource.getLimiteActionsFreq();
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> ecarterAction(
+    String userId,
+    String actionId,
+  ) async {
+    try {
+      await remoteDataSource.ecarterAction(userId, actionId);
+      return right(null);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> ecarterCategorie(
+    String userId,
+    String categorieNom,
+  ) async {
+    try {
+      await remoteDataSource.ecarterCategorie(userId, categorieNom);
+      return right(null);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> ecarterTag(String userId, String tagNom) async {
+    try {
+      await remoteDataSource.ecarterTag(userId, tagNom);
+      return right(null);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<ActionEcarteeEntity>>> getActionsEcartees(
+    String userId,
+  ) async {
+    try {
+      final actionsEcartees = await remoteDataSource.fetchActionsEcartees(
+        userId,
+      );
+      return right(actionsEcartees);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<CategorieEcarteeEntity>>> getCategoriesEcartees(
+    String userId,
+  ) async {
+    try {
+      final categoriesEcartees = await remoteDataSource.fetchCategoriesEcartees(
+        userId,
+      );
+      return right(categoriesEcartees);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<TagEcarteEntity>>> getTagsEcartees(
+    String userId,
+  ) async {
+    try {
+      final tagsEcartees = await remoteDataSource.fetchTagsEcartees(userId);
+      return right(tagsEcartees);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+}

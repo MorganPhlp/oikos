@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS utilisateur (
     est_compte_valide BOOLEAN DEFAULT TRUE,
     a_accepte_cgu BOOLEAN DEFAULT TRUE,
     impact_score_xp INT DEFAULT 0,
-    co2_economise_total FLOAT DEFAULT 0,
+    --co2_economise_total FLOAT DEFAULT 0,
     entreprise_id UUID,
     code_communaute TEXT,
     objectif FLOAT DEFAULT 0.1,

@@ -59,7 +59,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
        _deleteAccount = deleteAccount,
        _updateCredentials = updateCredentials,
        super(AuthInitial()) {
-
     on<AuthResetState>((event, emit) => emit(AuthInitial()));
     on<AuthSignUp>(_onAuthSignUp);
     on<AuthSignIn>(_onAuthSignIn);
@@ -202,13 +201,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  void _onAuthUpdateUser(
-    AuthUpdateUser event,
-    Emitter<AuthState> emit,
-  ) async {
+  void _onAuthUpdateUser(AuthUpdateUser event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     final res = await _updateUser(
-      UpdateUserParams(pseudo: event.pseudo, avatar: event.avatar, isActive: event.isActive),
+      UpdateUserParams(
+        pseudo: event.pseudo,
+        avatar: event.avatar,
+        isActive: event.isActive,
+      ),
     );
 
     res.fold(
@@ -224,15 +224,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     final res = await _deleteAccount(NoParams());
 
-    res.fold(
-      (failure) => emit(AuthFailure(failure.message)),
-      (_) {
-        // On vide le Cubit Utilisateur comme lors d'une déconnexion normale
-        // Le Router va détecter le changement et rediriger vers '/'
-        _appUserCubit.updateUser(null);
-        emit(AuthInitial());
-      },
-    );
+    res.fold((failure) => emit(AuthFailure(failure.message)), (_) {
+      // On vide le Cubit Utilisateur comme lors d'une déconnexion normale
+      // Le Router va détecter le changement et rediriger vers '/'
+      _appUserCubit.updateUser(null);
+      emit(AuthInitial());
+    });
   }
 
   void _onAuthUpdateCredentials(
@@ -244,21 +241,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       UpdateCredentialsParams(email: event.email, password: event.password),
     );
 
-    res.fold(
-      (failure) => emit(AuthFailure(failure.message)),
-      (_) {
-        String message = 'Credentials updated successfully.';
-        if (event.email != null) {
-          message = 'A confirmation email has been sent to ${event.email}. Please verify to complete the update.';
-        }
-        emit(AuthCredentialsUpdated(message));
-
-        emit(AuthInitial());
+    res.fold((failure) => emit(AuthFailure(failure.message)), (_) {
+      String message = 'Credentials updated successfully.';
+      if (event.email != null) {
+        message =
+            'A confirmation email has been sent to ${event.email}. Please verify to complete the update.';
       }
-    );
+      emit(AuthCredentialsUpdated(message));
+
+      emit(AuthInitial());
+    });
   }
 
-  void _emitAuthSuccess(User user, Emitter<AuthState> emit) {
+  void _emitAuthSuccess(UserEntity user, Emitter<AuthState> emit) {
     _appUserCubit.updateUser(user);
     emit(AuthSuccess(user));
   }

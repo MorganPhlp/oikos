@@ -10,7 +10,7 @@ final class AppUserLoading extends AppUserState {}
 final class AppUserUnauthenticated extends AppUserState {}
 
 final class AppUserLoggedIn extends AppUserState {
-  final User user;
+  final UserEntity user;
 
   AppUserLoggedIn(this.user);
 }

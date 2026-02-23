@@ -12,7 +12,7 @@ class AuthRepositoryImpl implements AuthRepository {
   const AuthRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Either<Failure, User>> currentUser() async {
+  Future<Either<Failure, UserEntity>> currentUser() async {
     try {
       final user = await remoteDataSource.getCurrentUserData();
       if (user == null) {
@@ -31,7 +31,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, User>> signInWithEmailPassword({
+  Future<Either<Failure, UserEntity>> signInWithEmailPassword({
     required String email,
     required String password,
   }) async {
@@ -44,7 +44,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, User>> signUpWithEmailPassword({
+  Future<Either<Failure, UserEntity>> signUpWithEmailPassword({
     required String email,
     required String password,
     required String pseudo,
@@ -160,10 +160,11 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   // Helper method to reduce code duplication
-  Future<Either<Failure, User>> _getUser(Future<User> Function() fn) async {
+  Future<Either<Failure, UserEntity>> _getUser(
+    Future<UserEntity> Function() fn,
+  ) async {
     try {
       final user = await fn();
-
       return right(user);
     } on AuthException catch (e) {
       return left(Failure(e.message));
@@ -197,7 +198,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, User>> updateUser({
+  Future<Either<Failure, UserEntity>> updateUser({
     String? pseudo,
     String? avatar,
     bool? isActive,

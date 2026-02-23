@@ -121,7 +121,7 @@ class RankingActionModal extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             GradientButton(
-              label: "Lancer un défi",
+              label: "Lance un défi",
               icon: const Icon(Icons.flash_on, color: Colors.white, size: 20),
               onPressed: onDuel,
             ),

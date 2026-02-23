@@ -39,12 +39,27 @@ class StreakBloc extends Bloc<StreakEvent, StreakState> {
   ) async {
     if (event.userId.isEmpty) return;
 
+    // initial fetch
     final streakSteps = await recupererStreakStepsUseCase();
+    final initialStreak = await getStreakUseCase(event.userId);
+    final (initialActions, initialHasCommunautaire) =
+        await calculerActionsRealiseesUseCase(event.userId, initialStreak);
+
+    emit(
+      StreakUpdated(
+        streak: initialStreak,
+        evolution: StreakEvolution.none,
+        actionsQuotidiennes: initialActions,
+        hasCompletedActionCommunautaire: initialHasCommunautaire,
+        streakSteps: streakSteps,
+      ),
+    );
 
     // calcul des actions réalisées pour la barre de progression
     await emit.onEach<UtilisateurStreakEntity>(
       watchStreakUseCase(event.userId, event.entrepriseId),
       onData: (streakEntity) async {
+        // Debug print
         // Vérification si la saison existe
         final streamSaisonDebut = streakEntity.saisonDebut;
         if (streamSaisonDebut == null) {

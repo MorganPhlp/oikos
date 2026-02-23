@@ -163,7 +163,7 @@ class _ProfileDetailsModalState extends State<ProfileDetailsModal> {
                   Padding(
                     padding: const EdgeInsets.all(20),
                     child: GradientButton(
-                      label: "Lancer un défi avec ${entry.label}",
+                      label: "Lance un défi avec ${entry.label}",
                       icon: const Icon(Icons.sports_kabaddi, color: Colors.white),
                       onPressed: () => print("Défi lancé"),
                     ),

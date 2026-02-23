@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS public.utilisateur_streak (
     utilisateur_id uuid PRIMARY KEY,
     current_streak int NOT NULL DEFAULT 0 CHECK (current_streak <= 4 AND current_streak >= 0),
-    last_updated timestamptz NOT NULL DEFAULT now(),
+    last_updated timestamptz  not NULL DEFAULT now(),
     last_streak_seen int NOT NULL DEFAULT 0 CHECK (last_streak_seen <= 4 AND last_streak_seen >= 0),
     last_action_date timestamptz
 );
@@ -69,7 +69,7 @@ BEGIN
         WHERE ra.utilisateur_id = NEW.utilisateur_id 
           AND (ra.date_realisation > next_updated) 
           AND ra.date_realisation >= d_debut_saison
-          AND a.frequence = 'journalier';
+          AND a.frequence = 'quotidienne';
 
         SELECT required_actions_quotidiennes INTO n_requis
         FROM public.streak_steps WHERE from_streak_phase = next_streak;
@@ -139,33 +139,33 @@ LEFT JOIN LATERAL (
 ) s ON true;
 
 -- Cron pour reset inactivité
-SELECT cron.schedule(
-    'reset-inactivite-streaks',
-    '0 3 * * *', 
-    $$
-    UPDATE public.utilisateur_streak us
-    SET current_streak = 0, last_updated = NULL
-    WHERE us.current_streak > 0 
-    AND (
-        NOW() >= us.last_updated + INTERVAL '2 weeks'
-        OR 
-        us.last_updated < (
-            SELECT COALESCE(MAX(s.start_date), '-infinity'::timestamptz) 
-            FROM public.saison s 
-            JOIN public.utilisateur u ON s.entreprise_id = u.entreprise_id
-            WHERE u.id = us.utilisateur_id
-            AND CURRENT_TIMESTAMP BETWEEN s.start_date AND s.end_date
-        )
-    );
-    $$
-);
+-- SELECT cron.schedule(
+--     'reset-inactivite-streaks',
+--     '0 3 * * *', 
+--     $$
+--     UPDATE public.utilisateur_streak us
+--     SET current_streak = 0, last_updated = NULL
+--     WHERE us.current_streak > 0 
+--     AND (
+--         NOW() >= us.last_updated + INTERVAL '2 weeks'
+--         OR 
+--         us.last_updated < (
+--             SELECT COALESCE(MAX(s.start_date), '-infinity'::timestamptz) 
+--             FROM public.saison s 
+--             JOIN public.utilisateur u ON s.entreprise_id = u.entreprise_id
+--             WHERE u.id = us.utilisateur_id
+--             AND CURRENT_TIMESTAMP BETWEEN s.start_date AND s.end_date
+--         )
+--     );
+--     $$
+-- );
 
 -- Init streak à la création de l'utilisateur
 CREATE OR REPLACE FUNCTION public.handle_new_user_streak()
 RETURNS TRIGGER AS $$
 BEGIN
     INSERT INTO public.utilisateur_streak (utilisateur_id, current_streak, last_updated, last_streak_seen)
-    VALUES (NEW.id, 0, null, 0);
+    VALUES (NEW.id, 0, CURRENT_TIMESTAMP, 0);
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;

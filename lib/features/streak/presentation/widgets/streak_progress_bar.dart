@@ -31,7 +31,7 @@ class StreakProgressSection extends StatelessWidget {
               icon: LucideIcons.userCheck,
               current: state.actionsQuotidiennes ?? 0,
               total: threshold == 0 ? 1 : threshold,
-              label: "Individuel",
+              label: "Quotidien",
             ),
           ),
           Container(

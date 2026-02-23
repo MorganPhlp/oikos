@@ -6,6 +6,7 @@ import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.da
 import 'package:oikos/core/common/presentation/pages/pdf_viewer_page.dart';
 import 'package:oikos/core/common/presentation/widgets/header.dart';
 import 'package:oikos/core/common/presentation/widgets/navbar.dart';
+import 'package:oikos/features/actions/presentation/bloc/habitudes_cubit.dart';
 import 'package:oikos/features/auth/presentation/pages/intro_page.dart';
 import 'package:oikos/features/auth/presentation/pages/update_password_page.dart';
 import 'package:oikos/features/bilanCarbone/presentation/pages/bilan_flow.dart';
@@ -17,20 +18,22 @@ import 'package:oikos/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'package:oikos/features/profile/presentation/pages/security_page.dart';
 import 'package:oikos/init_dependencies.dart';
 import 'package:oikos/features/profile/presentation/pages/profile_page.dart';
-
 import 'features/codeBarre/domain/entities/aliment_entity.dart';
 import 'features/codeBarre/presentation/pages/home_scan_page.dart';
 import 'features/codeBarre/presentation/pages/product_details_page.dart';
 import 'features/codeBarre/presentation/pages/scan_page.dart';
-import 'package:oikos/features/actions_et_defis/presentation/pages/action_page.dart';
-import 'package:oikos/features/actions_et_defis/presentation/pages/my_actions_page.dart';
+import 'package:oikos/features/actions/presentation/pages/action_page.dart';
+import 'package:oikos/features/actions/presentation/pages/my_actions_page.dart';
+import 'package:oikos/features/actions/presentation/bloc/actions_bloc.dart';
+import 'package:oikos/features/actions/presentation/bloc/actions_event.dart';
+import 'package:oikos/features/home/presentation/bloc/home_stats_cubit.dart';
 
 GoRouter createRouter(AppUserCubit appUserCubit) {
   GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
   GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>();
 
   return GoRouter(
-    initialLocation: '/community',
+    initialLocation: '/',
     refreshListenable: GoRouterRefreshStream(appUserCubit.stream),
     navigatorKey: rootNavigatorKey,
 
@@ -92,18 +95,60 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
           GoRoute(
             path: '/home',
             name: 'home',
-            builder: (context, state) => const HomePage(),
+            builder: (context, state) {
+              final userId =
+                  context.read<AppUserCubit>().state is AppUserLoggedIn
+                  ? (context.read<AppUserCubit>().state as AppUserLoggedIn)
+                        .user
+                        .id
+                  : '';
+              return BlocProvider(
+                create: (context) =>
+                    serviceLocator<HomeStatsCubit>()..loadStats(userId),
+                child: const HomePage(),
+              );
+            },
           ),
-
-          GoRoute(
-            path: '/actions',
-            name: 'catalogue',
-            builder: (context, state) => const ActionsCataloguePage(),
+          ShellRoute(
+            builder: (context, state, child) {
+              final userId =
+                  context.read<AppUserCubit>().state is AppUserLoggedIn
+                  ? (context.read<AppUserCubit>().state as AppUserLoggedIn)
+                        .user
+                        .id
+                  : '';
+              return MultiBlocProvider(
+                providers: [
+                  BlocProvider(
+                    create: (_) =>
+                        serviceLocator<ActionsBloc>()
+                          ..add(LoadAllActionsEvent(userId)),
+                  ),
+                  BlocProvider(
+                    create: (_) =>
+                        serviceLocator<HabitudeCubit>()..loadHabitudes(userId),
+                  ),
+                ],
+                child: child,
+              );
+            },
             routes: [
               GoRoute(
-                path: 'mine', // /actions/mine
-                name: 'my_actions',
-                builder: (context, state) => const MyActionsPage(),
+                path: '/actions',
+                name: 'catalogue',
+                builder: (context, state) {
+                  final actionId = state.uri.queryParameters['actionId'];
+                  return ActionsCataloguePage(openedActionId: actionId);
+                },
+                routes: [
+                  GoRoute(
+                    path: 'mine', // /actions/mine
+                    name: 'my_actions',
+                    builder: (context, state) {
+                      return const MyActionsPage();
+                    },
+                  ),
+                ],
               ),
             ],
           ),

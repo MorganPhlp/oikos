@@ -76,8 +76,8 @@ class _CommunityChallengesSheetState extends State<CommunityChallengesSheet> {
               Expanded(
                 child: Text(
                   _currentView == 0 ? "Défis de communautés" 
-                : _currentView == 1 ? "Actions en cours" 
-                : "Lancer un défi",
+                : _currentView == 1 ? "Actions en cours"
+                : "Lance un défi",
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: isDark ? AppColors.darkForeground : AppColors.lightTextPrimary,
@@ -118,7 +118,7 @@ class _CommunityChallengesSheetState extends State<CommunityChallengesSheet> {
         Text("OU", style: TextStyle(color: isDark ? AppColors.darkMutedForeground : AppColors.lightMutedForeground, fontWeight: FontWeight.bold)),
         const SizedBox(height: 24),
         _buildBigChoiceButton(
-          title: "Défier les autres",
+          title: "Défie les autres",
           subtitle: "Choisis une action et lance un défi à ta communauté",
           icon: Icons.sports_kabaddi,
           color: AppColors.orange,
