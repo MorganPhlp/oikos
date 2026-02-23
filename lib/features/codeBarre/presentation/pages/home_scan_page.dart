@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:oikos/core/common/presentation/widgets/gradient_button.dart';
+import 'package:oikos/features/codeBarre/domain/entities/aliment_entity.dart';
 
 class HomeScanPage extends StatelessWidget {
   const HomeScanPage({super.key});
@@ -55,7 +56,31 @@ class HomeScanPage extends StatelessWidget {
                     ); // On navigue vers la page caméra existante
                   },
                 ),
+
               ),
+              //POUR TESTER RAPIDEMENT LA PAGE DE DÉTAILS SI ON PEUT PAS UTILISER LA CAMERA
+              /*
+              ElevatedButton(
+                // On le met en rouge pour bien se rappeler de l'enlever avant la mise en production !
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                onPressed: () {
+                  // Création d'un faux produit (Mock)
+                  // Attributs test
+                  final mockAliment = AlimentEntity(
+                    codeBarre: '1234567890123',
+                    nom: 'Produit Test Tablette',
+                    marque: 'Viveris Test',
+                    ecoScore: 'A',
+                    imageUrl: 'https://images.openfoodfacts.org/images/products/301/762/042/2003/front_fr.594.400.jpg',
+                    // 'https://images.openfoodfacts.org/images/products/301/762/042/2003/front_fr.594.400.jpg' pour nutella
+                  );
+
+                  // Navigation vers la page TEST
+                  context.push('/scan/details', extra: mockAliment);
+                },
+                child: const Text('Mode Debug : Voir un produit'),
+              )
+              */
             ],
           ),
         ),

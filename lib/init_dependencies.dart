@@ -49,6 +49,7 @@ import 'package:oikos/features/bilanCarbone/domain/use_cases/reprendre_bilan_use
 import 'package:oikos/features/bilanCarbone/domain/use_cases/verifier_bilan_en_cours_use_case.dart';
 import 'package:oikos/features/profile/data/repositories/bilan_repository_impl.dart';
 import 'package:oikos/features/profile/domain/repositories/bilan_repository.dart';
+import 'package:oikos/features/profile/domain/use_cases/get_interests_data_use_case.dart';
 import 'package:oikos/features/profile/domain/use_cases/get_questions_restantes_use_case.dart';
 import 'package:oikos/features/profile/presentation/bloc/profile_bilan_cubit.dart';
 import 'package:oikos/features/streak/data/datasources/streak_remote_datasource.dart';
@@ -90,6 +91,8 @@ import 'package:oikos/features/codeBarre/presentation/bloc/scan_bloc.dart';
 
 import 'features/codeBarre/domain/usecases/get_alternative_product.dart';
 import 'features/codeBarre/presentation/cubit/alternative_product_cubit.dart';
+import 'features/profile/domain/use_cases/update_interests_use_case.dart';
+import 'features/profile/presentation/bloc/interests_cubit.dart';
 
 import 'package:oikos/features/actions/data/datasources/action_remote_data_source.dart';
 import 'package:oikos/features/actions/data/repositories/action_repository_impl.dart';
@@ -542,10 +545,24 @@ void _initProfile() {
     () =>
         GetQuestionsRestantesUseCase(serviceLocator<ProfileBilanRepository>()),
   );
+  serviceLocator.registerFactory(
+    () =>
+        GetInterestsDataUseCase(serviceLocator<CategorieEmpreinteRepository>())
+  );
+  serviceLocator.registerFactory(
+    () =>
+        UpdateInterestsUseCase(serviceLocator<CategorieEmpreinteRepository>())
+  );
 
   // Bloc
   serviceLocator.registerFactory(
     () => ProfileBilanCubit(getQuestionsRestantesUseCase: serviceLocator()),
+  );
+  serviceLocator.registerFactory(
+    () => InterestsCubit(
+      getInterestsDataUseCase: serviceLocator(),
+      updateInterestsUseCase: serviceLocator(),
+    ),
   );
 }
 

@@ -1,8 +1,6 @@
 import '../../domain/entities/leaderboard_entry.dart';
 
-// Modèle de données pour une entrée du classement
 class LeaderboardEntryModel extends LeaderboardEntry {
-
   LeaderboardEntryModel({
     required super.id,
     required super.label,
@@ -16,7 +14,6 @@ class LeaderboardEntryModel extends LeaderboardEntry {
     super.membersCount = 0,
   });
 
-  // Factory pour les utilisateurs 
   factory LeaderboardEntryModel.fromUserView(Map<String, dynamic> json, String currentUserId) {
     return LeaderboardEntryModel(
       id: json['id']?.toString() ?? '',
@@ -28,38 +25,27 @@ class LeaderboardEntryModel extends LeaderboardEntry {
       avatarUrl: json['avatar_url'] as String?,
       actionsCount: (json['actions_count'] as num?)?.toInt() ?? 0,
       streakDays: (json['streak_days'] as num?)?.toInt() ?? 0,
-      membersCount: (json['members_count'] as num?)?.toInt() ?? 0, // Pas de membres pour un utilisateur
     );
   }
 
-  // Factory pour les communautés
   factory LeaderboardEntryModel.fromCommunityView(Map<String, dynamic> json, String myCommunityCode) {
     return LeaderboardEntryModel(
-      id: json['community_code']?.toString() ?? 'CODE_MANQUANT',
-      label: (json['community_name'] as String?) ?? 'Communauté inconnue',
+      id: json['community_code']?.toString() ?? '',
+      label: (json['community_name'] as String?) ?? 'Communauté',
       value: (json['total_xp'] as num?)?.toInt() ?? 0,
       rank: (json['rank'] as num?)?.toInt() ?? 0,
       isUser: false,
       isMe: json['community_code'] == myCommunityCode,
+      avatarUrl: json['logo_url'],
       actionsCount: (json['total_actions'] as num?)?.toInt() ?? 0,
       membersCount: (json['members_count'] as num?)?.toInt() ?? 0,
       streakDays: 0,
     );
   }
 
-  // Méthode permettant de créer une copie d'une entrée du classement avec des modifications
   LeaderboardEntryModel copyWith({
-    String? id,
-    String? label,
-    int? value,
-    int? rank,
-    bool? isUser,
-    bool? isMe,
-    String? avatarUrl,
-    String? impactStats,
-    int? actionsCount,
-    int? streakDays,
-    int? membersCount,
+    String? id, String? label, int? value, int? rank, bool? isUser, bool? isMe,
+    String? avatarUrl, int? actionsCount, int? streakDays, int? membersCount,
   }) {
     return LeaderboardEntryModel(
       id: id ?? this.id,

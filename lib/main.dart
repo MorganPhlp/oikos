@@ -42,7 +42,7 @@ class _MyAppState extends State<MyApp> {
     super.initState();
 
     Supabase.instance.client.auth.onAuthStateChange.listen((data) {
-      // 1. On écoute les changements d'état d'authentification de Supabase
+      // On écoute les changements d'état d'authentification de Supabase
       final session = data.session;
       final event = data.event;
 
@@ -67,8 +67,7 @@ class _MyAppState extends State<MyApp> {
       }
     });
 
-    // 2. On initialise le router avec le singleton AppUserCubit DIRECTEMENT
-    // C'est la source de vérité unique
+    // On initialise le router avec le singleton AppUserCubit
     _router = createRouter(serviceLocator<AppUserCubit>());
   }
 
@@ -80,7 +79,6 @@ class _MyAppState extends State<MyApp> {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      // On utilise routerConfig pour brancher GoRouter
       routerConfig: _router,
     );
   }

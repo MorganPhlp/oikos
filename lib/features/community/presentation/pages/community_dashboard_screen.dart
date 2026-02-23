@@ -396,8 +396,8 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
         ),
 
         _ChallengeCard(
-          title: "Défi communautaire",
-          subtitle: "Lance-toi dans un défi collectif avec ta communauté",
+          title: "Défi de communautés",
+          subtitle: "Affronte une autre équipe",
           icon: Icons.flash_on,
           color: AppColors.lightPrimary,
           onTap: () {
@@ -408,8 +408,8 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
         const SizedBox(height: 12),
 
         _ChallengeCard(
-          title: "Défi de communautés",
-          subtitle: "Affronte une autre équipe",
+          title: "Actions communautaires",
+          subtitle: "Lance-toi dans un défi collectif avec ta communauté",
           icon: Icons.emoji_events,
           color: Colors.orange,
           onTap: () {
