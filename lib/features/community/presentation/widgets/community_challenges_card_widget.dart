@@ -5,7 +5,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../data/datasources/community_remote_datasource.dart';
 import '../../data/models/active_challenge_model.dart';
 
-// Widget pour les défis communautaires
 class CommunityChallengesCardWidget extends StatefulWidget {
   final String entrepriseId;
   final String myCommunityCode;
@@ -42,30 +41,38 @@ class _CommunityChallengesCardWidgetState extends State<CommunityChallengesCardW
     }
   }
 
-  // Dans la méthode _joinAndValidateChallenge du widget :
-Future<void> _joinAndValidateChallenge(dynamic challenge) async {
-  try {
-    final dataSource = CommunityRemoteDataSource(Supabase.instance.client);
-    final int baseXp = challenge.xpGain;
-
-    await dataSource.validateCommunityAction(
-      instanceId: challenge.id, 
-      baseActionId: challenge.baseActionId,
-      codeCommunaute: widget.myCommunityCode, 
-      userXpGain: (baseXp * 0.4).toInt(), 
-      communityXpReward: baseXp, 
-    );
-    
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Action validée ! Score collectif en cours... 🚀"), backgroundColor: AppColors.lightPrimary),
+  Future<void> _joinAndValidateChallenge(ActiveChallengeModel challenge) async {
+    try {
+      final dataSource = CommunityRemoteDataSource(Supabase.instance.client);
+      
+      await dataSource.validateCommunityAction(
+        instanceId: challenge.id, 
+        baseActionId: challenge.baseActionId,
+        codeCommunaute: widget.myCommunityCode, 
+        userXpGain: (challenge.xpGain * 0.4).toInt(), 
+        communityXpReward: challenge.xpGain, 
       );
-      _loadChallenges();
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Action validée ! +${(challenge.xpGain * 0.4).toInt()} XP 🎉"), 
+            backgroundColor: AppColors.lightPrimary
+          ),
+        );
+        _loadChallenges();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Erreur: ${e.toString()}"), 
+            backgroundColor: Colors.red
+          ),
+        );
+      }
     }
-  } catch (e) {
-    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Erreur: $e"), backgroundColor: Colors.red));
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +83,7 @@ Future<void> _joinAndValidateChallenge(dynamic challenge) async {
     if (_challenges.isEmpty) {
       return const Padding(
         padding: EdgeInsets.all(20),
-        child: Center(child: Text("Aucun défi en cours. Sois le premier à en lancer un !")),
+        child: Center(child: Text("Aucun défi en cours.")),
       );
     }
 
@@ -84,7 +91,7 @@ Future<void> _joinAndValidateChallenge(dynamic challenge) async {
       children: _challenges.map((challenge) {
         final daysLeft = challenge.dateFin.difference(DateTime.now()).inDays;
         final deadlineText = daysLeft > 0 ? "$daysLeft jours restants" : "Se termine aujourd'hui";
-        final target = 20; 
+        final target = 60; 
         final progress = (challenge.participantsCount / target * 100).clamp(0, 100).toInt();
 
         return Padding(
@@ -95,10 +102,10 @@ Future<void> _joinAndValidateChallenge(dynamic challenge) async {
             icon: "⚡", 
             points: challenge.xpGain,
             currentProgress: progress,
-            requiredPercentage: 100, 
+            requiredPercentage: 60, 
             activeUsers: challenge.participantsCount,
             deadline: deadlineText,
-            categories: const ["Défi actif"],
+            categories: const ["Action de groupe"],
             isJoined: challenge.isJoined, 
             onTap: challenge.isJoined ? null : () => _joinAndValidateChallenge(challenge), 
           ),
@@ -151,7 +158,7 @@ class _ChallengeCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: goldColor, width: 2),
               boxShadow: [
-                BoxShadow(color: goldColor.withValues(alpha: 0.1), blurRadius: 12, offset: const Offset(0, 4)),
+                BoxShadow(color: goldColor.withOpacity(0.1), blurRadius: 12, offset: const Offset(0, 4)),
               ],
             ),
             child: Column(
@@ -164,7 +171,7 @@ class _ChallengeCard extends StatelessWidget {
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(colors: [goldColor, goldColor.withValues(alpha: 0.7)]),
+                        gradient: LinearGradient(colors: [goldColor, goldColor.withOpacity(0.7)]),
                         shape: BoxShape.circle,
                       ),
                       child: Center(child: Text(icon, style: const TextStyle(fontSize: 24))),
@@ -176,7 +183,7 @@ class _ChallengeCard extends StatelessWidget {
                         children: [
                           Text(title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
                           const SizedBox(height: 4),
-                          Text(description, style: TextStyle(fontSize: 12, color: AppColors.lightTextPrimary.withValues(alpha: 0.7))),
+                          Text(description, style: TextStyle(fontSize: 12, color: AppColors.lightTextPrimary.withOpacity(0.7))),
                         ],
                       ),
                     ),
@@ -206,7 +213,7 @@ class _ChallengeCard extends StatelessWidget {
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(color: AppColors.lightPrimary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
+                      decoration: BoxDecoration(color: AppColors.lightPrimary.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
                       child: Text(deadline, style: const TextStyle(fontSize: 11, color: AppColors.lightPrimary)),
                     ),
                   ],
@@ -236,7 +243,7 @@ class _ChallengeCard extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topRight,
                   end: Alignment.bottomLeft,
-                  colors: [goldColor.withValues(alpha: 0.2), Colors.transparent],
+                  colors: [goldColor.withOpacity(0.2), Colors.transparent],
                 ),
                 borderRadius: const BorderRadius.only(topRight: Radius.circular(16), bottomLeft: Radius.circular(60)),
               ),
@@ -270,7 +277,7 @@ class _ProgressBar extends StatelessWidget {
           child: LinearProgressIndicator(
             value: current / 100,
             minHeight: 6,
-            backgroundColor: AppColors.lightTextPrimary.withValues(alpha: 0.1),
+            backgroundColor: AppColors.lightTextPrimary.withOpacity(0.1),
             color: AppColors.lightPrimary,
           ),
         ),
@@ -291,9 +298,9 @@ class _CategoryBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
+        border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Text(label, style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.w500)),
     );
