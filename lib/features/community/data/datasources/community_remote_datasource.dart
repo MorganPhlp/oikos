@@ -384,14 +384,6 @@ class CommunityRemoteDataSource {
       'code_communaute': communityCode,
     });
 
-    await supabase.from('realisation_actions').insert({
-      'utilisateur_id': userId,
-      'action_id': baseActionId,
-      'xp_gagne': 0,
-      'date_realisation': DateTime.now().toIso8601String(),
-      'co2_economise': 0.5, // TODO
-    });
-
     /// Ajout des XP à la communauté uniquement
     await waterPlant(communityCode, xpGain);
 
