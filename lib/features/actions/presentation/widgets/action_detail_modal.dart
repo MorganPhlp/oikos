@@ -236,7 +236,7 @@ class ActionDetailModal extends StatelessWidget {
           else ...[
             GradientButton(
               onPressed: () => onAdd(action),
-              label: 'Ajouter à mes actions',
+              label: "J'ajoute à mes actions",
             ),
             if (onEcarter != null) ...[
               const SizedBox(height: 12),
