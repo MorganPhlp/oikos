@@ -1,5 +1,15 @@
+/// Modèle symbolisant les défis actifs
+/// [id] : identifiant unique
+/// [baseActionId] : identifiant unique de l'action associée
+/// [title] : titre du défi
+/// [description] : description du défi
+/// [iconName] : nom de l'icône associée
+/// [xpGain] : nombre d'XP gagnés en accomplissant ce défi
+/// [dateFin] : date de fin du défi
+/// [participantsCount] : nombre de participants au défi
+/// [isJoined] : si le défi  a été rejoint par l'utilisateur connecté
 class ActiveChallengeModel {
-  final String id; // Instance ID
+  final String id;
   final String baseActionId;
   final String title;
   final String description;

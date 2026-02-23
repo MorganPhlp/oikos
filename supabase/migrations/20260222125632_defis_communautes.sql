@@ -1,5 +1,5 @@
 -- Catalogue des défis créés par les admins
-CREATE TABLE defis (
+CREATE TABLE  IF NOT EXISTS defis (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     entreprise_id UUID REFERENCES entreprise(id),
     categorie_nom TEXT,
@@ -15,7 +15,7 @@ CREATE TABLE defis (
 );
 
 -- Suivi des défis lancés (Duels ou Globaux)
-CREATE TABLE defis_communautes (
+CREATE TABLE IF NOT EXISTS defis_communautes (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     defi_id UUID REFERENCES defis(id),
     entreprise_id UUID REFERENCES entreprise(id),
@@ -33,7 +33,7 @@ CREATE TABLE defis_communautes (
 );
 
 -- Table pour gérer les votes de lancement (le seuil des 60%)
-CREATE TABLE votes_lancement_defi (
+CREATE TABLE IF NOT EXISTS votes_lancement_defi (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     defi_communaute_id UUID REFERENCES defis_communautes(id),
     user_id UUID REFERENCES utilisateur(id),
@@ -67,3 +67,12 @@ BEGIN
   END IF;
 END;
 $$ LANGUAGE plpgsql;
+
+create table IF NOT EXISTS validations_defis (
+  id uuid id default gen_random_uuid() primary key,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  defi_id uuid references public.defis(id) on delete cascade,
+  user_id uuid references auth.users(id),
+  code_communaute text not null,
+  xp_gain int not null
+);

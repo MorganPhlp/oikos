@@ -1,3 +1,9 @@
+/// Modèle symbolisant les actions communautaires
+/// [id] : identifiant unique
+/// [title] : titre de l'action communautaire
+/// [subtitle] : sous-titre de l'action communautaire
+/// [xpGain] : nombre d'XP gagnés en accomplissant cette action communautaire
+/// [iconKey] : nom de l'icône associée
 class CommunityActionModel {
   final String id;
   final String title;

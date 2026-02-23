@@ -2,13 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:oikos/core/theme/app_colors.dart';
 import '../../data/models/defi_model.dart';
+import 'active_defi_details_modal.dart';
 
 class CommunityDefisListWidget extends StatelessWidget {
   final String entrepriseId;
+  final String communityCode;
 
-  const CommunityDefisListWidget({Key? key, required this.entrepriseId}) : super(key: key);
+  const CommunityDefisListWidget({
+    Key? key, 
+    required this.entrepriseId, 
+    required this.communityCode
+  }) : super(key: key);
 
-  // LA MÉTHODE MANQUANTE EST BIEN LÀ
   Future<List<DefiModel>> _getActiveDefis() async {
     final client = Supabase.instance.client;
     
@@ -19,7 +24,7 @@ class CommunityDefisListWidget extends StatelessWidget {
     final pendingVotes = await client
         .from('defis_communautes')
         .select('defi_id')
-        .inFilter('statut', ['VOTE_LANCEMENT', 'EN_ATTENTE_CIBLE']); // inFilter pour la compatibilité
+        .inFilter('statut', ['VOTE_LANCEMENT', 'EN_ATTENTE_CIBLE']);
         
     final pendingIds = (pendingVotes as List).map((v) => v['defi_id']).toSet();
 
@@ -34,84 +39,132 @@ class CommunityDefisListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 1. Récupération du thème actuel (clair ou sombre)
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
     return FutureBuilder<List<DefiModel>>(
-      future: _getActiveDefis(), // L'appel fonctionne maintenant
+      future: _getActiveDefis(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: Padding(
-            padding: EdgeInsets.all(20.0),
-            child: CircularProgressIndicator(),
-          ));
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(20.0),
+              child: CircularProgressIndicator(),
+            ),
+          );
         }
         
         final defis = snapshot.data ?? [];
         if (defis.isEmpty) {
-          // Texte adapté au thème
           return Padding(
             padding: const EdgeInsets.all(12.0),
-            child: Text("Aucun défi actif pour le moment.", style: theme.textTheme.bodyMedium),
+            child: Text(
+              "Aucun défi actif pour le moment.", 
+              style: theme.textTheme.bodyMedium
+            ),
           );
         }
 
         return Column(
-          children: defis.map((defi) => Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              // UTILISATION DES COULEURS DU THÈME ADAPTATIVES
-              color: isDark ? AppColors.darkInput : Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: isDark ? AppColors.darkBorder : AppColors.lightInputBorder,
-              ),
-              boxShadow: isDark ? [] : [ // Ombre légère uniquement en mode clair
-                 BoxShadow(
+          children: defis.map((defi) {
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.darkInput : Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isDark ? AppColors.darkBorder : AppColors.lightInputBorder,
+                ),
+                boxShadow: isDark ? [] : [
+                  BoxShadow(
                     color: Colors.black.withOpacity(0.02),
                     blurRadius: 5,
                     offset: const Offset(0, 2),
                   ),
-              ],
-            ),
-            child: Row(
-              children: [
-                // Icône avec fond coloré
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.amber.withOpacity(0.1),
-                    shape: BoxShape.circle,
+                ],
+              ),
+              // On utilise Material pour que le InkWell puisse afficher l'effet de clic
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(16),
+                  onTap: () async {
+                    // On attend potentiellement un retour pour rafraîchir la liste
+                    final result = await showModalBottomSheet<bool>(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (context) => ActiveDefiDetailsModal(
+                        defi: defi,
+                        communityCode: communityCode,
+                      ),
+                    );
+                    
+                    // Si l'action a été validée dans le modal, on pourrait rafraîchir ici
+                    // if (result == true) { /* callback de refresh */ }
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.amber.withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.emoji_events, 
+                            color: Colors.amber, 
+                            size: 24
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                defi.title, 
+                                style: theme.textTheme.titleSmall?.copyWith(
+                                  fontWeight: FontWeight.bold
+                                )
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                defi.category, 
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.hintColor
+                                )
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10, 
+                            vertical: 6
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.lightPrimary.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            "+${defi.xpGain} XP", 
+                            style: const TextStyle(
+                              color: AppColors.lightPrimary, 
+                              fontWeight: FontWeight.bold, 
+                              fontSize: 12
+                            )
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  child: const Icon(Icons.emoji_events, color: Colors.amber, size: 24),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Texte titre adapté
-                      Text(defi.title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 4),
-                      // Texte sous-titre adapté (couleur hint)
-                      Text(defi.category, style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor)),
-                    ],
-                  ),
-                ),
-                // Badge XP
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: AppColors.lightPrimary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text("+${defi.xpGain} XP", style: const TextStyle(color: AppColors.lightPrimary, fontWeight: FontWeight.bold, fontSize: 12)),
-                ),
-              ],
-            ),
-          )).toList(),
+              ),
+            );
+          }).toList(),
         );
       },
     );

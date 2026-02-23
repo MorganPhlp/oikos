@@ -1,3 +1,14 @@
+/// Modèle symbolisant les défis
+/// [id] : identifiant unique
+/// [title] : titre du défi
+/// [description] : description du défi
+/// [category] : catégorie du défi (Quick Wins, Transport, Alimentation, Énergie, Toutes)
+/// [difficulty] : difficulté du défi (Facile, Moyen, Difficile)
+/// [xpGain] : quantité d'XP gagnés en accomplissant ce défi
+/// [co2Gain] : quantité de CO2 économisée en accomplissant ce défi
+/// [iconName] : nom de l'icône associée
+/// [tips] : conseil pour réaliser le défi
+/// [frequency] : fréquence de réalisation du défi
 class DefiModel {
   final String id;
   final String title;

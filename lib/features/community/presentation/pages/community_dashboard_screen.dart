@@ -11,10 +11,10 @@ import '../widgets/ranking_action_modal.dart';
 import '../widgets/profile_details_modal.dart';
 import 'community_selection_screen.dart'; 
 import '../widgets/setup_duel_modal.dart';
-import '../widgets/community_defi_list_widget.dart'; // Assure-toi que le nom du fichier match
+import '../widgets/community_defi_list_widget.dart';
 import '../widgets/defi_vote_widget.dart';
 
-// Ecran pour le dashboard de communautés
+/// Ecran pour le dashboard de communautés
 class CommunityDashboardScreen extends StatefulWidget {
   const CommunityDashboardScreen({Key? key}) : super(key: key);
 
@@ -23,7 +23,7 @@ class CommunityDashboardScreen extends StatefulWidget {
       _CommunityDashboardScreenState();
 }
 
-// Etat de l'écran de classement communautaire
+/// Etat de l'écran de classement communautaire
 class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
     with SingleTickerProviderStateMixin {
   late CommunityRemoteDataSource _dataSource;
@@ -33,24 +33,24 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
   bool _isLoading = true;
   String? _error;
 
-  List<LeaderboardEntryModel> _userList = []; // Liste des utilisateurs
-  List<LeaderboardEntryModel> _communityList = []; // Liste des communautés
-  List<CommunityActionModel> _actions = []; // Liste des actions
+  List<LeaderboardEntryModel> _userList = []; /// Liste des utilisateurs
+  List<LeaderboardEntryModel> _communityList = []; /// Liste des communautés
+  List<CommunityActionModel> _actions = []; /// Liste des actions
 
-  String? _myCommunityCode;
-  String? _myEntrepriseId;
+  String? _myCommunityCode; /// Code de l'a communauté de l'utilisateur connecté
+  String? _myEntrepriseId; /// ID de l'entreprise de l'utilisateur connecté
 
   int get _notificationCount {
-    // 1. Compter les invitations reçues à accepter (statut EN_ATTENTE_CIBLE)
+    /// Invitations reçues pour un défi en attente de vote
     final incomingCount = _communityDefis.where((d) => 
       d['communaute_cible_code'] == _myCommunityCode && 
       d['statut'] == 'EN_ATTENTE_CIBLE'
     ).length;
 
-    // 2. Compter les votes internes à donner (statut VOTE_LANCEMENT)
+    /// Votes pour lancer le défi
     final votingCount = _communityDefis.where((d) => 
       d['statut'] == 'VOTE_LANCEMENT' && 
-      d['is_joined'] == false // L'utilisateur n'a pas encore voté
+      d['is_joined'] == false /// L'utilisateur n'a pas encore voté
     ).length;
 
     return incomingCount + votingCount;
@@ -64,7 +64,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
     _loadData();
   }
 
-  // Chargement des données
+  /// Chargement des données
   Future<void> _loadData() async {
     setState(() {
       _isLoading = true;
@@ -91,14 +91,11 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
       _myCommunityCode = userRes['code_communaute'];
       _myEntrepriseId = userRes['entreprise_id'];
 
-      // On récupère les données
-      // On récupère les données
+      /// On récupère les données
       final results = await Future.wait([
         _dataSource.getUserLeaderboard(_myCommunityCode!),
         _dataSource.getCommunityLeaderboard(_myEntrepriseId ?? '', _myCommunityCode!),
         _dataSource.getActions(),
-        
-        // MODIFICATION ICI : On utilise la nouvelle méthode
         _dataSource.getMyCommunityDefis(_myCommunityCode!), 
       ]);
 
@@ -111,7 +108,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
         }).toList();
         _communityList = results[1] as List<LeaderboardEntryModel>;
         _actions = results[2] as List<CommunityActionModel>;
-        _communityDefis = results[3] as List<dynamic>; 
+        _communityDefis = results[3]; 
         
         _isLoading = false;
       });
@@ -121,7 +118,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
     }
   }
 
-  // Affichage du classement
+  /// Affichage du classement
   void _showRankingInfo(BuildContext context, LeaderboardEntry entry) {
     showDialog(
       context: context,
@@ -143,6 +140,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
     );
   }
 
+  /// Gestion des réponses au défi
   Future<void> _handleChallengeResponse(String challengeId, bool accept) async {
     try {
       await _dataSource.respondToChallenge(challengeId, accept);
@@ -150,18 +148,18 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(accept ? "Défi accepté ! Bonne chance 🚀" : "Défi décliné."),
+            content: Text(accept ? "Défi accepté ! Bonne chance !" : "Défi décliné."),
             backgroundColor: accept ? Colors.green : Colors.red,
           )
         );
-        _loadData(); // Rafraîchir l'écran
+        _loadData();
       }
     } catch (e) {
       debugPrint("Erreur réponse défi: $e");
     }
   }
 
-  // Widget d'affichage de l'invitation reçue
+  /// Widget d'affichage de l'invitation reçue
   Widget _buildIncomingChallengeSection() {
     final incomingDefis = _communityDefis.where((d) => 
       d['communaute_cible_code'] == _myCommunityCode && 
@@ -175,7 +173,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
       children: [
         const Padding(
           padding: EdgeInsets.only(left: 4, bottom: 12, top: 10),
-          child: Text("🔥 Nouveau défi reçu !", 
+          child: Text("Nouveau défi reçu !", 
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange, fontSize: 16)),
         ),
         ...incomingDefis.map((defi) => Container(
@@ -191,7 +189,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
               const Icon(Icons.flash_on, color: Colors.orange, size: 30),
               const SizedBox(height: 12),
               Text(
-                "Une communauté vous défie sur ${defi['titre'] ?? ''} !",
+                "Une communauté défie la tienne sur ${defi['titre'] ?? ''} !",
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                 textAlign: TextAlign.center,
               ),
@@ -207,7 +205,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       onPressed: () => _handleChallengeResponse(defi['id'], true),
-                      child: const Text("Accepter"),
+                      child: const Text("J'accepte"),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -219,7 +217,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       onPressed: () => _handleChallengeResponse(defi['id'], false),
-                      child: const Text("Refuser"),
+                      child: const Text("Je refuse"),
                     ),
                   ),
                 ],
@@ -231,6 +229,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
     );
   }
 
+  // Widget pour les votes actifs
   Widget _buildActiveVotesSection() {
     final votingDefis = _communityDefis.where((d) => d['statut'] == 'VOTE_LANCEMENT').toList();
 
@@ -241,18 +240,18 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
       children: [
         const Padding(
           padding: EdgeInsets.symmetric(vertical: 12),
-          child: Text("Votes de défis (Propositions de membres)", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          child: Text("Vote pour le prochain défi", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         ),
         ...votingDefis.map((defi) => Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: DefiVoteWidget(
             title: defi['titre'] ?? "Défi",
             currentVotes: (defi['participants_count'] as num?)?.toInt() ?? 0,
-            totalRequired: 20, // À dynamiser : (membres_actifs * 0.6)
+            totalRequired: 20, // TODO : À dynamiser : (membres_actifs * 0.6)
             hasVoted: defi['is_joined'] ?? false,
             onVote: () async {
               await _dataSource.voteForDefiLaunch(defi['id'], _myCommunityCode!);
-              _loadData(); // Rafraîchit pour mettre à jour la jauge
+              _loadData();
             },
           ),
         )).toList(),
@@ -260,7 +259,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
     );
   }
 
-  // MÉTHODES DE NAVIGATION DES BOUTONS D'ACTIONS
+  /// Sélection parmi les communautés de l'entreprise
   Future<void> _openCommunitySelection() async {
     if (_myEntrepriseId == null || _myCommunityCode == null) return;
 
@@ -288,6 +287,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
     }
   }
 
+  /// Sélection parmi les actions communautaires actives
   void _openCommunityActions() {
     if (_myEntrepriseId == null || _myCommunityCode == null) return;
 
@@ -303,39 +303,29 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
     );
   }
 
-  // Mise à jour de la section Challenges
+  /// Mise à jour de la section Défis
   Widget _buildChallengesSection(bool isCommunity) {
     final theme = Theme.of(context);
     
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 1. INVITATIONS REÇUES (Duel adverse à accepter)
         _buildIncomingChallengeSection(), 
-
-        // 2. DÉFIS DISPONIBLES (À voter - Table defis_communautes)
         _buildActiveVotesSection(), 
-
         const SizedBox(height: 20),
-
-        // 3. DÉFIS ACTIFS (En cours - Table defis)
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 12),
           child: Row(
             children: [
               const Icon(Icons.bolt, color: Colors.orange, size: 20),
               const SizedBox(width: 8),
-              Text("Défis actifs de l'entreprise", 
+              Text("Défis actifs", 
                 style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
             ],
           ),
         ),
-        // Widget pointant sur les défis validés/admin
-        CommunityDefisListWidget(entrepriseId: _myEntrepriseId ?? ''),
-
+        CommunityDefisListWidget(entrepriseId: _myEntrepriseId ?? '', communityCode: _myCommunityCode ?? ''),
         const SizedBox(height: 32),
-
-        // 4. ACTIONS COLLECTIVES (Boutons de lancement)
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 16),
           child: Text("Défis et actions communautaires", 
@@ -363,7 +353,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
     );
   }
 
-  // Construction de la fenêtre
+  /// Construction de la fenêtre
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -388,8 +378,8 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
             ),
             child: TabBar(
               controller: _tabController,
-              dividerColor: Colors.transparent, // Retire le trait sous les onglets
-              indicatorColor: Colors.transparent, // Retire le trait de sélection
+              dividerColor: Colors.transparent,
+              indicatorColor: Colors.transparent,
               indicatorSize: TabBarIndicatorSize.tab,
               indicator: BoxDecoration(
                 color: AppColors.lightPrimary,
@@ -448,6 +438,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
     );
   }
 
+  /// Widget d'affichage du classement
   Widget _buildLeaderboardView(List<LeaderboardEntry> list, {required bool isCommunity}) {
     if (list.isEmpty) return const Center(child: Text("Aucun classement disponible"));
 
@@ -464,7 +455,9 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
       } catch (_) {}
     }
 
+    /// Podium
     final top3 = displayList.take(3).toList();
+    /// Reste du classement
     final rest = displayList.length > 3 ? displayList.sublist(3) : <LeaderboardEntry>[];
 
     return SingleChildScrollView(
@@ -502,15 +495,13 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
           }).toList(),
 
           const SizedBox(height: 30),
-
-          // L'unique appel de la section Défis
           if (isCommunity) _buildChallengesSection(isCommunity),
         ],
       ),
     );
   }
 
-  // Widgets du podium
+  /// Widget de création du podium
   Widget _buildPodium(List<LeaderboardEntry> top3, bool isCommunity) {
     if (top3.isEmpty) return const SizedBox();
 
@@ -532,6 +523,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
     );
   }
 
+  /// Widget de création des marches du podium
   Widget _buildPodiumStep(LeaderboardEntry entry, int rank, Color color, double height) {
     final theme = Theme.of(context);
 
@@ -621,12 +613,14 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
   }
 }
 
+/// Classe représentant le classement
 class _LeaderboardCard extends StatelessWidget {
   final LeaderboardEntry entry;
   final VoidCallback onTap;
 
   const _LeaderboardCard({required this.entry, required this.onTap});
 
+  /// Création de la page
   @override
   Widget build(BuildContext context) {
     final isMe = entry.isMe;
@@ -738,6 +732,7 @@ class _ChallengeCard extends StatelessWidget {
     required this.onTap,
   });
 
+  /// Création de la page
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);

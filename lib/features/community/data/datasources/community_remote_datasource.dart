@@ -8,13 +8,13 @@ class CommunityRemoteDataSource {
 
   CommunityRemoteDataSource(this.supabase);
 
-  // Récupère la liste des actions de la base de données
+  /// Récupère la liste des actions de base
   Future<List<CommunityActionModel>> getActions() async {
     final response = await supabase.from('actions').select();
     return (response as List).map((e) => CommunityActionModel.fromJson(e)).toList();
   }
 
-  // Récupère la liste des défis de la base de données
+  /// Récupère l'ensemble des défis pour l'entreprise [entrepriseId]
   Future<List<DefiModel>> getDefisCatalog(String entrepriseId) async {
     final response = await supabase
         .from('defis')
@@ -23,7 +23,7 @@ class CommunityRemoteDataSource {
     return (response as List).map((e) => DefiModel.fromJson(e)).toList();
   }
 
-  // Récupère les défis spécifiques (table 'defis')
+  /// Récupère les défis actifs de l'entreprise [entrepriseId]
   Future<List<DefiModel>> getActiveDefis(String entrepriseId) async {
     final response = await supabase
         .from('defis')
@@ -33,75 +33,55 @@ class CommunityRemoteDataSource {
     return (response as List).map((json) => DefiModel.fromJson(json)).toList();
   }
 
-  Future<void> respondToChallenge(String challengeId, bool accept) async {
-    final nouveauStatut = accept ? 'ACTIF' : 'REFUSE';
-    
-    await supabase
-        .from('defis_communautes')
-        .update({
-          'statut': nouveauStatut,
-          'date_debut': accept ? DateTime.now().toIso8601String() : null,
-        })
-        .eq('id', challengeId);
-  }
-
-  // Récupère le classement des utilisateurs de la base de données
-  Future<List<LeaderboardEntryModel>> getUserLeaderboard(String communityCode) async {
-    final currentUserId = supabase.auth.currentUser!.id;
-    final response = await supabase
-        .from('vue_user_ranking')
-        .select()
-        .eq('code_communaute', communityCode)
-        .order('total_xp', ascending: false);
-
-    final list = response as List<dynamic>;
-    return list.asMap().entries.map((entry) {
-      final model = LeaderboardEntryModel.fromUserView(entry.value, currentUserId);
-      return model.copyWith(rank: entry.key + 1);
-    }).toList();
-  }
-
-  // Récupère le classement des communautés de la base de données
-  Future<List<LeaderboardEntryModel>> getCommunityLeaderboard(String entrepriseId, String myCommunityCode) async {
+  /// Vérifie si l'utilisateur a déjà validé le défi [defiId] spécifique aujourd'hui
+  Future<bool> checkIfDefiValidatedToday(String defiId) async {
     try {
-      final response = await supabase
-          .from('vue_community_ranking')
-          .select()
-          .eq('entreprise_id', entrepriseId)
-          .order('total_xp', ascending: false);
+      final userId = supabase.auth.currentUser?.id;
+      if (userId == null) return false;
 
-      final list = response as List<dynamic>;
-      return list.asMap().entries.map((entry) {
-        final model = LeaderboardEntryModel.fromCommunityView(entry.value, myCommunityCode);
-        return model.copyWith(rank: entry.key + 1);
-      }).toList();
-    } catch (e) {
-      return [];
-    }
-  }
+      final now = DateTime.now();
+      final startOfDay = DateTime(now.year, now.month, now.day).toIso8601String();
 
-  // Récupère le détail des communautés de la base de données 
-  Future<LeaderboardEntryModel?> getCommunityDetails(String communityCode) async {
-    try {
       final response = await supabase
-          .from('vue_community_ranking')
-          .select()
-          .eq('community_code', communityCode)
+          .from('validations_defis')
+          .select('id')
+          .eq('defi_id', defiId)
+          .eq('user_id', userId)
+          .gte('created_at', startOfDay)
           .maybeSingle();
 
-      if (response == null) return null;
-      return LeaderboardEntryModel.fromCommunityView(response, communityCode);
+      return response != null;
     } catch (e) {
-      return null;
+      return false;
     }
   }
 
-  // Récupère les utilisateurs les plus actifs de la communauté
+  /// Fonction de création d'une action [actionId] communautaire [titrePersonnalise] 
+  /// pour l'entreprise [entrepriseId] d'une durée  de [daysDuration] jours
+  Future<void> createCommunityChallenge({
+    required String entrepriseId,
+    required String actionId,
+    String? titrePersonnalise,
+    required int daysDuration,
+  }) async {
+    final userId = supabase.auth.currentUser!.id;
+    final dateFin = DateTime.now().add(Duration(days: daysDuration)).toIso8601String();
+
+    await supabase.from('action_communautaire').insert({
+      'entreprise_id': entrepriseId,
+      'action_id': actionId, //
+      'titre_personnalise': titrePersonnalise,
+      'date_fin': dateFin,
+      'createur_id': userId,
+    });
+  }
+
+  /// Récupère les utilisateurs les plus actifs de la communauté [communityCode]
   Future<List<LeaderboardEntryModel>> getCommunityTopContributors(String communityCode) async {
     try {
       final response = await supabase
           .from('utilisateur')
-          .select('id, pseudo, impact_score_xp, avatar_url')
+          .select('id, pseudo, impact_score_xp, avatar_url, actions_count, streak_days')
           .eq('code_communaute', communityCode)
           .order('impact_score_xp', ascending: false)
           .limit(3);
@@ -110,35 +90,43 @@ class CommunityRemoteDataSource {
         return LeaderboardEntryModel(
           id: json['id'],
           label: "${json['pseudo'] ?? ''}".trim(),
-          value: json['impact_score_xp'] ?? 0,
+          value: (json['impact_score_xp'] as num?)?.toInt() ?? 0,
           rank: 0,
           isUser: true,
-          isMe: false,
+          isMe: json['id'] == supabase.auth.currentUser?.id,
           avatarUrl: json['avatar_url'],
-          actionsCount: 0,
-          streakDays: 0,
+          actionsCount: json['actions_count'],
+          streakDays: json['streak_days'],
           membersCount: 0,
         );
       }).toList();
     } catch (e) {
+      print("Erreur lors de la récupération des contributeurs : $e");
       return [];
     }
   }
 
-  // Récupère les informations sur les communautés adverses
-  Future<List<LeaderboardEntryModel>> getAdversaryCommunities(String entrepriseId, String myCode) async {
-    final response = await supabase
-        .from('vue_community_ranking')
-        .select()
-        .eq('entreprise_id', entrepriseId)
-        .neq('community_code', myCode); 
+  /// Enregistre une validation de l'action [defiId] et attribue [xpGain] XP 
+  /// à la communauté [communityCode]
+  Future<void> validateDefiAction({
+    required String defiId,
+    required String communityCode,
+    required int xpGain,
+  }) async {
+    final userId = supabase.auth.currentUser?.id;
+    if (userId == null) throw Exception("Utilisateur non authentifié");
 
-    return (response as List).map((json) => 
-      LeaderboardEntryModel.fromCommunityView(json, myCode)
-    ).toList();
+    // Insertion dans validations_defis
+    await supabase.from('validations_defis').insert({
+      'defi_id': defiId,
+      'user_id': userId,
+      'code_communaute': communityCode,
+      'xp_gain': xpGain,
+    });
   }
 
-  // Fonction pour lancer un défi
+  /// Propose un défi [defiId] entre deux communautés [myCommunityCode] et [targetCommunityCode]
+  /// de l'entreprise [entrepriseId] pour une durée de [durationDays] jours (Statut: VOTE_LANCEMENT)
   Future<void> proposeDuel({
     required String defiId,
     required String myCommunityCode,
@@ -157,7 +145,8 @@ class CommunityRemoteDataSource {
     });
   }
 
-  // Fonction de vote pour un défi
+  /// Enregistre un vote pour lancer le défi [defiCommunauteId] 
+  /// parmi la communauté [communityCode] et vérifie le seuil (60% de votants)
   Future<void> voteForDefiLaunch(String defiCommunauteId, String communityCode) async {
     final userId = supabase.auth.currentUser!.id;
     
@@ -173,15 +162,114 @@ class CommunityRemoteDataSource {
     });
   }
 
-  // Fonction d'ajout d'XP à la communauté
-  Future<void> waterPlant(String communityCode, int xpAmount) async {
-    await supabase.rpc('water_plant', params: {
-      'community_code_arg': communityCode,
-      'xp_amount': xpAmount,
-    });
+  /// Réponse [accept] de la communauté cible (Accepter ou Refuser) pour le défi [challengeId]
+  Future<void> respondToChallenge(String challengeId, bool accept) async {
+    final nouveauStatut = accept ? 'ACTIF' : 'REFUSE';
+    
+    await supabase
+        .from('defis_communautes')
+        .update({
+          'statut': nouveauStatut,
+          'date_debut': accept ? DateTime.now().toIso8601String() : null,
+        })
+        .eq('id', challengeId);
   }
 
-  // Récupère les actions communautaires actives de la base de données
+  /// Récupère les défis de la communauté [communauteCode] pour le Dashboard (Votes en cours + Infos titres)
+  Future<List<dynamic>> getMyCommunityDefis(String communauteCode) async {
+    final userId = supabase.auth.currentUser?.id;
+
+    final response = await supabase
+        .from('defis_communautes')
+        .select('*, defis(titre, categorie_nom)')
+        .or('communaute_demandeur_code.eq.$communauteCode,communaute_cible_code.eq.$communauteCode');
+
+    final votesResponse = await supabase
+        .from('votes_lancement_defi')
+        .select('defi_communaute_id, user_id')
+        .eq('code_communaute', communauteCode);
+
+    final List votes = votesResponse as List;
+
+    return (response as List).map((json) {
+      final defiCommunauteId = json['id'].toString();
+      final voteCount = votes.where((v) => v['defi_communaute_id'].toString() == defiCommunauteId).length;
+      final hasVoted = votes.any((v) => v['defi_communaute_id'].toString() == defiCommunauteId && v['user_id'].toString() == userId);
+
+      return {
+        ...json,
+        'titre': json['defis'] != null ? json['defis']['titre'] : 'Défi',
+        'participants_count': voteCount,
+        'is_joined': hasVoted,
+      };
+    }).toList();
+  }
+
+  /// Récupère le classement des utilisateurs de la communauté [communauteCode]
+  Future<List<LeaderboardEntryModel>> getUserLeaderboard(String communauteCode) async {
+    final currentUserId = supabase.auth.currentUser!.id;
+    final response = await supabase
+        .from('vue_user_ranking')
+        .select()
+        .eq('code_communaute', communauteCode)
+        .order('total_xp', ascending: false);
+
+    final list = response as List<dynamic>;
+    return list.asMap().entries.map((entry) {
+      final model = LeaderboardEntryModel.fromUserView(entry.value, currentUserId);
+      return model.copyWith(rank: entry.key + 1);
+    }).toList();
+  }
+
+  /// Récupère le classement des communautés de l'entreprise [entrepriseId]
+  Future<List<LeaderboardEntryModel>> getCommunityLeaderboard(String entrepriseId, String myCommunityCode) async {
+    try {
+      final response = await supabase
+          .from('vue_community_ranking')
+          .select()
+          .eq('entreprise_id', entrepriseId)
+          .order('total_xp', ascending: false);
+
+      final list = response as List<dynamic>;
+      return list.asMap().entries.map((entry) {
+        final model = LeaderboardEntryModel.fromCommunityView(entry.value, myCommunityCode);
+        return model.copyWith(rank: entry.key + 1);
+      }).toList();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  /// Récupère les détails liés à la communauté [communauteCode]
+  Future<LeaderboardEntryModel?> getCommunityDetails(String communauteCode) async {
+    try {
+      final response = await supabase
+          .from('vue_community_ranking')
+          .select()
+          .eq('community_code', communauteCode)
+          .maybeSingle();
+
+      if (response == null) return null;
+      return LeaderboardEntryModel.fromCommunityView(response, communauteCode);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Récupère les communautés adverses parmi l'netreprise [entrepriseId] à celle de l'utilisateur connecté [myCode]
+  Future<List<LeaderboardEntryModel>> getAdversaryCommunities(String entrepriseId, String myCode) async {
+    final response = await supabase
+        .from('vue_community_ranking')
+        .select()
+        .eq('entreprise_id', entrepriseId)
+        .neq('community_code', myCode); 
+
+    return (response as List).map((json) => 
+      LeaderboardEntryModel.fromCommunityView(json, myCode)
+    ).toList();
+  }
+
+  /// Récupère les défis actifs de l'entreprise [entrepriseId]
   Future<List<dynamic>> getActiveChallenges(String entrepriseId) async {
     final userId = supabase.auth.currentUser!.id;
     final response = await supabase
@@ -205,115 +293,11 @@ class CommunityRemoteDataSource {
     }).toList();
   }
 
-  // Valide l'action communautaire et ajoute des XP à l'utilisateur et à la communauté concernés
-  Future<void> validateCommunityAction({
-    required String instanceId,
-    required String baseActionId,
-    required String codeCommunaute,
-    required int userXpGain,
-    required int communityXpReward,
-  }) async {
-    final userId = supabase.auth.currentUser!.id;
-      
-    try {
-      await supabase.from('action_communautaire_participation').insert({
-        'action_id': instanceId,
-        'user_id': userId,
-        'code_communaute': codeCommunaute,
-      });
-    } catch (_) {}
-
-    await supabase.rpc('add_xp_to_user', params: {
-      'user_id_param': userId,
-      'xp_amount': userXpGain,
+  /// Ajoute [xpAmount] XP à la communauté [communauteCode]
+  Future<void> waterPlant(String communauteCode, int xpAmount) async {
+    await supabase.rpc('water_plant', params: {
+      'community_code_arg': communauteCode,
+      'xp_amount': xpAmount,
     });
-
-    await supabase.rpc('check_and_reward_community_action', params: {
-      'instance_id_param': instanceId,
-      'community_code_param': codeCommunaute,
-      'xp_reward': communityXpReward,
-    });
-
-    await supabase.from('realisation_actions').insert({
-      'utilisateur_id': userId,
-      'action_id': baseActionId,
-      'date_realisation': DateTime.now().toIso8601String(),
-      'xp_gagne': userXpGain,
-      'co2_economise': 0.5,
-    });
-
-    final currentActions = await _getCurrentActions(userId);
-    await supabase.from('utilisateur')
-        .update({ 'actions_count': currentActions + 1 })
-        .eq('id', userId);
-  }
-
-  // Récupère les actions communautaires actives
-  Future<int> _getCurrentActions(String userId) async {
-    try {
-      final res = await supabase
-          .from('utilisateur')
-          .select('actions_count')
-          .eq('id', userId)
-          .single();
-      return (res['actions_count'] as num?)?.toInt() ?? 0;
-    } catch (e) {
-      return 0;
-    }
-  }
-
-  // Fonction de création d'une action communautaire
-  Future<void> createCommunityChallenge({
-    required String entrepriseId,
-    required String actionId,
-    String? titrePersonnalise,
-    required int daysDuration,
-  }) async {
-    final userId = supabase.auth.currentUser!.id;
-    final dateFin = DateTime.now().add(Duration(days: daysDuration)).toIso8601String();
-
-    await supabase.from('action_communautaire').insert({
-      'entreprise_id': entrepriseId,
-      'action_id': actionId,
-      'titre_personnalise': titrePersonnalise,
-      'date_fin': dateFin,
-      'createur_id': userId,
-    });
-  }
-
-  // À ajouter dans community_remote_datasource.dart
-  Future<List<dynamic>> getMyCommunityDefis(String communityCode) async {
-    final userId = supabase.auth.currentUser!.id;
-
-    // 1. Récupérer les défis où ma communauté est impliquée (demandeur ou cible)
-    final response = await supabase
-        .from('defis_communautes')
-        .select('*, defis(titre, categorie_nom)')
-        .or('communaute_demandeur_code.eq.$communityCode,communaute_cible_code.eq.$communityCode');
-
-    // 2. Récupérer les votes pour compter la jauge et savoir si j'ai déjà voté
-    final votesResponse = await supabase
-        .from('votes_lancement_defi')
-        .select('defi_communaute_id, user_id')
-        .eq('code_communaute', communityCode);
-
-    final List votes = votesResponse as List;
-
-    // 3. On assemble tout pour le Dashboard
-    return (response as List).map((json) {
-      final defiCommunauteId = json['id'].toString();
-      
-      // Compte le nombre de votes
-      final voteCount = votes.where((v) => v['defi_communaute_id'].toString() == defiCommunauteId).length;
-      // Vérifie si moi j'ai voté
-      final hasVoted = votes.any((v) => v['defi_communaute_id'].toString() == defiCommunauteId && v['user_id'].toString() == userId);
-
-      return {
-        ...json,
-        'titre': json['defis'] != null ? json['defis']['titre'] : 'Défi',
-        'participants_count': voteCount,
-        'is_joined': hasVoted,
-      };
-    }).toList();
   }
 }

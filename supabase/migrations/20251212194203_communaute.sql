@@ -1,3 +1,4 @@
+-- Table des communautés
 CREATE TABLE IF NOT EXISTS communaute (
     code TEXT PRIMARY KEY NOT NULL,
     nom TEXT NOT NULL,

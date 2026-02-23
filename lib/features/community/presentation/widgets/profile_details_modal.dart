@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../data/datasources/community_remote_datasource.dart';
-import '../../data/models/leaderboard_entry_model.dart';
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/core/common/presentation/widgets/oikos_avatar.dart';
 import '../../../../core/common/presentation/widgets/gradient_button.dart';
+import '../../data/datasources/community_remote_datasource.dart';
+import '../../data/models/leaderboard_entry_model.dart';
 import '../../domain/entities/leaderboard_entry.dart';
 
-// Widget de modal pour afficher les détails d'un profil utilisateur ou d'une communauté
 class ProfileDetailsModal extends StatefulWidget {
   final LeaderboardEntry entry;
 
@@ -24,7 +23,6 @@ class _ProfileDetailsModalState extends State<ProfileDetailsModal> {
   @override
   void initState() {
     super.initState();
-    // Si c'est une communauté, on charge ses top membres
     if (!widget.entry.isUser) {
       _loadContributors();
     } else {
@@ -34,7 +32,7 @@ class _ProfileDetailsModalState extends State<ProfileDetailsModal> {
 
   Future<void> _loadContributors() async {
     final dataSource = CommunityRemoteDataSource(Supabase.instance.client);
-    
+    // Utilise l'ID de l'entry pour charger les membres de cette communauté
     final users = await dataSource.getCommunityTopContributors(widget.entry.id); 
     
     if (mounted) {
@@ -52,16 +50,11 @@ class _ProfileDetailsModalState extends State<ProfileDetailsModal> {
     final theme = Theme.of(context);
     final bgColor = theme.scaffoldBackgroundColor;
 
-    // Calculs pour les badges dynamiques
-    // TODO : Affiner les critères de badges et les seuils
-    final int treesPlanted = (entry.value / 1000).floor(); 
-    final bool isSuperActive = (entry.actionsCount ?? 0) > 100; // Seuil arbitraire
-
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.all(16),
       child: Container(
-        height: 600,
+        constraints: const BoxConstraints(maxHeight: 650), // Utilise maxHeight plutôt qu'une hauteur fixe
         width: double.infinity,
         decoration: BoxDecoration(
           color: bgColor,
@@ -70,6 +63,7 @@ class _ProfileDetailsModalState extends State<ProfileDetailsModal> {
         child: Stack(
           alignment: Alignment.topCenter,
           children: [
+            // Header dégradé
             Container(
               height: 140,
               decoration: const BoxDecoration(
@@ -82,8 +76,7 @@ class _ProfileDetailsModalState extends State<ProfileDetailsModal> {
               ),
             ),
             
-            Positioned(top: 10, right: 10, child: IconButton(icon: const Icon(Icons.close, color: Colors.white70), onPressed: () => Navigator.of(context).pop())),
-
+            // Bouton Fermer (Unique)
             Positioned(
               top: 10,
               right: 10,
@@ -93,38 +86,41 @@ class _ProfileDetailsModalState extends State<ProfileDetailsModal> {
               ),
             ),
 
+            // Contenu principal scrollable
             Padding(
               padding: const EdgeInsets.only(top: 80),
-              child: Column(
-                children: [
-                  const SizedBox(height: 60),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 60), // Espace pour l'avatar qui dépasse
 
-                  Text(
-                    entry.label,
-                    style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    isCommunity ? "Communauté" : "Membre actif",
-                    style: theme.textTheme.bodyMedium?.copyWith(color: theme.hintColor),
-                  ),
-                  const SizedBox(height: 24),
+                    Text(
+                      entry.label,
+                      style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                    ),
+                    Text(
+                      isCommunity ? "Communauté" : "Membre actif",
+                      style: theme.textTheme.bodyMedium?.copyWith(color: theme.hintColor),
+                    ),
+                    const SizedBox(height: 24),
 
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _buildStatBox(context, Icons.emoji_events, "${entry.value}", "XP Total"),
-                      _buildStatBox(context, Icons.flash_on, "${entry.actionsCount}", "Actions"),
-                      if (isCommunity)
-                        _buildStatBox(context, Icons.group, "${entry.membersCount}", "Membres")
-                    ],
-                  ),
+                    // Stats
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildStatBox(context, Icons.emoji_events, "${entry.value}", "XP Total"),
+                        _buildStatBox(context, Icons.flash_on, "${entry.actionsCount}", "Actions"),
+                        if (isCommunity)
+                          _buildStatBox(context, Icons.group, "${entry.membersCount}", "Membres"),
+                      ],
+                    ),
 
-                  const SizedBox(height: 24),
+                    const SizedBox(height: 24),
 
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
+                    // Section Titre (Contributeurs ou Réalisations)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Row(
                         children: [
                           const Icon(Icons.bookmark_border, size: 20, color: AppColors.lightPrimary),
@@ -136,58 +132,46 @@ class _ProfileDetailsModalState extends State<ProfileDetailsModal> {
                         ],
                       ),
                     ),
-                  ),
 
-                  const SizedBox(height: 10),
+                    const SizedBox(height: 10),
 
-                  Expanded(
-                    child: ListView(
+                    // Liste dynamique
+                    Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
-                      children: isCommunity
-                          ? (_isLoadingContributors
-                              ? [const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator()))]
-                              : _contributors.isEmpty
-                                  ? [const Padding(padding: EdgeInsets.all(10), child: Text("Aucun membre actif pour le moment.", style: TextStyle(color: Colors.grey)))]
-                                  : _contributors.map((u) => _buildListItem(
-                                        context,
-                                        Icons.person, // Icône par défaut si pas d'avatar
-                                        Colors.blue,
-                                        u.label,
-                                        "${u.value} XP",
-                                        avatarUrl: u.avatarUrl,
-                                      )).toList())
-                          : _buildFakeUserAchievements(context),
+                      child: isCommunity
+                          ? _buildContributorsList(context)
+                          : Column(children: _buildFakeUserAchievements(context)),
                     ),
-                  ),
 
-                  Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: GradientButton(
-                      label: "Lance un défi avec ${entry.label}",
-                      icon: const Icon(Icons.sports_kabaddi, color: Colors.white),
-                      onPressed: () => print("Défi lancé"),
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: GradientButton(
+                        label: isCommunity ? "Lancer un défi" : "Envoyer un message",
+                        icon: Icon(isCommunity ? Icons.sports_kabaddi : Icons.send, color: Colors.white),
+                        onPressed: () {
+                          // Logique d'action ici
+                          Navigator.pop(context);
+                        },
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
 
+            // Avatar flottant
             Positioned(
               top: 26,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: bgColor,
-                    shape: BoxShape.circle,
-                  ),
-                  child: OikosAvatar(
-                    avatarUrl: entry.avatarUrl,
-                    label: entry.label,
-                    radius: 40,
-                  ),
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: bgColor,
+                  shape: BoxShape.circle,
+                ),
+                child: OikosAvatar(
+                  avatarUrl: entry.avatarUrl,
+                  label: entry.label,
+                  radius: 40,
                 ),
               ),
             ),
@@ -197,12 +181,29 @@ class _ProfileDetailsModalState extends State<ProfileDetailsModal> {
     );
   }
 
-  Widget _buildStatBox(
-    BuildContext context,
-    IconData icon,
-    String value,
-    String label,
-  ) {
+  Widget _buildContributorsList(BuildContext context) {
+    if (_isLoadingContributors) {
+      return const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator()));
+    }
+    if (_contributors.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(10),
+        child: Text("Aucun membre actif pour le moment.", style: TextStyle(color: Colors.grey)),
+      );
+    }
+    return Column(
+      children: _contributors.map((u) => _buildListItem(
+        context,
+        Icons.person,
+        Colors.blue,
+        u.label,
+        "${u.value} XP",
+        avatarUrl: u.avatarUrl,
+      )).toList(),
+    );
+  }
+
+  Widget _buildStatBox(BuildContext context, IconData icon, String value, String label) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -231,38 +232,13 @@ class _ProfileDetailsModalState extends State<ProfileDetailsModal> {
 
   List<Widget> _buildFakeUserAchievements(BuildContext context) {
     return [
-      _buildListItem(
-        context,
-        Icons.directions_bike,
-        Colors.green,
-        "Champion du vélo",
-        "30 jours consécutifs",
-      ),
-      _buildListItem(
-        context,
-        Icons.restaurant,
-        Colors.orange,
-        "Végé-warrior",
-        "50 repas végé",
-      ),
-      _buildListItem(
-        context,
-        Icons.lightbulb,
-        Colors.yellow,
-        "Économe d'énergie",
-        "100 kWh économisés",
-      ),
+      _buildListItem(context, Icons.directions_bike, Colors.green, "Champion du vélo", "30 jours consécutifs"),
+      _buildListItem(context, Icons.restaurant, Colors.orange, "Végé-warrior", "50 repas végé"),
+      _buildListItem(context, Icons.lightbulb, Colors.yellow, "Économe d'énergie", "100 kWh économisés"),
     ];
   }
 
-  Widget _buildListItem(
-    BuildContext context,
-    IconData icon,
-    Color color,
-    String title,
-    String subtitle, {
-    String? avatarUrl, 
-  }) {
+  Widget _buildListItem(BuildContext context, IconData icon, Color color, String title, String subtitle, {String? avatarUrl}) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -272,30 +248,29 @@ class _ProfileDetailsModalState extends State<ProfileDetailsModal> {
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkInput : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.transparent),
+        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightInputBorder.withOpacity(0.5)),
       ),
       child: Row(
         children: [
           Container(
-            width: 40, 
-            height: 40,
+            width: 40, height: 40,
             decoration: BoxDecoration(
               color: color.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: avatarUrl != null && avatarUrl.isNotEmpty
-                ? ClipOval(
-                    child: OikosAvatar(avatarUrl: avatarUrl, label: title, radius: 20),
-                  )
+                ? OikosAvatar(avatarUrl: avatarUrl, label: title, radius: 20)
                 : Icon(icon, color: color, size: 20),
           ),
           const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-              Text(subtitle, style: theme.textTheme.bodySmall),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+                Text(subtitle, style: theme.textTheme.bodySmall),
+              ],
+            ),
           ),
         ],
       ),
