@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:contribution_heatmap/contribution_heatmap.dart';
 import 'package:oikos/features/dashboard/presentation/widgets/dashboard_back_button.dart';
 import 'package:oikos/features/dashboard/presentation/widgets/dashboard_bilan_carbone_section.dart';
+import 'package:oikos/features/dashboard/presentation/widgets/dashboard_bilan_vs_actions_radar.dart';
 import 'package:oikos/features/dashboard/presentation/widgets/dashboard_streaks_section.dart';
 import '../bloc/dashboard_bloc.dart';
 
@@ -17,16 +17,9 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  late final List<ContributionEntry> _fakeHeatmapEntries;
-
   @override
   void initState() {
     super.initState();
-
-    _fakeHeatmapEntries = _buildFakeHeatmapEntries(
-      minDate: DateTime(2025, 8, 16),
-      maxDate: DateTime.now(),
-    );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -79,9 +72,9 @@ class _DashboardPageState extends State<DashboardPage> {
                             ),
                             const SizedBox(height: 24),
                             DashboardStreaksSection(
-                              entries: _fakeHeatmapEntries,
-                              minDate: DateTime(2025, 8, 16),
-                              maxDate: DateTime.now(),
+                              entries: state.heatmapEntries,
+                              minDate: state.heatmapMinDate,
+                              maxDate: state.heatmapMaxDate,
                             ),
                             const SizedBox(height: 24),
                             if (bilan == null)
@@ -91,10 +84,18 @@ class _DashboardPageState extends State<DashboardPage> {
                                 textAlign: TextAlign.center,
                               )
                             else
-                              DashboardBilanCarboneSection(
-                                scoreKg: bilan.scoreTotalKg,
-                                scoresParCategorieKg: bilan.detail.toMap(),
-                                equivalents: state.equivalents,
+                              Column(
+                                children: [
+                                  DashboardBilanCarboneSection(
+                                    scoreKg: bilan.scoreTotalKg,
+                                    scoresParCategorieKg: bilan.detail.toMap(),
+                                    equivalents: state.equivalents,
+                                  ),
+                                  const SizedBox(height: 24),
+                                  DashboardBilanVsActionsRadar(
+                                    bilanScoresKg: bilan.detail.toMap(),
+                                  ),
+                                ],
                               ),
                           ],
                         ),
@@ -115,28 +116,5 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
       ),
     );
-  }
-
-  List<ContributionEntry> _buildFakeHeatmapEntries({
-    required DateTime minDate,
-    required DateTime maxDate,
-  }) {
-    final entries = <ContributionEntry>[];
-    final normalizedMin = DateTime(minDate.year, minDate.month, minDate.day);
-    final normalizedMax = DateTime(maxDate.year, maxDate.month, maxDate.day);
-
-    for (var date = normalizedMin;
-        !date.isAfter(normalizedMax);
-        date = date.add(const Duration(days: 1))) {
-      final base = (date.day + date.month) % 6;
-      final weekendBoost =
-          (date.weekday == DateTime.saturday || date.weekday == DateTime.sunday) ? 2 : 0;
-
-      final value = (base + weekendBoost).clamp(0, 10).toInt();
-
-      entries.add(ContributionEntry(date, value));
-    }
-
-    return entries;
   }
 }

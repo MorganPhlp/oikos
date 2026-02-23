@@ -81,6 +81,7 @@ import 'package:oikos/features/dashboard/data/repositories/dashboard_repository_
 import 'package:oikos/features/dashboard/domain/repository/dashboard_repository.dart';
 import 'package:oikos/features/dashboard/domain/usecases/get_my_profile.dart';
 import 'package:oikos/features/dashboard/domain/usecases/get_my_latest_bilan_carbone_summary.dart';
+import 'package:oikos/features/dashboard/domain/usecases/get_my_heatmap_data.dart';
 import 'package:oikos/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 
 //Imports Code barre
@@ -388,12 +389,14 @@ void _initDashboard() {
   // UseCase : on donne le repo au use case
   serviceLocator.registerFactory(() => GetMyPseudo(serviceLocator()));
   serviceLocator.registerFactory(() => GetMyLatestBilanCarboneSummary(serviceLocator()));
+  serviceLocator.registerFactory(() => GetMyHeatmapData(serviceLocator()));
 
   // Bloc : on donne le use case au bloc pour qu'il gère l'état de la page
   serviceLocator.registerLazySingleton(
     () => DashboardBloc(
       getMyPseudo: serviceLocator(),
       getMyLatestBilan: serviceLocator(),
+      getMyHeatmapData: serviceLocator(),
       equivalentsUseCase: serviceLocator(),
     ),
   );

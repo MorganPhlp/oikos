@@ -888,6 +888,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.5.0"
+  radar_chart_plus:
+    dependency: "direct main"
+    description:
+      name: radar_chart_plus
+      sha256: "7e0eb1ee2660b767845929f4e74fef62c6120aa2f57c03514c57b2cd0f109b20"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.1"
   realtime_client:
     dependency: transitive
     description:

@@ -15,11 +15,17 @@ final class DashboardLoaded extends DashboardState {
   final String pseudo;
   final DashboardBilanCarboneSummary? bilanCarbone;
   final List<CarboneEquivalentEntity> equivalents;
+  final List<ContributionEntry> heatmapEntries;
+  final DateTime heatmapMinDate;
+  final DateTime heatmapMaxDate;
 
   DashboardLoaded({
     required this.pseudo,
     required this.bilanCarbone,
     required this.equivalents,
+    required this.heatmapEntries,
+    required this.heatmapMinDate,
+    required this.heatmapMaxDate,
   });
 }
 
