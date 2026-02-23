@@ -21,12 +21,11 @@ class SetupDuelModal extends StatefulWidget {
 }
 
 class _SetupDuelModalState extends State<SetupDuelModal> {
-  String _selectedCategory = 'Quick Wins';
+  String _selectedCategory = 'Toutes'; // TODO
   int _selectedDuration = 7;
   bool _isLoading = false;
 
   final List<Map<String, dynamic>> _categories = [
-    {'name': 'Quick Wins', 'icon': Icons.bolt},
     {'name': 'Transport', 'icon': Icons.directions_car},
     {'name': 'Alimentation', 'icon': Icons.restaurant},
     {'name': 'Énergie', 'icon': Icons.lightbulb_outline},
@@ -42,6 +41,7 @@ class _SetupDuelModalState extends State<SetupDuelModal> {
 
       // 1. On prend une action correspondante dans la table 'actions'
       // (Prend la première action disponible comme base)
+      // TODO récupèrer action correspondante en terme de catégorie
       final actionRes = await client
           .from('actions')
           .select()

@@ -49,9 +49,9 @@ class _CommunityChallengesCardWidgetState extends State<CommunityChallengesCardW
   Future<void> _joinAndValidateChallenge(ActiveChallengeModel challenge) async {
     setState(() => _isLoading = true);
     try {
-      // On utilise la méthode 'validateDefiAction' qui existe dans ta DataSource
-      await _dataSource.validateDefiAction(
-        defiId: challenge.id, 
+      await _dataSource.validateCollectiveAction(
+        instanceId: challenge.id,
+        baseActionId: challenge.baseActionId,
         communityCode: widget.myCommunityCode, 
         xpGain: challenge.xpGain, 
       );
@@ -67,16 +67,20 @@ class _CommunityChallengesCardWidgetState extends State<CommunityChallengesCardW
         _loadChallenges();
       }
     } catch (e) {
-      if (mounted) {
-        setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Erreur: ${e.toString()}"), 
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+      print("DEBUG ERROR: $e");
+      setState(() => _isLoading = false);
+      
+      // On vérifie si c'est l'erreur de doublon (23505)
+      String message = "Erreur lors de la validation";
+      if (e.toString().contains("23505")) {
+        message = "Tu as déjà validé cette action !";
       }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: Colors.orange),
+      );
+      
+      _loadChallenges();
     }
   }
 
@@ -235,7 +239,7 @@ class _ChallengeCard extends StatelessWidget {
             const SizedBox(height: 8),
             Center(
               child: Text(
-                isJoined ? "Action déjà validée ✅" : "Appuie ici pour valider ton action", 
+                isJoined ? "Action déjà validée" : "Appuie ici pour valider ton action", 
                 style: TextStyle(
                   fontSize: 13, 
                   fontWeight: FontWeight.bold, 

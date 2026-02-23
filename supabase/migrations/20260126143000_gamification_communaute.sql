@@ -18,14 +18,16 @@ select
 from utilisateur u;
 
 -- Création de la vue classement de communauté
-create or replace view vue_community_ranking as
-select 
-  c.code as community_code,
-  c.nom as community_name,
-  coalesce(sum(u.impact_score_xp), 0) as total_xp,
-  c.entreprise_id,
-  count(u.id) as members_count,
-  coalesce(sum(u.actions_count), 0) as total_actions
-from communaute c
-left join utilisateur u on c.code = u.code_communaute
-group by c.code;
+CREATE OR REPLACE VIEW public.vue_community_ranking AS
+SELECT 
+    c.entreprise_id,
+    c.code AS community_code,
+    c.nom AS community_name,
+    COALESCE((SELECT SUM(impact_score_xp) FROM public.utilisateur u WHERE u.code_communaute = c.code), 0) 
+    + COALESCE(c.plant_xp, 0) AS total_xp,
+    
+    c.logo_url,
+    (SELECT COUNT(*) FROM public.utilisateur u WHERE u.code_communaute = c.code) AS members_count,
+    (SELECT COALESCE(SUM(actions_count), 0) FROM public.utilisateur u WHERE u.code_communaute = c.code) AS total_actions
+FROM 
+    public.communaute c;

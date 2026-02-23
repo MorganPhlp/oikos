@@ -44,6 +44,18 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION public.water_plant(
+    community_code_arg TEXT, 
+    xp_amount INT
+)
+RETURNS VOID AS $$
+BEGIN
+    UPDATE public.communaute
+    SET plant_xp = COALESCE(plant_xp, 0) + xp_amount
+    WHERE code = community_code_arg; 
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
 -- Fonction pour vérifier le seuil et ajouter des XP à la plante communautaire
 CREATE OR REPLACE FUNCTION check_and_reward_community_action(
   instance_id_param UUID,

@@ -187,7 +187,7 @@ class _ActiveDefiDetailsModalState extends State<ActiveDefiDetailsModal> {
                   )
                 : Text(
                     _hasValidatedToday 
-                        ? "Déjà validé aujourd'hui ✅" 
+                        ? "Déjà validé aujourd'hui" 
                         : "Valider mon action (+${widget.defi.xpGain} XP)", 
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)
                   ),

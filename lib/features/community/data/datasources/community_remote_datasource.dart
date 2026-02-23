@@ -293,6 +293,52 @@ class CommunityRemoteDataSource {
     }).toList();
   }
 
+  /// Valide la participation à une action collective et met à jour l'historique personnel
+  Future<void> validateCollectiveAction({
+    required String instanceId,
+    required String baseActionId,
+    required String communityCode,
+    required int xpGain,
+  }) async {
+    final userId = supabase.auth.currentUser!.id;
+
+    await supabase.from('action_communautaire_participation').insert({
+      'action_id': instanceId,
+      'user_id': userId,
+      'code_communaute': communityCode,
+    });
+
+    await supabase.from('realisation_actions').insert({
+      'utilisateur_id': userId,
+      'action_id': baseActionId,
+      'xp_gagne': 0,
+      'date_realisation': DateTime.now().toIso8601String(),
+      'co2_economise': 0.5, // TODO 
+    });
+
+    /// Ajout des XP à la communauté uniquement
+    await waterPlant(communityCode, xpGain);
+
+    final currentCount = await _getUserActionsCount(userId);
+    await supabase.from('utilisateur')
+        .update({'actions_count': currentCount + 1})
+        .eq('id', userId);
+  }
+
+  /// 
+  Future<int> _getUserActionsCount(String userId) async {
+    try {
+      final res = await supabase
+          .from('utilisateur')
+          .select('actions_count')
+          .eq('id', userId)
+          .single();
+      return (res['actions_count'] as num?)?.toInt() ?? 0;
+    } catch (e) {
+      return 0;
+    }
+  }
+
   /// Ajoute [xpAmount] XP à la communauté [communauteCode]
   Future<void> waterPlant(String communauteCode, int xpAmount) async {
     await supabase.rpc('water_plant', params: {
