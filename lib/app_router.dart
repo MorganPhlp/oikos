@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +9,7 @@ import 'package:oikos/core/common/presentation/widgets/header.dart';
 import 'package:oikos/core/common/presentation/widgets/navbar.dart';
 import 'package:oikos/features/actions/presentation/bloc/habitudes_cubit.dart';
 import 'package:oikos/features/auth/presentation/pages/intro_page.dart';
+import 'package:oikos/features/auth/presentation/pages/signup_page.dart';
 import 'package:oikos/features/auth/presentation/pages/update_password_page.dart';
 import 'package:oikos/features/bilanCarbone/presentation/pages/bilan_flow.dart';
 import 'package:oikos/features/community/presentation/pages/community_dashboard_screen.dart';
@@ -15,6 +17,7 @@ import 'package:oikos/features/community/presentation/pages/community_dashboard_
 import 'package:oikos/features/home/presentation/pages/home_page.dart';
 import 'package:oikos/features/dashboard/presentation/pages/dashboard_page.dart';
 import 'package:oikos/features/dashboard/presentation/bloc/dashboard_bloc.dart';
+import 'package:oikos/features/notifications/presentation/pages/notifications_page.dart';
 import 'package:oikos/features/profile/presentation/pages/security_page.dart';
 import 'package:oikos/init_dependencies.dart';
 import 'package:oikos/features/profile/presentation/pages/profile_page.dart';
@@ -42,6 +45,12 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
         path: '/',
         name: 'intro',
         builder: (context, state) => const IntroPage(),
+      ),
+
+      GoRoute(
+        path: '/signup',
+        name: 'signup',
+        builder: (context, state) => const SignUpPage(),
       ),
 
       GoRoute(
@@ -81,6 +90,41 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
             child: const DashboardPage(),
           ),
         ),
+      ),
+
+      GoRoute(
+        path: '/notifications',
+        name: 'notifications',
+        pageBuilder: (context, state) {
+          return CustomTransitionPage(
+            transitionDuration: const Duration(milliseconds: 400),
+            reverseTransitionDuration: const Duration(milliseconds: 400),
+            child: const NotificationsPage(),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              // Animation du flou (on part de 10 pour finir à 0 quand la page est là)
+
+              return AnimatedBuilder(
+                animation: animation,
+                builder: (context, child) {
+                  return SlideTransition(
+                    position:
+                        Tween<Offset>(
+                          begin: const Offset(1, 0),
+                          end: Offset.zero,
+                        ).animate(
+                          CurvedAnimation(
+                            parent: animation,
+                            curve: Curves.easeInOut,
+                          ),
+                        ),
+                    child: child,
+                  );
+                },
+                child: child,
+              );
+            },
+          );
+        },
       ),
 
       ShellRoute(
@@ -203,6 +247,14 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
 
       final bool isResettingPassword = location.startsWith('/reset-password');
       if (isResettingPassword) return null;
+
+      // Permettre l'accès à la page d'inscription sans authentification
+      final bool isSignUp = location.startsWith('/signup');
+      if (isSignUp) return null;
+
+      // Permettre l'accès aux documents PDF sans authentification
+      final bool isPdfViewer = location.startsWith('/pdf');
+      if (isPdfViewer) return null;
 
       final bool isLoggedIn = authState is AppUserLoggedIn;
 

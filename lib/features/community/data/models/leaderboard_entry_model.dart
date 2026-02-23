@@ -1,5 +1,16 @@
 import '../../domain/entities/leaderboard_entry.dart';
 
+/// Modèle sumbolisant une entrée du classement
+/// [id] : identifiant unique
+/// [label] : nom affiché
+/// [value] : total des points (XP)
+/// [rank] : rang dans le classement
+/// [isUser] : utilisateur ou communauté
+/// [isMe] : utilisateur courant ou non
+/// [avatarUrl] : photo de profil associée
+/// [actionsCount] : nombre total d'actions effectuées
+/// [streakDays] : nombre de jours de streak
+/// [membersCount] : nombre de membres actifs de la communauté si !isUser
 class LeaderboardEntryModel extends LeaderboardEntry {
   LeaderboardEntryModel({
     required super.id,
@@ -14,6 +25,7 @@ class LeaderboardEntryModel extends LeaderboardEntry {
     super.membersCount = 0,
   });
 
+  /// Classement des utilisateurs
   factory LeaderboardEntryModel.fromUserView(Map<String, dynamic> json, String currentUserId) {
     return LeaderboardEntryModel(
       id: json['id']?.toString() ?? '',
@@ -28,6 +40,7 @@ class LeaderboardEntryModel extends LeaderboardEntry {
     );
   }
 
+  /// Classement des communautés
   factory LeaderboardEntryModel.fromCommunityView(Map<String, dynamic> json, String myCommunityCode) {
     return LeaderboardEntryModel(
       id: json['community_code']?.toString() ?? '',

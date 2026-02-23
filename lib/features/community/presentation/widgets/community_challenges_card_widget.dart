@@ -5,7 +5,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../data/datasources/community_remote_datasource.dart';
 import '../../data/models/active_challenge_model.dart';
 
-// Widget pour les défis communautaires
 class CommunityChallengesCardWidget extends StatefulWidget {
   final String entrepriseId;
   final String myCommunityCode;
@@ -23,49 +22,67 @@ class CommunityChallengesCardWidget extends StatefulWidget {
 class _CommunityChallengesCardWidgetState extends State<CommunityChallengesCardWidget> {
   List<ActiveChallengeModel> _challenges = [];
   bool _isLoading = true;
+  late final CommunityRemoteDataSource _dataSource;
 
   @override
   void initState() {
     super.initState();
+    _dataSource = CommunityRemoteDataSource(Supabase.instance.client);
     _loadChallenges();
   }
 
   Future<void> _loadChallenges() async {
-    final dataSource = CommunityRemoteDataSource(Supabase.instance.client);
-    final results = await dataSource.getActiveChallenges(widget.entrepriseId);
-    
-    if (mounted) {
-      setState(() {
-        _challenges = results.map((e) => ActiveChallengeModel.fromJson(Map<String, dynamic>.from(e))).toList();
-        _isLoading = false;
-      });
+    try {
+      final results = await _dataSource.getActiveChallenges(widget.entrepriseId);
+      
+      if (mounted) {
+        setState(() {
+          _challenges = results.map((e) => ActiveChallengeModel.fromJson(Map<String, dynamic>.from(e))).toList();
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
-  // Dans la méthode _joinAndValidateChallenge du widget :
-Future<void> _joinAndValidateChallenge(dynamic challenge) async {
-  try {
-    final dataSource = CommunityRemoteDataSource(Supabase.instance.client);
-    final int baseXp = challenge.xpGain;
-
-    await dataSource.validateCommunityAction(
-      instanceId: challenge.id, 
-      baseActionId: challenge.baseActionId,
-      codeCommunaute: widget.myCommunityCode, 
-      userXpGain: (baseXp * 0.4).toInt(), 
-      communityXpReward: baseXp, 
-    );
-    
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Action validée ! Score collectif en cours... 🚀"), backgroundColor: AppColors.lightPrimary),
+  Future<void> _joinAndValidateChallenge(ActiveChallengeModel challenge) async {
+    setState(() => _isLoading = true);
+    try {
+      await _dataSource.validateCollectiveAction(
+        instanceId: challenge.id,
+        baseActionId: challenge.baseActionId,
+        communityCode: widget.myCommunityCode, 
+        xpGain: challenge.xpGain, 
       );
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Action validée ! +${challenge.xpGain} XP 🎉"), 
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        _loadChallenges();
+      }
+    } catch (e) {
+      print("DEBUG ERROR: $e");
+      setState(() => _isLoading = false);
+      
+      // On vérifie si c'est l'erreur de doublon (23505)
+      String message = "Erreur lors de la validation";
+      if (e.toString().contains("23505")) {
+        message = "Tu as déjà validé cette action !";
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: Colors.orange),
+      );
+      
       _loadChallenges();
     }
-  } catch (e) {
-    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Erreur: $e"), backgroundColor: Colors.red));
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -74,17 +91,27 @@ Future<void> _joinAndValidateChallenge(dynamic challenge) async {
     }
 
     if (_challenges.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.all(20),
-        child: Center(child: Text("Aucun défi en cours. Sois le premier à en lancer un !")),
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(40),
+          child: Column(
+            children: [
+              Icon(LucideIcons.frown, size: 40, color: Colors.grey.withOpacity(0.5)),
+              const SizedBox(height: 12),
+              const Text("Aucune action collective en cours.", style: TextStyle(color: Colors.grey)),
+            ],
+          ),
+        ),
       );
     }
 
     return Column(
       children: _challenges.map((challenge) {
         final daysLeft = challenge.dateFin.difference(DateTime.now()).inDays;
-        final deadlineText = daysLeft > 0 ? "$daysLeft jours restants" : "Se termine aujourd'hui";
-        final target = 20; 
+        final deadlineText = daysLeft > 0 ? "$daysLeft jours restants" : "Dernier jour !";
+        
+        // Calcul du progrès par rapport à l'objectif de 60%
+        const target = 60; 
         final progress = (challenge.participantsCount / target * 100).clamp(0, 100).toInt();
 
         return Padding(
@@ -95,10 +122,9 @@ Future<void> _joinAndValidateChallenge(dynamic challenge) async {
             icon: "⚡", 
             points: challenge.xpGain,
             currentProgress: progress,
-            requiredPercentage: 100, 
+            requiredPercentage: target, 
             activeUsers: challenge.participantsCount,
             deadline: deadlineText,
-            categories: const ["Défi actif"],
             isJoined: challenge.isJoined, 
             onTap: challenge.isJoined ? null : () => _joinAndValidateChallenge(challenge), 
           ),
@@ -117,7 +143,6 @@ class _ChallengeCard extends StatelessWidget {
   final int requiredPercentage;
   final int activeUsers;
   final String deadline;
-  final List<String> categories;
   final bool isJoined;
   final VoidCallback? onTap;
 
@@ -130,7 +155,6 @@ class _ChallengeCard extends StatelessWidget {
     required this.requiredPercentage,
     required this.activeUsers,
     required this.deadline,
-    required this.categories,
     required this.isJoined,
     required this.onTap,
   });
@@ -138,111 +162,93 @@ class _ChallengeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final goldColor = theme.colorScheme.tertiary;
 
     return GestureDetector(
       onTap: onTap,
-      child: Stack(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surface,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: goldColor, width: 2),
-              boxShadow: [
-                BoxShadow(color: goldColor.withValues(alpha: 0.1), blurRadius: 12, offset: const Offset(0, 4)),
-              ],
-            ),
-            child: Column(
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.darkInput : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: goldColor.withOpacity(0.5), width: 1.5),
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(colors: [goldColor, goldColor.withValues(alpha: 0.7)]),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(child: Text(icon, style: const TextStyle(fontSize: 24))),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 4),
-                          Text(description, style: TextStyle(fontSize: 12, color: AppColors.lightTextPrimary.withValues(alpha: 0.7))),
-                        ],
-                      ),
-                    ),
-                    Text("+$points pts", style: const TextStyle(color: AppColors.lightPrimary, fontWeight: FontWeight.bold)),
-                  ],
+                Container(
+                  width: 48, height: 48,
+                  decoration: BoxDecoration(
+                    color: goldColor.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(child: Text(icon, style: const TextStyle(fontSize: 22))),
                 ),
-                const SizedBox(height: 12),
-
-                Wrap(
-                  spacing: 6,
-                  children: categories.map((cat) => _CategoryBadge(label: cat)).toList(),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 4),
+                      Text(description, 
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 12, color: theme.hintColor)),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 12),
-
-                _ProgressBar(current: currentProgress, target: requiredPercentage),
-                const SizedBox(height: 12),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(LucideIcons.users, size: 12, color: Colors.grey),
-                        const SizedBox(width: 4),
-                        Text("$activeUsers participants", style: const TextStyle(fontSize: 11, color: Colors.grey)),
-                      ],
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(color: AppColors.lightPrimary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
-                      child: Text(deadline, style: const TextStyle(fontSize: 11, color: AppColors.lightPrimary)),
-                    ),
-                  ],
-                ),
-                
-                const SizedBox(height: 12),
-                Center(
-                   child: Text(
-                     isJoined ? "Tu as déjà fait l'action" : "Appuie si tu l'as fait !", 
-                     style: TextStyle(
-                       fontSize: 13, 
-                       fontWeight: FontWeight.bold, 
-                       color: isJoined ? Colors.grey : AppColors.lightPrimary, 
-                     )
-                   ),
-                )
+                Text("+$points XP", style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
               ],
             ),
-          ),
-          Positioned(
-            top: 0,
-            right: 0,
-            child: Container(
-              width: 60,
-              height: 60,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft,
-                  colors: [goldColor.withValues(alpha: 0.2), Colors.transparent],
+            const SizedBox(height: 20),
+            
+            _ProgressBar(current: currentProgress, target: requiredPercentage),
+            
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(LucideIcons.users, size: 14, color: Colors.grey),
+                    const SizedBox(width: 4),
+                    Text("$activeUsers participant(s)", style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                  ],
                 ),
-                borderRadius: const BorderRadius.only(topRight: Radius.circular(16), bottomLeft: Radius.circular(60)),
-              ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.lightPrimary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(deadline, style: const TextStyle(fontSize: 11, color: AppColors.lightPrimary, fontWeight: FontWeight.bold)),
+                ),
+              ],
             ),
-          ),
-        ],
+            
+            const SizedBox(height: 16),
+            Divider(color: theme.dividerColor.withOpacity(0.1)),
+            const SizedBox(height: 8),
+            Center(
+              child: Text(
+                isJoined ? "Action déjà validée" : "Appuie ici pour valider ton action", 
+                style: TextStyle(
+                  fontSize: 13, 
+                  fontWeight: FontWeight.bold, 
+                  color: isJoined ? Colors.grey : AppColors.lightPrimary, 
+                )
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -260,42 +266,21 @@ class _ProgressBar extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("$current% de l'objectif", style: const TextStyle(fontSize: 11, color: Colors.grey)),
+            Text("$current% de l'objectif", style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
             Text("Objectif: $target%", style: const TextStyle(fontSize: 11, color: Colors.grey)),
           ],
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 8),
         ClipRRect(
           borderRadius: BorderRadius.circular(10),
           child: LinearProgressIndicator(
             value: current / 100,
-            minHeight: 6,
-            backgroundColor: AppColors.lightTextPrimary.withValues(alpha: 0.1),
+            minHeight: 8,
+            backgroundColor: Colors.grey.withOpacity(0.1),
             color: AppColors.lightPrimary,
           ),
         ),
       ],
-    );
-  }
-}
-
-class _CategoryBadge extends StatelessWidget {
-  final String label;
-  const _CategoryBadge({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    Color color = theme.colorScheme.primary;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
-      ),
-      child: Text(label, style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.w500)),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:contribution_heatmap/contribution_heatmap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/carbone_equivalent_entity.dart';
 import 'package:oikos/features/bilanCarbone/presentation/widgets/bilan_category_bars.dart';
 import 'package:oikos/features/bilanCarbone/presentation/widgets/bilan_category_pie_chart.dart';
@@ -96,7 +97,28 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);//theme global de l'appli
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
+          onPressed: () => context.go('/home'), // Retour direct au home avec go_router
+        ),
+        title: Text(
+          "Tableau de bord",
+          style: textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: colorScheme.onSurface,
+          ),
+        ),
+        centerTitle: true,
+      ),
+
       body: BlocBuilder<DashboardBloc, DashboardState>(
         builder: (context, state) {
           if (state is DashboardLoading) {
@@ -125,12 +147,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(
-                        'Bonjour ${state.pseudo}',
-                        style: Theme.of(context).textTheme.headlineSmall,
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 28),
                       Text(
                         'Streaks',
                         style: Theme.of(context).textTheme.titleLarge,
