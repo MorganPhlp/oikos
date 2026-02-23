@@ -27,7 +27,11 @@ class _StreakLossWidgetState extends State<StreakLossWidget> {
 
     void handleClose() {
       widget.onClose?.call();
-      context.pop();
+      if (context.canPop()) {
+        context.pop();
+      } else {
+        widget.onClose?.call();
+      }
     }
 
     return Scaffold(
@@ -62,7 +66,9 @@ class _StreakLossWidgetState extends State<StreakLossWidget> {
                       "Tu as perdu ta streak, mais ne baisse pas les bras !",
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Colors.white60,
+                        color: theme.colorScheme.onPrimary.withValues(
+                          alpha: 0.6,
+                        ),
                         fontSize: 13,
                         fontWeight: FontWeight.w900,
                       ),
@@ -110,7 +116,9 @@ class _StreakLossWidgetState extends State<StreakLossWidget> {
                               "Tout n'est pas perdu.\nFais renaître ta fleur dès maintenant.",
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.8),
+                                color: theme.colorScheme.onPrimary.withValues(
+                                  alpha: 0.8,
+                                ),
                                 fontSize: 15,
                                 fontStyle: FontStyle.italic,
                               ),

@@ -6,19 +6,19 @@ import '../../../../core/error/failures.dart';
 abstract interface class AuthRepository {
   Future<String?> getUserId();
 
-  Future<Either<Failure, User>> signUpWithEmailPassword({
+  Future<Either<Failure, UserEntity>> signUpWithEmailPassword({
     required String email,
     required String password,
     required String pseudo,
     required String communityCode,
   });
 
-  Future<Either<Failure, User>> signInWithEmailPassword({
+  Future<Either<Failure, UserEntity>> signInWithEmailPassword({
     required String email,
     required String password,
   });
 
-  Future<Either<Failure, User>> currentUser();
+  Future<Either<Failure, UserEntity>> currentUser();
 
   Future<Either<Failure, (String name, String? logoUrl)>> getCompanyByEmail({
     required String email,
@@ -36,7 +36,7 @@ abstract interface class AuthRepository {
 
   Future<Either<Failure, void>> resetPassword({required String email});
 
-  Future<Either<Failure, User>> updateUser({
+  Future<Either<Failure, UserEntity>> updateUser({
     String? pseudo,
     String? avatar,
     bool? isActive,

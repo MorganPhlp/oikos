@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/features/streak/domain/entities/utilisateur_streak_entity.dart';
@@ -24,7 +23,7 @@ class StreakBloc extends Bloc<StreakEvent, StreakState> {
     this.calculerActionsRealiseesUseCase,
     this.recupererStreakStepsUseCase,
     this.markStreakAsSeenUseCase,
-  ) : super(StreakIdle(streak: UtilisateurStreakEntity.empty())) {
+  ) : super(StreakLoading()) {
     on<WatchStreakEvent>(_onWatchStreak, transformer: restartable());
     on<SeasonFinishedEvent>((event, emit) {
       emit(StreakSeasonFinished(streak: state.streak));
@@ -38,15 +37,29 @@ class StreakBloc extends Bloc<StreakEvent, StreakState> {
     WatchStreakEvent event,
     Emitter<StreakState> emit,
   ) async {
-    emit(StreakLoading());
     if (event.userId.isEmpty) return;
 
+    // initial fetch
     final streakSteps = await recupererStreakStepsUseCase();
+    final initialStreak = await getStreakUseCase(event.userId);
+    final (initialActions, initialHasCommunautaire) =
+        await calculerActionsRealiseesUseCase(event.userId, initialStreak);
+
+    emit(
+      StreakUpdated(
+        streak: initialStreak,
+        evolution: StreakEvolution.none,
+        actionsQuotidiennes: initialActions,
+        hasCompletedActionCommunautaire: initialHasCommunautaire,
+        streakSteps: streakSteps,
+      ),
+    );
 
     // calcul des actions réalisées pour la barre de progression
     await emit.onEach<UtilisateurStreakEntity>(
       watchStreakUseCase(event.userId, event.entrepriseId),
       onData: (streakEntity) async {
+        // Debug print
         // Vérification si la saison existe
         final streamSaisonDebut = streakEntity.saisonDebut;
         if (streamSaisonDebut == null) {

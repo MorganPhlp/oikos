@@ -42,38 +42,30 @@ class _CommunityChallengesCardWidgetState extends State<CommunityChallengesCardW
     }
   }
 
-  Future<void> _joinAndValidateChallenge(ActiveChallengeModel challenge) async {
-    try {
-      final dataSource = CommunityRemoteDataSource(Supabase.instance.client);
-      
-      await dataSource.joinAndValidateChallenge(
-        defiId: challenge.id, 
-        codeCommunaute: widget.myCommunityCode, 
-        xpGain: challenge.xpGain, 
-        actionId: challenge.id,
-        co2Saved: 0.5, // TODO Remplacer par challenge.co2Saved à ajouter dans ton modèle
+  // Dans la méthode _joinAndValidateChallenge du widget :
+Future<void> _joinAndValidateChallenge(dynamic challenge) async {
+  try {
+    final dataSource = CommunityRemoteDataSource(Supabase.instance.client);
+    final int baseXp = challenge.xpGain;
+
+    await dataSource.validateCommunityAction(
+      instanceId: challenge.id, 
+      baseActionId: challenge.baseActionId,
+      codeCommunaute: widget.myCommunityCode, 
+      userXpGain: (baseXp * 0.4).toInt(), 
+      communityXpReward: baseXp, 
+    );
+    
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Action validée ! Score collectif en cours... 🚀"), backgroundColor: AppColors.lightPrimary),
       );
-      
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Action validée ! +${challenge.xpGain} XP 🎉"), 
-            backgroundColor: AppColors.lightPrimary
-          ),
-        );
-        _loadChallenges();
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Erreur: ${e.toString()}"), 
-            backgroundColor: Colors.red
-          ),
-        );
-      }
+      _loadChallenges();
     }
+  } catch (e) {
+    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Erreur: $e"), backgroundColor: Colors.red));
   }
+}
 
   @override
   Widget build(BuildContext context) {

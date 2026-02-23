@@ -41,28 +41,33 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
 
-    Supabase.instance.client.auth.onAuthStateChange.listen((data) { // 1. On écoute les changements d'état d'authentification de Supabase
+    Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+      // On écoute les changements d'état d'authentification de Supabase
       final session = data.session;
       final event = data.event;
 
-      if(event == AuthChangeEvent.tokenRefreshed){
+      if (event == AuthChangeEvent.tokenRefreshed) {
         return; // On ignore les événements de rafraîchissement de token pour éviter les boucles infinies
       }
 
-      if(event == AuthChangeEvent.signedOut){
-        serviceLocator<AppUserCubit>().updateUser(null); // On efface les données de l'utilisateur du Cubit à la déconnexion
+      if (event == AuthChangeEvent.signedOut) {
+        serviceLocator<AppUserCubit>().updateUser(
+          null,
+        ); // On efface les données de l'utilisateur du Cubit à la déconnexion
         return;
       }
 
-      if(session != null && mounted){ // Si une session existe, on met à jour le Cubit avec les données de l'utilisateur
-        if(event == AuthChangeEvent.initialSession){
-          serviceLocator<AuthBloc>().add(AuthIsUserLoggedIn()); // On vérifie si l'utilisateur est connecté à chaque changement d'état d'authentification
+      if (session != null && mounted) {
+        // Si une session existe, on met à jour le Cubit avec les données de l'utilisateur
+        if (event == AuthChangeEvent.initialSession) {
+          serviceLocator<AuthBloc>().add(
+            AuthIsUserLoggedIn(),
+          ); // On vérifie si l'utilisateur est connecté à chaque changement d'état d'authentification
         }
       }
     });
 
-    // 2. On initialise le router avec le singleton AppUserCubit DIRECTEMENT
-    // C'est la source de vérité unique
+    // On initialise le router avec le singleton AppUserCubit
     _router = createRouter(serviceLocator<AppUserCubit>());
   }
 
@@ -74,8 +79,7 @@ class _MyAppState extends State<MyApp> {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      // On utilise routerConfig pour brancher GoRouter
-      routerConfig: _router, 
+      routerConfig: _router,
     );
   }
 }

@@ -28,17 +28,6 @@ sealed class StreakState extends Equatable {
     streakSteps,
   ];
 }
-
-class StreakIdle extends StreakState {
-  const StreakIdle({
-    required super.streak,
-    super.allStreakPaths,
-    super.actionsQuotidiennes,
-    super.hasCompletedActionCommunautaire,
-    super.streakSteps,
-  });
-}
-
 class StreakUpdated extends StreakState {
   final StreakEvolution evolution;
 
@@ -56,7 +45,10 @@ class StreakUpdated extends StreakState {
 }
 
 class StreakLoading extends StreakState {
-  StreakLoading() : super(streak: UtilisateurStreakEntity.empty());
+  const StreakLoading() : super(streak: const UtilisateurStreakEntity.empty());
+  
+  @override
+  List<Object?> get props => [];
 }
 
 class StreakSeasonFinished extends StreakState {

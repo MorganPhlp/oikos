@@ -18,7 +18,12 @@ class ProfileTopBar extends StatelessWidget {
           Material(
             color: Colors.transparent,
             child: InkWell(
-              onTap: () => context.pop(),
+              onTap: () => {
+                if (context.canPop())
+                  {context.pop()}
+                else
+                  {context.go('/home')},
+              },
               borderRadius: BorderRadius.circular(50),
               child: Container(
                 padding: const EdgeInsets.all(8),
@@ -28,7 +33,10 @@ class ProfileTopBar extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 // MODIFICATION : Icône verte
-                child: Icon(LucideIcons.chevronLeft, color: colorScheme.primary),
+                child: Icon(
+                  LucideIcons.chevronLeft,
+                  color: colorScheme.primary,
+                ),
               ),
             ),
           ),

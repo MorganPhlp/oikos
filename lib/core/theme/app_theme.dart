@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:oikos/core/theme/action_card_theme.dart';
 import 'package:oikos/core/theme/oikos_button_theme.dart';
 import 'app_colors.dart';
 import 'app_typography.dart';
@@ -37,6 +38,19 @@ class AppTheme {
           shadowColor: AppColors.gradientGreenEnd.withValues(alpha: 0.4),
           tertiaryShadowColor: Colors.orange.withValues(alpha: 0.4),
           disabledColor: Colors.grey.shade300,
+        ),
+
+        ActionCardTheme(
+          transport: Color(0xFF4CAF50),
+          alimentation: Color(0xFFFF9800),
+          energie: Color(0xFFFFC107),
+          eau: Color(0xFF2196F3),
+          dechet: Color(0xFF795548),
+          numerique: Color(0xFF9C27B0),
+          logement: Color(0xFF607D8B),
+          biodiversite: Color(0xFF009688),
+          textile: Color(0xFFE91E63),
+          defaultColor: Colors.grey,
         ),
       ],
 
@@ -115,6 +129,19 @@ class AppTheme {
           shadowColor: Colors.black.withValues(alpha: 0.2),
           tertiaryShadowColor: Colors.orange.withValues(alpha: 0.2),
           disabledColor: AppColors.darkMuted,
+        ),
+
+        ActionCardTheme(
+          transport: Color(0xFF4CAF50),
+          alimentation: Color(0xFFFF9800),
+          energie: Color(0xFFFFC107),
+          eau: Color(0xFF2196F3),
+          dechet: Color(0xFF795548),
+          numerique: Color(0xFF9C27B0),
+          logement: Color(0xFF607D8B),
+          biodiversite: Color(0xFF009688),
+          textile: Color(0xFFE91E63),
+          defaultColor: Colors.grey,
         ),
       ],
 

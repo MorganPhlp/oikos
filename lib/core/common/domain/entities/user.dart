@@ -1,7 +1,7 @@
 // Classe représentant un utilisateur dans l'application.
 // Définit dans le module core pour être utilisé globalement car plusieurs fonctionnalités peuvent en avoir besoin.
 
-class User {
+class UserEntity {
   final String id;
   final String email;
   final String pseudo;
@@ -10,8 +10,9 @@ class User {
   final String? avatar;
   final String? entrepriseId;
   final bool isActive;
+  final int impactScoreXp;
 
-  User({
+  UserEntity({
     required this.id,
     required this.email,
     required this.pseudo,
@@ -20,5 +21,6 @@ class User {
     this.avatar,
     this.entrepriseId,
     this.isActive = true,
+    this.impactScoreXp = 0,
   });
 }

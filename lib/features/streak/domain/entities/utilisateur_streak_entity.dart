@@ -19,14 +19,15 @@ class UtilisateurStreakEntity {
     this.lastStreakSeen = 0,
   });
 
-  factory UtilisateurStreakEntity.empty() {
-    return UtilisateurStreakEntity(
-      utilisateurId: '',
-      currentStreak: 0,
-      lastUpdated: DateTime.now(),
-      lastStreakSeen: 0,
-    );
-  }
+  const UtilisateurStreakEntity.empty()
+      : utilisateurId = '',
+        currentStreak = 0,
+        lastUpdated = null,
+        saisonNom = null,
+        saisonDebut = null,
+        saisonFin = null,
+        logoUrl = null, 
+        lastStreakSeen = 0;
 
   UtilisateurStreakEntity copyWith({
     String? utilisateurId,

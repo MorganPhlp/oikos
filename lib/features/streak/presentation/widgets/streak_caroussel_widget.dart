@@ -38,7 +38,7 @@ class _StreakCarousselWidgetState extends State<StreakCarousselWidget> {
         final String? logoUrl = streak.logoUrl;
 
         final String streakDirectory =
-        (logoUrl != null && logoUrl.contains('/'))
+            (logoUrl != null && logoUrl.contains('/'))
             ? logoUrl.substring(0, logoUrl.lastIndexOf('/') + 1)
             : "";
 

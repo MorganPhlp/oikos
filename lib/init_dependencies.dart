@@ -5,6 +5,13 @@ import 'package:oikos/core/common/data/category_empreinte_repository_impl.dart';
 import 'package:oikos/core/common/data/utilisateur_repository_impl.dart';
 import 'package:oikos/core/common/domain/repositories/categorie_empreinte_repository.dart';
 import 'package:oikos/core/common/domain/repositories/utilisateur_repository.dart';
+import 'package:oikos/features/actions/domain/usecases/ecarter_action_use_case.dart';
+import 'package:oikos/features/actions/domain/usecases/ecarter_categorie_use_case.dart';
+import 'package:oikos/features/actions/domain/usecases/ecarter_tag_use_case.dart';
+import 'package:oikos/features/actions/domain/usecases/get_limite_actions_freq_use_case.dart';
+import 'package:oikos/features/actions/domain/usecases/get_my_habitudes_use_case.dart';
+import 'package:oikos/features/actions/domain/usecases/promote_to_habitude_use_case.dart';
+import 'package:oikos/features/actions/presentation/bloc/habitudes_cubit.dart';
 import 'package:oikos/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:oikos/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
@@ -42,6 +49,7 @@ import 'package:oikos/features/bilanCarbone/domain/use_cases/reprendre_bilan_use
 import 'package:oikos/features/bilanCarbone/domain/use_cases/verifier_bilan_en_cours_use_case.dart';
 import 'package:oikos/features/profile/data/repositories/bilan_repository_impl.dart';
 import 'package:oikos/features/profile/domain/repositories/bilan_repository.dart';
+import 'package:oikos/features/profile/domain/use_cases/get_interests_data_use_case.dart';
 import 'package:oikos/features/profile/domain/use_cases/get_questions_restantes_use_case.dart';
 import 'package:oikos/features/profile/presentation/bloc/profile_bilan_cubit.dart';
 import 'package:oikos/features/streak/data/datasources/streak_remote_datasource.dart';
@@ -83,6 +91,26 @@ import 'package:oikos/features/codeBarre/presentation/bloc/scan_bloc.dart';
 
 import 'features/codeBarre/domain/usecases/get_alternative_product.dart';
 import 'features/codeBarre/presentation/cubit/alternative_product_cubit.dart';
+import 'features/profile/domain/use_cases/update_interests_use_case.dart';
+import 'features/profile/presentation/bloc/interests_cubit.dart';
+
+import 'package:oikos/features/actions/data/datasources/action_remote_data_source.dart';
+import 'package:oikos/features/actions/data/repositories/action_repository_impl.dart';
+import 'package:oikos/features/actions/domain/repositories/action_repository.dart';
+import 'package:oikos/features/actions/domain/usecases/get_actions.dart';
+import 'package:oikos/features/actions/domain/usecases/get_my_active_actions_use_case.dart';
+import 'package:oikos/features/actions/domain/usecases/add_to_my_actions_use_case.dart';
+import 'package:oikos/features/actions/domain/usecases/validate_action_use_case.dart';
+import 'package:oikos/features/actions/domain/usecases/remove_from_my_actions_use_case.dart';
+import 'package:oikos/features/actions/presentation/bloc/actions_bloc.dart';
+
+// Home
+import 'package:oikos/features/home/data/datasources/home_stats_remote_data_source.dart';
+import 'package:oikos/features/home/data/repositories/home_stats_repository_impl.dart';
+import 'package:oikos/features/home/domain/repositories/home_stats_repository.dart';
+import 'package:oikos/features/home/domain/usecases/get_home_stats_use_case.dart';
+import 'package:oikos/features/home/domain/usecases/build_stats_cards_use_case.dart';
+import 'package:oikos/features/home/presentation/bloc/home_stats_cubit.dart';
 
 final serviceLocator = GetIt.instance;
 
@@ -104,8 +132,10 @@ Future<void> initDependencies() async {
   serviceLocator.registerLazySingleton(() => http.Client());
 
   // core
-  serviceLocator.registerLazySingleton(() => AppUserCubit());
 
+  serviceLocator.registerLazySingleton(
+    () => AppUserCubit(serviceLocator<UtilisateurRepository>()),
+  );
   // Then initialize auth and bilan after Supabase is ready
   _initAuth();
   _initBilan();
@@ -113,6 +143,8 @@ Future<void> initDependencies() async {
   _initStreak();
   _initProfile();
   _initDashboard();
+  _initActions();
+  _initHome();
 }
 
 void _initAuth() {
@@ -149,7 +181,9 @@ void _initAuth() {
 
   serviceLocator.registerLazySingleton(() => DeleteAccount(serviceLocator()));
 
-  serviceLocator.registerLazySingleton(() => UpdateCredentials(serviceLocator()));
+  serviceLocator.registerLazySingleton(
+    () => UpdateCredentials(serviceLocator()),
+  );
 
   // Bloc
   serviceLocator.registerLazySingleton(
@@ -345,26 +379,19 @@ void _initDashboard() {
     () => DashboardRemoteDataSourceImpl(serviceLocator()),
   );
 
-  // Repository: on donne la co au repository 
+  // Repository: on donne la co au repository
   serviceLocator.registerFactory<DashboardRepository>(
-    () => DashboardRepositoryImpl(
-      remoteDataSource: serviceLocator(),
-    ),
+    () => DashboardRepositoryImpl(remoteDataSource: serviceLocator()),
   );
 
   // UseCase : on donne le repo au use case
-  serviceLocator.registerFactory(
-    () => GetMyPseudo(serviceLocator()),
-  );
+  serviceLocator.registerFactory(() => GetMyPseudo(serviceLocator()));
 
   // Bloc : on donne le use case au bloc pour qu'il gère l'état de la page
   serviceLocator.registerLazySingleton(
-    () => DashboardBloc(
-      getMyPseudo: serviceLocator(),
-    ),
+    () => DashboardBloc(getMyPseudo: serviceLocator()),
   );
 }
-
 
 void _initCodeBarre() {
   // Data Source
@@ -390,7 +417,7 @@ void _initCodeBarre() {
 
   //Cubit pour l'alternative
   serviceLocator.registerFactory(
-        () => AlternativeProductCubit(getAlternativeProduct: serviceLocator()),
+    () => AlternativeProductCubit(getAlternativeProduct: serviceLocator()),
   );
 }
 
@@ -436,20 +463,131 @@ void _initStreak() {
   );
 }
 
+void _initActions() {
+  // Datasource
+  serviceLocator.registerLazySingleton<ActionRemoteDataSource>(
+    () => ActionRemoteDataSourceImpl(serviceLocator<SupabaseClient>()),
+  );
+
+  // Repository
+  serviceLocator.registerLazySingleton<ActionRepository>(
+    () => ActionRepositoryImpl(serviceLocator<ActionRemoteDataSource>()),
+  );
+
+  // Use Cases
+  serviceLocator.registerLazySingleton(
+    () => GetActionsUseCase(serviceLocator<ActionRepository>()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => GetMyActiveActionsUseCase(serviceLocator<ActionRepository>()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => AddToMyActionsUseCase(serviceLocator<ActionRepository>()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => ValidateActionUseCase(serviceLocator<ActionRepository>()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => RemoveFromMyActionsUseCase(serviceLocator<ActionRepository>()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => GetMyHabitudesUseCase(serviceLocator<ActionRepository>()),
+  );
+
+  serviceLocator.registerLazySingleton(
+    () => PromoteToHabitudeUseCase(serviceLocator<ActionRepository>()),
+  );
+
+  serviceLocator.registerLazySingleton(
+    () => GetLimiteActionsFreqUseCase(repository: serviceLocator()),
+  );
+
+  serviceLocator.registerLazySingleton(
+    () => EcarterActionUseCase(repository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => EcarterCategorieUseCase(repository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => EcarterTagUseCase(repository: serviceLocator()),
+  );
+
+  // Bloc
+  serviceLocator.registerFactory(
+    () => ActionsBloc(
+      getActions: serviceLocator(),
+      getMyActiveActions: serviceLocator(),
+      addToMyActions: serviceLocator(),
+      validateAction: serviceLocator(),
+      removeFromMyActions: serviceLocator(),
+      getMyHabitudes: serviceLocator(),
+      promoteActionToHabitude: serviceLocator(),
+      getLimiteActionsFreq: serviceLocator(),
+      ecarterAction: serviceLocator(),
+      ecarterCategorie: serviceLocator(),
+      ecarterTag: serviceLocator(),
+    ),
+  );
+
+  serviceLocator.registerFactory<HabitudeCubit>(
+    () => HabitudeCubit(getMyHabitudesUseCase: serviceLocator()),
+  );
+}
+
 void _initProfile() {
   // Repository
-  serviceLocator.registerFactory<ProfileBilanRepository>(
+  serviceLocator.registerLazySingleton<ProfileBilanRepository>(
     () => ProfileBilanRepositoryImpl(serviceLocator<SupabaseClient>()),
   );
 
   // Use Case
-  serviceLocator.registerFactory(
+  serviceLocator.registerLazySingleton(
     () =>
         GetQuestionsRestantesUseCase(serviceLocator<ProfileBilanRepository>()),
+  );
+  serviceLocator.registerFactory(
+    () =>
+        GetInterestsDataUseCase(serviceLocator<CategorieEmpreinteRepository>())
+  );
+  serviceLocator.registerFactory(
+    () =>
+        UpdateInterestsUseCase(serviceLocator<CategorieEmpreinteRepository>())
   );
 
   // Bloc
   serviceLocator.registerFactory(
     () => ProfileBilanCubit(getQuestionsRestantesUseCase: serviceLocator()),
+  );
+  serviceLocator.registerFactory(
+    () => InterestsCubit(
+      getInterestsDataUseCase: serviceLocator(),
+      updateInterestsUseCase: serviceLocator(),
+    ),
+  );
+}
+
+void _initHome() {
+  // Data source
+  serviceLocator.registerLazySingleton<HomeStatsRemoteDataSource>(
+    () => HomeStatsRemoteDataSourceImpl(serviceLocator<SupabaseClient>()),
+  );
+
+  // Repository
+  serviceLocator.registerLazySingleton<HomeStatsRepository>(
+    () => HomeStatsRepositoryImpl(serviceLocator<HomeStatsRemoteDataSource>()),
+  );
+
+  // Use cases
+  serviceLocator.registerLazySingleton(
+    () => GetHomeStatsUseCase(serviceLocator<HomeStatsRepository>()),
+  );
+  serviceLocator.registerLazySingleton(() => BuildStatsCardsUseCase());
+
+  // Cubit
+  serviceLocator.registerFactory(
+    () => HomeStatsCubit(
+      getHomeStats: serviceLocator(),
+      buildStatsCards: serviceLocator(),
+    ),
   );
 }

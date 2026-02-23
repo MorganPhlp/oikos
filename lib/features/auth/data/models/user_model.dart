@@ -1,6 +1,6 @@
 import '../../../../core/common/domain/entities/user.dart';
 
-class UserModel extends User {
+class UserModel extends UserEntity {
   UserModel({
     required super.id,
     required super.email,
@@ -9,7 +9,8 @@ class UserModel extends User {
     super.hasCompletedBilan = false,
     super.avatar,
     super.entrepriseId,
-    super.isActive
+    super.isActive,
+    super.impactScoreXp,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> map) {
@@ -22,6 +23,7 @@ class UserModel extends User {
       avatar: map['avatar_url'],
       entrepriseId: map['entreprise_id'] ?? '',
       isActive: map['est_actif'] ?? true,
+      impactScoreXp: map['impact_score_xp'] ?? 0,
     );
   }
 }

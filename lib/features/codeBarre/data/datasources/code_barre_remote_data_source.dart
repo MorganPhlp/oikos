@@ -40,21 +40,21 @@ class CodeBarreRemoteDataSourceImpl implements CodeBarreRemoteDataSource {
     // Liste de référence pour comparer les scores
     const grades = ['a', 'b', 'c', 'd', 'e'];
     String currentGradeLower = currentEcoScore.toLowerCase();
-
     // Est-ce que le produit actuel a un score valide (a,b,c,d,e) ?
     bool isCurrentScoreKnown = grades.contains(currentGradeLower);
 
-    print("🚀 DÉBUT RECHERCHE OPTIMISÉE pour '$categoryTag' (Actuel: $currentGradeLower)");
+    print(" DÉBUT RECHERCHE OPTIMISÉE pour '$categoryTag' (Actuel: $currentGradeLower)");
 
     Future<AlimentModel?> searchBestProduct(String targetGrade) async {
-      // On demande 20 produits pour avoir du choix et pouvoir trier
+      // 1. RECHERCHE LÉGÈRE : On ne demande que le strict minimum pour filtrer
       final uri = Uri.https('fr.openfoodfacts.org', '/api/v2/search', {
         'categories_tags': categoryTag,
         'ecoscore_grade': targetGrade,
         'countries_tags_en': 'france',
-        'sort_by': 'unique_scans_n', // Toujours les plus populaires
-        'page_size': '20',           // On élargit la recherche
-        'fields': 'product_name,brands,image_url,ecoscore_grade,nutriscore_grade,code,categories_tags'
+        'sort_by': 'unique_scans_n',
+        'page_size': '20',
+        // ON DEMANDE SEULEMENT LE CODE ET LE SCORE (et le nom pour le debug)
+        'fields': 'code,product_name,ecoscore_grade'
       });
 
       try {
@@ -62,21 +62,20 @@ class CodeBarreRemoteDataSourceImpl implements CodeBarreRemoteDataSource {
 
         if (response.statusCode == 200) {
           final data = json.decode(response.body);
-
           // On crée une liste modifiable pour pouvoir la trier
           final List<dynamic> products = List.from(data['products'] ?? []);
 
           if (products.isEmpty) return null;
 
-          // 1. TRI INTELLIGENT : On trie du meilleur score (A) au pire (E)
-          // Comme ça, le premier qu'on valide sera forcément le meilleur disponible
+          // On trie du meilleur score (A) au pire (E)
+          // Comme ça le premier qu'on valide sera forcément le meilleur disponible
           products.sort((a, b) {
             String gradeA = (a['ecoscore_grade'] ?? 'z').toString().toLowerCase();
             String gradeB = (b['ecoscore_grade'] ?? 'z').toString().toLowerCase();
             return gradeA.compareTo(gradeB); // 'a' vient avant 'b'
           });
 
-          // 2. PARCOURS ET SÉLECTION
+          // PARCOURS ET SÉLECTION
           for (var product in products) {
             final String? realGrade = product['ecoscore_grade']?.toString().toLowerCase();
 
@@ -90,29 +89,32 @@ class CodeBarreRemoteDataSourceImpl implements CodeBarreRemoteDataSource {
               bool isBetter = !isCurrentScoreKnown || realGrade.compareTo(currentGradeLower) < 0;
 
               if (isBetter) {
-                print("   ✅ TROUVÉ (Mieux que $currentGradeLower) : ${product['product_name']} (Eco: $realGrade)");
-                return AlimentModel.fromJson(product);
-              } else {
-                // Optionnel : afficher ce qu'on rejette pour comprendre
-                // print("   ! Rejeté : ${product['product_name']} ($realGrade) n'est pas mieux que $currentGradeLower");
+                print("   ✅ PRODUIT TROUVÉ (Mieux que $currentGradeLower) : ${product['product_name']} (Eco: $realGrade)");
+
+                // 2. RÉCUPÉRATION COMPLÈTE DU GAGNANT
+                // On réutilise notre méthode getAliment qui sait déjà tout chercher
+                try {
+                  return await getAliment(product['code']);
+                } catch (e) {
+                  print("   ⚠️ Impossible de charger les détails du candidat: $e");
+                  continue; // On passe au suivant si le détail échoue
+                }
               }
             }
           }
-
           // Si on arrive ici, aucun des 20 produits n'était mieux
           return null;
 
-        } else {
-          print("   ⚠️ ERREUR HTTP V2: ${response.statusCode}");
         }
+
       } catch (e) {
-        print("   ❌ ERREUR V2: $e");
+        print("   ❌ ERREUR RECHERCHE: $e");
         return null;
       }
       return null;
     }
 
-    // --- BOUCLE DE STRATÉGIE ---
+    // --- BOUCLE optionnel ---
     // On garde la boucle car l'API priorise quand même ce qu'on demande dans 'ecoscore_grade'
     // Mais grâce au "return" rapide ci-dessus, on sortira dès la première requête fructueuse.
     for (final targetGrade in ['a', 'b', 'c', 'd']) {

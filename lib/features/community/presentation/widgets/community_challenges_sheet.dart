@@ -36,7 +36,7 @@ class _CommunityChallengesSheetState extends State<CommunityChallengesSheet> {
   Future<void> _fetchActiveChallenges() async {
     try {
       final res = await Supabase.instance.client
-          .from('defi_communautaire')
+          .from('action_communautaire')
           .select('action_id')
           .eq('entreprise_id', widget.entrepriseId)
           .gt('date_fin', DateTime.now().toIso8601String());
@@ -76,7 +76,7 @@ class _CommunityChallengesSheetState extends State<CommunityChallengesSheet> {
               Expanded(
                 child: Text(
                   _currentView == 0 ? "Défis de communautés" 
-                : _currentView == 1 ? "Défis en cours" 
+                : _currentView == 1 ? "ACtions en cours" 
                 : "Lancer un défi",
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
@@ -107,8 +107,8 @@ class _CommunityChallengesSheetState extends State<CommunityChallengesSheet> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _buildBigChoiceButton(
-          title: "Défis en cours",
-          subtitle: "Rejoins les défis actifs et fais gagner ta communauté",
+          title: "Actions en cours",
+          subtitle: "Rejoins les défis actifs et fais gagner des points à ta communauté",
           icon: Icons.list_alt,
           color: AppColors.lightPrimary,
           isDark: isDark,
@@ -119,7 +119,7 @@ class _CommunityChallengesSheetState extends State<CommunityChallengesSheet> {
         const SizedBox(height: 24),
         _buildBigChoiceButton(
           title: "Défier les autres",
-          subtitle: "Choisis une action et lance un défi à toute l'entreprise",
+          subtitle: "Choisis une action et lance un défi à ta communauté",
           icon: Icons.sports_kabaddi,
           color: AppColors.orange,
           isDark: isDark,

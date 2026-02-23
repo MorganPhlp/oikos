@@ -1,29 +1,29 @@
-// Modèle de données pour un défi actif
 class ActiveChallengeModel {
-  final String id;
+  final String id; // Instance ID
+  final String baseActionId;
   final String title;
   final String description;
   final String iconName;
-  final int xpGain; // Nombre d'XP que fait gagner le défi
-  final DateTime dateFin; // Fin du défi pour tout le monde
-  final int participantsCount; // Nombre de participants
-  final bool isJoined; // Indique si l'utilisateur courant a rejoint le défi ou non
+  final int xpGain;
+  final DateTime dateFin;
+  final int participantsCount;
+  final bool isJoined;
 
   ActiveChallengeModel({
-    required this.id, required this.title, required this.description, 
-    required this.iconName, required this.xpGain, 
-    required this.dateFin, required this.participantsCount,
-    required this.isJoined,
+    required this.id, required this.baseActionId, required this.title, 
+    required this.description, required this.iconName, required this.xpGain, 
+    required this.dateFin, required this.participantsCount, required this.isJoined,
   });
 
   factory ActiveChallengeModel.fromJson(Map<String, dynamic> json) {
     return ActiveChallengeModel(
-      id: json['defi_id']?.toString() ?? '',
-      title: json['titre'] ?? 'Défi',
+      id: json['action_id']?.toString() ?? '',
+      baseActionId: json['base_action_id']?.toString() ?? '',
+      title: json['titre'] ?? 'Action',
       description: json['description'] ?? '',
       iconName: json['icon_name'] ?? 'zap',
       xpGain: (json['xp_gain'] as num?)?.toInt() ?? 0,
-      dateFin: json['date_fin'] != null ? DateTime.parse(json['date_fin']) : DateTime.now().add(const Duration(days: 7)),
+      dateFin: json['date_fin'] != null ? DateTime.parse(json['date_fin']) : DateTime.now(),
       participantsCount: (json['participants_count'] as num?)?.toInt() ?? 0,
       isJoined: json['is_joined'] ?? false,
     );

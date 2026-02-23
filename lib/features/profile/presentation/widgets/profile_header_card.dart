@@ -71,7 +71,7 @@ class ProfileHeaderCard extends StatelessWidget {
                             currentAvatar: currentAvatar,
                             onAvatarSelected: (newAvatar) {
                               context.read<AuthBloc>().add(
-                                AuthUpdateUser(avatar: newAvatar)
+                                AuthUpdateUser(avatar: newAvatar),
                               );
                             },
                           ),
@@ -111,9 +111,9 @@ class ProfileHeaderCard extends StatelessWidget {
                                       alpha: 0.3,
                                     ),
                                   );
-                                }
+                                },
                               ),
-                            )
+                            ),
                           ),
                           Positioned(
                             bottom: 0,
@@ -255,7 +255,7 @@ class ProfileHeaderCard extends StatelessWidget {
           Expanded(
             child: InkWell(
               onTap: () {
-                context.goNamed('dashboard');
+                context.push('/dashboard');
               },
               borderRadius: BorderRadius.circular(10),
               child: SizedBox(

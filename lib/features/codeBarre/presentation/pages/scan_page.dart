@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:oikos/core/utils/show_snackbar.dart';
 import 'package:oikos/features/codeBarre/presentation/bloc/scan_bloc.dart';
-import 'package:oikos/features/codeBarre/presentation/pages/product_modal.dart';
 import 'package:oikos/features/codeBarre/presentation/pages/scanner_overlay.dart';
 import 'package:oikos/init_dependencies.dart';
 
@@ -24,8 +23,11 @@ class ScanPage extends StatefulWidget {
 
 class _ScanPageState extends State<ScanPage> {
   final MobileScannerController controller = MobileScannerController(
+    // Limite la détection à 1 scan par seconde maximum
+    detectionTimeoutMs: 1000,
     detectionSpeed: DetectionSpeed.noDuplicates,
     returnImage: false,
+
   );
 
   bool _isProcessing = false;
@@ -70,7 +72,7 @@ class _ScanPageState extends State<ScanPage> {
               controller.stop(); // On fige la caméra
 
               // On navigue vers la page de détails en passant l'aliment trouvé
-              await context.push('/product_details', extra: state.aliment);
+              await context.push('/scan/details', extra: state.aliment);
 
               // Au retour de la page détails :
               if (mounted) {
@@ -78,7 +80,7 @@ class _ScanPageState extends State<ScanPage> {
                 context.read<ScanBloc>().add(ScanReset());
                 // 2. On redémarre la caméra
                 controller.start();
-                // 3. IMPORTANT : On enlève le verrou pour permettre un nouveau scan
+                // 3. On enlève le verrou pour permettre un nouveau scan
                 setState(() {
                   _isProcessing = false;
                 });
@@ -105,12 +107,12 @@ class _ScanPageState extends State<ScanPage> {
 
                     final code = barcodes.first.rawValue;
                     if (code != null) {
-                      // 1. On verrouille immédiatement
+                      // On verrouille immédiatement
                       setState(() {
                         _isProcessing = true;
                       });
 
-                      // 2. On lance l'événement
+                      // On lance l'événement
                       context.read<ScanBloc>().add(ScanBarcodeDetected(code));
                     }
                   },
@@ -135,22 +137,4 @@ class _ScanPageState extends State<ScanPage> {
     );
   }
 
-  // affiche la fiche du produit
-  void _showProductBottomSheet(BuildContext parentContext, ScanSuccess state) {
-    showModalBottomSheet(
-      context: parentContext,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => ProductModal(
-        aliment: state.aliment,
-        onAddPressed: () {
-          Navigator.pop(ctx);
-          _resetScan();
-        },
-      ),
-    ).then((_) {
-      // Quand la modale se ferme (swipe ou clic extérieur), on relance le scan
-      _resetScan();
-    });
-  }
 }

@@ -22,9 +22,7 @@ abstract interface class AuthRemoteDataSource {
 
   Future<bool> doesEmailExist(String email);
 
-  Future<void> resetPassword({
-    required String email
-  });
+  Future<void> resetPassword({required String email});
 
   Future<UserModel> updateUserData({
     String? pseudo,
@@ -34,10 +32,7 @@ abstract interface class AuthRemoteDataSource {
 
   Future<void> anonymizeAccount();
 
-  Future<void> updateCredentials({
-    String? email,
-    String? password,
-  });
+  Future<void> updateCredentials({String? email, String? password});
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -68,12 +63,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (response.user == null) {
         throw ServerException('User is null');
       }
-      //on ajoute les donnees supplementaires de l'utilisateur dans la table utilisateur
-      await supabaseClient.from('utilisateur').update({
-        'code_communaute': communityCode,
-        'avatar_url': 'assets/avatars/avatar_1.png', // Avatar par défaut
-      }).eq("id" , response.user!.id);
-      
+
       return UserModel.fromJson(response.user!.toJson());
     } catch (e) {
       throw ServerException(e.toString());
@@ -97,22 +87,23 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       final userData = await supabaseClient
           .from('utilisateur')
           .select()
-          .eq('id', response.user!.id).single();
+          .eq('id', response.user!.id)
+          .single();
 
       // On bloque la connexion si le compte est anonyme
-      if(userData['etat_compte'] == 'ANONYMISE' || userData['est_compte_valide'] == false) {
-        await supabaseClient.auth.signOut(); // On s'assure de se déconnecter pour éviter les sessions fantômes
+      if (userData['etat_compte'] == 'ANONYMISE' ||
+          userData['est_compte_valide'] == false) {
+        await supabaseClient.auth
+            .signOut(); // On s'assure de se déconnecter pour éviter les sessions fantômes
         throw ServerException('Ce compte a été anonymisé ou supprimé.');
       }
 
       // on merge les deux maps
-      final mergedData = {
-        ...userData,
-        ...response.user!.toJson(),
-      };
+      final mergedData = {...userData, ...response.user!.toJson()};
       return UserModel.fromJson(mergedData);
     } catch (e) {
-      await supabaseClient.auth.signOut(); // On s'assure de se déconnecter en cas d'erreur pour éviter les sessions fantômes
+      await supabaseClient.auth
+          .signOut(); // On s'assure de se déconnecter en cas d'erreur pour éviter les sessions fantômes
       throw ServerException(e.toString());
     }
   }
@@ -120,7 +111,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<UserModel?> getCurrentUserData() async {
     try {
-      if(currentUserSession == null) {
+      if (currentUserSession == null) {
         return null;
       }
       final userData = await supabaseClient
@@ -149,13 +140,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<void> resetPassword({
-    required String email
-  }) async {
+  Future<void> resetPassword({required String email}) async {
     try {
       await supabaseClient.auth.resetPasswordForEmail(
         email,
-        redirectTo: 'https://oikos-reset.vercel.app/reset-password'
+        redirectTo: 'https://oikos-reset.vercel.app/reset-password',
       );
     } catch (e) {
       throw ServerException(e.toString());
@@ -179,8 +168,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (avatar != null) updates['avatar_url'] = avatar;
       if (isActive != null) updates['est_actif'] = isActive;
 
-      if(updates.isEmpty) {
-        return getCurrentUserData().then((data) => data!); // Si aucune mise à jour, on retourne les données actuelles
+      if (updates.isEmpty) {
+        return getCurrentUserData().then(
+          (data) => data!,
+        ); // Si aucune mise à jour, on retourne les données actuelles
       }
 
       final userData = await supabaseClient
@@ -191,10 +182,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           .single();
 
       // Fusion des données
-      final mergedData = {
-        ...userData,
-        ...user.toJson(),
-      };
+      final mergedData = {...userData, ...user.toJson()};
 
       return UserModel.fromJson(mergedData);
     } catch (e) {
@@ -209,28 +197,34 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (user == null) {
         throw ServerException('User not logged in');
       }
-      final domain = user.email?.split('@').last ?? 'example.com'; // Récupère le domaine de l'email ou utilise un domaine générique
+      final domain =
+          user.email?.split('@').last ??
+          'example.com'; // Récupère le domaine de l'email ou utilise un domaine générique
 
       // Anonymisation des données de l'utilisateur
-      await supabaseClient.from('utilisateur').update({
-        'pseudo': 'Anonyme-${user.id.substring(0, 8)}', // Pseudo générique avec ID partiel pour éviter les collisions
-        'email': '${user.id}@$domain', // Email générique avec domaine de l'entreprise pour garder les stats
-        'avatar_url': null, // Suppression de l'avatar
-        'etat_compte': 'ANONYMISE', // Marque le compte comme anonymisé
-        'est_compte_valide': false, // Désactive le compte pour éviter toute connexion future
-      }).eq('id', user.id);
+      await supabaseClient
+          .from('utilisateur')
+          .update({
+            'pseudo':
+                'Anonyme-${user.id.substring(0, 8)}', // Pseudo générique avec ID partiel pour éviter les collisions
+            'email':
+                '${user.id}@$domain', // Email générique avec domaine de l'entreprise pour garder les stats
+            'avatar_url': null, // Suppression de l'avatar
+            'etat_compte': 'ANONYMISE', // Marque le compte comme anonymisé
+            'est_compte_valide':
+                false, // Désactive le compte pour éviter toute connexion future
+          })
+          .eq('id', user.id);
 
-      await supabaseClient.auth.signOut(); // Déconnexion de l'utilisateur après anonymisation
+      await supabaseClient.auth
+          .signOut(); // Déconnexion de l'utilisateur après anonymisation
     } catch (e) {
       throw ServerException(e.toString());
     }
   }
 
   @override
-  Future<void> updateCredentials({
-    String? email,
-    String? password,
-  }) async {
+  Future<void> updateCredentials({String? email, String? password}) async {
     try {
       final user = currentUserSession?.user;
       if (user == null) {
@@ -242,14 +236,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }
 
       if (email != null) {
-        await supabaseClient.auth.updateUser(
-          UserAttributes(email: email),
-        );
+        await supabaseClient.auth.updateUser(UserAttributes(email: email));
 
         // Mise à jour de l'email dans la table utilisateur
-        await supabaseClient.from('utilisateur').update({
-          'email': email,
-        }).eq('id', user.id);
+        await supabaseClient
+            .from('utilisateur')
+            .update({'email': email})
+            .eq('id', user.id);
       }
 
       if (password != null) {
