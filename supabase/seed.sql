@@ -28,7 +28,8 @@ ON CONFLICT (code) DO NOTHING;
 INSERT INTO carbone_equivalent (equivalent_label, valeur_1_tonne, icone) VALUES
 ('A/R Paris-New York en avion', 0.49, '✈️'),
 ('Litres d''eau', 130000, '💧'),
-('% de l''empreinte carbone moyenne d''un français', 11, '🇫🇷')
+('Tour(s) du monde en voiture', 0.11, '🚗'),
+
 ON CONFLICT DO NOTHING;
 
 

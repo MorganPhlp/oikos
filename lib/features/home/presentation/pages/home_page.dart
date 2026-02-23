@@ -66,12 +66,23 @@ class HomePage extends StatelessWidget {
                   const SizedBox(height: 32),
                   const QuickAccessWidget(),
                   const SizedBox(height: 32),
-                  if (entrepriseId != null)
+                  if (entrepriseId != null) ...[
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "Ta communauté a besoin de toi !",
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: theme.colorScheme.onSecondary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                     CommunityChallengesCardWidget(
                       entrepriseId: entrepriseId,
                       myCommunityCode: myCommunityCode,
-                    )
-                  else
+                    ),
+                  ] else
                     const Text("Rejoignez une communauté pour voir les défis"),
 
                   const SizedBox(height: 100),

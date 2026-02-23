@@ -3,7 +3,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:oikos/core/common/presentation/widgets/confirm_modal.dart';
-import 'package:oikos/core/common/presentation/widgets/gradient_button.dart';
 import 'package:oikos/features/actions/data/models/limite_actions_freq_model.dart';
 import 'package:oikos/features/actions/domain/entities/limite_action_freq_entity.dart';
 import 'package:oikos/features/actions/presentation/widgets/count_widget.dart';
@@ -78,7 +77,22 @@ class _MyActionsTabState extends State<MyActionsTab> {
             const SizedBox(height: 20),
             Expanded(
               child: AnimatedSwitcher(
+                layoutBuilder: (currentChild, previousChildren) {
+                  return currentChild ?? const SizedBox.shrink();
+                },
+                transitionBuilder: (child, animation) => FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0.0, 0.2),
+                      end: Offset.zero,
+                    ).animate(animation),
+
+                    child: child,
+                  ),
+                ),
                 duration: const Duration(milliseconds: 250),
+
                 child: actions.isEmpty
                     ? _buildEmptyState()
                     : _buildList(actions, controller),
@@ -152,7 +166,6 @@ class _MyActionsTabState extends State<MyActionsTab> {
     );
   }
 
-  // Remplace ton ancienne méthode par celle-ci
   void _confirmDelete(UserActiveActionEntity entry) {
     showDialog(
       context: context,
