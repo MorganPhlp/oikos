@@ -232,7 +232,15 @@ class CommunityRemoteDataSource {
 
       final list = response as List<dynamic>;
       return list.asMap().entries.map((entry) {
-        final model = LeaderboardEntryModel.fromCommunityView(entry.value, myCommunityCode);
+        final json = Map<String, dynamic>.from(entry.value);
+
+        // Conversion du logo_url en URL publique si disponible
+        final logoPath = json['logo_url'] as String?;
+        if (logoPath != null && logoPath.isNotEmpty) {
+          json['logo_url'] = supabase.storage.from('logos').getPublicUrl(logoPath);
+        }
+
+        final model = LeaderboardEntryModel.fromCommunityView(json, myCommunityCode);
         return model.copyWith(rank: entry.key + 1);
       }).toList();
     } catch (e) {
@@ -250,7 +258,15 @@ class CommunityRemoteDataSource {
           .maybeSingle();
 
       if (response == null) return null;
-      return LeaderboardEntryModel.fromCommunityView(response, communauteCode);
+
+      // Conversion du logo_url en URL publique si disponible
+      final json = Map<String, dynamic>.from(response);
+      final logoPath = json['logo_url'] as String?;
+      if (logoPath != null && logoPath.isNotEmpty) {
+        json['logo_url'] = supabase.storage.from('logos').getPublicUrl(logoPath);
+      }
+
+      return LeaderboardEntryModel.fromCommunityView(json, communauteCode);
     } catch (e) {
       return null;
     }
@@ -264,9 +280,17 @@ class CommunityRemoteDataSource {
         .eq('entreprise_id', entrepriseId)
         .neq('community_code', myCode); 
 
-    return (response as List).map((json) => 
-      LeaderboardEntryModel.fromCommunityView(json, myCode)
-    ).toList();
+    return (response as List).map((item) {
+      final json = Map<String, dynamic>.from(item);
+
+      // Conversion du logo_url en URL publique si disponible
+      final logoPath = json['logo_url'] as String?;
+      if (logoPath != null && logoPath.isNotEmpty) {
+        json['logo_url'] = supabase.storage.from('logos').getPublicUrl(logoPath);
+      }
+
+      return LeaderboardEntryModel.fromCommunityView(json, myCode);
+    }).toList();
   }
 
   /// Récupère les défis actifs de l'entreprise [entrepriseId]

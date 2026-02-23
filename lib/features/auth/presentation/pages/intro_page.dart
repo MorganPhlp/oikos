@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:oikos/core/theme/app_typography.dart';
 import 'package:oikos/features/auth/presentation/pages/signin_page.dart';
-import 'package:oikos/features/auth/presentation/pages/signup_page.dart';
 import 'package:oikos/features/auth/presentation/widgets/auth_primary_button.dart';
 import 'package:oikos/features/auth/presentation/widgets/auth_secondary_button.dart';
 
@@ -84,7 +84,7 @@ class _IntroPageState extends State<IntroPage> {
                   AuthPrimaryButton(
                     text: "Commencer l'aventure",
                     onPressed: () {
-                      Navigator.push(context, SignUpPage.route());
+                      context.pushNamed('signup');
                     },
                   ),
 

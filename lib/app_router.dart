@@ -8,6 +8,7 @@ import 'package:oikos/core/common/presentation/widgets/header.dart';
 import 'package:oikos/core/common/presentation/widgets/navbar.dart';
 import 'package:oikos/features/actions/presentation/bloc/habitudes_cubit.dart';
 import 'package:oikos/features/auth/presentation/pages/intro_page.dart';
+import 'package:oikos/features/auth/presentation/pages/signup_page.dart';
 import 'package:oikos/features/auth/presentation/pages/update_password_page.dart';
 import 'package:oikos/features/bilanCarbone/presentation/pages/bilan_flow.dart';
 import 'package:oikos/features/community/presentation/pages/community_dashboard_screen.dart';
@@ -42,6 +43,12 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
         path: '/',
         name: 'intro',
         builder: (context, state) => const IntroPage(),
+      ),
+
+      GoRoute(
+        path: '/signup',
+        name: 'signup',
+        builder: (context, state) => const SignUpPage(),
       ),
 
       GoRoute(
@@ -203,6 +210,14 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
 
       final bool isResettingPassword = location.startsWith('/reset-password');
       if (isResettingPassword) return null;
+
+      // Permettre l'accès à la page d'inscription sans authentification
+      final bool isSignUp = location.startsWith('/signup');
+      if (isSignUp) return null;
+
+      // Permettre l'accès aux documents PDF sans authentification
+      final bool isPdfViewer = location.startsWith('/pdf');
+      if (isPdfViewer) return null;
 
       final bool isLoggedIn = authState is AppUserLoggedIn;
 
