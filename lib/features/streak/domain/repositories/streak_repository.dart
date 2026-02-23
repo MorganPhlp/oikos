@@ -11,7 +11,10 @@ abstract class StreakRepository {
     String userId,
     DateTime date,
   );
-  Future<bool> hasCompletedActionCommunautaire(String userId);
+  Future<bool> hasCompletedActionCommunautaireDepuis(
+    String userId,
+    DateTime date,
+  );
   Future<List<StreakStepEntity>> getStreakSteps();
   Future<UtilisateurStreakEntity> initStreak(String userId);
   Future<void> markStreakAsSeen(String userId, int lastSeenStreak);

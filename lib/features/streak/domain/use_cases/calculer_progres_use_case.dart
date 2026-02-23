@@ -23,7 +23,10 @@ class CalculerProgresUseCase {
         userId,
         streak.lastUpdated!,
       );
-      collectif = await repository.hasCompletedActionCommunautaire(userId);
+      collectif = await repository.hasCompletedActionCommunautaireDepuis(
+        userId,
+        streak.lastUpdated!,
+      );
     }
 
     return (quotidiennes, collectif);

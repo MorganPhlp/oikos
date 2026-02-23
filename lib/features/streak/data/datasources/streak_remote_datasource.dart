@@ -85,9 +85,26 @@ class StreakRemoteDatasource {
     }
   }
 
-  Future<bool> hasCompletedActionCommunautaire(String userId) async {
-    // TODO: implémenter la logique réelle pour vérifier si l'utilisateur a complété une action communautaire
-    return true;
+  Future<int> getNombreActionsCommunautairesDepuis(
+    String userId,
+    DateTime date,
+  ) async {
+    try {
+      final response = await supabaseClient
+          .from('action_communautaire_participation')
+          .select()
+          .eq('user_id', userId)
+          .gt('created_at', date.toIso8601String())
+          .count(CountOption.exact);
+
+      final int count = response.count;
+
+      return count;
+    } catch (e) {
+      throw Exception(
+        'Erreur lors de la récupération du nombre d\'actions communautaires valides: $e',
+      );
+    }
   }
 
   Future<List<Map<String, dynamic>>> getStreakSteps() async {

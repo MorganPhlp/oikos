@@ -58,7 +58,7 @@ class _StreakCongratsPageState extends State<StreakCongratsPage> {
     return Scaffold(
       backgroundColor: Colors.black.withValues(alpha: 0.8),
       body: GestureDetector(
-        onTap: () => {widget.onClose?.call(), context.pop()},
+        onTap: () => {widget.onClose?.call()},
         behavior: HitTestBehavior.opaque,
         child: Stack(
           children: [
@@ -131,7 +131,7 @@ class _StreakCongratsPageState extends State<StreakCongratsPage> {
                     const SizedBox(height: 40),
                     GradientButton(
                       label: "VOIR MA FLEUR",
-                      onPressed: () => {widget.onClose?.call(), context.pop()},
+                      onPressed: () => {widget.onClose?.call()},
                       isTertiary: true,
                     ).animate(delay: 2.2.seconds).fadeIn(),
                   ],

@@ -70,8 +70,36 @@ class StreakRepositoryImpl implements StreakRepository {
   }
 
   @override
-  Future<bool> hasCompletedActionCommunautaire(String userId) {
-    return remoteDatasource.hasCompletedActionCommunautaire(userId);
+  Future<bool> hasCompletedActionCommunautaireDepuis(
+    String userId,
+    DateTime date,
+  ) async {
+    final results = await Future.wait([
+      getStreakSteps(),
+      remoteDatasource.getNombreActionsCommunautairesDepuis(userId, date),
+      getCurrentStreak(userId),
+    ]);
+
+    final stepsList = results[0] as List<StreakStepEntity>;
+    final totalActionsCommunaute = results[1] as int;
+    final streak = results[2] as UtilisateurStreakEntity;
+
+    if (stepsList.isEmpty) return false;
+    if (totalActionsCommunaute == 0) return false;
+
+    final currentStreakValue = streak.currentStreak;
+
+    final currentStep = stepsList.cast<StreakStepEntity?>().firstWhere(
+      (step) =>
+          currentStreakValue >= step!.from && currentStreakValue <= step.to,
+      orElse: () => null,
+    );
+
+    final effectiveStep = currentStep ?? stepsList.last;
+
+    final requiredActions = effectiveStep.requiredActionsCommunautaires;
+
+    return totalActionsCommunaute >= requiredActions;
   }
 
   @override
