@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:contribution_heatmap/contribution_heatmap.dart';
-import 'package:oikos/features/bilanCarbone/domain/entities/carbone_equivalent_entity.dart';
-import 'package:oikos/features/bilanCarbone/presentation/widgets/bilan_category_bars.dart';
-import 'package:oikos/features/bilanCarbone/presentation/widgets/bilan_category_pie_chart.dart';
-import 'package:oikos/features/bilanCarbone/presentation/widgets/bilan_equivalents_list.dart';
-import 'package:oikos/features/bilanCarbone/presentation/widgets/bilan_hero_score.dart';
+import 'package:oikos/features/dashboard/presentation/widgets/dashboard_back_button.dart';
+import 'package:oikos/features/dashboard/presentation/widgets/dashboard_bilan_carbone_section.dart';
+import 'package:oikos/features/dashboard/presentation/widgets/dashboard_streaks_section.dart';
 import '../bloc/dashboard_bloc.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -19,51 +17,7 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  static const double _fakeScoreKg = 8400.0;
-  static const Map<String, double> _fakeScoresParCategorie = {
-    'Transport': 2500.0,
-    'Logement': 3000.0,
-    'Alimentation': 1800.0,
-    'Services': 1100.0,
-  };
-
-  static const List<CarboneEquivalentEntity> _fakeEquivalents = [
-    CarboneEquivalentEntity(
-      id: 1,
-      equivalentLabel: 'Aller-retours Paris–Lyon en voiture',
-      valeur1Tonne: 4.0,
-      icone: '🚗',
-    ),
-    CarboneEquivalentEntity(
-      id: 2,
-      equivalentLabel: 'Burgers (repas)',
-      valeur1Tonne: 60.0,
-      icone: '🍔',
-    ),
-    CarboneEquivalentEntity(
-      id: 3,
-      equivalentLabel: 'Heures de streaming vidéo',
-      valeur1Tonne: 900.0,
-      icone: '📺',
-    ),
-    CarboneEquivalentEntity(
-      id: 4,
-      equivalentLabel: 'T-shirts neufs',
-      valeur1Tonne: 120.0,
-      icone: '👕',
-    ),
-    CarboneEquivalentEntity(
-      id: 5,
-      equivalentLabel: 'Charges de smartphone',
-      valeur1Tonne: 100000.0,
-      icone: '📱',
-    ),
-  ];
-
   late final List<ContributionEntry> _fakeHeatmapEntries;
-
-  final ScrollController _heatmapScrollController = ScrollController();
-  bool _scrolledToEndOnce = false;
 
   @override
   void initState() {
@@ -82,151 +36,83 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   void dispose() {
-    _heatmapScrollController.dispose();
     super.dispose();
-  }
-
-  void _scrollHeatmapToLatest() {
-    if (_scrolledToEndOnce) return;
-    if (!_heatmapScrollController.hasClients) return;
-
-    _scrolledToEndOnce = true;
-    _heatmapScrollController.jumpTo(_heatmapScrollController.position.maxScrollExtent);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocBuilder<DashboardBloc, DashboardState>(
-        builder: (context, state) {
-          if (state is DashboardLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: SafeArea(
+        child: Stack(
+          children: [
+            BlocBuilder<DashboardBloc, DashboardState>(
+              builder: (context, state) {
+                if (state is DashboardLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-          if (state is DashboardError) {
-            return Center(
-              child: Text(
-                state.message,
-                style: const TextStyle(color: Colors.red),
-                textAlign: TextAlign.center,
-              ),
-            );
-          }
+                if (state is DashboardError) {
+                  return Center(
+                    child: Text(
+                      state.message,
+                      style: const TextStyle(color: Colors.red),
+                      textAlign: TextAlign.center,
+                    ),
+                  );
+                }
 
-          if (state is DashboardLoaded) {
-            // approx. 3 mois = ~13 semaines (colonnes)
-            const visibleWeeks = 13;
+                if (state is DashboardLoaded) {
+                  final bilan = state.bilanCarbone;
 
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 700),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Bonjour ${state.pseudo}',
-                        style: Theme.of(context).textTheme.headlineSmall,
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        'Streaks',
-                        style: Theme.of(context).textTheme.titleLarge,
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 12),
-
-                      // Viewport largeur écran + scroll horizontal
-                      LayoutBuilder(
-                        builder: (context, constraints) {
-                          // On adapte la taille des cases pour qu’environ 13 colonnes rentrent
-                          // (le widget a aussi des labels à gauche; donc on prend une taille prudente)
-                          final safeWidth = constraints.maxWidth;
-                          final cellSpacing = 3.0;
-                          final estimatedLabelWidth = 48.0; // marge pour les weekday labels
-                          final usable = (safeWidth - estimatedLabelWidth).clamp(200.0, safeWidth);
-                          final cellSize = ((usable - (visibleWeeks - 1) * cellSpacing) / visibleWeeks)
-                              .clamp(10.0, 22.0);
-
-                          // Après le premier layout, on se positionne à la fin (dernier mois)
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            if (!mounted) return;
-                            _scrollHeatmapToLatest();
-                          });
-
-                          return SizedBox(
-                            width: constraints.maxWidth, // <- ne dépasse jamais l'écran
-                            child: SingleChildScrollView(
-                              controller: _heatmapScrollController,
-                              scrollDirection: Axis.horizontal,
-                              physics: const BouncingScrollPhysics(),
-                              child: ContributionHeatmap(
-                                heatmapColor: HeatmapColor.green,
-                                showMonthLabels: true,
-                                weekdayLabel: WeekdayLabel.none,
-                                splittedMonthView: true,
-                                showCellDate: false,
-                                startWeekday: DateTime.monday,
-
-                                // important pour le fitting + estimation "3 derniers mois"
-                                padding: EdgeInsets.zero,
-                                cellSize: cellSize,
-                                cellSpacing: cellSpacing,
-                                cellRadius: 6.0,
-
-                                minDate: DateTime(2025, 8, 16),
-                                maxDate: DateTime.now(),
-                                entries: _fakeHeatmapEntries,
-                                onCellTap: (date, value) {
-                                  // ignore: avoid_print
-                                  print('Tapped: $date with $value contributions');
-                                },
-                              ),
+                  return SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(16, 56, 16, 16),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 700),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Statistiques',
+                              style: Theme.of(context).textTheme.headlineSmall,
+                              textAlign: TextAlign.center,
                             ),
-                          );
-                        },
-                      ),
-
-                      const SizedBox(height: 24),
-                      Text(
-                        'Bilan Carbone',
-                        style: Theme.of(context).textTheme.titleLarge,
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 12),
-
-                      // Récap + objectif (même design que la page résultats)
-                      const BilanHeroScore(scoreKg: _fakeScoreKg),
-                      const SizedBox(height: 20),
-
-                      BilanCategoryPieChart(scoresKg: _fakeScoresParCategorie),
-                      const SizedBox(height: 16),
-
-                      // Descriptif du camembert + pourcentages
-                      BilanCategoryBars(scoresKg: _fakeScoresParCategorie, totalKg: _fakeScoreKg),
-                      const SizedBox(height: 16),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "C'est l'équivalent de :",
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
+                            const SizedBox(height: 24),
+                            DashboardStreaksSection(
+                              entries: _fakeHeatmapEntries,
+                              minDate: DateTime(2025, 8, 16),
+                              maxDate: DateTime.now(),
+                            ),
+                            const SizedBox(height: 24),
+                            if (bilan == null)
+                              Text(
+                                'Aucun bilan carbone disponible',
+                                style: Theme.of(context).textTheme.bodyMedium,
+                                textAlign: TextAlign.center,
+                              )
+                            else
+                              DashboardBilanCarboneSection(
+                                scoreKg: bilan.scoreTotalKg,
+                                scoresParCategorieKg: bilan.detail.toMap(),
+                                equivalents: state.equivalents,
                               ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      BilanEquivalentsList(items: _fakeEquivalents, scoreKg: _fakeScoreKg),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          }
+                    ),
+                  );
+                }
 
-          return const SizedBox.shrink();
-        },
+                return const SizedBox.shrink();
+              },
+            ),
+            Positioned(
+              left: 16,
+              top: 12,
+              child: DashboardBackButton(),
+            ),
+          ],
+        ),
       ),
     );
   }

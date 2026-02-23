@@ -13,8 +13,14 @@ final class DashboardLoading extends DashboardState {}
 /// Données chargées avec succès
 final class DashboardLoaded extends DashboardState {
   final String pseudo;
+  final DashboardBilanCarboneSummary? bilanCarbone;
+  final List<CarboneEquivalentEntity> equivalents;
 
-  DashboardLoaded({required this.pseudo});
+  DashboardLoaded({
+    required this.pseudo,
+    required this.bilanCarbone,
+    required this.equivalents,
+  });
 }
 
 /// Erreur lors du chargement
