@@ -7,7 +7,10 @@ import 'package:oikos/features/bilanCarbone/domain/use_cases/recuperer_equivalen
 import '../../domain/usecases/get_my_profile.dart';
 import '../../domain/usecases/get_my_latest_bilan_carbone_summary.dart';
 import '../../domain/usecases/get_my_heatmap_data.dart';
+import '../../domain/usecases/get_my_actions_distribution.dart';
+import '../../domain/usecases/get_my_xp_gained_series.dart';
 import '../../domain/entities/dashboard_bilan_carbone_summary.dart';
+import '../../domain/entities/dashboard_xp_point.dart';
 
 part 'dashboard_event.dart';
 part 'dashboard_state.dart';
@@ -16,16 +19,22 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
   final GetMyPseudo _getMyPseudo;
   final GetMyLatestBilanCarboneSummary _getMyLatestBilan;
   final GetMyHeatmapData _getMyHeatmapData;
+  final GetMyActionsDistribution _getMyActionsDistribution;
+  final GetMyXpGainedSeries _getMyXpGainedSeries;
   final RecupererEquivalentsCarboneUseCase _equivalentsUseCase;
 
   DashboardBloc({
     required GetMyPseudo getMyPseudo,
     required GetMyLatestBilanCarboneSummary getMyLatestBilan,
     required GetMyHeatmapData getMyHeatmapData,
+    required GetMyActionsDistribution getMyActionsDistribution,
+    required GetMyXpGainedSeries getMyXpGainedSeries,
     required RecupererEquivalentsCarboneUseCase equivalentsUseCase,
   })  : _getMyPseudo = getMyPseudo,
         _getMyLatestBilan = getMyLatestBilan,
         _getMyHeatmapData = getMyHeatmapData,
+        _getMyActionsDistribution = getMyActionsDistribution,
+        _getMyXpGainedSeries = getMyXpGainedSeries,
         _equivalentsUseCase = equivalentsUseCase,
         super(DashboardInitial()) {
     on<DashboardLoadRequested>(_onDashboardLoadRequested);
@@ -75,6 +84,13 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
           }
         }
 
+        final actionsRes = await _getMyActionsDistribution(NoParams());
+        final actions = actionsRes.getOrElse((_) => null);
+        final actionsCountsByLabel = actions?.countsByCategoryLabel ?? const <String, double>{};
+
+        final xpRes = await _getMyXpGainedSeries(NoParams());
+        final xpSeries = xpRes.getOrElse((_) => const <DashboardXpPoint>[]);
+
         emit(
           DashboardLoaded(
             pseudo: pseudo,
@@ -83,6 +99,8 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
             heatmapEntries: entries,
             heatmapMinDate: normalizedMin,
             heatmapMaxDate: normalizedMax,
+            actionCountsByCategoryLabel: actionsCountsByLabel,
+            xpGainedSeries: xpSeries,
           ),
         );
       },

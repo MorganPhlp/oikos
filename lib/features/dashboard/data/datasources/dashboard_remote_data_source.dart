@@ -11,6 +11,13 @@ abstract interface class DashboardRemoteDataSource {
   /// Données brutes pour la heatmap streaks : bornes de saison + dates des actions quotidiennes.
   /// Fenêtre glissante sur les 5 derniers mois.
   Future<({DateTime minDate, DateTime maxDate, List<DateTime> actionDates})?> getMyHeatmapRaw();
+
+  /// Catégories des actions réalisées (sur les 5 derniers mois).
+  Future<List<String>> getMyCompletedActionCategories();
+
+  /// XP gagné sur les 5 derniers mois (données brutes).
+  Future<({DateTime minDate, DateTime maxDate, List<({DateTime date, int xp})> rows})?>
+      getMyXpGainedRaw();
 }
 
 class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
@@ -123,5 +130,80 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
     }
 
     return (minDate: minDate, maxDate: maxDate, actionDates: actionDates);
+  }
+
+  @override
+  Future<List<String>> getMyCompletedActionCategories() async {
+    final user = supabaseClient.auth.currentUser;
+    if (user == null) {
+      throw AuthException('User not logged in');
+    }
+
+    final now = DateTime.now();
+    final maxDate = DateTime(now.year, now.month, now.day);
+    final fiveMonthsAgo = _subtractMonths(maxDate, 5);
+    final minDate = DateTime(fiveMonthsAgo.year, fiveMonthsAgo.month, fiveMonthsAgo.day);
+
+    final response = await supabaseClient
+        .from('realisation_actions')
+        .select('actions!inner(categorie_nom), date_realisation')
+        .eq('utilisateur_id', user.id)
+        .gte('date_realisation', minDate.toUtc().toIso8601String())
+        .lte('date_realisation', maxDate.toUtc().toIso8601String());
+
+    final rows = List<Map<String, dynamic>>.from(response as List);
+    final categories = <String>[];
+
+    for (final row in rows) {
+      final actionJson = row['actions'];
+      if (actionJson is Map<String, dynamic>) {
+        final raw = actionJson['categorie_nom'];
+        if (raw is String && raw.trim().isNotEmpty) {
+          categories.add(raw.trim());
+        }
+      } else {
+        final raw = row['categorie_nom'];
+        if (raw is String && raw.trim().isNotEmpty) {
+          categories.add(raw.trim());
+        }
+      }
+    }
+
+    return categories;
+  }
+
+  @override
+  Future<({DateTime minDate, DateTime maxDate, List<({DateTime date, int xp})> rows})?>
+      getMyXpGainedRaw() async {
+    final user = supabaseClient.auth.currentUser;
+    if (user == null) {
+      throw AuthException('User not logged in');
+    }
+
+    final now = DateTime.now();
+    final maxDate = DateTime(now.year, now.month, now.day);
+    final fiveMonthsAgo = _subtractMonths(maxDate, 5);
+    final minDate = DateTime(fiveMonthsAgo.year, fiveMonthsAgo.month, fiveMonthsAgo.day);
+
+    final response = await supabaseClient
+        .from('realisation_actions')
+        .select('date_realisation, xp_gagne')
+        .eq('utilisateur_id', user.id)
+        .gte('date_realisation', minDate.toUtc().toIso8601String())
+        .lte('date_realisation', maxDate.toUtc().toIso8601String());
+
+    final rowsJson = List<Map<String, dynamic>>.from(response as List);
+    final rows = <({DateTime date, int xp})>[];
+
+    for (final row in rowsJson) {
+      final rawDate = row['date_realisation'];
+      if (rawDate is! String) continue;
+
+      final dt = DateTime.parse(rawDate).toLocal();
+      final xp = (row['xp_gagne'] as num?)?.toInt() ?? 0;
+      rows.add((date: dt, xp: xp));
+    }
+
+    return (minDate: minDate, maxDate: maxDate, rows: rows);
   }
 }

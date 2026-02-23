@@ -18,6 +18,8 @@ final class DashboardLoaded extends DashboardState {
   final List<ContributionEntry> heatmapEntries;
   final DateTime heatmapMinDate;
   final DateTime heatmapMaxDate;
+  final Map<String, double> actionCountsByCategoryLabel;
+  final List<DashboardXpPoint> xpGainedSeries;
 
   DashboardLoaded({
     required this.pseudo,
@@ -26,6 +28,8 @@ final class DashboardLoaded extends DashboardState {
     required this.heatmapEntries,
     required this.heatmapMinDate,
     required this.heatmapMaxDate,
+    required this.actionCountsByCategoryLabel,
+    required this.xpGainedSeries,
   });
 }
 

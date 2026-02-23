@@ -3,10 +3,12 @@ import 'package:radar_chart_plus/radar_chart_plus.dart';
 
 class DashboardBilanVsActionsRadar extends StatelessWidget {
   final Map<String, double> bilanScoresKg;
+  final Map<String, double>? actionCountsByCategoryLabel;
 
   const DashboardBilanVsActionsRadar({
     super.key,
     required this.bilanScoresKg,
+    this.actionCountsByCategoryLabel,
   });
 
   List<double> _normalizeToPercent(List<double> values) {
@@ -54,9 +56,7 @@ class DashboardBilanVsActionsRadar extends StatelessWidget {
     final bilanValues = labels.map((k) => (bilanScoresKg[k] ?? 0).toDouble()).toList(growable: false);
     final bilanPercents = _normalizeToPercent(bilanValues);
 
-    // Fake data "actions" : répartition par catégorie (en nombre d'actions)
-    // Alignée avec les labels de DetailBilanEntity.toMap().
-    final fakeActionCountsByLabel = <String, double>{
+    final fallbackFakeActionCountsByLabel = <String, double>{
       'Transport': 10,
       'Alimentation': 7,
       'Logement': 5,
@@ -64,7 +64,11 @@ class DashboardBilanVsActionsRadar extends StatelessWidget {
       'Services Sociétaux': 3,
     };
 
-    final actionCounts = labels.map((k) => (fakeActionCountsByLabel[k] ?? 0).toDouble()).toList(growable: false);
+    final sourceActionCounts = (actionCountsByCategoryLabel != null && actionCountsByCategoryLabel!.isNotEmpty)
+        ? actionCountsByCategoryLabel!
+        : fallbackFakeActionCountsByLabel;
+
+    final actionCounts = labels.map((k) => (sourceActionCounts[k] ?? 0).toDouble()).toList(growable: false);
     final actionPercents = _normalizeToPercent(actionCounts);
 
     // On adapte automatiquement l'échelle du radar pour que la zone utile prenne de la place

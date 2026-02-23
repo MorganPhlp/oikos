@@ -82,6 +82,8 @@ import 'package:oikos/features/dashboard/domain/repository/dashboard_repository.
 import 'package:oikos/features/dashboard/domain/usecases/get_my_profile.dart';
 import 'package:oikos/features/dashboard/domain/usecases/get_my_latest_bilan_carbone_summary.dart';
 import 'package:oikos/features/dashboard/domain/usecases/get_my_heatmap_data.dart';
+import 'package:oikos/features/dashboard/domain/usecases/get_my_actions_distribution.dart';
+import 'package:oikos/features/dashboard/domain/usecases/get_my_xp_gained_series.dart';
 import 'package:oikos/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 
 //Imports Code barre
@@ -390,6 +392,8 @@ void _initDashboard() {
   serviceLocator.registerFactory(() => GetMyPseudo(serviceLocator()));
   serviceLocator.registerFactory(() => GetMyLatestBilanCarboneSummary(serviceLocator()));
   serviceLocator.registerFactory(() => GetMyHeatmapData(serviceLocator()));
+  serviceLocator.registerFactory(() => GetMyActionsDistribution(serviceLocator()));
+  serviceLocator.registerFactory(() => GetMyXpGainedSeries(serviceLocator()));
 
   // Bloc : on donne le use case au bloc pour qu'il gère l'état de la page
   serviceLocator.registerLazySingleton(
@@ -397,6 +401,8 @@ void _initDashboard() {
       getMyPseudo: serviceLocator(),
       getMyLatestBilan: serviceLocator(),
       getMyHeatmapData: serviceLocator(),
+      getMyActionsDistribution: serviceLocator(),
+      getMyXpGainedSeries: serviceLocator(),
       equivalentsUseCase: serviceLocator(),
     ),
   );

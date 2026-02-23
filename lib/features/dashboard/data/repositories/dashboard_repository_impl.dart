@@ -1,7 +1,9 @@
 import 'package:oikos/core/error/failures.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:oikos/features/dashboard/domain/entities/dashboard_bilan_carbone_summary.dart';
+import 'package:oikos/features/dashboard/domain/entities/dashboard_actions_distribution.dart';
 import 'package:oikos/features/dashboard/domain/entities/dashboard_heatmap_data.dart';
+import 'package:oikos/features/dashboard/domain/entities/dashboard_xp_point.dart';
 import '../../domain/repository/dashboard_repository.dart';
 import '../datasources/dashboard_remote_data_source.dart';
 
@@ -56,6 +58,98 @@ class DashboardRepositoryImpl implements DashboardRepository {
           dailyCounts: dailyCounts,
         ),
       );
+    } catch (e) {
+      return left(Failure(e.toString()));
+    }
+  }
+
+  String _normalizeCategory(String input) {
+    var s = input.trim().toLowerCase();
+    // minimal accent folding
+    s = s
+        .replaceAll('é', 'e')
+        .replaceAll('è', 'e')
+        .replaceAll('ê', 'e')
+        .replaceAll('à', 'a')
+        .replaceAll('â', 'a')
+        .replaceAll('î', 'i')
+        .replaceAll('ï', 'i')
+        .replaceAll('ô', 'o')
+        .replaceAll('ù', 'u')
+        .replaceAll('û', 'u')
+        .replaceAll('ç', 'c');
+    return s;
+  }
+
+  String _mapActionCategoryToBilanLabel(String rawCategory) {
+    final normalized = _normalizeCategory(rawCategory);
+    if (normalized.contains('transport')) return 'Transport';
+    if (normalized.contains('aliment')) return 'Alimentation';
+    if (normalized.contains('logement') || normalized.contains('habitat')) return 'Logement';
+    if (normalized.contains('service') || normalized.contains('societ')) return 'Services Sociétaux';
+    if (normalized.contains('divers')) return 'Divers';
+    // fallback
+    return 'Divers';
+  }
+
+  @override
+  Future<Either<Failure, DashboardActionsDistribution?>> getMyActionsDistribution() async {
+    try {
+      final rawCategories = await remoteDataSource.getMyCompletedActionCategories();
+      if (rawCategories.isEmpty) {
+        return right(const DashboardActionsDistribution(countsByCategoryLabel: {}));
+      }
+
+      final counts = <String, double>{};
+      for (final cat in rawCategories) {
+        final label = _mapActionCategoryToBilanLabel(cat);
+        counts[label] = (counts[label] ?? 0) + 1;
+      }
+
+      return right(DashboardActionsDistribution(countsByCategoryLabel: counts));
+    } catch (e) {
+      return left(Failure(e.toString()));
+    }
+  }
+
+  DateTime _startOfWeekMonday(DateTime d) {
+    // Alignement proche de date_trunc('week', ...) (lundi 00:00).
+    final normalized = DateTime(d.year, d.month, d.day);
+    final delta = (normalized.weekday + 6) % 7; // Monday=0, Sunday=6
+    return normalized.subtract(Duration(days: delta));
+  }
+
+  @override
+  Future<Either<Failure, List<DashboardXpPoint>>> getMyXpGainedSeries() async {
+    try {
+      final raw = await remoteDataSource.getMyXpGainedRaw();
+      if (raw == null) return right(const <DashboardXpPoint>[]);
+
+      // Agrégation par semaine (début lundi) : sum(xp_gagne)
+      final xpByWeekStart = <DateTime, int>{};
+      for (final row in raw.rows) {
+        final weekStart = _startOfWeekMonday(row.date.toLocal());
+        xpByWeekStart[weekStart] = (xpByWeekStart[weekStart] ?? 0) + row.xp;
+      }
+
+      final normalizedMin = DateTime(raw.minDate.year, raw.minDate.month, raw.minDate.day);
+      final normalizedMax = DateTime(raw.maxDate.year, raw.maxDate.month, raw.maxDate.day);
+      if (normalizedMax.isBefore(normalizedMin)) {
+        return right(const <DashboardXpPoint>[]);
+      }
+
+      // Séries de points hebdo (semaine par semaine), puis cumul.
+      final startWeek = _startOfWeekMonday(normalizedMin);
+      final endWeek = _startOfWeekMonday(normalizedMax);
+
+      final points = <DashboardXpPoint>[];
+      var cumulative = 0.0;
+      for (var week = startWeek; !week.isAfter(endWeek); week = week.add(const Duration(days: 7))) {
+        cumulative += (xpByWeekStart[week] ?? 0).toDouble();
+        points.add(DashboardXpPoint(date: week, cumulativeXp: cumulative));
+      }
+
+      return right(points);
     } catch (e) {
       return left(Failure(e.toString()));
     }
