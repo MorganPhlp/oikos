@@ -100,7 +100,7 @@ class DefiVoteWidget extends StatelessWidget {
               ),
               onPressed: hasVoted ? null : onVote,
               child: Text(
-                hasVoted ? "Tu as déjà voté" : "Voter pour ce défi",
+                hasVoted ? "Tu as déjà voté" : "Vote pour ce défi",
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
