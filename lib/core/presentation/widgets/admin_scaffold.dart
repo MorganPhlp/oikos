@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:oikos/core/presentation/widgets/admin_background.dart';
 import 'package:oikos/core/theme/admin_theme.dart';
 import 'package:oikos/core/theme/breakpoints.dart';
 
+/// Root scaffold for the admin section.
+///
+/// Automatically applies [AdminTheme.lightTheme] or [AdminTheme.darkTheme]
+/// based on the platform brightness resolved by [MaterialApp].
+/// All child widgets can therefore call [AdminColors.of(context)] or
+/// [GradientBackground.of(context)] without any additional setup.
 class AdminScaffold extends StatelessWidget {
   final Widget body;
   final String title;
@@ -24,38 +31,71 @@ class AdminScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final double width = constraints.maxWidth;
-        final screenType = Breakpoints.getScreenType(width);
+    // ── 1. Résoudre la luminosité depuis le thème de l'app ──────────────────
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-        // --- DESKTOP & TABLETTE (Sidebar / Rail) ---
-        if (screenType == ScreenType.desktop ||
-            screenType == ScreenType.tablet) {
-          final isDesktop = screenType == ScreenType.desktop;
-          return Scaffold(
-            backgroundColor: AdminTheme.pageBackground,
-            body: Row(
-              children: [
-                Container(
-                  color: AdminTheme.background,
-                  child: _buildSidebar(context, extended: isDesktop),
-                ),
-                Container(width: 1, color: AdminTheme.border),
-                Expanded(child: _buildBody()),
-              ],
-            ),
+    // ── 2. Injecter le thème admin correspondant ────────────────────────────
+    return Theme(
+      data: isDark ? AdminTheme.darkTheme : AdminTheme.lightTheme,
+      child: Builder(
+        builder: (context) {
+          // Tout le contenu ci-dessous bénéficie de AdminColors + GradientBackground
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final screenType =
+                  Breakpoints.getScreenType(constraints.maxWidth);
+
+              if (screenType == ScreenType.desktop ||
+                  screenType == ScreenType.tablet) {
+                return _buildWideLayout(
+                  context,
+                  extended: screenType == ScreenType.desktop,
+                );
+              }
+
+              return _buildMobileLayout(context);
+            },
           );
-        }
+        },
+      ),
+    );
+  }
 
-        // --- MOBILE ---
-        return Scaffold(
-          backgroundColor: AdminTheme.pageBackground,
-          appBar: _buildMobileAppBar(context),
-          body: body,
-          bottomNavigationBar: _buildMobileNav(),
-        );
-      },
+  // ============================================================================
+  // DESKTOP / TABLET LAYOUT
+  // ============================================================================
+
+  Widget _buildWideLayout(BuildContext context, {required bool extended}) {
+    final colors = AdminColors.of(context);
+    return Scaffold(
+      backgroundColor: colors.pageBackground,
+      body: Row(
+        children: [
+          // Sidebar
+          Container(
+            color: colors.sidebarBackground,
+            child: _buildSidebar(context, extended: extended),
+          ),
+          // Séparateur
+          Container(width: 1, color: colors.border),
+          // Corps principal avec dégradé
+          Expanded(child: _buildBody(context)),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================================
+  // MOBILE LAYOUT
+  // ============================================================================
+
+  Widget _buildMobileLayout(BuildContext context) {
+    final colors = AdminColors.of(context);
+    return Scaffold(
+      backgroundColor: colors.pageBackground,
+      appBar: _buildMobileAppBar(context),
+      body: AdminBackground(child: body),
+      bottomNavigationBar: _buildMobileNav(context),
     );
   }
 
@@ -64,11 +104,12 @@ class AdminScaffold extends StatelessWidget {
   // ============================================================================
 
   Widget _buildSidebar(BuildContext context, {required bool extended}) {
+    final colors = AdminColors.of(context);
     return NavigationRail(
       extended: extended,
       selectedIndex: currentIndex,
       onDestinationSelected: onNavigationIndexChange,
-      backgroundColor: AdminTheme.background,
+      backgroundColor: colors.sidebarBackground,
       labelType: extended
           ? NavigationRailLabelType.none
           : NavigationRailLabelType.all,
@@ -79,9 +120,9 @@ class AdminScaffold extends StatelessWidget {
         fontWeight: FontWeight.w600,
         fontSize: 12,
       ),
-      unselectedIconTheme: IconThemeData(color: AdminTheme.mutedForeground),
+      unselectedIconTheme: IconThemeData(color: colors.mutedForeground),
       unselectedLabelTextStyle: TextStyle(
-        color: AdminTheme.mutedForeground,
+        color: colors.mutedForeground,
         fontSize: 12,
       ),
       leading: Column(
@@ -110,14 +151,14 @@ class AdminScaffold extends StatelessWidget {
                           style: Theme.of(context).textTheme.titleSmall
                               ?.copyWith(
                                 fontWeight: FontWeight.w700,
-                                color: AdminTheme.foreground,
+                                color: colors.foreground,
                               ),
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
                           'admin dashboard',
                           style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(color: AdminTheme.mutedForeground),
+                              ?.copyWith(color: colors.mutedForeground),
                         ),
                       ],
                     ),
@@ -152,13 +193,16 @@ class AdminScaffold extends StatelessWidget {
   }
 
   // ============================================================================
-  // BODY
+  // BODY (Desktop / Tablet)
   // ============================================================================
 
-  Widget _buildBody() {
-    return Container(
-      color: AdminTheme.pageBackground,
-      child: SafeArea(child: body),
+  Widget _buildBody(BuildContext context) {
+    final colors = AdminColors.of(context);
+    return ColoredBox(
+      color: colors.pageBackground,
+      child: AdminBackground(
+        child: SafeArea(child: body),
+      ),
     );
   }
 
@@ -167,24 +211,28 @@ class AdminScaffold extends StatelessWidget {
   // ============================================================================
 
   PreferredSizeWidget _buildMobileAppBar(BuildContext context) {
+    final colors = AdminColors.of(context);
     return AppBar(
-      backgroundColor: AdminTheme.background,
+      backgroundColor: colors.background,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 1,
-      shadowColor: AdminTheme.border,
+      shadowColor: colors.border,
       titleSpacing: AdminTheme.spacingMd,
       title: Row(
         spacing: AdminTheme.spacingSm,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          ConstrainedBox(constraints:   BoxConstraints(maxHeight: 32), child: logo),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 32),
+            child: logo,
+          ),
           Flexible(
             child: Text(
               title,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w500,
-                color: AdminTheme.foreground,
+                color: colors.foreground,
               ),
               overflow: TextOverflow.ellipsis,
             ),
@@ -193,7 +241,7 @@ class AdminScaffold extends StatelessWidget {
             'Admin',
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.w500,
-              color: AdminTheme.foreground,
+              color: colors.foreground,
             ),
           ),
         ],
@@ -201,27 +249,28 @@ class AdminScaffold extends StatelessWidget {
       actions: [
         IconButton(
           onPressed: onLogout,
-          icon: Icon(Icons.logout_rounded, color: AdminTheme.mutedForeground),
+          icon: Icon(Icons.logout_rounded, color: colors.mutedForeground),
           tooltip: 'Déconnexion',
         ),
         const SizedBox(width: AdminTheme.spacingXs),
       ],
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(1),
-        child: Container(height: 1, color: AdminTheme.border),
+        child: Container(height: 1, color: colors.border),
       ),
     );
   }
 
   // ============================================================================
-  // MOBILE NAV
+  // MOBILE BOTTOM NAV
   // ============================================================================
 
-  Widget _buildMobileNav() {
+  Widget _buildMobileNav(BuildContext context) {
+    final colors = AdminColors.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: AdminTheme.background,
-        border: Border(top: BorderSide(color: AdminTheme.border, width: 1)),
+        color: colors.background,
+        border: Border(top: BorderSide(color: colors.border)),
       ),
       child: NavigationBar(
         backgroundColor: Colors.transparent,
@@ -243,6 +292,7 @@ class AdminScaffold extends StatelessWidget {
 
 class _SidebarDivider extends StatelessWidget {
   final bool extended;
+
   const _SidebarDivider({required this.extended});
 
   @override
@@ -250,7 +300,7 @@ class _SidebarDivider extends StatelessWidget {
     return Container(
       height: 1,
       width: extended ? 168 : 40,
-      color: AdminTheme.border,
+      color: AdminColors.of(context).border,
     );
   }
 }
@@ -263,18 +313,15 @@ class _LogoutButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final color = AdminColors.of(context).mutedForeground;
     if (extended) {
       return TextButton.icon(
         onPressed: onLogout,
-        icon: Icon(
-          Icons.logout_rounded,
-          size: 18,
-          color: AdminTheme.mutedForeground,
-        ),
+        icon: Icon(Icons.logout_rounded, size: 18, color: color),
         label: Text(
           'Déconnexion',
           style: TextStyle(
-            color: AdminTheme.mutedForeground,
+            color: color,
             fontSize: 13,
             fontWeight: FontWeight.w500,
           ),
@@ -287,10 +334,9 @@ class _LogoutButton extends StatelessWidget {
         ),
       );
     }
-
     return IconButton(
       onPressed: onLogout,
-      icon: Icon(Icons.logout_rounded, color: AdminTheme.mutedForeground),
+      icon: Icon(Icons.logout_rounded, color: color),
       tooltip: 'Déconnexion',
     );
   }

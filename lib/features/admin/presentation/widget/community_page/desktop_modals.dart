@@ -39,6 +39,7 @@ class _LogoPickerModalState extends State<LogoPickerModal> {
       builder: (context, state) {
         if (state is! CommunityLoaded) return const SizedBox.shrink();
 
+        final colors = AdminColors.of(context);
         final community = state.selectedCommunity;
         if (community == null) return const SizedBox.shrink();
 
@@ -66,7 +67,7 @@ class _LogoPickerModalState extends State<LogoPickerModal> {
                     );
                   },
                 ),
-                const Divider(height: 1, color: AdminTheme.border),
+                Divider(height: 1, color: colors.border),
 
                 // Logo actuel + nom communauté
                 Padding(
@@ -82,10 +83,10 @@ class _LogoPickerModalState extends State<LogoPickerModal> {
                           fit: BoxFit.cover,
                           errorBuilder: (_, _, _) => CircleAvatar(
                             radius: 24,
-                            backgroundColor: AdminTheme.pageBackground,
+                            backgroundColor: colors.pageBackground,
                             child: Icon(
                               Icons.groups_rounded,
-                              color: AdminTheme.mutedForeground,
+                              color: colors.mutedForeground,
                             ),
                           ),
                         ),
@@ -97,17 +98,17 @@ class _LogoPickerModalState extends State<LogoPickerModal> {
                           children: [
                             Text(
                               community.name,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 15,
-                                color: AdminTheme.foreground,
+                                color: colors.foreground,
                               ),
                             ),
                             Text(
                               'Sélectionnez un nouveau logo ci-dessous',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: AdminTheme.mutedForeground,
+                                color: colors.mutedForeground,
                               ),
                             ),
                           ],
@@ -116,7 +117,7 @@ class _LogoPickerModalState extends State<LogoPickerModal> {
                     ],
                   ),
                 ),
-                const Divider(height: 1, color: AdminTheme.border),
+                Divider(height: 1, color: colors.border),
 
                 // Grille de logos
                 Flexible(
@@ -136,7 +137,7 @@ class _LogoPickerModalState extends State<LogoPickerModal> {
                                 child: Text(
                                   'Aucun logo disponible',
                                   style: TextStyle(
-                                    color: AdminTheme.mutedForeground,
+                                    color: colors.mutedForeground,
                                   ),
                                 ),
                               ),
@@ -165,7 +166,7 @@ class _LogoPickerModalState extends State<LogoPickerModal> {
                                       border: Border.all(
                                         color: isSelected
                                             ? AdminTheme.actionGreen
-                                            : AdminTheme.border,
+                                            : colors.border,
                                         width: isSelected ? 3 : 1,
                                       ),
                                     ),
@@ -177,10 +178,10 @@ class _LogoPickerModalState extends State<LogoPickerModal> {
                                         url,
                                         fit: BoxFit.cover,
                                         errorBuilder: (_, _, _) => Container(
-                                          color: AdminTheme.pageBackground,
+                                          color: colors.pageBackground,
                                           child: Icon(
                                             Icons.broken_image_rounded,
-                                            color: AdminTheme.mutedForeground,
+                                            color: colors.mutedForeground,
                                           ),
                                         ),
                                       ),
@@ -191,7 +192,7 @@ class _LogoPickerModalState extends State<LogoPickerModal> {
                             ),
                 ),
 
-                const Divider(height: 1, color: AdminTheme.border),
+                Divider(height: 1, color: colors.border),
 
                 // Actions
                 _ModalActions(
@@ -300,6 +301,7 @@ class _CreateCommunityModalState extends State<CreateCommunityModal> {
             }
           },
           builder: (context, state) {
+            final colors = AdminColors.of(context);
             bool isSubmitting = false;
             String? errorMessage;
 
@@ -323,7 +325,7 @@ class _CreateCommunityModalState extends State<CreateCommunityModal> {
                     );
                   },
                 ),
-                const Divider(height: 1, color: AdminTheme.border),
+                Divider(height: 1, color: colors.border),
 
                 Padding(
                   padding: const EdgeInsets.all(AdminTheme.spacingLg),
@@ -352,7 +354,7 @@ class _CreateCommunityModalState extends State<CreateCommunityModal> {
                         'Le code sera automatiquement converti en majuscules',
                         style: TextStyle(
                           fontSize: 12,
-                          color: AdminTheme.mutedForeground,
+                          color: colors.mutedForeground,
                         ),
                       ),
                       if (errorMessage != null) ...[
@@ -443,6 +445,7 @@ class _EditCodeModalState extends State<EditCodeModal> {
             }
           },
           builder: (context, state) {
+            final colors = AdminColors.of(context);
             bool isSubmitting = false;
             String? errorMessage;
 
@@ -468,7 +471,7 @@ class _EditCodeModalState extends State<EditCodeModal> {
                     );
                   },
                 ),
-                const Divider(height: 1, color: AdminTheme.border),
+                Divider(height: 1, color: colors.border),
                 Padding(
                   padding: const EdgeInsets.all(AdminTheme.spacingLg),
                   child: Column(
@@ -531,6 +534,7 @@ class MembersListModal extends StatelessWidget {
       builder: (context, state) {
         if (state is! CommunityLoaded) return const SizedBox.shrink();
 
+        final colors = AdminColors.of(context);
         final users = state.selectedUsers ?? [];
         final community = state.selectedCommunity;
         if (community == null) return const SizedBox.shrink();
@@ -555,17 +559,17 @@ class MembersListModal extends StatelessWidget {
                           children: [
                             Text(
                               'Membres de ${community.name}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
-                                color: AdminTheme.foreground,
+                                color: colors.foreground,
                               ),
                             ),
                             Text(
                               '${users.length} membre${users.length > 1 ? 's' : ''}',
                               style: TextStyle(
                                 fontSize: 13,
-                                color: AdminTheme.mutedForeground,
+                                color: colors.mutedForeground,
                               ),
                             ),
                           ],
@@ -579,21 +583,21 @@ class MembersListModal extends StatelessWidget {
                           Navigator.pop(context);
                         },
                         icon: const Icon(Icons.close),
-                        color: AdminTheme.mutedForeground,
+                        color: colors.mutedForeground,
                       ),
                     ],
                   ),
                 ),
-                const Divider(height: 1, color: AdminTheme.border),
+                Divider(height: 1, color: colors.border),
 
                 // Liste des membres
                 Flexible(
                   child: users.isEmpty
-                      ? _buildEmptyState()
+                      ? _buildEmptyState(colors.mutedForeground)
                       : _buildMembersList(context, users, community),
                 ),
 
-                const Divider(height: 1, color: AdminTheme.border),
+                Divider(height: 1, color: colors.border),
 
                 // Footer
                 Padding(
@@ -611,7 +615,7 @@ class MembersListModal extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                           vertical: AdminTheme.spacingMd,
                         ),
-                        side: const BorderSide(color: AdminTheme.border),
+                        side: BorderSide(color: colors.border),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
                         ),
@@ -628,13 +632,13 @@ class MembersListModal extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(Color mutedColor) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(40),
         child: Text(
           'Aucun membre',
-          style: TextStyle(color: AdminTheme.mutedForeground),
+          style: TextStyle(color: mutedColor),
         ),
       ),
     );
@@ -695,6 +699,7 @@ class ChangeUserCommunityModal extends StatelessWidget {
       builder: (context, state) {
         if (state is! CommunityLoaded) return const SizedBox.shrink();
 
+        final colors = AdminColors.of(context);
         final user = state.selectedUser;
         if (user == null) return const SizedBox.shrink();
 
@@ -721,7 +726,7 @@ class ChangeUserCommunityModal extends StatelessWidget {
                     );
                   },
                 ),
-                const Divider(height: 1, color: AdminTheme.border),
+                Divider(height: 1, color: colors.border),
 
                 Padding(
                   padding: const EdgeInsets.all(AdminTheme.spacingLg),
@@ -738,7 +743,7 @@ class ChangeUserCommunityModal extends StatelessWidget {
                         'Nouvelle communauté',
                         style: TextStyle(
                           fontSize: 14,
-                          color: AdminTheme.mutedForeground,
+                          color: colors.mutedForeground,
                         ),
                       ),
                       const SizedBox(height: AdminTheme.spacingMd),
@@ -800,28 +805,29 @@ class _ModalHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AdminColors.of(context);
     return Padding(
       padding: const EdgeInsets.all(AdminTheme.spacingLg),
       child: Row(
         children: [
           if (icon != null) ...[
-            Icon(icon, color: iconColor ?? AdminTheme.mutedForeground),
+            Icon(icon, color: iconColor ?? colors.mutedForeground),
             const SizedBox(width: AdminTheme.spacingMd),
           ],
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: AdminTheme.foreground,
+                color: colors.foreground,
               ),
             ),
           ),
           IconButton(
             onPressed: onClose,
             icon: const Icon(Icons.close),
-            color: AdminTheme.mutedForeground,
+            color: colors.mutedForeground,
           ),
         ],
       ),
@@ -845,6 +851,7 @@ class _ModalActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AdminColors.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AdminTheme.spacingLg,
@@ -861,7 +868,7 @@ class _ModalActions extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(
                   vertical: AdminTheme.spacingMd,
                 ),
-                side: const BorderSide(color: AdminTheme.border),
+                side: BorderSide(color: colors.border),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
                 ),

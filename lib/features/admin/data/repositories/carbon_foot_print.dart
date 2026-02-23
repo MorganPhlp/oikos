@@ -50,10 +50,10 @@ class CarbonFootPrintImpl extends CarbonFootPrintRep {
 
       // CarbonFootPrintCompletionRateKPI
       final mockCarbonFootPrint = {
-        'completion_bilan_carbone_minimale': 0.65,
-        'completion_bilan_carbone_detaille': 0.42,
-        'objectif_completion_bilan_carbone_minimale': 0.80,
-        'objectif_completion_bilan_carbone_detaille': 0.70,
+        'completion_bilan_carbone_minimale': 65,
+        'completion_bilan_carbone_detaille': 42,
+        'objectif_completion_bilan_carbone_minimale': 80,
+        'objectif_completion_bilan_carbone_detaille': 70,
       };
 
       // ChallengesAcceptedKPI
@@ -64,17 +64,17 @@ class CarbonFootPrintImpl extends CarbonFootPrintRep {
 
       // DailyUseRateKPI
       final mockDailyUseRate = {
-        'taux_utilisation_jour': 0.38,
-        'objectif_taux_utilisation_jour': 0.50,
+        'taux_utilisation_jour': 38,
+        'objectif_taux_utilisation_jour': 50,
       };
 
       // RetentionRateKPI
       final mockRetentionRate = {
-        'j7': 0.72,
-        'j7_objective': 0.85,
-        'j30': 0.55,
-        'j30_objective': 0.75,
-        'current_retention_rate': 0.61,
+        'j7': 72,
+        'j7_objective': 85,
+        'j30': 55,
+        'j30_objective': 75,
+        'current_retention_rate': 61,
       };
 
       final kpiStats = KpiStats(

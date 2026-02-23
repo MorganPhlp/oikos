@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
+import 'package:oikos/core/theme/admin_theme.dart';
 import 'package:oikos/core/theme/app_size.dart';
 import 'package:oikos/core/theme/breakpoints.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
@@ -79,17 +80,7 @@ class _CarbonEvolutionChartState extends State<CarbonEvolutionChart> {
 
         return Container(
           padding: EdgeInsets.all(dim.containerPadding),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
+          decoration: AdminColors.of(context).cardDecoration,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,

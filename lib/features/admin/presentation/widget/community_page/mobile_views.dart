@@ -36,17 +36,20 @@ class MobileCommunityList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AdminColors.of(context);
     return Column(
       children: [
-        _buildHeader(),
+        _buildHeader(colors),
         Expanded(
-          child: communities.isEmpty ? _buildEmptyState() : _buildList(),
+          child: communities.isEmpty
+              ? _buildEmptyState(colors)
+              : _buildList(),
         ),
       ],
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(AdminColors colors) {
     return Padding(
       padding: const EdgeInsets.all(AdminTheme.spacingMd),
       child: Row(
@@ -55,19 +58,19 @@ class MobileCommunityList extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Communautés',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: AdminTheme.foreground,
+                  color: colors.foreground,
                 ),
               ),
               Text(
                 '${communities.length} communauté${communities.length > 1 ? 's' : ''}',
                 style: TextStyle(
                   fontSize: 13,
-                  color: AdminTheme.mutedForeground,
+                  color: colors.mutedForeground,
                 ),
               ),
             ],
@@ -83,7 +86,7 @@ class MobileCommunityList extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(AdminColors colors) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -91,21 +94,21 @@ class MobileCommunityList extends StatelessWidget {
           Icon(
             Icons.groups_rounded,
             size: 64,
-            color: AdminTheme.mutedForeground,
+            color: colors.mutedForeground,
           ),
           const SizedBox(height: AdminTheme.spacingMd),
-          const Text(
+          Text(
             'Aucune communauté',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: AdminTheme.foreground,
+              color: colors.foreground,
             ),
           ),
           const SizedBox(height: AdminTheme.spacingSm),
           Text(
             'Appuyez sur + pour créer',
-            style: TextStyle(fontSize: 14, color: AdminTheme.mutedForeground),
+            style: TextStyle(fontSize: 14, color: colors.mutedForeground),
           ),
         ],
       ),
@@ -158,15 +161,16 @@ class MobileMembersList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AdminColors.of(context);
     return Column(
       children: [
-        _buildHeader(),
+        _buildHeader(colors),
         Expanded(
           child: users.isEmpty
               ? Center(
                   child: Text(
                     'Aucun membre',
-                    style: TextStyle(color: AdminTheme.mutedForeground),
+                    style: TextStyle(color: colors.mutedForeground),
                   ),
                 )
               : _buildList(context),
@@ -175,11 +179,11 @@ class MobileMembersList extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(AdminColors colors) {
     return Container(
       padding: const EdgeInsets.all(AdminTheme.spacingMd),
       decoration: BoxDecoration(
-        color: AdminTheme.background,
+        color: colors.background,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -193,7 +197,7 @@ class MobileMembersList extends StatelessWidget {
           IconButton(
             onPressed: onBack,
             icon: const Icon(Icons.arrow_back_rounded),
-            color: AdminTheme.mutedForeground,
+            color: colors.mutedForeground,
           ),
           Expanded(
             child: Column(
@@ -201,17 +205,17 @@ class MobileMembersList extends StatelessWidget {
               children: [
                 Text(
                   community.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: AdminTheme.foreground,
+                    color: colors.foreground,
                   ),
                 ),
                 Text(
                   '${users.length} membre${users.length > 1 ? 's' : ''}',
                   style: TextStyle(
                     fontSize: 12,
-                    color: AdminTheme.mutedForeground,
+                    color: colors.mutedForeground,
                   ),
                 ),
               ],
@@ -314,6 +318,7 @@ class _MobileCreateCommunityState extends State<MobileCreateCommunity> {
         }
       },
       builder: (context, state) {
+        final colors = AdminColors.of(context);
         bool isSubmitting = false;
         String? errorMessage;
 
@@ -357,7 +362,7 @@ class _MobileCreateCommunityState extends State<MobileCreateCommunity> {
                       'Le code sera automatiquement converti en majuscules',
                       style: TextStyle(
                         fontSize: 12,
-                        color: AdminTheme.mutedForeground,
+                        color: colors.mutedForeground,
                       ),
                     ),
                     if (errorMessage != null) ...[
@@ -515,6 +520,7 @@ class MobileChangeUserCommunity extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         }
 
+        final colors = AdminColors.of(context);
         final user = state.selectedUser;
         if (user == null) return const SizedBox.shrink();
 
@@ -542,7 +548,7 @@ class MobileChangeUserCommunity extends StatelessWidget {
                       'Nouvelle communauté',
                       style: TextStyle(
                         fontSize: 14,
-                        color: AdminTheme.mutedForeground,
+                        color: colors.mutedForeground,
                       ),
                     ),
                     const SizedBox(height: AdminTheme.spacingMd),
@@ -595,6 +601,7 @@ class MobileDeleteConfirmation extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         }
 
+        final colors = AdminColors.of(context);
         final community = state.selectedCommunity;
         if (community == null) return const SizedBox.shrink();
 
@@ -609,7 +616,7 @@ class MobileDeleteConfirmation extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: AdminTheme.spacingXl),
-                    Center(
+                    const Center(
                       child: Icon(
                         Icons.warning_amber_rounded,
                         size: 64,
@@ -621,10 +628,10 @@ class MobileDeleteConfirmation extends StatelessWidget {
                       child: Text(
                         'Voulez-vous vraiment supprimer la communauté "${community.name}" ?',
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: AdminTheme.foreground,
+                          color: colors.foreground,
                         ),
                       ),
                     ),
@@ -635,7 +642,7 @@ class MobileDeleteConfirmation extends StatelessWidget {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 14,
-                          color: AdminTheme.mutedForeground,
+                          color: colors.mutedForeground,
                         ),
                       ),
                     ),
@@ -655,7 +662,7 @@ class MobileDeleteConfirmation extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                           vertical: AdminTheme.spacingMd,
                         ),
-                        side: const BorderSide(color: AdminTheme.border),
+                        side: BorderSide(color: colors.border),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
                         ),
@@ -749,6 +756,7 @@ class _MobileEditLogoState extends State<MobileEditLogo> {
           return const Center(child: CircularProgressIndicator());
         }
 
+        final colors = AdminColors.of(context);
         final community = state.selectedCommunity;
         if (community == null) return const SizedBox.shrink();
 
@@ -773,10 +781,10 @@ class _MobileEditLogoState extends State<MobileEditLogo> {
                       fit: BoxFit.cover,
                       errorBuilder: (_, _, _) => CircleAvatar(
                         radius: 24,
-                        backgroundColor: AdminTheme.pageBackground,
+                        backgroundColor: colors.pageBackground,
                         child: Icon(
                           Icons.groups_rounded,
-                          color: AdminTheme.mutedForeground,
+                          color: colors.mutedForeground,
                         ),
                       ),
                     ),
@@ -788,17 +796,17 @@ class _MobileEditLogoState extends State<MobileEditLogo> {
                       children: [
                         Text(
                           community.name,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 15,
-                            color: AdminTheme.foreground,
+                            color: colors.foreground,
                           ),
                         ),
                         Text(
                           'Sélectionnez un nouveau logo',
                           style: TextStyle(
                             fontSize: 12,
-                            color: AdminTheme.mutedForeground,
+                            color: colors.mutedForeground,
                           ),
                         ),
                       ],
@@ -807,7 +815,7 @@ class _MobileEditLogoState extends State<MobileEditLogo> {
                 ],
               ),
             ),
-            const Divider(height: 1, color: AdminTheme.border),
+            Divider(height: 1, color: colors.border),
 
             // Grille de logos
             Expanded(
@@ -821,7 +829,7 @@ class _MobileEditLogoState extends State<MobileEditLogo> {
                       ? Center(
                           child: Text(
                             'Aucun logo disponible',
-                            style: TextStyle(color: AdminTheme.mutedForeground),
+                            style: TextStyle(color: colors.mutedForeground),
                           ),
                         )
                       : GridView.builder(
@@ -848,7 +856,7 @@ class _MobileEditLogoState extends State<MobileEditLogo> {
                                   border: Border.all(
                                     color: isSelected
                                         ? AdminTheme.actionGreen
-                                        : AdminTheme.border,
+                                        : colors.border,
                                     width: isSelected ? 3 : 1,
                                   ),
                                 ),
@@ -860,10 +868,10 @@ class _MobileEditLogoState extends State<MobileEditLogo> {
                                     url,
                                     fit: BoxFit.cover,
                                     errorBuilder: (_, _, _) => Container(
-                                      color: AdminTheme.pageBackground,
+                                      color: colors.pageBackground,
                                       child: Icon(
                                         Icons.broken_image_rounded,
-                                        color: AdminTheme.mutedForeground,
+                                        color: colors.mutedForeground,
                                       ),
                                     ),
                                   ),

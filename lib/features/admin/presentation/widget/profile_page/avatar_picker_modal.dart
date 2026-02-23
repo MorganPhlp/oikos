@@ -43,6 +43,7 @@ class _AvatarPickerModalState extends State<AvatarPickerModal> {
       builder: (context, state) {
         if (state is! ProfileLoaded) return const SizedBox.shrink();
 
+        final colors = AdminColors.of(context);
         final avatars = state.availableAvatars;
         final isLoadingAvatars = state.isLoadingAvatars;
         final isSubmitting = state.profileStatus == SectionStatus.loading;
@@ -61,7 +62,7 @@ class _AvatarPickerModalState extends State<AvatarPickerModal> {
                   icon: Icons.account_circle_outlined,
                   onClose: () => Navigator.pop(context),
                 ),
-                const Divider(height: 1, color: AdminTheme.border),
+                Divider(height: 1, color: colors.border),
                 Flexible(
                   child: isLoadingAvatars
                       ? const Center(
@@ -79,7 +80,7 @@ class _AvatarPickerModalState extends State<AvatarPickerModal> {
                             child: Text(
                               'Aucun avatar disponible',
                               style: TextStyle(
-                                color: AdminTheme.mutedForeground,
+                                color: colors.mutedForeground,
                               ),
                             ),
                           ),
@@ -106,20 +107,20 @@ class _AvatarPickerModalState extends State<AvatarPickerModal> {
                                   border: Border.all(
                                     color: isSelected
                                         ? AdminTheme.actionGreen
-                                        : AdminTheme.border,
+                                        : colors.border,
                                     width: isSelected ? 3 : 1,
                                   ),
                                 ),
                                 child: CircleAvatar(
                                   backgroundImage: NetworkImage(url),
-                                  backgroundColor: AdminTheme.pageBackground,
+                                  backgroundColor: colors.pageBackground,
                                 ),
                               ),
                             );
                           },
                         ),
                 ),
-                const Divider(height: 1, color: AdminTheme.border),
+                Divider(height: 1, color: colors.border),
                 PickerModalActions(
                   onCancel: () => Navigator.pop(context),
                   onSubmit: () {

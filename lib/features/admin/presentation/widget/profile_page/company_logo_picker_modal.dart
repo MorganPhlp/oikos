@@ -44,6 +44,7 @@ class _CompanyLogoPickerModalState extends State<CompanyLogoPickerModal> {
       builder: (context, state) {
         if (state is! ProfileLoaded) return const SizedBox.shrink();
 
+        final colors = AdminColors.of(context);
         final logos = state.availableLogos;
         final isLoadingLogos = state.isLoadingLogos;
         final isSubmitting = state.companyStatus == SectionStatus.loading;
@@ -62,7 +63,7 @@ class _CompanyLogoPickerModalState extends State<CompanyLogoPickerModal> {
                   icon: Icons.image_outlined,
                   onClose: () => Navigator.pop(context),
                 ),
-                const Divider(height: 1, color: AdminTheme.border),
+                Divider(height: 1, color: colors.border),
                 Flexible(
                   child: isLoadingLogos
                       ? const Center(
@@ -80,7 +81,7 @@ class _CompanyLogoPickerModalState extends State<CompanyLogoPickerModal> {
                             child: Text(
                               'Aucun logo disponible',
                               style: TextStyle(
-                                color: AdminTheme.mutedForeground,
+                                color: colors.mutedForeground,
                               ),
                             ),
                           ),
@@ -109,7 +110,7 @@ class _CompanyLogoPickerModalState extends State<CompanyLogoPickerModal> {
                                   border: Border.all(
                                     color: isSelected
                                         ? AdminTheme.actionGreen
-                                        : AdminTheme.border,
+                                        : colors.border,
                                     width: isSelected ? 3 : 1,
                                   ),
                                 ),
@@ -121,10 +122,10 @@ class _CompanyLogoPickerModalState extends State<CompanyLogoPickerModal> {
                                     url,
                                     fit: BoxFit.cover,
                                     errorBuilder: (_, _, _) => Container(
-                                      color: AdminTheme.pageBackground,
+                                      color: colors.pageBackground,
                                       child: Icon(
                                         Icons.broken_image_rounded,
-                                        color: AdminTheme.mutedForeground,
+                                        color: colors.mutedForeground,
                                       ),
                                     ),
                                   ),
@@ -134,7 +135,7 @@ class _CompanyLogoPickerModalState extends State<CompanyLogoPickerModal> {
                           },
                         ),
                 ),
-                const Divider(height: 1, color: AdminTheme.border),
+                Divider(height: 1, color: colors.border),
                 PickerModalActions(
                   onCancel: () => Navigator.pop(context),
                   onSubmit: () {

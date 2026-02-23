@@ -100,7 +100,7 @@ class _CompanyCardState extends State<CompanyCard> {
         final isLoading = state.companyStatus == SectionStatus.loading;
         return Container(
           padding: const EdgeInsets.all(AdminTheme.spacingLg),
-          decoration: AdminTheme.cardDecoration,
+          decoration: AdminColors.of(context).cardDecoration,
           child: Form(
             key: _formKey,
             child: Column(
@@ -123,6 +123,7 @@ class _CompanyCardState extends State<CompanyCard> {
                 TextFormField(
                   controller: _nameController,
                   decoration: profileInputDecoration(
+                    context,
                     hint: "Nom de votre entreprise",
                     prefixIcon: Icons.business_rounded,
                   ),
@@ -137,6 +138,7 @@ class _CompanyCardState extends State<CompanyCard> {
                   controller: _domainController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: profileInputDecoration(
+                    context,
                     hint: 'domaine.com',
                     prefixIcon: Icons.alternate_email_rounded,
                   ),

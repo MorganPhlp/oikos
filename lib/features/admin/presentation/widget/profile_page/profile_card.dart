@@ -96,7 +96,7 @@ class _ProfileCardState extends State<ProfileCard> {
         final isLoading = state.profileStatus == SectionStatus.loading;
         return Container(
           padding: const EdgeInsets.all(AdminTheme.spacingLg),
-          decoration: AdminTheme.cardDecoration,
+          decoration: AdminColors.of(context).cardDecoration,
           child: Form(
             key: _formKey,
             child: Column(
@@ -121,6 +121,7 @@ class _ProfileCardState extends State<ProfileCard> {
                 TextFormField(
                   controller: _pseudoController,
                   decoration: profileInputDecoration(
+                    context,
                     hint: 'Votre pseudo',
                     prefixIcon: Icons.badge_rounded,
                   ),
@@ -135,6 +136,7 @@ class _ProfileCardState extends State<ProfileCard> {
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: profileInputDecoration(
+                    context,
                     hint: 'votre@email.com',
                     prefixIcon: Icons.email_rounded,
                   ),

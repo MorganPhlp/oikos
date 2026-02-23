@@ -41,7 +41,7 @@ class CommunityImpl extends CommunityRep {
 
       final mokResponse = [
   {
-    "code": "VIV-DEV",
+    "code": "VIVDEV",
     "nom": "Viveris Dev Team",
     "entreprise_id": "2efcc515-54c1-4beb-a45a-90cc251d5792",
     "description": "Communauté des développeurs de Viveris.",
@@ -49,7 +49,7 @@ class CommunityImpl extends CommunityRep {
     "bilan_moyen": 6.8
   },
   {
-    "code": "VIV-RH",
+    "code": "VIVRH",
     "nom": "Viveris RH & Admin",
     "entreprise_id": "2efcc515-54c1-4beb-a45a-90cc251d5792",
     "description": "Équipe administrative Viveris.",
@@ -57,7 +57,7 @@ class CommunityImpl extends CommunityRep {
     "bilan_moyen": 5.2
   },
   {
-    "code": "ECO-PROD",
+    "code": "ECOPROD",
     "nom": "EcoCorp Production",
     "entreprise_id": "2efcc515-54c1-4beb-a45a-90cc251d5792",
     "description": "L'usine responsable.",
@@ -65,7 +65,7 @@ class CommunityImpl extends CommunityRep {
     "bilan_moyen": 8.1
   },
   {
-    "code": "ECO-MKT",
+    "code": "ECOMKT",
     "nom": "EcoCorp Marketing",
     "entreprise_id": "2efcc515-54c1-4beb-a45a-90cc251d5792",
     "description": "Marketing vert.",
@@ -90,19 +90,19 @@ class CommunityImpl extends CommunityRep {
       //     .from('utilisateur')
       //     .select('id,email,pseudo,code_communaute');
       final mokResponse = [
-  {"id": "u1", "email": "alice@viveris.fr", "pseudo": "Alice_V", "code_communaute": "VIV-DEV"},
-  {"id": "u2", "email": "bob@viveris.fr", "pseudo": "Bob_V", "code_communaute": "VIV-DEV"},
-  {"id": "u3", "email": "charlie@viveris.fr", "pseudo": "Charlie_V", "code_communaute": "VIV-DEV"},
+  {"id": "u1", "email": "alice@viveris.fr", "pseudo": "Alice_V", "code_communaute": "VIVDEV"},
+  {"id": "u2", "email": "bob@viveris.fr", "pseudo": "Bob_V", "code_communaute": "VIVDEV"},
+  {"id": "u3", "email": "charlie@viveris.fr", "pseudo": "Charlie_V", "code_communaute": "VIVDEV"},
   
-  {"id": "u4", "email": "dora@viveris.fr", "pseudo": "Dora_RH", "code_communaute": "VIV-RH"},
-  {"id": "u5", "email": "eric@viveris.fr", "pseudo": "Eric_RH", "code_communaute": "VIV-RH"},
+  {"id": "u4", "email": "dora@viveris.fr", "pseudo": "Dora_RH", "code_communaute": "VIVRH"},
+  {"id": "u5", "email": "eric@viveris.fr", "pseudo": "Eric_RH", "code_communaute": "VIVRH"},
   
-  {"id": "u6", "email": "frank@ecocorp.com", "pseudo": "Franky", "code_communaute": "ECO-PROD"},
-  {"id": "u7", "email": "grace@ecocorp.com", "pseudo": "Grace_E", "code_communaute": "ECO-PROD"},
-  {"id": "u8", "email": "heidi@ecocorp.com", "pseudo": "Heidi_P", "code_communaute": "ECO-PROD"},
+  {"id": "u6", "email": "frank@ecocorp.com", "pseudo": "Franky", "code_communaute": "ECOMKT"},
+  {"id": "u7", "email": "grace@ecocorp.com", "pseudo": "Grace_E", "code_communaute": "ECOMKT"},
+  {"id": "u8", "email": "heidi@ecocorp.com", "pseudo": "Heidi_P", "code_communaute": "ECOMKT"},
   
-  {"id": "u9", "email": "ivan@ecocorp.com", "pseudo": "Ivan_M", "code_communaute": "ECO-MKT"},
-  {"id": "u10", "email": "judy@ecocorp.com", "pseudo": "Judy_M", "code_communaute": "ECO-MKT"}
+  {"id": "u9", "email": "ivan@ecocorp.com", "pseudo": "Ivan_M", "code_communaute": "ECOMKT"},
+  {"id": "u10", "email": "judy@ecocorp.com", "pseudo": "Judy_M", "code_communaute": "ECOMKT"}
 ];
       final users = mokResponse.map((json) => User.fromJson(json)).toList();
 

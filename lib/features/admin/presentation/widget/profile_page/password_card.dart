@@ -116,7 +116,7 @@ class _PasswordCardState extends State<PasswordCard> {
 
         return Container(
           padding: const EdgeInsets.all(AdminTheme.spacingLg),
-          decoration: AdminTheme.cardDecoration,
+          decoration: AdminColors.of(context).cardDecoration,
           child: Form(
             key: _formKey,
             child: LayoutBuilder(

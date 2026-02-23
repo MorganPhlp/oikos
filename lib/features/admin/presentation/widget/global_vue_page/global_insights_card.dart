@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:oikos/core/theme/admin_theme.dart';
 import 'package:oikos/core/theme/app_size.dart';
 import 'package:oikos/core/theme/breakpoints.dart';
 
@@ -130,17 +131,17 @@ class _KPICardState extends State<KPICard> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         width: double.infinity,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: _isHovered ? 0.12 : 0.08),
-              blurRadius: _isHovered ? 20 : 10,
-              offset: Offset(0, _isHovered ? 8 : 4),
+        decoration: AdminColors.of(context).cardDecoration.copyWith(
+              boxShadow: _isHovered
+                  ? [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ]
+                  : [],
             ),
-          ],
-        ),
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: widget.isLoading
@@ -183,7 +184,7 @@ class _KPICardState extends State<KPICard> {
           widget.title,
           style: AppSizes.bodySize(
             context,
-          ).copyWith(fontWeight: FontWeight.w500, color: Colors.grey[600]),
+          ).copyWith(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 8),
 
@@ -197,7 +198,6 @@ class _KPICardState extends State<KPICard> {
                 widget.value!,
                 style: AppSizes.headlineSize(context).copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Colors.grey[900],
                 ),
               ),
             ],

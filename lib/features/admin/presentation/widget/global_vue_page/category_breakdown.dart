@@ -58,7 +58,7 @@ class _CategoryBreakdownState extends State<CategoryBreakdown> {
 
         return Container(
           
-          decoration: AdminTheme.cardDecoration,
+          decoration: AdminColors.of(context).cardDecoration,
           padding: EdgeInsets.all(dim.spacing),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,8 +211,7 @@ class _CategoryBreakdownState extends State<CategoryBreakdown> {
           'Répartition par catégorie',
           style: TextStyle(
             fontSize: dim.titleFontSize,
-            fontWeight: FontWeight.w600,
-            color: const Color(0xFF111827),
+            fontWeight: FontWeight.w500,
           ),
         ),
         SizedBox(height: dim.spacing * 0.75),
@@ -414,7 +413,7 @@ class _LegendItem extends StatelessWidget {
                         style: TextStyle(
                           fontSize: dim.fontSize,
                           fontWeight: FontWeight.w500,
-                          color: const Color(0xFF374151),
+                          
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -423,8 +422,7 @@ class _LegendItem extends StatelessWidget {
                       '${data.co2.toStringAsFixed(2)} Kg CO2e',
                       style: TextStyle(
                         fontSize: dim.fontSize,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF111827),
+                        fontWeight: FontWeight.w600,  
                       ),
                     ),
                   ],
@@ -444,7 +442,6 @@ class _LegendItem extends StatelessWidget {
                   '${data.percentage.toInt()}% de votre empreinte',
                   style: TextStyle(
                     fontSize: dim.labelFontSize,
-                    color: const Color(0xFF6B7280),
                   ),
                 ),
               ],

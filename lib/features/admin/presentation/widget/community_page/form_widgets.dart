@@ -14,10 +14,11 @@ class FormHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AdminColors.of(context);
     return Container(
       padding: const EdgeInsets.all(AdminTheme.spacingMd),
       decoration: BoxDecoration(
-        color: AdminTheme.background,
+        color: colors.background,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -31,7 +32,7 @@ class FormHeader extends StatelessWidget {
           IconButton(
             onPressed: onBack,
             icon: const Icon(Icons.close),
-            color: AdminTheme.mutedForeground,
+            color: colors.mutedForeground,
           ),
           const SizedBox(width: AdminTheme.spacingSm),
           Text(
@@ -39,7 +40,7 @@ class FormHeader extends StatelessWidget {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: AdminTheme.foreground,
+              color: colors.foreground,
             ),
           ),
         ],
@@ -76,6 +77,7 @@ class FormTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AdminColors.of(context);
     final hasError = error != null;
     final hasSuccess = success != null;
 
@@ -85,7 +87,7 @@ class FormTextField extends StatelessWidget {
         // Label
         Text(
           label,
-          style: TextStyle(fontSize: 14, color: AdminTheme.mutedForeground),
+          style: TextStyle(fontSize: 14, color: colors.mutedForeground),
         ),
         const SizedBox(height: AdminTheme.spacingSm),
 
@@ -105,10 +107,10 @@ class FormTextField extends StatelessWidget {
             hintText: hint,
             counterText: '',
             filled: true,
-            fillColor: AdminTheme.background,
-            border: _buildBorder(hasError, false),
-            enabledBorder: _buildBorder(hasError, false),
-            focusedBorder: _buildBorder(hasError, true),
+            fillColor: colors.background,
+            border: _buildBorder(hasError, false, colors.border),
+            enabledBorder: _buildBorder(hasError, false, colors.border),
+            focusedBorder: _buildBorder(hasError, true, colors.border),
           ),
         ),
 
@@ -139,7 +141,7 @@ class FormTextField extends StatelessWidget {
     );
   }
 
-  OutlineInputBorder _buildBorder(bool hasError, bool isFocused) {
+  OutlineInputBorder _buildBorder(bool hasError, bool isFocused, Color borderColor) {
     return OutlineInputBorder(
       borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
       borderSide: BorderSide(
@@ -147,7 +149,7 @@ class FormTextField extends StatelessWidget {
             ? AdminTheme.errorForeground
             : isFocused
             ? AdminTheme.actionGreen
-            : AdminTheme.border,
+            : borderColor,
         width: isFocused ? 2 : 1,
       ),
     );
@@ -173,10 +175,11 @@ class FormActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AdminColors.of(context);
     return Container(
       padding: const EdgeInsets.all(AdminTheme.spacingMd),
       decoration: BoxDecoration(
-        color: AdminTheme.background,
+        color: colors.background,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -195,7 +198,7 @@ class FormActions extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(
                   vertical: AdminTheme.spacingMd,
                 ),
-                side: const BorderSide(color: AdminTheme.border),
+                side: BorderSide(color: colors.border),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
                 ),
@@ -261,19 +264,20 @@ class ReadOnlyField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AdminColors.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: TextStyle(fontSize: 14, color: AdminTheme.mutedForeground),
+          style: TextStyle(fontSize: 14, color: colors.mutedForeground),
         ),
         const SizedBox(height: AdminTheme.spacingSm),
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(AdminTheme.spacingMd),
           decoration: BoxDecoration(
-            color: AdminTheme.pageBackground,
+            color: colors.pageBackground,
             borderRadius: BorderRadius.circular(AdminTheme.radiusSm),
           ),
           child: Column(
@@ -288,7 +292,7 @@ class ReadOnlyField extends StatelessWidget {
                   subtitle!,
                   style: TextStyle(
                     fontSize: 13,
-                    color: AdminTheme.mutedForeground,
+                    color: colors.mutedForeground,
                   ),
                 ),
             ],

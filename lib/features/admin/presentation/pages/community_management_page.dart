@@ -322,30 +322,31 @@ class _CommunityManagementPageState extends State<CommunityManagementPage> {
 
   /// Construit l'état vide (aucune communauté)
   Widget _buildEmptyState(BuildContext context) {
+    final colors = AdminColors.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AdminTheme.spacingXxl),
-      decoration: AdminTheme.cardDecoration,
+      decoration: colors.cardDecoration,
       child: Column(
         children: [
           Icon(
             Icons.groups_rounded,
             size: 64,
-            color: AdminTheme.mutedForeground,
+            color: colors.mutedForeground,
           ),
           const SizedBox(height: AdminTheme.spacingMd),
-          const Text(
+          Text(
             'Aucune communauté',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: AdminTheme.foreground,
+              color: colors.foreground,
             ),
           ),
           const SizedBox(height: AdminTheme.spacingSm),
           Text(
             'Commencez par créer votre première communauté',
-            style: TextStyle(fontSize: 14, color: AdminTheme.mutedForeground),
+            style: TextStyle(fontSize: 14, color: colors.mutedForeground),
           ),
           const SizedBox(height: AdminTheme.spacingXl),
           ElevatedButton(

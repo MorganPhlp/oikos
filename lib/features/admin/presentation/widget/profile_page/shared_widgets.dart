@@ -35,32 +35,34 @@ void showProfileSnackBar(
 
 // ─── Input decoration helper ─────────────────────────────────────────────────
 
-InputDecoration profileInputDecoration({
+InputDecoration profileInputDecoration(
+  BuildContext context, {
   required String hint,
   required IconData prefixIcon,
   Widget? suffixIcon,
 }) {
+  final colors = AdminColors.of(context);
   return InputDecoration(
     hintText: hint,
-    hintStyle: const TextStyle(
-      color: AdminTheme.mutedForeground,
+    hintStyle: TextStyle(
+      color: colors.mutedForeground,
       fontSize: 14,
     ),
-    prefixIcon: Icon(prefixIcon, size: 18, color: AdminTheme.mutedForeground),
+    prefixIcon: Icon(prefixIcon, size: 18, color: colors.mutedForeground),
     suffixIcon: suffixIcon,
     filled: true,
-    fillColor: AdminTheme.inputBackground,
+    fillColor: colors.inputBackground,
     contentPadding: const EdgeInsets.symmetric(
       horizontal: AdminTheme.spacingMd,
       vertical: AdminTheme.spacingMd,
     ),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
-      borderSide: const BorderSide(color: AdminTheme.border),
+      borderSide: BorderSide(color: colors.border),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
-      borderSide: const BorderSide(color: AdminTheme.border),
+      borderSide: BorderSide(color: colors.border),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
@@ -90,6 +92,7 @@ class SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AdminColors.of(context);
     return Row(
       children: [
         Container(
@@ -103,10 +106,10 @@ class SectionHeader extends StatelessWidget {
         const SizedBox(width: AdminTheme.spacingMd),
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
-            color: AdminTheme.foreground,
+            color: colors.foreground,
           ),
         ),
       ],
@@ -123,12 +126,13 @@ class FieldLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AdminColors.of(context);
     return Text(
       label,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 13,
         fontWeight: FontWeight.w500,
-        color: AdminTheme.foreground,
+        color: colors.foreground,
       ),
     );
   }
@@ -192,6 +196,7 @@ class RoleBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AdminColors.of(context);
     final isAdmin = role == RoleUtilisateur.administrateur;
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -199,10 +204,10 @@ class RoleBadge extends StatelessWidget {
         vertical: AdminTheme.spacingXs,
       ),
       decoration: BoxDecoration(
-        color: isAdmin ? AdminTheme.actionGreenLight : AdminTheme.muted,
+        color: isAdmin ? AdminTheme.actionGreenLight : colors.muted,
         borderRadius: BorderRadius.circular(AdminTheme.radiusXxl),
         border: Border.all(
-          color: isAdmin ? AdminTheme.actionGreen : AdminTheme.border,
+          color: isAdmin ? AdminTheme.actionGreen : colors.border,
         ),
       ),
       child: Row(
@@ -213,9 +218,7 @@ class RoleBadge extends StatelessWidget {
                 ? Icons.admin_panel_settings_rounded
                 : Icons.person_rounded,
             size: 14,
-            color: isAdmin
-                ? AdminTheme.actionGreen
-                : AdminTheme.mutedForeground,
+            color: isAdmin ? AdminTheme.actionGreen : colors.mutedForeground,
           ),
           const SizedBox(width: AdminTheme.spacingXs),
           Text(
@@ -223,9 +226,7 @@ class RoleBadge extends StatelessWidget {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
-              color: isAdmin
-                  ? AdminTheme.actionGreen
-                  : AdminTheme.mutedForeground,
+              color: isAdmin ? AdminTheme.actionGreen : colors.mutedForeground,
             ),
           ),
         ],
@@ -244,6 +245,7 @@ class AvatarEditor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AdminColors.of(context);
     return Stack(
       alignment: Alignment.bottomRight,
       children: [
@@ -251,7 +253,7 @@ class AvatarEditor extends StatelessWidget {
           onTap: onTap,
           child: CircleAvatar(
             radius: 48,
-            backgroundColor: AdminTheme.muted,
+            backgroundColor: colors.muted,
             backgroundImage: NetworkImage(user.avatarFullUrl),
           ),
         ),
@@ -286,6 +288,7 @@ class LogoEditor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AdminColors.of(context);
     return Stack(
       alignment: Alignment.bottomRight,
       children: [
@@ -296,17 +299,17 @@ class LogoEditor extends StatelessWidget {
             height: 96,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(AdminTheme.radiusXl),
-              border: Border.all(color: AdminTheme.border),
-              color: AdminTheme.muted,
+              border: Border.all(color: colors.border),
+              color: colors.muted,
             ),
             clipBehavior: Clip.antiAlias,
             child: Image.network(
               company.logoFullUrl,
               fit: BoxFit.contain,
-              errorBuilder: (_, _, _) => const Icon(
+              errorBuilder: (_, _, _) => Icon(
                 Icons.business_rounded,
                 size: 40,
-                color: AdminTheme.mutedForeground,
+                color: colors.mutedForeground,
               ),
             ),
           ),
@@ -348,6 +351,7 @@ class PickerModalHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AdminColors.of(context);
     return Padding(
       padding: const EdgeInsets.all(AdminTheme.spacingLg),
       child: Row(
@@ -357,17 +361,17 @@ class PickerModalHeader extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: AdminTheme.foreground,
+                color: colors.foreground,
               ),
             ),
           ),
           IconButton(
             onPressed: onClose,
             icon: const Icon(Icons.close),
-            color: AdminTheme.mutedForeground,
+            color: colors.mutedForeground,
           ),
         ],
       ),
@@ -393,6 +397,7 @@ class PickerModalActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AdminColors.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AdminTheme.spacingLg,
@@ -409,7 +414,7 @@ class PickerModalActions extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(
                   vertical: AdminTheme.spacingMd,
                 ),
-                side: const BorderSide(color: AdminTheme.border),
+                side: BorderSide(color: colors.border),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
                 ),
@@ -478,6 +483,7 @@ class PasswordField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AdminColors.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -488,14 +494,14 @@ class PasswordField extends StatelessWidget {
           obscureText: obscure,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: const TextStyle(
-              color: AdminTheme.mutedForeground,
+            hintStyle: TextStyle(
+              color: colors.mutedForeground,
               fontSize: 14,
             ),
-            prefixIcon: const Icon(
+            prefixIcon: Icon(
               Icons.lock_outline_rounded,
               size: 18,
-              color: AdminTheme.mutedForeground,
+              color: colors.mutedForeground,
             ),
             suffixIcon: IconButton(
               icon: Icon(
@@ -503,23 +509,23 @@ class PasswordField extends StatelessWidget {
                     ? Icons.visibility_rounded
                     : Icons.visibility_off_rounded,
                 size: 18,
-                color: AdminTheme.mutedForeground,
+                color: colors.mutedForeground,
               ),
               onPressed: onToggleVisibility,
             ),
             filled: true,
-            fillColor: AdminTheme.inputBackground,
+            fillColor: colors.inputBackground,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: AdminTheme.spacingMd,
               vertical: AdminTheme.spacingMd,
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
-              borderSide: const BorderSide(color: AdminTheme.border),
+              borderSide: BorderSide(color: colors.border),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
-              borderSide: const BorderSide(color: AdminTheme.border),
+              borderSide: BorderSide(color: colors.border),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AdminTheme.radiusMd),

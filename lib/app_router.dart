@@ -49,15 +49,18 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
           final int currentIndex = tabs.indexWhere(
             (path) => state.uri.path.startsWith(path),
           );
+
+          final brightness = MediaQuery.of(context).platformBrightness;
+          final bool isDarkMode = brightness == Brightness.dark;
           return Theme(
-            data: AdminTheme.theme,
+            data: isDarkMode ? AdminTheme.darkTheme : AdminTheme.lightTheme,
             child: Builder(
               builder: (themeContext) {
                 return Container(
                   decoration: BoxDecoration(
                     gradient: Theme.of(
                       themeContext,
-                    ).extension<GradientBackground>()?.mainGradient,
+                    ).extension<GradientBackground>()?.gradient,
                   ),
                   child: Builder(
                     builder: (context) {
