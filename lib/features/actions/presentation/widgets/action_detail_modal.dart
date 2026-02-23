@@ -181,7 +181,7 @@ class ActionDetailModal extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Chaque petit geste compte ! En adoptant cette habitude, vous contribuez à réduire votre empreinte environnementale.',
+          'Chaque petit geste compte ! En adoptant cette habitude, tu réduis concrètement ton empreinte environnementale.',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.5),
         ),
         const SizedBox(height: 16),
