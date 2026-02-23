@@ -6,11 +6,14 @@ import '../../../../core/common/presentation/widgets/gradient_button.dart';
 import '../../data/datasources/community_remote_datasource.dart';
 import '../../data/models/leaderboard_entry_model.dart';
 import '../../domain/entities/leaderboard_entry.dart';
+import '../widgets/setup_duel_modal.dart';
 
 class ProfileDetailsModal extends StatefulWidget {
   final LeaderboardEntry entry;
+  final String myCommunityCode;
+  final String entrepriseId;
 
-  const ProfileDetailsModal({super.key, required this.entry});
+  const ProfileDetailsModal({super.key, required this.entry, required this.myCommunityCode, required this.entrepriseId});
 
   @override
   State<ProfileDetailsModal> createState() => _ProfileDetailsModalState();
@@ -135,26 +138,42 @@ class _ProfileDetailsModalState extends State<ProfileDetailsModal> {
 
                     const SizedBox(height: 10),
 
-                    // Liste dynamique
+                    /// Liste dynamique
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: isCommunity
                           ? _buildContributorsList(context)
                           : Column(children: _buildFakeUserAchievements(context)),
                     ),
+                    if (isCommunity)
+                      Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: GradientButton(
+                          label: "Lancer un défi à ${entry.label}",
+                          icon: const Icon(Icons.sports_kabaddi, color: Colors.white),
+                          onPressed: () {
+                            // 1. Fermer le profil actuel
+                            Navigator.pop(context);
 
-                    Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: GradientButton(
-                        label: isCommunity ? "Lancer un défi" : "Envoyer un message",
-                        icon: Icon(isCommunity ? Icons.sports_kabaddi : Icons.send, color: Colors.white),
-                        onPressed: () {
-                          // Logique d'action ici
-                          Navigator.pop(context);
-                        },
+                            // 2. Ouvrir la configuration du duel
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: Colors.transparent,
+                              builder: (context) => SetupDuelModal(
+                                targetCommunity: entry as LeaderboardEntryModel, // L'entrée actuelle est l'adversaire
+                                myCommunityCode: widget.myCommunityCode,
+                                entrepriseId: widget.entrepriseId,
+                              ),
+                            );
+                          },
+                        ),
                       ),
-                    ),
-                  ],
+                      
+                    // Espacement si c'est un profil utilisateur (pas de bouton)
+                    if (!isCommunity)
+                      const SizedBox(height: 20),
+                  ]
                 ),
               ),
             ),

@@ -29,6 +29,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
   late CommunityRemoteDataSource _dataSource;
   late TabController _tabController;
   List<dynamic> _communityDefis = [];
+  int _requiredVotes = 1; /// Nombre de votes requis pour lancer un défi
 
   bool _isLoading = true;
   String? _error;
@@ -91,6 +92,19 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
       _myCommunityCode = userRes['code_communaute'];
       _myEntrepriseId = userRes['entreprise_id'];
 
+      /// On récupère les membres actifs
+      final activeUsersRes = await Supabase.instance.client
+          .from('utilisateur')
+          .select('id')
+          .eq('code_communaute', _myCommunityCode!)
+          .eq('est_compte_valide', true)
+          .eq('est_actif', true)
+          .neq('etat_compte', 'ANONYMISE');
+          
+      int activeMembersCount = activeUsersRes.length;
+      int required = (activeMembersCount * 0.6).ceil(); // .ceil() arrondit au chiffre supérieur
+      if (required < 1) required = 1;
+
       /// On récupère les données
       final results = await Future.wait([
         _dataSource.getUserLeaderboard(_myCommunityCode!),
@@ -102,6 +116,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
       if (!mounted) return;
 
       setState(() {
+        _requiredVotes = required;
         _userList = (results[0] as List<LeaderboardEntryModel>).map((entry) {
           final isMe = entry.id == Supabase.instance.client.auth.currentUser?.id;
           return entry.copyWith(isMe: isMe, label: isMe ? "Moi" : entry.label);
@@ -126,11 +141,14 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
         name: entry.label,
         avatarUrl: entry.avatarUrl ?? '',
         isCommunity: !entry.isUser,
+        targetCommunity: entry as LeaderboardEntryModel, 
+        myCommunityCode: _myCommunityCode!,              
+        entrepriseId: _myEntrepriseId!,
         onSeeProfile: () {
           Navigator.pop(context);
           showDialog(
             context: context,
-            builder: (context) => ProfileDetailsModal(entry: entry),
+            builder: (context) => ProfileDetailsModal(entry: entry, myCommunityCode: _myCommunityCode!, entrepriseId: _myEntrepriseId!,),
           );
         },
         onDuel: () {
@@ -238,16 +256,28 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 12),
-          child: Text("Vote pour le prochain défi", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        // --- On utilise un Row (Ligne) pour aligner l'icône et le texte ---
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Row(
+            children: [
+              const Icon(Icons.bolt, color: Colors.orange, size: 20),
+              const SizedBox(width: 8), // Petit espace entre l'éclair et le texte
+              const Text(
+                "Vote pour le prochain défi", 
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+            ],
+          ),
         ),
+        // -------------------------------------------------------------------
+        
         ...votingDefis.map((defi) => Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: DefiVoteWidget(
             title: defi['titre'] ?? "Défi",
             currentVotes: (defi['participants_count'] as num?)?.toInt() ?? 0,
-            totalRequired: 20, // TODO : À dynamiser : (membres_actifs * 0.6)
+            totalRequired: _requiredVotes,
             hasVoted: defi['is_joined'] ?? false,
             onVote: () async {
               await _dataSource.voteForDefiLaunch(defi['id'], _myCommunityCode!);
@@ -328,8 +358,13 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
         const SizedBox(height: 32),
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 16),
-          child: Text("Défis et actions communautaires", 
-            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            child: Row(
+              children: [
+                const Icon(Icons.bolt, color: Colors.orange, size: 20),
+                Text("Défis et actions communautaires", 
+                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+              ],
+            )
         ),
 
         _ChallengeCard(

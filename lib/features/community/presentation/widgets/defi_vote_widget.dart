@@ -68,7 +68,7 @@ class DefiVoteWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "$currentVotes votes",
+                "$currentVotes vote(s)",
                 style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor),
               ),
               Text(

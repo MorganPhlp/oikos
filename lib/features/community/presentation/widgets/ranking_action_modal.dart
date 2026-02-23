@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/core/common/presentation/widgets/oikos_avatar.dart';
-import 'package:oikos/core/common/presentation/widgets/gradient_button.dart'; // Import ajouté
+import 'package:oikos/core/common/presentation/widgets/gradient_button.dart';
+import 'setup_duel_modal.dart';
+import '../../data/models/leaderboard_entry_model.dart';
 
 // Widget pour le modal d'action sur le classement
 class RankingActionModal extends StatelessWidget {
@@ -9,7 +11,10 @@ class RankingActionModal extends StatelessWidget {
   final String avatarUrl;
   final bool isCommunity;     // true = Communauté, false = Utilisateur
   final VoidCallback onSeeProfile; // Action quand on clique sur "Voir le profil"
-  final VoidCallback onDuel;       // Action quand on clique sur "Lancer un défi"
+  final VoidCallback onDuel;       // Action quand on clique sur "Lancer un défi" //TODO
+  final LeaderboardEntryModel targetCommunity;
+  final String myCommunityCode;
+  final String entrepriseId;
 
   const RankingActionModal({
     Key? key,
@@ -18,6 +23,9 @@ class RankingActionModal extends StatelessWidget {
     required this.isCommunity,
     required this.onSeeProfile,
     required this.onDuel,
+    required this.targetCommunity,
+    required this.myCommunityCode,
+    required this.entrepriseId,
   }) : super(key: key);
 
 @override
@@ -123,7 +131,22 @@ class RankingActionModal extends StatelessWidget {
             GradientButton(
               label: "Lance un défi",
               icon: const Icon(Icons.flash_on, color: Colors.white, size: 20),
-              onPressed: onDuel,
+              onPressed: () {
+                  // 1. On ferme le petit modal actuel
+                  Navigator.of(context).pop();
+
+                  // 2. On ouvre la page avec les choix (Transport, Alimentation...)
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (context) => SetupDuelModal(
+                      targetCommunity: targetCommunity,
+                      myCommunityCode: myCommunityCode,
+                      entrepriseId: entrepriseId,
+                    ),
+                  );
+                },
             ),
 
             const SizedBox(height: 16),
