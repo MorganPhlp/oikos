@@ -47,7 +47,10 @@ DECLARE
 BEGIN
   SELECT count(*) INTO active_members_count 
   FROM utilisateur 
-  WHERE code_communaute = community_code_param AND etat_compte = 'ACTIF';
+  WHERE code_communaute = community_code_param
+    AND est_actif = true
+    AND role != 'ADMINISTRATEUR'
+    AND etat_compte != 'ANONYMISE';
 
   SELECT count(*) INTO votes_count 
   FROM votes_lancement_defi 

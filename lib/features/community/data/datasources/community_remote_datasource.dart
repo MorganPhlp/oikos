@@ -95,6 +95,9 @@ class CommunityRemoteDataSource {
             'id, pseudo, impact_score_xp, avatar_url, actions_count, streak_days',
           )
           .eq('code_communaute', communityCode)
+          .eq('est_actif', true)
+          .neq('role', 'ADMINISTRATEUR')
+          .neq('etat_compte', 'ANONYMISE')
           .order('impact_score_xp', ascending: false)
           .limit(3);
 

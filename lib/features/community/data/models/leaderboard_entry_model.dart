@@ -27,13 +27,14 @@ class LeaderboardEntryModel extends LeaderboardEntry {
 
   /// Classement des utilisateurs
   factory LeaderboardEntryModel.fromUserView(Map<String, dynamic> json, String currentUserId) {
+    final userId = json['user_id']?.toString() ?? json['id']?.toString() ?? '';
     return LeaderboardEntryModel(
-      id: json['id']?.toString() ?? '',
-      label: (json['username'] ?? json['pseudo'] ?? 'Anonyme') as String, 
+      id: userId,
+      label: (json['username'] ?? json['pseudo'] ?? 'Anonyme') as String,
       value: (json['total_xp'] as num?)?.toInt() ?? 0,
       rank: (json['rank'] as num?)?.toInt() ?? 0,
       isUser: true,
-      isMe: json['id'] == currentUserId,
+      isMe: userId == currentUserId,
       avatarUrl: json['avatar_url'] as String?,
       actionsCount: (json['actions_count'] as num?)?.toInt() ?? 0,
       streakDays: (json['streak_days'] as num?)?.toInt() ?? 0,

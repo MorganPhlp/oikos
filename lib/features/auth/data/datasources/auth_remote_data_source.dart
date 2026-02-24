@@ -64,7 +64,19 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         throw ServerException('User is null');
       }
 
-      return UserModel.fromJson(response.user!.toJson());
+      // Attendre un peu pour que le trigger s'exécute
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      // Récupérer les données complètes de l'utilisateur depuis la table utilisateur
+      final userData = await supabaseClient
+          .from('utilisateur')
+          .select()
+          .eq('id', response.user!.id)
+          .single();
+
+      // Merger les données de auth.users et utilisateur
+      final mergedData = {...userData, ...response.user!.toJson()};
+      return UserModel.fromJson(mergedData);
     } catch (e) {
       throw ServerException(e.toString());
     }

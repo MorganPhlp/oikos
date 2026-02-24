@@ -99,6 +99,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
           .eq('code_communaute', _myCommunityCode!)
           .eq('est_compte_valide', true)
           .eq('est_actif', true)
+          .neq('role', 'ADMINISTRATEUR')
           .neq('etat_compte', 'ANONYMISE');
           
       int activeMembersCount = activeUsersRes.length;
@@ -118,8 +119,8 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
       setState(() {
         _requiredVotes = required;
         _userList = (results[0] as List<LeaderboardEntryModel>).map((entry) {
-          final isMe = entry.id == Supabase.instance.client.auth.currentUser?.id;
-          return entry.copyWith(isMe: isMe, label: isMe ? "Moi" : entry.label);
+          // Le isMe est déjà correctement défini dans fromUserView
+          return entry.isMe ? entry.copyWith(label: "Moi") : entry;
         }).toList();
         _communityList = results[1] as List<LeaderboardEntryModel>;
         _actions = results[2] as List<CommunityActionModel>;
