@@ -29,9 +29,9 @@ class StreakProgressSection extends StatelessWidget {
           Expanded(
             child: _ProgressBarBlock(
               icon: LucideIcons.userCheck,
-              current: state.actionsQuotidiennes ?? 0,
+              current: state.actionsIndividuelles ?? 0,
               total: threshold == 0 ? 1 : threshold,
-              label: "Quotidien",
+              label: "Individuel",
             ),
           ),
           Container(

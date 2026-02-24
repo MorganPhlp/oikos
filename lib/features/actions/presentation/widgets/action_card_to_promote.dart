@@ -2,41 +2,43 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:oikos/core/common/presentation/widgets/separator.dart';
 import 'package:oikos/core/theme/action_card_theme.dart';
+import 'package:oikos/features/actions/domain/entities/user_active_action_entity.dart';
+import 'package:oikos/features/actions/presentation/widgets/action_stats.dart';
 
 class ActionCardToPromote extends StatelessWidget {
-  final dynamic action;
-  const ActionCardToPromote({required this.action});
+  final UserActiveActionEntity action;
+  const ActionCardToPromote({super.key, required this.action});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final actionTheme = theme.extension<ActionCardTheme>()!;
-    final categoryColor = actionTheme.getCategoryColor(action.categoryName);
+    final categoryColor = actionTheme.getCategoryColor(
+      action.action.categoryName,
+    );
 
-    return IntrinsicHeight(
-      child: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: colorScheme.surface,
-          borderRadius: BorderRadius.circular(35),
-          boxShadow: [
-            BoxShadow(
-              color: colorScheme.shadow.withValues(alpha: 0.2),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(35),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildImageHeader(categoryColor, colorScheme),
-              _buildContent(theme, colorScheme, categoryColor),
-            ],
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(35),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.shadow.withValues(alpha: 0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(35),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildImageHeader(categoryColor, colorScheme),
+            _buildContent(theme, colorScheme, categoryColor),
+          ],
         ),
       ),
     );
@@ -44,7 +46,7 @@ class ActionCardToPromote extends StatelessWidget {
 
   Widget _buildImageHeader(Color categoryColor, ColorScheme colorScheme) {
     return Container(
-      height: 125,
+      height: 100,
       width: double.infinity,
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -61,14 +63,18 @@ class ActionCardToPromote extends StatelessWidget {
             child: Transform.rotate(
               angle: 0.2,
               child: Icon(
-                action.icon,
-                size: 130,
+                action.action.icon,
+                size: 110,
                 color: colorScheme.onPrimary.withValues(alpha: 0.15),
               ),
             ),
           ),
           Center(
-            child: Icon(action.icon, color: colorScheme.onPrimary, size: 55),
+            child: Icon(
+              action.action.icon,
+              color: colorScheme.onPrimary,
+              size: 45, // Réduit de 55 à 45
+            ),
           ),
         ],
       ),
@@ -81,30 +87,34 @@ class ActionCardToPromote extends StatelessWidget {
     Color categoryColor,
   ) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 50),
+      padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           _buildBadge(theme, categoryColor),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Text(
-            action.title,
+            action.action.title,
             textAlign: TextAlign.center,
-            style: theme.textTheme.titleLarge?.copyWith(
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           Text(
-            action.description,
+            action.action.description,
             textAlign: TextAlign.center,
-            maxLines: 3,
-            style: theme.textTheme.bodyMedium,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.bodySmall,
           ),
-          const SizedBox(height: 25),
+          const SizedBox(height: 16),
           _buildStats(colorScheme),
-          const SizedBox(height: 25),
+          const SizedBox(height: 16),
           const DecorativeSeparator(),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           _buildFooter(theme, colorScheme),
         ],
       ),
@@ -120,7 +130,7 @@ class ActionCardToPromote extends StatelessWidget {
         border: Border.all(color: categoryColor.withValues(alpha: 0.3)),
       ),
       child: Text(
-        action.categoryName.toUpperCase(),
+        action.action.categoryName.toUpperCase(),
         style: theme.textTheme.labelSmall?.copyWith(
           color: categoryColor,
           fontWeight: FontWeight.bold,
@@ -130,40 +140,17 @@ class ActionCardToPromote extends StatelessWidget {
   }
 
   Widget _buildStats(ColorScheme colorScheme) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        _stat(
-          LucideIcons.zap,
-          "${action.impactScore} pts",
-          colorScheme.primary,
-        ),
-        _stat(LucideIcons.gauge, action.difficulty, colorScheme.secondary),
-        _stat(LucideIcons.calendar, action.frequency, colorScheme.tertiary),
-      ],
-    );
-  }
-
-  Widget _stat(IconData icon, String label, Color color) {
-    return Column(
-      children: [
-        Icon(icon, size: 18, color: color),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: color,
-            fontSize: 10,
-          ),
-        ),
-      ],
+    return OikosActionStats(
+      impactScore: action.action.impactScore,
+      difficulty: action.action.difficulty,
+      frequencyLabel: action.action.frequency,
+      primaryColor: colorScheme.primary,
     );
   }
 
   Widget _buildFooter(ThemeData theme, ColorScheme colorScheme) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(15),
@@ -172,11 +159,13 @@ class ActionCardToPromote extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(LucideIcons.sparkles, size: 14, color: colorScheme.primary),
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
           Flexible(
             child: Text(
               "Swipe à droite pour m'adopter !",
-              style: theme.textTheme.labelMedium,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.labelMedium?.copyWith(fontSize: 11),
             ),
           ),
         ],

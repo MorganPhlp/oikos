@@ -7,14 +7,14 @@ enum StreakEvolution { increase, lost, reset, none }
 sealed class StreakState extends Equatable {
   final UtilisateurStreakEntity streak;
   final List<String>? allStreakPaths;
-  final int? actionsQuotidiennes;
+  final int? actionsIndividuelles;
   final bool? hasCompletedActionCommunautaire;
   final List<StreakStepEntity>? streakSteps;
 
   const StreakState({
     required this.streak,
     this.allStreakPaths,
-    this.actionsQuotidiennes = 0,
+    this.actionsIndividuelles = 0,
     this.hasCompletedActionCommunautaire = false,
     this.streakSteps,
   });
@@ -23,11 +23,12 @@ sealed class StreakState extends Equatable {
   List<Object?> get props => [
     streak,
     allStreakPaths,
-    actionsQuotidiennes,
+    actionsIndividuelles,
     hasCompletedActionCommunautaire,
     streakSteps,
   ];
 }
+
 class StreakUpdated extends StreakState {
   final StreakEvolution evolution;
 
@@ -35,7 +36,7 @@ class StreakUpdated extends StreakState {
     required super.streak,
     required this.evolution,
     super.allStreakPaths,
-    super.actionsQuotidiennes,
+    super.actionsIndividuelles,
     super.hasCompletedActionCommunautaire,
     super.streakSteps,
   });
@@ -46,7 +47,7 @@ class StreakUpdated extends StreakState {
 
 class StreakLoading extends StreakState {
   const StreakLoading() : super(streak: const UtilisateurStreakEntity.empty());
-  
+
   @override
   List<Object?> get props => [];
 }

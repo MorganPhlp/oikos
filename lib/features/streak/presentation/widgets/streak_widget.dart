@@ -160,7 +160,7 @@ class _StreakWidgetState extends State<StreakWidget> {
                     (e) => e.from == state.streak.currentStreak,
                     orElse: () => state.streakSteps!.last,
                   )
-                  .requiredActionsQuotidiennes ??
+                  .requiredActionsIndividuelles ??
               0);
 
     return StreakCardDecoration(
@@ -174,10 +174,13 @@ class _StreakWidgetState extends State<StreakWidget> {
               const StreakMaxLevelBadge()
             else ...[
               _buildCountdownBadge(blocContext, state, theme),
-              const SizedBox(height: 20),
-              const DecorativeSeparator(),
+
               const SizedBox(height: 20),
               _buildInstructionText(theme),
+              const SizedBox(height: 20),
+
+              const DecorativeSeparator(),
+
               const SizedBox(height: 20),
               StreakProgressSection(state: state, threshold: threshold),
             ],
@@ -241,7 +244,7 @@ class _StreakWidgetState extends State<StreakWidget> {
   }
 
   Widget _buildInstructionText(ThemeData theme) => Text(
-    "pour réaliser ton action quotidienne et collective".toUpperCase(),
+    "pour réaliser ton action \n individuelle et collective".toUpperCase(),
     textAlign: TextAlign.center,
     style: TextStyle(
       fontSize: 10,

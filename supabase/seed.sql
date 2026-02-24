@@ -36,7 +36,7 @@ INSERT INTO carbone_equivalent (equivalent_label, valeur_1_tonne, icone) VALUES
 ON CONFLICT DO NOTHING;
 
 
-INSERT INTO streak_steps (from_streak_phase, to_streak_phase, required_actions_quotidiennes, required_actions_communautaires) VALUES
+INSERT INTO streak_steps (from_streak_phase, to_streak_phase, required_actions_individuelles, required_actions_communautaires) VALUES
 (0, 1, 3, 1),
 (1, 2, 5, 1),
 (2, 3, 7, 1),

@@ -65,8 +65,9 @@ class ActiveActionCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isCompleted = activeAction.isCompleted();
+    final isCompletedForPeriod = activeAction.periodCompletion;
 
-    final bgColor = isCompleted
+    final bgColor = isCompletedForPeriod
         ? colorScheme.onSurface.withValues(alpha: 0.03)
         : colorScheme.surface;
     final actionColorScheme = Theme.of(context).extension<ActionCardTheme>()!;
@@ -92,7 +93,7 @@ class ActiveActionCard extends StatelessWidget {
       ),
       confirmDismiss: (direction) async {
         if (direction == DismissDirection.startToEnd) {
-          if (!isCompleted) onValidate();
+          if (!isCompleted && !isCompletedForPeriod) onValidate();
           return false;
         } else {
           onDelete();
@@ -107,14 +108,14 @@ class ActiveActionCard extends StatelessWidget {
             color: bgColor,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
-              if (!isCompleted)
+              if (!isCompleted && !isCompletedForPeriod)
                 BoxShadow(
                   color: colorScheme.shadow.withValues(alpha: 0.06),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
             ],
-            border: isCompleted
+            border: (isCompleted || isCompletedForPeriod)
                 ? Border.all(color: colorScheme.outline.withValues(alpha: 0.15))
                 : null,
           ),
@@ -146,7 +147,7 @@ class ActiveActionCard extends StatelessWidget {
                             activeAction.action.title,
                             style: theme.textTheme.titleSmall?.copyWith(
                               fontWeight: FontWeight.bold,
-                              color: isCompleted
+                              color: (isCompleted || isCompletedForPeriod)
                                   ? colorScheme.onSurface.withValues(alpha: 0.4)
                                   : colorScheme.onSurface,
                             ),
@@ -187,7 +188,7 @@ class ActiveActionCard extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
                 child: _buildProgressSection(context, theme, colorScheme),
               ),
-              if (isCompleted)
+              if (isCompletedForPeriod && !isCompleted)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                   child: Container(
@@ -280,7 +281,7 @@ class ActiveActionCard extends StatelessWidget {
 
   Widget _buildCheckButton(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isCompleted = activeAction.isCompleted();
+    final isCompleted = activeAction.periodCompletion;
 
     AnimationController? animController;
 

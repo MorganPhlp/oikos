@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$StreakStepModel {
 
-@JsonKey(name: 'from_streak_phase') int get from;@JsonKey(name: 'to_streak_phase') int get to;@JsonKey(name: 'required_actions_quotidiennes') int get requiredActionsQuotidiennes;@JsonKey(name: 'required_actions_communautaires') int get requiredActionsCommunautaires;
+@JsonKey(name: 'from_streak_phase') int get from;@JsonKey(name: 'to_streak_phase') int get to;@JsonKey(name: 'required_actions_individuelles') int get requiredActionsIndividuelles;@JsonKey(name: 'required_actions_communautaires') int get requiredActionsCommunautaires;
 /// Create a copy of StreakStepModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $StreakStepModelCopyWith<StreakStepModel> get copyWith => _$StreakStepModelCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is StreakStepModel&&(identical(other.from, from) || other.from == from)&&(identical(other.to, to) || other.to == to)&&(identical(other.requiredActionsQuotidiennes, requiredActionsQuotidiennes) || other.requiredActionsQuotidiennes == requiredActionsQuotidiennes)&&(identical(other.requiredActionsCommunautaires, requiredActionsCommunautaires) || other.requiredActionsCommunautaires == requiredActionsCommunautaires));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StreakStepModel&&(identical(other.from, from) || other.from == from)&&(identical(other.to, to) || other.to == to)&&(identical(other.requiredActionsIndividuelles, requiredActionsIndividuelles) || other.requiredActionsIndividuelles == requiredActionsIndividuelles)&&(identical(other.requiredActionsCommunautaires, requiredActionsCommunautaires) || other.requiredActionsCommunautaires == requiredActionsCommunautaires));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,from,to,requiredActionsQuotidiennes,requiredActionsCommunautaires);
+int get hashCode => Object.hash(runtimeType,from,to,requiredActionsIndividuelles,requiredActionsCommunautaires);
 
 @override
 String toString() {
-  return 'StreakStepModel(from: $from, to: $to, requiredActionsQuotidiennes: $requiredActionsQuotidiennes, requiredActionsCommunautaires: $requiredActionsCommunautaires)';
+  return 'StreakStepModel(from: $from, to: $to, requiredActionsIndividuelles: $requiredActionsIndividuelles, requiredActionsCommunautaires: $requiredActionsCommunautaires)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $StreakStepModelCopyWith<$Res>  {
   factory $StreakStepModelCopyWith(StreakStepModel value, $Res Function(StreakStepModel) _then) = _$StreakStepModelCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'from_streak_phase') int from,@JsonKey(name: 'to_streak_phase') int to,@JsonKey(name: 'required_actions_quotidiennes') int requiredActionsQuotidiennes,@JsonKey(name: 'required_actions_communautaires') int requiredActionsCommunautaires
+@JsonKey(name: 'from_streak_phase') int from,@JsonKey(name: 'to_streak_phase') int to,@JsonKey(name: 'required_actions_individuelles') int requiredActionsIndividuelles,@JsonKey(name: 'required_actions_communautaires') int requiredActionsCommunautaires
 });
 
 
@@ -65,11 +65,11 @@ class _$StreakStepModelCopyWithImpl<$Res>
 
 /// Create a copy of StreakStepModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? from = null,Object? to = null,Object? requiredActionsQuotidiennes = null,Object? requiredActionsCommunautaires = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? from = null,Object? to = null,Object? requiredActionsIndividuelles = null,Object? requiredActionsCommunautaires = null,}) {
   return _then(_self.copyWith(
 from: null == from ? _self.from : from // ignore: cast_nullable_to_non_nullable
 as int,to: null == to ? _self.to : to // ignore: cast_nullable_to_non_nullable
-as int,requiredActionsQuotidiennes: null == requiredActionsQuotidiennes ? _self.requiredActionsQuotidiennes : requiredActionsQuotidiennes // ignore: cast_nullable_to_non_nullable
+as int,requiredActionsIndividuelles: null == requiredActionsIndividuelles ? _self.requiredActionsIndividuelles : requiredActionsIndividuelles // ignore: cast_nullable_to_non_nullable
 as int,requiredActionsCommunautaires: null == requiredActionsCommunautaires ? _self.requiredActionsCommunautaires : requiredActionsCommunautaires // ignore: cast_nullable_to_non_nullable
 as int,
   ));
@@ -153,10 +153,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'from_streak_phase')  int from, @JsonKey(name: 'to_streak_phase')  int to, @JsonKey(name: 'required_actions_quotidiennes')  int requiredActionsQuotidiennes, @JsonKey(name: 'required_actions_communautaires')  int requiredActionsCommunautaires)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'from_streak_phase')  int from, @JsonKey(name: 'to_streak_phase')  int to, @JsonKey(name: 'required_actions_individuelles')  int requiredActionsIndividuelles, @JsonKey(name: 'required_actions_communautaires')  int requiredActionsCommunautaires)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _StreakStepModel() when $default != null:
-return $default(_that.from,_that.to,_that.requiredActionsQuotidiennes,_that.requiredActionsCommunautaires);case _:
+return $default(_that.from,_that.to,_that.requiredActionsIndividuelles,_that.requiredActionsCommunautaires);case _:
   return orElse();
 
 }
@@ -174,10 +174,10 @@ return $default(_that.from,_that.to,_that.requiredActionsQuotidiennes,_that.requ
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'from_streak_phase')  int from, @JsonKey(name: 'to_streak_phase')  int to, @JsonKey(name: 'required_actions_quotidiennes')  int requiredActionsQuotidiennes, @JsonKey(name: 'required_actions_communautaires')  int requiredActionsCommunautaires)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'from_streak_phase')  int from, @JsonKey(name: 'to_streak_phase')  int to, @JsonKey(name: 'required_actions_individuelles')  int requiredActionsIndividuelles, @JsonKey(name: 'required_actions_communautaires')  int requiredActionsCommunautaires)  $default,) {final _that = this;
 switch (_that) {
 case _StreakStepModel():
-return $default(_that.from,_that.to,_that.requiredActionsQuotidiennes,_that.requiredActionsCommunautaires);}
+return $default(_that.from,_that.to,_that.requiredActionsIndividuelles,_that.requiredActionsCommunautaires);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -191,10 +191,10 @@ return $default(_that.from,_that.to,_that.requiredActionsQuotidiennes,_that.requ
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'from_streak_phase')  int from, @JsonKey(name: 'to_streak_phase')  int to, @JsonKey(name: 'required_actions_quotidiennes')  int requiredActionsQuotidiennes, @JsonKey(name: 'required_actions_communautaires')  int requiredActionsCommunautaires)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'from_streak_phase')  int from, @JsonKey(name: 'to_streak_phase')  int to, @JsonKey(name: 'required_actions_individuelles')  int requiredActionsIndividuelles, @JsonKey(name: 'required_actions_communautaires')  int requiredActionsCommunautaires)?  $default,) {final _that = this;
 switch (_that) {
 case _StreakStepModel() when $default != null:
-return $default(_that.from,_that.to,_that.requiredActionsQuotidiennes,_that.requiredActionsCommunautaires);case _:
+return $default(_that.from,_that.to,_that.requiredActionsIndividuelles,_that.requiredActionsCommunautaires);case _:
   return null;
 
 }
@@ -206,12 +206,12 @@ return $default(_that.from,_that.to,_that.requiredActionsQuotidiennes,_that.requ
 @JsonSerializable()
 
 class _StreakStepModel extends StreakStepModel {
-  const _StreakStepModel({@JsonKey(name: 'from_streak_phase') required this.from, @JsonKey(name: 'to_streak_phase') required this.to, @JsonKey(name: 'required_actions_quotidiennes') required this.requiredActionsQuotidiennes, @JsonKey(name: 'required_actions_communautaires') required this.requiredActionsCommunautaires}): super._();
+  const _StreakStepModel({@JsonKey(name: 'from_streak_phase') required this.from, @JsonKey(name: 'to_streak_phase') required this.to, @JsonKey(name: 'required_actions_individuelles') required this.requiredActionsIndividuelles, @JsonKey(name: 'required_actions_communautaires') required this.requiredActionsCommunautaires}): super._();
   factory _StreakStepModel.fromJson(Map<String, dynamic> json) => _$StreakStepModelFromJson(json);
 
 @override@JsonKey(name: 'from_streak_phase') final  int from;
 @override@JsonKey(name: 'to_streak_phase') final  int to;
-@override@JsonKey(name: 'required_actions_quotidiennes') final  int requiredActionsQuotidiennes;
+@override@JsonKey(name: 'required_actions_individuelles') final  int requiredActionsIndividuelles;
 @override@JsonKey(name: 'required_actions_communautaires') final  int requiredActionsCommunautaires;
 
 /// Create a copy of StreakStepModel
@@ -227,16 +227,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _StreakStepModel&&(identical(other.from, from) || other.from == from)&&(identical(other.to, to) || other.to == to)&&(identical(other.requiredActionsQuotidiennes, requiredActionsQuotidiennes) || other.requiredActionsQuotidiennes == requiredActionsQuotidiennes)&&(identical(other.requiredActionsCommunautaires, requiredActionsCommunautaires) || other.requiredActionsCommunautaires == requiredActionsCommunautaires));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _StreakStepModel&&(identical(other.from, from) || other.from == from)&&(identical(other.to, to) || other.to == to)&&(identical(other.requiredActionsIndividuelles, requiredActionsIndividuelles) || other.requiredActionsIndividuelles == requiredActionsIndividuelles)&&(identical(other.requiredActionsCommunautaires, requiredActionsCommunautaires) || other.requiredActionsCommunautaires == requiredActionsCommunautaires));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,from,to,requiredActionsQuotidiennes,requiredActionsCommunautaires);
+int get hashCode => Object.hash(runtimeType,from,to,requiredActionsIndividuelles,requiredActionsCommunautaires);
 
 @override
 String toString() {
-  return 'StreakStepModel(from: $from, to: $to, requiredActionsQuotidiennes: $requiredActionsQuotidiennes, requiredActionsCommunautaires: $requiredActionsCommunautaires)';
+  return 'StreakStepModel(from: $from, to: $to, requiredActionsIndividuelles: $requiredActionsIndividuelles, requiredActionsCommunautaires: $requiredActionsCommunautaires)';
 }
 
 
@@ -247,7 +247,7 @@ abstract mixin class _$StreakStepModelCopyWith<$Res> implements $StreakStepModel
   factory _$StreakStepModelCopyWith(_StreakStepModel value, $Res Function(_StreakStepModel) _then) = __$StreakStepModelCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'from_streak_phase') int from,@JsonKey(name: 'to_streak_phase') int to,@JsonKey(name: 'required_actions_quotidiennes') int requiredActionsQuotidiennes,@JsonKey(name: 'required_actions_communautaires') int requiredActionsCommunautaires
+@JsonKey(name: 'from_streak_phase') int from,@JsonKey(name: 'to_streak_phase') int to,@JsonKey(name: 'required_actions_individuelles') int requiredActionsIndividuelles,@JsonKey(name: 'required_actions_communautaires') int requiredActionsCommunautaires
 });
 
 
@@ -264,11 +264,11 @@ class __$StreakStepModelCopyWithImpl<$Res>
 
 /// Create a copy of StreakStepModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? from = null,Object? to = null,Object? requiredActionsQuotidiennes = null,Object? requiredActionsCommunautaires = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? from = null,Object? to = null,Object? requiredActionsIndividuelles = null,Object? requiredActionsCommunautaires = null,}) {
   return _then(_StreakStepModel(
 from: null == from ? _self.from : from // ignore: cast_nullable_to_non_nullable
 as int,to: null == to ? _self.to : to // ignore: cast_nullable_to_non_nullable
-as int,requiredActionsQuotidiennes: null == requiredActionsQuotidiennes ? _self.requiredActionsQuotidiennes : requiredActionsQuotidiennes // ignore: cast_nullable_to_non_nullable
+as int,requiredActionsIndividuelles: null == requiredActionsIndividuelles ? _self.requiredActionsIndividuelles : requiredActionsIndividuelles // ignore: cast_nullable_to_non_nullable
 as int,requiredActionsCommunautaires: null == requiredActionsCommunautaires ? _self.requiredActionsCommunautaires : requiredActionsCommunautaires // ignore: cast_nullable_to_non_nullable
 as int,
   ));

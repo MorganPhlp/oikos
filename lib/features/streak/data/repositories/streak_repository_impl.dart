@@ -59,7 +59,7 @@ class StreakRepositoryImpl implements StreakRepository {
   }
 
   @override
-  Future<int> getNombreActionsQuotidiennesValidesDepuis(
+  Future<int> getNombreActionsIndividuellesValidesDepuis(
     String userId,
     DateTime date,
   ) {

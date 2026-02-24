@@ -38,9 +38,9 @@ class _MyActionsTabState extends State<MyActionsTab> {
           .where((e) => e.action.frequency == selectedFilter)
           .toList()
         ..sort(
-          (a, b) => a.isCompletedForPeriod == b.isCompletedForPeriod
+          (a, b) => a.periodCompletion == b.periodCompletion
               ? 0
-              : (a.isCompletedForPeriod ? 1 : -1),
+              : (a.periodCompletion ? 1 : -1),
         );
 
   @override
@@ -58,7 +58,7 @@ class _MyActionsTabState extends State<MyActionsTab> {
       selectedFilter,
       () => ScrollController(),
     );
-    final done = actions.where((e) => e.isCompletedForPeriod).length;
+    final done = actions.where((e) => e.periodCompletion).length;
     final progress = (selectedFilter == 'lifestyle')
         ? 1.0
         : (actions.isEmpty ? 0.0 : done / actions.length);
