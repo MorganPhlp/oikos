@@ -4,12 +4,57 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/core/theme/app_typography.dart';
 import 'package:oikos/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:oikos/features/community/data/datasources/community_remote_datasource.dart';
+import 'package:oikos/features/community/domain/entities/leaderboard_entry.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'avatar_modal.dart';
 
-class ProfileHeaderCard extends StatelessWidget {
-  // TODO : Connecter ces valeurs au Cubit ou BilanBloc si nécessaire
+class ProfileHeaderCard extends StatefulWidget {
   const ProfileHeaderCard({super.key});
+
+  @override
+  State<ProfileHeaderCard> createState() => _ProfileHeaderCardState();
+}
+
+class _ProfileHeaderCardState extends State<ProfileHeaderCard> {
+  LeaderboardEntry? _communityInfo;
+  bool _isLoadingCommunity = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCommunityInfo();
+  }
+
+  Future<void> _loadCommunityInfo() async {
+    final userState = context.read<AppUserCubit>().state;
+    if (userState is AppUserLoggedIn) {
+      final communityCode = userState.user.communityCode;
+      if (communityCode.isNotEmpty) {
+        final dataSource = CommunityRemoteDataSource(Supabase.instance.client);
+        try {
+          final info = await dataSource.getCommunityDetails(communityCode);
+          if (mounted) {
+            setState(() {
+              _communityInfo = info;
+              _isLoadingCommunity = false;
+            });
+          }
+        } catch (e) {
+          if (mounted) {
+            setState(() {
+              _isLoadingCommunity = false;
+            });
+          }
+        }
+      } else {
+        setState(() {
+          _isLoadingCommunity = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,9 +66,11 @@ class ProfileHeaderCard extends StatelessWidget {
         final userName =
             user?.pseudo ?? user?.email.split('@')[0] ?? 'Utilisateur';
         final userEmail = user?.email ?? '';
-        final communityName =
-            'Ma Communauté'; // TODO : A récupérer depuis le profil utilisateur
         final currentAvatar = user?.avatar ?? 'assets/avatars/avatar_1.png';
+
+        // Récupération des infos de la communauté
+        final communityName = _communityInfo?.label ?? 'Ma Communauté';
+        final communityLogo = _communityInfo?.avatarUrl;
 
         return Container(
           decoration: BoxDecoration(
@@ -177,18 +224,67 @@ class ProfileHeaderCard extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
-                            LucideIcons.users,
-                            size: 16,
-                            color: colorScheme.primary,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            communityName,
-                            style: AppTypography.body.copyWith(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                              color: colorScheme.primary, // Texte vert
+                          // Logo de la communauté (si disponible)
+                          if (communityLogo != null && communityLogo.isNotEmpty) ...[
+                            Container(
+                              width: 20,
+                              height: 20,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: colorScheme.primary.withValues(alpha: 0.2),
+                                  width: 1,
+                                ),
+                              ),
+                              child: ClipOval(
+                                child: Image.network(
+                                  communityLogo,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Icon(
+                                      LucideIcons.users,
+                                      size: 12,
+                                      color: colorScheme.primary,
+                                    );
+                                  },
+                                  loadingBuilder: (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return Center(
+                                      child: SizedBox(
+                                        width: 10,
+                                        height: 10,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 1.5,
+                                          valueColor: AlwaysStoppedAnimation<Color>(
+                                            colorScheme.primary,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                          ] else ...[
+                            Icon(
+                              LucideIcons.users,
+                              size: 16,
+                              color: colorScheme.primary,
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                          // Nom de la communauté avec gestion du débordement
+                          Flexible(
+                            child: Text(
+                              _isLoadingCommunity ? 'Chargement...' : communityName,
+                              style: AppTypography.body.copyWith(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                color: colorScheme.primary, // Texte vert
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
                             ),
                           ),
                         ],
