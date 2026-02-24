@@ -32,7 +32,7 @@ class ActiveChallengeModel {
       title: json['titre'] ?? 'Action',
       description: json['description'] ?? '',
       iconName: json['icon_name'] ?? 'zap',
-      xpGain: (json['impact_score'] as num?)?.toInt() ?? 0,
+      xpGain: (json['xp_gain'] as num?)?.toInt() ?? 0,
       dateFin: json['date_fin'] != null ? DateTime.parse(json['date_fin']) : DateTime.now(),
       participantsCount: (json['participants_count'] as num?)?.toInt() ?? 0,
       isJoined: json['is_joined'] ?? false,

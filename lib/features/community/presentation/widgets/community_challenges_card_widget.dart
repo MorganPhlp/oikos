@@ -25,23 +25,48 @@ class _CommunityChallengesCardWidgetState
     extends State<CommunityChallengesCardWidget> {
   List<ActiveChallengeModel> _challenges = [];
   bool _isLoading = true;
+  int _requiredParticipants = 1;
   late final CommunityRemoteDataSource _dataSource;
 
   @override
   void initState() {
     super.initState();
     _dataSource = CommunityRemoteDataSource(Supabase.instance.client);
-    _loadChallenges();
+    _loadChallenges(); // Premier chargement (avec icône de chargement)
   }
 
-  Future<void> _loadChallenges() async {
+  // MODIFICATION 1 : Ajout de "showLoading" pour permettre le rechargement silencieux
+  Future<void> _loadChallenges({bool showLoading = true}) async {
+    if (showLoading) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
+    
     try {
+      final client = Supabase.instance.client;
+
+      // 1. CALCUL DES 60% (Même logique que pour les votes)
+      final activeUsersRes = await client
+          .from('utilisateur')
+          .select('id')
+          .eq('code_communaute', widget.myCommunityCode)
+          .eq('est_compte_valide', true)
+          .eq('est_actif', true)
+          .neq('etat_compte', 'ANONYMISE');
+
+      int activeMembersCount = activeUsersRes.length;
+      int required = (activeMembersCount * 0.6).ceil();
+      if (required < 1) required = 1; // Sécurité
+
+      // 2. On récupère les défis
       final results = await _dataSource.getActiveChallenges(
         widget.entrepriseId,
       );
 
       if (mounted) {
         setState(() {
+          _requiredParticipants = required; // On sauvegarde l'objectif
           _challenges = results
               .map(
                 (e) =>
@@ -58,6 +83,10 @@ class _CommunityChallengesCardWidgetState
 
   Future<void> _joinAndValidateChallenge(ActiveChallengeModel challenge) async {
     try {
+      final client = Supabase.instance.client;
+      final userId = client.auth.currentUser!.id;
+
+      // 1. L'appel à ta DataSource pour enregistrer la participation
       await _dataSource.validateCollectiveAction(
         instanceId: challenge.id,
         baseActionId: challenge.baseActionId,
@@ -65,6 +94,15 @@ class _CommunityChallengesCardWidgetState
         xpGain: challenge.xpGain,
       );
 
+      // 2. MODIFICATION 2 : On ajoute réellement les XP au joueur !
+      final userRes = await client.from('utilisateur').select('impact_score_xp').eq('id', userId).single();
+      final currentXp = userRes['impact_score_xp'] as int? ?? 0;
+      final newXp = currentXp + challenge.xpGain;
+      
+      // On met à jour le profil (ce qui mettra à jour le classement de la communauté)
+      await client.from('utilisateur').update({'impact_score_xp': newXp}).eq('id', userId);
+
+      // 3. Succès et rechargement silencieux
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -73,23 +111,25 @@ class _CommunityChallengesCardWidgetState
             behavior: SnackBarBehavior.floating,
           ),
         );
-        _loadChallenges();
+        
+        // On recharge les données SANS faire clignoter l'écran
+        _loadChallenges(showLoading: false);
       }
     } catch (e) {
       print("DEBUG ERROR: $e");
-      setState(() => _isLoading = false);
 
-      // On vérifie si c'est l'erreur de doublon (23505)
       String message = "Erreur lors de la validation";
       if (e.toString().contains("23505")) {
         message = "Tu as déjà validé cette action !";
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message), backgroundColor: Colors.orange),
-      );
-
-      _loadChallenges();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message), backgroundColor: Colors.orange),
+        );
+        // On recharge les données SANS faire clignoter l'écran en cas d'erreur
+        _loadChallenges(showLoading: false);
+      }
     }
   }
 
@@ -131,10 +171,10 @@ class _CommunityChallengesCardWidgetState
             ? "$daysLeft jours restants"
             : "Dernier jour !";
 
-        // Calcul du progrès par rapport à l'objectif de 60%
-        const target = 60;
+        // Calcul du progrès par rapport à l'objectif dynamique
+        final target = _requiredParticipants;
         final progress = (challenge.participantsCount / target * 100)
-            .clamp(0, 100)
+            .clamp(0, 100) // Empêche de dépasser 100% visuellement
             .toInt();
 
         return Padding(
@@ -145,10 +185,11 @@ class _CommunityChallengesCardWidgetState
             icon: "⚡",
             points: challenge.xpGain,
             currentProgress: progress,
-            requiredPercentage: target,
+            targetParticipants: target,
             activeUsers: challenge.participantsCount,
             deadline: deadlineText,
             isJoined: challenge.isJoined,
+            // C'est ici que l'action s'enclenche !
             onTap: challenge.isJoined
                 ? null
                 : () => _joinAndValidateChallenge(challenge),
@@ -165,7 +206,7 @@ class _ChallengeCard extends StatelessWidget {
   final String icon;
   final int points;
   final int currentProgress;
-  final int requiredPercentage;
+  final int targetParticipants;
   final int activeUsers;
   final String deadline;
   final bool isJoined;
@@ -177,7 +218,7 @@ class _ChallengeCard extends StatelessWidget {
     required this.icon,
     required this.points,
     required this.currentProgress,
-    required this.requiredPercentage,
+    required this.targetParticipants,
     required this.activeUsers,
     required this.deadline,
     required this.isJoined,
@@ -253,7 +294,7 @@ class _ChallengeCard extends StatelessWidget {
           ),
           const SizedBox(height: 20),
 
-          _ProgressBar(current: currentProgress, target: requiredPercentage),
+          _ProgressBar(current: currentProgress, target: targetParticipants),
 
           const SizedBox(height: 16),
           Row(
@@ -308,6 +349,7 @@ class _ChallengeCard extends StatelessWidget {
 class _ProgressBar extends StatelessWidget {
   final int current;
   final int target;
+  
   const _ProgressBar({required this.current, required this.target});
 
   @override
@@ -322,7 +364,8 @@ class _ProgressBar extends StatelessWidget {
               style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
             ),
             Text(
-              "Objectif: $target%",
+              // CORRECTION ICI : "participant(s)" au lieu de "%"
+              "Objectif : $target participant(s)", 
               style: const TextStyle(fontSize: 11, color: Colors.grey),
             ),
           ],
@@ -333,7 +376,6 @@ class _ProgressBar extends StatelessWidget {
           child: TweenAnimationBuilder(
             tween: Tween<double>(begin: 0, end: current / 100),
             duration: const Duration(seconds: 1),
-
             builder: (BuildContext context, double value, Widget? child) {
               return LinearProgressIndicator(
                 value: value,

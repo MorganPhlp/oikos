@@ -66,7 +66,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
   }
 
   /// Chargement des données
-  Future<void> _loadData() async {
+  Future<void> _loadData({bool showLoading = false}) async {
     setState(() {
       _isLoading = true;
       _error = null;
@@ -282,7 +282,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
             hasVoted: defi['is_joined'] ?? false,
             onVote: () async {
               await _dataSource.voteForDefiLaunch(defi['id'], _myCommunityCode!);
-              _loadData();
+              _loadData(showLoading: false);
             },
           ),
         )).toList(),
