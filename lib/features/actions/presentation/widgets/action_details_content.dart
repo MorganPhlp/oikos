@@ -71,7 +71,7 @@ class ActionDetailContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Chaque petit geste compte ! En adoptant cette habitude, vous contribuez à réduire votre empreinte environnementale.',
+          'Chaque petit geste compte ! En adoptant cette habitude, tu contribue à réduire ton empreinte environnementale.',
           style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(height: 16),
@@ -89,7 +89,7 @@ class ActionDetailContent extends StatelessWidget {
               Icon(Icons.groups, color: colorScheme.primary, size: 20),
               const SizedBox(width: 12),
               const Expanded(
-                child: Text('Rejoignez des milliers de citoyens engagés !'),
+                child: Text('Rejoins des milliers de citoyens engagés !'),
               ),
             ],
           ),

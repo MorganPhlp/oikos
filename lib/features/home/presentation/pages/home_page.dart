@@ -83,7 +83,7 @@ class HomePage extends StatelessWidget {
                       myCommunityCode: myCommunityCode,
                     ),
                   ] else
-                    const Text("Rejoignez une communauté pour voir les défis"),
+                    const Text("Rejoins une communauté pour voir les défis"),
 
                   const SizedBox(height: 100),
                 ],

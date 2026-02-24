@@ -241,7 +241,7 @@ class _CommunityCodePageState extends State<CommunityCodePage> {
                       const SizedBox(height: 24),
 
                       Text(
-                        "Rejoignez votre communauté",
+                        "Rejoins ta communauté",
                         style: AppTypography.h2.copyWith(
                           color: colorScheme.onSurface,
                         ),

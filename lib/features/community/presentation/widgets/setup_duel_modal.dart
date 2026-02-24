@@ -181,7 +181,7 @@ class _SetupDuelModalState extends State<SetupDuelModal> {
         ),
         const SizedBox(height: 12),
         Text(
-          "Un défi est déjà actif avec ${widget.targetCommunity.label}. Vous devez le terminer avant d'en lancer un nouveau.",
+          "Un défi est déjà actif avec ${widget.targetCommunity.label}. Tu dois le terminer avant d'en lancer un nouveau.",
           textAlign: TextAlign.center,
           style: TextStyle(color: theme.hintColor),
         ),

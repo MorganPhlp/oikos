@@ -56,7 +56,7 @@ class _InterestsModalContent extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Sélectionnez les thématiques qui vous tiennent à cœur pour vos défis.',
+            'Sélectionne les thématiques qui te tiennent à cœur pour tes défis.',
             style: AppTypography.body.copyWith(
               color: colorScheme.onSurface.withValues(alpha: 0.6),
             ),

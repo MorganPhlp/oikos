@@ -19,7 +19,7 @@ class SuggestionContainer extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Vous pouvez répondre à l\'aide des suggestions ou bien entrer sélectionner des valeurs personnalisées.',
+              'Tu peux répondre à l\'aide des suggestions ou bien entrer des valeurs personnalisées.',
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 13,
