@@ -350,7 +350,7 @@ void _initAdmin() {
   );
   serviceLocator.registerLazySingleton<UserRep>(
     () =>
-        UserImpl(serviceLocator<SupabaseClient>(instanceName: "supabaseLocal")),
+        UserImpl(serviceLocator<SupabaseClient>(instanceName: "supabaseExternal")),
   );
   serviceLocator.registerLazySingleton<CompanyRep>(
     () => CompanyImpl(
@@ -415,6 +415,7 @@ void _initAdmin() {
       updateCompanyInfo: serviceLocator<UpdateCompany>(),
       getAvatars: serviceLocator<GetAvatars>(),
       getLogos: serviceLocator<GetLogos>(),
+      authRepository: serviceLocator<AuthRepository>(),
     ),
   );
 }

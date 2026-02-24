@@ -13,15 +13,10 @@ class UserImpl implements UserRep {
   @override
   Future<Either<Failure, void>> updateUser(User user) async {
     try {
-      // await supabase
-      //     .from('utilisateur')
-      //     .update({
-      //       'pseudo': user.pseudo,
-      //       'code_communaute': user.codeCommunaute.isEmpty ? null : user.codeCommunaute,
-      //       'avatar_url': user.avatarUrl.isEmpty ? null : user.avatarUrl,
-      //       'entreprise_id': user.entrepriseId.isEmpty ? null : user.entrepriseId,
-      //     })
-      //     .eq('id', user.id);
+      await supabase
+          .from('utilisateur')
+          .update(user.toJson())
+          .eq('id', user.id);
       return right(null);
     } on supa.PostgrestException catch (e) {
       logger.e("Erreur Repository", error: e);

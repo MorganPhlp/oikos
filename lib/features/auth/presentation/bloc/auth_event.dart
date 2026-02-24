@@ -52,3 +52,9 @@ final class AuthValidatePseudo extends AuthEvent {
 }
 
 final class AuthLogout extends AuthEvent {}
+
+
+class AuthUpdatePasswordRequested extends AuthEvent {
+  final String newPassword;
+  AuthUpdatePasswordRequested(this.newPassword);
+}

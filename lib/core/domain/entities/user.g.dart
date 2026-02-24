@@ -23,7 +23,6 @@ _User _$UserFromJson(Map<String, dynamic> json) => _User(
   impactScoreXp: (json['impact_score_xp'] as num?)?.toInt() ?? 0,
   co2EconomiseTotal: (json['co2_economise_total'] as num?)?.toDouble() ?? 0.0,
   aAccepteCgu: json['a_accepte_cgu'] as bool? ?? false,
-  communauteNom: json['communaute_nom'] as String? ?? '',
   hasCompletedBilan: json['a_complete_bilan'] as bool? ?? false,
   objectif: (json['objectif'] as num?)?.toInt() ?? -10,
 );
@@ -41,7 +40,6 @@ Map<String, dynamic> _$UserToJson(_User instance) => <String, dynamic>{
   'impact_score_xp': instance.impactScoreXp,
   'co2_economise_total': instance.co2EconomiseTotal,
   'a_accepte_cgu': instance.aAccepteCgu,
-  'communaute_nom': instance.communauteNom,
   'a_complete_bilan': instance.hasCompletedBilan,
   'objectif': instance.objectif,
 };

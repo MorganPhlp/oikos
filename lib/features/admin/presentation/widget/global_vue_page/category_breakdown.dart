@@ -254,7 +254,7 @@ class _CategoryBreakdownState extends State<CategoryBreakdown> {
             style: TextStyle(
               fontSize: dim.fontSize,
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF10B981),
+              color: const Color(0xFF111827),
             ),
           ),
         ],

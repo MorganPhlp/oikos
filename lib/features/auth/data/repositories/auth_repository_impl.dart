@@ -12,6 +12,23 @@ class AuthRepositoryImpl implements AuthRepository {
   const AuthRepositoryImpl({required this.remoteDataSource});
 
   @override
+  Future<Either<Failure, void>> updatePassword(String newPassword) async {
+    try {
+      final sup.UserAttributes attributes = sup.UserAttributes(
+        password: newPassword,
+      );
+
+      await remoteDataSource.client.auth.updateUser(attributes);
+
+      return right(null);
+    } on sup.AuthException catch (e) {
+      return left(Failure(e.message));
+    } catch (e) {
+      return left(Failure("Une erreur inattendue est survenue"));
+    }
+  }
+
+  @override
   Future<Either<Failure, User>> currentUser() async {
     try {
       final user = await remoteDataSource.getCurrentUserData();
@@ -156,7 +173,7 @@ class AuthRepositoryImpl implements AuthRepository {
       return left(Failure(e.message));
     }
   }
-  
+
   // Helper method to reduce code duplication
   Future<Either<Failure, User>> _getUser(Future<User> Function() fn) async {
     try {

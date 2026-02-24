@@ -17,7 +17,6 @@ class CommunityImpl extends CommunityRep {
     String oldCode,
   ) async {
     try {
-      
       // if (newCode.isNotEmpty) {
       //   await supabase
       //       .from('communaute')
@@ -35,44 +34,46 @@ class CommunityImpl extends CommunityRep {
   }
 
   @override
-  Future<Either<Failure, List<Community>>> getCommunityData(String companyId) async {
+  Future<Either<Failure, List<Community>>> getCommunityData(
+    String companyId,
+  ) async {
     try {
       // final response = await supabase.from('vue_communautes').select();
 
       final mokResponse = [
-  {
-    "code": "VIVDEV",
-    "nom": "Viveris Dev Team",
-    "entreprise_id": "2efcc515-54c1-4beb-a45a-90cc251d5792",
-    "description": "Communauté des développeurs de Viveris.",
-    "nombre_membres": 3,
-    "bilan_moyen": 6.8
-  },
-  {
-    "code": "VIVRH",
-    "nom": "Viveris RH & Admin",
-    "entreprise_id": "2efcc515-54c1-4beb-a45a-90cc251d5792",
-    "description": "Équipe administrative Viveris.",
-    "nombre_membres": 2,
-    "bilan_moyen": 5.2
-  },
-  {
-    "code": "ECOPROD",
-    "nom": "EcoCorp Production",
-    "entreprise_id": "2efcc515-54c1-4beb-a45a-90cc251d5792",
-    "description": "L'usine responsable.",
-    "nombre_membres": 3,
-    "bilan_moyen": 8.1
-  },
-  {
-    "code": "ECOMKT",
-    "nom": "EcoCorp Marketing",
-    "entreprise_id": "2efcc515-54c1-4beb-a45a-90cc251d5792",
-    "description": "Marketing vert.",
-    "nombre_membres": 2,
-    "bilan_moyen": 0.0
-  }
-];
+        {
+          "code": "VIVDEV",
+          "nom": "Viveris Dev Team",
+          "entreprise_id": "2efcc515-54c1-4beb-a45a-90cc251d5792",
+          "description": "Communauté des développeurs de Viveris.",
+          "nombre_membres": 3,
+          "bilan_moyen": 5.8,
+        },
+        {
+          "code": "VIVRH",
+          "nom": "Viveris RH & Admin",
+          "entreprise_id": "2efcc515-54c1-4beb-a45a-90cc251d5792",
+          "description": "Équipe administrative Viveris.",
+          "nombre_membres": 2,
+          "bilan_moyen": 7.0,
+        },
+        {
+          "code": "ECOMKT",
+          "nom": "EcoCorp Marketing",
+          "entreprise_id": "2efcc515-54c1-4beb-a45a-90cc251d5792",
+          "description": "Marketing vert.",
+          "nombre_membres": 5,
+          "bilan_moyen": 9.9,
+        },
+        {
+          "code": "ECOPROD",
+          "nom": "EcoCorp Production",
+          "entreprise_id": "2efcc515-54c1-4beb-a45a-90cc251d5792",
+          "description": "L'usine responsable.",
+          "nombre_membres": 0,
+          "bilan_moyen": 0.0,
+        },
+      ];
       final communities = mokResponse
           .map((json) => Community.fromJson(json))
           .toList();
@@ -90,20 +91,70 @@ class CommunityImpl extends CommunityRep {
       //     .from('utilisateur')
       //     .select('id,email,pseudo,code_communaute');
       final mokResponse = [
-  {"id": "u1", "email": "alice@viveris.fr", "pseudo": "Alice_V", "code_communaute": "VIVDEV"},
-  {"id": "u2", "email": "bob@viveris.fr", "pseudo": "Bob_V", "code_communaute": "VIVDEV"},
-  {"id": "u3", "email": "charlie@viveris.fr", "pseudo": "Charlie_V", "code_communaute": "VIVDEV"},
-  
-  {"id": "u4", "email": "dora@viveris.fr", "pseudo": "Dora_RH", "code_communaute": "VIVRH"},
-  {"id": "u5", "email": "eric@viveris.fr", "pseudo": "Eric_RH", "code_communaute": "VIVRH"},
-  
-  {"id": "u6", "email": "frank@ecocorp.com", "pseudo": "Franky", "code_communaute": "ECOMKT"},
-  {"id": "u7", "email": "grace@ecocorp.com", "pseudo": "Grace_E", "code_communaute": "ECOMKT"},
-  {"id": "u8", "email": "heidi@ecocorp.com", "pseudo": "Heidi_P", "code_communaute": "ECOMKT"},
-  
-  {"id": "u9", "email": "ivan@ecocorp.com", "pseudo": "Ivan_M", "code_communaute": "ECOMKT"},
-  {"id": "u10", "email": "judy@ecocorp.com", "pseudo": "Judy_M", "code_communaute": "ECOMKT"}
-];
+        {
+          "id": "u1",
+          "email": "alice@viveris.fr",
+          "pseudo": "Alice_V",
+          "code_communaute": "VIVDEV",
+        },
+        {
+          "id": "u2",
+          "email": "bob@viveris.fr",
+          "pseudo": "Bob_V",
+          "code_communaute": "VIVDEV",
+        },
+        {
+          "id": "u3",
+          "email": "charlie@viveris.fr",
+          "pseudo": "Charlie_V",
+          "code_communaute": "VIVDEV",
+        },
+
+        {
+          "id": "u4",
+          "email": "dora@viveris.fr",
+          "pseudo": "Dora_RH",
+          "code_communaute": "VIVRH",
+        },
+        {
+          "id": "u5",
+          "email": "eric@viveris.fr",
+          "pseudo": "Eric_RH",
+          "code_communaute": "VIVRH",
+        },
+
+        {
+          "id": "u6",
+          "email": "frank@ecocorp.com",
+          "pseudo": "Franky",
+          "code_communaute": "ECOMKT",
+        },
+        {
+          "id": "u7",
+          "email": "grace@ecocorp.com",
+          "pseudo": "Grace_E",
+          "code_communaute": "ECOMKT",
+        },
+        {
+          "id": "u8",
+          "email": "heidi@ecocorp.com",
+          "pseudo": "Heidi_P",
+          "code_communaute": "ECOMKT",
+        },
+
+        {
+          "id": "u9",
+          "email": "ivan@ecocorp.com",
+          "pseudo": "Ivan_M",
+          "code_communaute": "ECOMKT",
+        },
+        {
+          "id": "u10",
+          "email": "judy@ecocorp.com",
+          "pseudo": "Judy_M",
+          "code_communaute": "ECOMKT",
+        },
+      ];
       final users = mokResponse.map((json) => User.fromJson(json)).toList();
 
       return right(users);
@@ -117,30 +168,32 @@ class CommunityImpl extends CommunityRep {
   }
 
   @override
-  Future<Either<Failure, List<Company>>> getCompanyData(String companyId) async {
+  Future<Either<Failure, List<Company>>> getCompanyData(
+    String companyId,
+  ) async {
     try {
       // final response = await supabase.from('entreprise').select();
 
-      final mokResponse = 
-      [
+      final mokResponse = [
         {
           "id": "comp-111",
           "nom": "Viveris",
           "logo_url": "https://logo.com/viveris.png",
           "domaine_email": "viveris.fr",
-          "description": "Expertise en conseil et ingénierie informatique."
+          "description": "Expertise en conseil et ingénierie informatique.",
         },
         {
           "id": "comp-222",
           "nom": "EcoCorp",
           "logo_url": null,
           "domaine_email": "ecocorp.com",
-          "description": "Leader de solutions durables."
-        }
+          "description": "Leader de solutions durables.",
+        },
       ];
-      
 
-      final companies = mokResponse.map((json) => Company.fromJson(json)).toList();
+      final companies = mokResponse
+          .map((json) => Company.fromJson(json))
+          .toList();
       return right(companies);
     } on supa.PostgrestException catch (e) {
       logger.e("Erreur Repository", error: e);

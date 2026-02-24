@@ -25,6 +25,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final ValidatePseudo _validatePseudo;
   final GetCompanyInfo _getCompanyInfo;
 
+
   AuthBloc({
     required UserSignup userSignup,
     required UserSignin userSignin,
@@ -52,6 +53,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthValidateEmailPassword>(_onAuthValidateEmailPassword);
     on<AuthValidatePseudo>(_onAuthValidatePseudo);
     on<AuthLogout>(_onAuthLogout);
+    on<AuthUpdatePasswordRequested>(_onAuthChangePassword);
+  }
+
+
+  void _onAuthChangePassword(
+    AuthUpdatePasswordRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+    final res = await _authRepository.updatePassword(event.newPassword);
+
+    res.fold(
+      (failure) => emit(AuthFailure(failure.message)),
+      (_) => emit(AuthPasswordUpdated()),
+    );
   }
 
   void _onAuthIsUserLoggedIn(

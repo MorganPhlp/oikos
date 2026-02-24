@@ -3,6 +3,7 @@ import 'package:oikos/core/domain/entities/user.dart';
 import '../../../../core/error/failures.dart';
 
 abstract interface class AuthRepository {
+  Future<Either<Failure, void>> updatePassword(String newPassword);
   Future<String?> getUserId();
 
   Future<Either<Failure, User>> signUpWithEmailPassword({

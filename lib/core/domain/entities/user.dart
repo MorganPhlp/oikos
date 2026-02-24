@@ -52,8 +52,6 @@ sealed class User with _$User {
     @Default(false)
     bool aAccepteCgu,
 
-    @JsonKey(name: 'communaute_nom') @Default('') String communauteNom,
-
     @JsonKey(name: 'a_complete_bilan') @Default(false) bool hasCompletedBilan,
 
     // Ce champ n'existe pas dans ta table SQL 'utilisateur'.

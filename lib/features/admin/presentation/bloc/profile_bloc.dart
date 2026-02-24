@@ -6,6 +6,7 @@ import 'package:oikos/features/admin/domain/use_cases/update_company.dart';
 import 'package:oikos/features/admin/domain/use_cases/update_user.dart';
 import 'package:oikos/features/admin/presentation/bloc/profile_event.dart';
 import 'package:oikos/features/admin/presentation/bloc/profile_state.dart';
+import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
 
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final UpdateUser updateUser;
@@ -13,6 +14,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final UpdateCompany updateCompanyInfo;
   final GetAvatars getAvatars;
   final GetLogos getLogos;
+  final AuthRepository authRepository; // À ajouter dans les propriétés du Bloc
 
   ProfileBloc({
     required this.updateUser,
@@ -20,6 +22,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     required this.updateCompanyInfo,
     required this.getAvatars,
     required this.getLogos,
+    required this.authRepository,
   }) : super(ProfileInitial()) {
     // ── Initialisation ───────────────────────────────────────────────────────
     on<ProfileInitEvent>((event, emit) {
@@ -86,24 +89,41 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       );
     });
 
-    // ── Changement de mot de passe (mock — repository ne fait rien) ──────────
     on<ProfileChangePassword>((event, emit) async {
       final current = state;
       if (current is! ProfileLoaded) return;
 
+      // 1. Passage en état de chargement
       emit(
         current.copyWith(
           passwordStatus: SectionStatus.loading,
-          clearPasswordError: true,
+          clearPasswordError: true, // On nettoie les erreurs précédentes
         ),
       );
 
-      // TODO: appeler le repository de mot de passe quand il sera implémenté.
-      emit(
-        current.copyWith(
-          passwordStatus: SectionStatus.success,
-          clearPasswordError: true,
-        ),
+      // 2. Appel réel à Supabase via le repository
+      final result = await authRepository.updatePassword(event.newPassword);
+
+      // 3. Gestion du résultat (Either de dartz)
+      result.fold(
+        (failure) {
+          // Échec : on repasse en état "error" avec le message de Supabase
+          emit(
+            current.copyWith(
+              passwordStatus: SectionStatus.failure,
+              passwordError: failure.message,
+            ),
+          );
+        },
+        (_) {
+          // Succès : on repasse en état "success"
+          emit(
+            current.copyWith(
+              passwordStatus: SectionStatus.success,
+              clearPasswordError: true,
+            ),
+          );
+        },
       );
     });
 
@@ -174,10 +194,12 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       final current = state;
       if (current is! ProfileLoaded) return;
 
-      emit(current.copyWith(
-        profileStatus: SectionStatus.loading,
-        clearProfileError: true,
-      ));
+      emit(
+        current.copyWith(
+          profileStatus: SectionStatus.loading,
+          clearProfileError: true,
+        ),
+      );
 
       final updatedUser = current.user.copyWith(avatarUrl: event.avatarUrl);
       final result = await updateUser.call(updatedUser);
@@ -203,10 +225,12 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       final current = state;
       if (current is! ProfileLoaded) return;
 
-      emit(current.copyWith(
-        companyStatus: SectionStatus.loading,
-        clearCompanyError: true,
-      ));
+      emit(
+        current.copyWith(
+          companyStatus: SectionStatus.loading,
+          clearCompanyError: true,
+        ),
+      );
 
       final updatedCompany = current.company.copyWith(logoUrl: event.logoUrl);
       final result = await updateCompanyInfo.call(updatedCompany);
