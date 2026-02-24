@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:oikos/core/common/presentation/widgets/gradient_button.dart';
 import 'package:oikos/core/common/presentation/widgets/loader.dart';
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/core/theme/app_typography.dart';
@@ -190,27 +191,11 @@ class _InterestsModalContent extends StatelessWidget {
           // Bouton Valider
           SizedBox(
             width: double.infinity,
-            child: ElevatedButton(
+            child: GradientButton(
+              label: 'Valider',
               onPressed: () {
                 context.read<InterestsCubit>().saveInterests();
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: colorScheme.primary,
-                foregroundColor: colorScheme.onPrimary,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                elevation: 0,
-              ),
-              child: Text(
-                'Enregistrer',
-                style: AppTypography.body.copyWith(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 17,
-                  letterSpacing: 0.5,
-                ),
-              ),
             ),
           ),
         ],

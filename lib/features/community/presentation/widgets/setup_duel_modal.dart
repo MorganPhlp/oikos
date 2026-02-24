@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:oikos/core/common/presentation/widgets/gradient_button.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:oikos/core/theme/app_colors.dart';
 import '../../data/datasources/community_remote_datasource.dart';
@@ -221,18 +222,17 @@ class _SetupDuelModalState extends State<SetupDuelModal> {
         SizedBox(
           width: double.infinity,
           height: 52,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.lightPrimary,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-            ),
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Compris", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          child:
+          //Bouton compris dans le style de l'app, qui ferme le modal
+          GradientButton(
+          onPressed: () => Navigator.pop(context),
+          label: "Compris",
           ),
         ),
       ],
     );
   }
+
 
   /// Vue par défaut : Formulaire de création
   Widget _buildCreationForm(BuildContext context) {

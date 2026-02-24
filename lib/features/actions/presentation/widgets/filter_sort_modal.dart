@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:oikos/core/common/presentation/widgets/gradient_button.dart';
 import 'package:oikos/core/theme/action_card_theme.dart';
 
 /// Données de filtre transmises entre la page et la modale.
@@ -250,25 +251,17 @@ class _FilterSortModalState extends State<FilterSortModal> {
               child: SizedBox(
                 width: double.infinity,
                 height: 50,
-                child: FilledButton(
+                child:
+                //Bouton compris dans le style de l'app, qui applique les filtres
+                GradientButton(
                   onPressed: () {
                     widget.onApply(_tmp);
                     Navigator.pop(context);
                   },
-                  style: FilledButton.styleFrom(
-                    backgroundColor: colorScheme.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                  child: const Text(
-                    'Appliquer les filtres',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                  ),
+                  label: "Appliquer les filtres",
                 ),
               ),
-            ),
-          ),
+            ),)
         ],
       ),
     );
