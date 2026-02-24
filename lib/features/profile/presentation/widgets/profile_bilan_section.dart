@@ -82,6 +82,27 @@ class ProfileBilanSection extends StatelessWidget {
                   ],
                 ),
                 child: ProfileActionButton(
+                  title: 'Statistiques',
+                  icon: LucideIcons.barChart3,
+                  onTap: () {
+                    context.push('/dashboard');
+                  },
+                  showBorder: false,
+                ),
+              ),
+              const SizedBox(height: 15),
+              Container(
+                decoration: BoxDecoration(
+                  color: colorScheme.surface,
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                    ),
+                  ],
+                ),
+                child: ProfileActionButton(
                   title: 'Actions écartées',
                   icon: LucideIcons.ban,
                   iconColor: colorScheme.onSurface.withValues(alpha: 0.5),

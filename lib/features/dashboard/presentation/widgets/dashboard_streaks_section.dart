@@ -1,5 +1,6 @@
 import 'package:contribution_heatmap/contribution_heatmap.dart';
 import 'package:flutter/material.dart';
+import 'package:oikos/features/dashboard/presentation/widgets/dashboard_info_button.dart';
 
 class DashboardStreaksSection extends StatefulWidget {
   final List<ContributionEntry> entries;
@@ -44,10 +45,21 @@ class _DashboardStreaksSectionState extends State<DashboardStreaksSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(
-          'Streaks',
-          style: Theme.of(context).textTheme.titleLarge,
-          textAlign: TextAlign.center,
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Streaks',
+              style: Theme.of(context).textTheme.titleLarge,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(width: 8),
+            const DashboardInfoButton(
+              title: 'Streaks',
+              message:
+                  "Heatmap des actions quotidiennes sur les 5 derniers mois. Plus une case est foncée, plus tu as été actif ce jour-là.",
+            ),
+          ],
         ),
         const SizedBox(height: 12),
         LayoutBuilder(

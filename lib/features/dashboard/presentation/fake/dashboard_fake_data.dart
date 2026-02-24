@@ -42,16 +42,61 @@ class DashboardFakeData {
     final normalizedMin = DateTime(minDate.year, minDate.month, minDate.day);
     final normalizedMax = DateTime(maxDate.year, maxDate.month, maxDate.day);
 
+    // Génération déterministe mais plus "naturelle" :
+    // - jours off
+    // - périodes de streaks
+    // - weekends un peu plus actifs
+    // - quelques pics
+    int seed = normalizedMin.millisecondsSinceEpoch ~/ const Duration(days: 1).inMilliseconds;
+    double nextRand() {
+      // LCG simple (déterministe)
+      seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+      return seed / 0x7fffffff;
+    }
+
+    var prevActive = false;
+    var streakEnergy = 0.0;
+
     for (var date = normalizedMin;
         !date.isAfter(normalizedMax);
         date = date.add(const Duration(days: 1))) {
-      final base = (date.day + date.month) % 6;
-      final weekendBoost =
-          (date.weekday == DateTime.saturday || date.weekday == DateTime.sunday)
-              ? 2
-              : 0;
+      final isWeekend = (date.weekday == DateTime.saturday || date.weekday == DateTime.sunday);
 
-      final value = (base + weekendBoost).clamp(0, 10).toInt();
+      // Probabilité d'activité du jour.
+      var p = isWeekend ? 0.55 : 0.38;
+      if (prevActive) p += 0.22; // favorise les streaks
+      p += streakEnergy.clamp(0.0, 0.15);
+
+      // Petites périodes "off" (ex: vacances / baisse de régime) toutes les ~4-6 semaines.
+      final dayIndex = date.difference(normalizedMin).inDays;
+      final offWindow = (dayIndex % 37) >= 32; // 5 jours off dans un cycle de 37
+      if (offWindow) p -= 0.25;
+
+      p = p.clamp(0.05, 0.92);
+
+      final r = nextRand();
+      final active = r < p;
+
+      int value;
+      if (!active) {
+        value = 0;
+        prevActive = false;
+        streakEnergy = (streakEnergy - 0.06).clamp(0.0, 0.25);
+      } else {
+        // Intensité: la plupart du temps 1..5, parfois plus.
+        final r2 = nextRand();
+        final base = 1 + (r2 * 4.8).floor(); // 1..5
+        final weekendBoost = isWeekend ? 1 : 0;
+
+        // Pic occasionnel.
+        final r3 = nextRand();
+        final spike = (r3 > 0.93) ? 3 : 0;
+
+        value = (base + weekendBoost + spike).clamp(0, 10);
+        prevActive = true;
+        streakEnergy = (streakEnergy + 0.04).clamp(0.0, 0.25);
+      }
+
       entries.add(ContributionEntry(date, value));
     }
 
@@ -90,6 +135,18 @@ class DashboardFakeData {
     }
 
     return points;
+  }
+
+  static ({double userPoints, double teamAveragePoints, double top10PercentPoints})
+      buildFakeCommunityGaugeFromUserPoints(double userPoints) {
+    final safeUser = userPoints.isNaN ? 0.0 : (userPoints < 0 ? 0.0 : userPoints);
+
+    // On simule une équipe avec une moyenne légèrement inférieure
+    // et un top 10% au-dessus de l'utilisateur.
+    final avg = (safeUser * 0.78).clamp(0.0, double.infinity);
+    final top10 = (safeUser * 1.22 + 120).clamp(0.0, double.infinity);
+
+    return (userPoints: safeUser, teamAveragePoints: avg, top10PercentPoints: top10);
   }
 
   static DateTime subtractMonths(DateTime date, int months) {

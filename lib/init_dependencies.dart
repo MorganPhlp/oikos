@@ -84,6 +84,7 @@ import 'package:oikos/features/dashboard/domain/usecases/get_my_latest_bilan_car
 import 'package:oikos/features/dashboard/domain/usecases/get_my_heatmap_data.dart';
 import 'package:oikos/features/dashboard/domain/usecases/get_my_actions_distribution.dart';
 import 'package:oikos/features/dashboard/domain/usecases/get_my_xp_gained_series.dart';
+import 'package:oikos/features/dashboard/domain/usecases/get_my_community_positioning_stats.dart';
 import 'package:oikos/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 
 //Imports Code barre
@@ -394,6 +395,7 @@ void _initDashboard() {
   serviceLocator.registerFactory(() => GetMyHeatmapData(serviceLocator()));
   serviceLocator.registerFactory(() => GetMyActionsDistribution(serviceLocator()));
   serviceLocator.registerFactory(() => GetMyXpGainedSeries(serviceLocator()));
+  serviceLocator.registerFactory(() => GetMyCommunityPositioningStats(serviceLocator()));
 
   // Bloc : on donne le use case au bloc pour qu'il gère l'état de la page
   serviceLocator.registerLazySingleton(
@@ -403,6 +405,7 @@ void _initDashboard() {
       getMyHeatmapData: serviceLocator(),
       getMyActionsDistribution: serviceLocator(),
       getMyXpGainedSeries: serviceLocator(),
+      getMyCommunityPositioningStats: serviceLocator(),
       equivalentsUseCase: serviceLocator(),
     ),
   );

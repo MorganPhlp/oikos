@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/core/theme/app_typography.dart';
@@ -195,11 +194,6 @@ class ProfileHeaderCard extends StatelessWidget {
                         ],
                       ),
                     ),
-
-                    const SizedBox(height: 24),
-
-                    // Tabs Profil / Stats
-                    _buildTabs(context, colorScheme),
                   ],
                 ),
               ),
@@ -207,87 +201,6 @@ class ProfileHeaderCard extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildTabs(BuildContext context, ColorScheme colorScheme) {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: colorScheme.primary.withValues(
-          alpha: 0.08,
-        ), // Fond du container de tabs légèrement vert
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              height: 40,
-              decoration: BoxDecoration(
-                color: colorScheme.surface,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: colorScheme.primary.withValues(alpha: 0.1),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(LucideIcons.user, size: 18, color: colorScheme.primary),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Profil',
-                    style: AppTypography.body.copyWith(
-                      fontWeight: FontWeight.w700, // Plus gras
-                      fontSize: 14,
-                      color: colorScheme.primary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Expanded(
-            child: InkWell(
-              onTap: () {
-                context.push('/dashboard');
-              },
-              borderRadius: BorderRadius.circular(10),
-              child: SizedBox(
-                height: 40,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      LucideIcons.barChart3,
-                      size: 18,
-                      color: colorScheme.primary.withValues(
-                        alpha: 0.5,
-                      ), // Vert inactif
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Statistiques',
-                      style: AppTypography.body.copyWith(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: colorScheme.primary.withValues(
-                          alpha: 0.5,
-                        ), // Vert inactif
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

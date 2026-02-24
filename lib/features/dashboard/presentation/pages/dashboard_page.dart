@@ -4,6 +4,7 @@ import 'package:oikos/features/dashboard/presentation/widgets/dashboard_back_but
 import 'package:oikos/features/dashboard/presentation/widgets/dashboard_bilan_carbone_section.dart';
 import 'package:oikos/features/dashboard/presentation/widgets/dashboard_bilan_vs_actions_radar.dart';
 import 'package:oikos/features/dashboard/presentation/widgets/dashboard_co2_saved_over_time_chart.dart';
+import 'package:oikos/features/dashboard/presentation/widgets/dashboard_community_position_gauge.dart';
 import 'package:oikos/features/dashboard/presentation/widgets/dashboard_streaks_section.dart';
 import 'package:oikos/features/dashboard/presentation/fake/dashboard_fake_data.dart';
 import '../bloc/dashboard_bloc.dart';
@@ -21,6 +22,20 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
+  Widget _framed(BuildContext context, Widget child) {
+    final theme = Theme.of(context);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border.all(color: theme.dividerColor.withValues(alpha: 0.8)),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: child,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -57,6 +72,9 @@ class _DashboardPageState extends State<DashboardPage> {
         maxDate: maxDate,
       );
 
+      final userPoints = fakeXpSeries.isNotEmpty ? fakeXpSeries.last.cumulativeXp : 0.0;
+      final gauge = DashboardFakeData.buildFakeCommunityGaugeFromUserPoints(userPoints);
+
       return Scaffold(
         body: SafeArea(
           child: Stack(
@@ -71,31 +89,51 @@ class _DashboardPageState extends State<DashboardPage> {
                       children: [
                         Text(
                           'Statistiques',
-                          style: Theme.of(context).textTheme.headlineSmall,
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 24),
-                        DashboardStreaksSection(
-                          entries: heatmapEntries,
-                          minDate: minDate,
-                          maxDate: maxDate,
+                        _framed(
+                          context,
+                          DashboardStreaksSection(
+                            entries: heatmapEntries,
+                            minDate: minDate,
+                            maxDate: maxDate,
+                          ),
                         ),
                         const SizedBox(height: 24),
-                        Column(
-                          children: [
-                            DashboardBilanCarboneSection(
-                              scoreKg: fakeBilanTotal,
-                              scoresParCategorieKg: fakeBilanScores,
-                              equivalents: const [],
-                            ),
-                            const SizedBox(height: 24),
-                            DashboardBilanVsActionsRadar(
-                              bilanScoresKg: fakeBilanScores,
-                              actionCountsByCategoryLabel: fakeActions,
-                            ),
-                            const SizedBox(height: 24),
-                            DashboardXpGainedOverTimeChart(points: fakeXpSeries),
-                          ],
+                        _framed(
+                          context,
+                          DashboardBilanCarboneSection(
+                            scoreKg: fakeBilanTotal,
+                            scoresParCategorieKg: fakeBilanScores,
+                            equivalents: const [],
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        _framed(
+                          context,
+                          DashboardBilanVsActionsRadar(
+                            bilanScoresKg: fakeBilanScores,
+                            actionCountsByCategoryLabel: fakeActions,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        _framed(
+                          context,
+                          DashboardXpGainedOverTimeChart(points: fakeXpSeries),
+                        ),
+                        const SizedBox(height: 24),
+                        _framed(
+                          context,
+                          DashboardCommunityPositionGauge(
+                            userPoints: gauge.userPoints,
+                            teamAveragePoints: gauge.teamAveragePoints,
+                            top10PercentPoints: gauge.top10PercentPoints,
+                          ),
                         ),
                       ],
                     ),
@@ -135,6 +173,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
                 if (state is DashboardLoaded) {
                   final bilan = state.bilanCarbone;
+                  final community = state.communityPositioningStats;
 
                   return SingleChildScrollView(
                     padding: const EdgeInsets.fromLTRB(16, 56, 16, 16),
@@ -146,14 +185,20 @@ class _DashboardPageState extends State<DashboardPage> {
                           children: [
                             Text(
                               'Statistiques',
-                              style: Theme.of(context).textTheme.headlineSmall,
+                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                    color: Theme.of(context).colorScheme.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 24),
-                            DashboardStreaksSection(
-                              entries: state.heatmapEntries,
-                              minDate: state.heatmapMinDate,
-                              maxDate: state.heatmapMaxDate,
+                            _framed(
+                              context,
+                              DashboardStreaksSection(
+                                entries: state.heatmapEntries,
+                                minDate: state.heatmapMinDate,
+                                maxDate: state.heatmapMaxDate,
+                              ),
                             ),
                             const SizedBox(height: 24),
                             if (bilan == null)
@@ -163,22 +208,40 @@ class _DashboardPageState extends State<DashboardPage> {
                                 textAlign: TextAlign.center,
                               )
                             else
-                              Column(
-                                children: [
+                              ...[
+                                _framed(
+                                  context,
                                   DashboardBilanCarboneSection(
                                     scoreKg: bilan.scoreTotalKg,
                                     scoresParCategorieKg: bilan.detail.toMap(),
                                     equivalents: state.equivalents,
                                   ),
-                                  const SizedBox(height: 24),
+                                ),
+                                const SizedBox(height: 24),
+                                _framed(
+                                  context,
                                   DashboardBilanVsActionsRadar(
                                     bilanScoresKg: bilan.detail.toMap(),
                                     actionCountsByCategoryLabel: state.actionCountsByCategoryLabel,
                                   ),
-                                  const SizedBox(height: 24),
-                                  DashboardXpGainedOverTimeChart(points: state.xpGainedSeries),
-                                ],
+                                ),
+                              ],
+                            const SizedBox(height: 24),
+                            _framed(
+                              context,
+                              DashboardXpGainedOverTimeChart(points: state.xpGainedSeries),
+                            ),
+                            if (community != null) ...[
+                              const SizedBox(height: 24),
+                              _framed(
+                                context,
+                                DashboardCommunityPositionGauge(
+                                  userPoints: community.userPoints,
+                                  teamAveragePoints: community.communityAveragePoints,
+                                  top10PercentPoints: community.communityTop10PercentPoints,
+                                ),
                               ),
+                            ],
                           ],
                         ),
                       ),
