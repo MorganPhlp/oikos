@@ -268,6 +268,18 @@ class _MobileCreateCommunityState extends State<MobileCreateCommunity> {
   final _codeController = TextEditingController();
   String? _nomError;
   String? _codeError;
+  String? _selectedLogoUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    final state = context.read<CommunityBloc>().state;
+    if (state is CommunityLoaded && state.availableLogos == null) {
+      context.read<CommunityBloc>().add(
+        FetchLogosEvent(companyName: widget.company.name),
+      );
+    }
+  }
 
   @override
   void dispose() {
@@ -287,6 +299,7 @@ class _MobileCreateCommunityState extends State<MobileCreateCommunity> {
             name: _nomController.text,
             code: _codeController.text,
             companyId: widget.company.id,
+            logoUrl: _selectedLogoUrl,
           ),
         );
       }
@@ -322,6 +335,8 @@ class _MobileCreateCommunityState extends State<MobileCreateCommunity> {
         final colors = AdminColors.of(context);
         bool isSubmitting = false;
         String? errorMessage;
+        List<String>? logos;
+        bool isLoadingLogos = false;
 
         if (state is CommunityLoaded) {
           isSubmitting = state.operationStatus == SectionStatus.loading;
@@ -329,6 +344,8 @@ class _MobileCreateCommunityState extends State<MobileCreateCommunity> {
               state.operationStatus == SectionStatus.failure
                   ? state.operationError
                   : null;
+          logos = state.availableLogos;
+          isLoadingLogos = state.isLoadingLogos;
         }
 
         return Column(
@@ -365,6 +382,14 @@ class _MobileCreateCommunityState extends State<MobileCreateCommunity> {
                         fontSize: 12,
                         color: colors.mutedForeground,
                       ),
+                    ),
+                    const SizedBox(height: AdminTheme.spacingLg),
+                    LogoPickerSection(
+                      selectedLogoUrl: _selectedLogoUrl,
+                      logos: logos,
+                      isLoading: isLoadingLogos,
+                      onSelect: (url) =>
+                          setState(() => _selectedLogoUrl = url),
                     ),
                     if (errorMessage != null) ...[
                       const SizedBox(height: AdminTheme.spacingMd),

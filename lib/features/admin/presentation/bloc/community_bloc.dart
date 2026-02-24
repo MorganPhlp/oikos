@@ -449,6 +449,7 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
           name: event.name,
           companyId: event.companyId,
           description: '',
+          logoUrl: event.logoUrl,
         );
 
         final result = await createCommunity.call(newCommunity);

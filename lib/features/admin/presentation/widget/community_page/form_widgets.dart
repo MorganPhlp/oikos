@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:oikos/core/theme/admin_theme.dart';
+import 'package:oikos/core/utils/utils.dart';
 
 /// Header pour les formulaires mobile (plein écran)
 ///
@@ -62,6 +63,7 @@ class FormTextField extends StatelessWidget {
   final int? maxLength;
   final TextCapitalization textCapitalization;
   final ValueChanged<String>? onChanged;
+  final FilteringTextInputFormatter? inputFormatter;
 
   const FormTextField({
     super.key,
@@ -73,6 +75,7 @@ class FormTextField extends StatelessWidget {
     this.textCapitalization = TextCapitalization.none,
     this.onChanged,
     this.success,
+    this.inputFormatter
   });
 
   @override
@@ -97,7 +100,7 @@ class FormTextField extends StatelessWidget {
           maxLength: maxLength,
           textCapitalization: textCapitalization,
           inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+            inputFormatter ?? FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
             TextInputFormatter.withFunction((oldValue, newValue) {
               return newValue.copyWith(text: newValue.text.toUpperCase());
             }),
@@ -299,6 +302,138 @@ class ReadOnlyField extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Sélecteur de logo inline pour les formulaires de création
+///
+/// Affiche une grille scrollable (hauteur fixe 200px) avec en premier une
+/// option "Aucun" (logo_url → null) puis les avatars disponibles.
+/// L'élément sélectionné est mis en valeur par une bordure colorée.
+class LogoPickerSection extends StatelessWidget {
+  final String? selectedLogoUrl;
+  final List<String>? logos;
+  final bool isLoading;
+  final ValueChanged<String?> onSelect;
+
+  const LogoPickerSection({
+    super.key,
+    required this.selectedLogoUrl,
+    required this.logos,
+    required this.isLoading,
+    required this.onSelect,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = AdminColors.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Logo (optionnel)',
+          style: TextStyle(fontSize: 14, color: colors.mutedForeground),
+        ),
+        const SizedBox(height: AdminTheme.spacingSm),
+        Container(
+          height: 200,
+          decoration: BoxDecoration(
+            color: colors.background,
+            borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
+            border: Border.all(color: colors.border),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
+            child: _buildContent(colors),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildContent(AdminColors colors) {
+    if (isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(color: AdminTheme.actionGreen),
+      );
+    }
+
+    if (logos == null || logos!.isEmpty) {
+      return Center(
+        child: Text(
+          'Aucun logo disponible',
+          style: TextStyle(color: colors.mutedForeground),
+        ),
+      );
+    }
+
+    return GridView.builder(
+      padding: const EdgeInsets.all(AdminTheme.spacingSm),
+      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: 72,
+        crossAxisSpacing: AdminTheme.spacingSm,
+        mainAxisSpacing: AdminTheme.spacingSm,
+      ),
+      itemCount: logos!.length + 1,
+      itemBuilder: (_, index) {
+        if (index == 0) return _buildNoneItem(colors);
+        return _buildLogoItem(logos![index - 1], colors);
+      },
+    );
+  }
+
+  Widget _buildNoneItem(AdminColors colors) {
+    final isSelected = selectedLogoUrl == null;
+    return GestureDetector(
+      onTap: () => onSelect(null),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: colors.pageBackground,
+          border: Border.all(
+            color: isSelected ? AdminTheme.actionGreen : colors.border,
+            width: isSelected ? 3 : 1,
+          ),
+        ),
+        child: Icon(
+          Icons.block_rounded,
+          color: isSelected ? AdminTheme.actionGreen : colors.mutedForeground,
+          size: 24,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLogoItem(String url, AdminColors colors) {
+    final isSelected = selectedLogoUrl == url;
+    return GestureDetector(
+      onTap: () => onSelect(url),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: isSelected ? AdminTheme.actionGreen : colors.border,
+            width: isSelected ? 3 : 1,
+          ),
+        ),
+        child: ClipOval(
+          child: Image.network(
+            StorageUtils.getPublicUrl('avatars', url),
+            fit: BoxFit.cover,
+            errorBuilder: (_, _, _) => Container(
+              color: colors.pageBackground,
+              child: Icon(
+                Icons.broken_image_rounded,
+                color: colors.mutedForeground,
+                size: 20,
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

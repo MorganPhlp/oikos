@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/domain/entities/user.dart';
 import 'package:oikos/core/theme/admin_theme.dart';
@@ -243,6 +244,18 @@ class _CreateCommunityModalState extends State<CreateCommunityModal> {
   final _codeController = TextEditingController();
   String? _nomError;
   String? _codeError;
+  String? _selectedLogoUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    final state = context.read<CommunityBloc>().state;
+    if (state is CommunityLoaded && state.availableLogos == null) {
+      context.read<CommunityBloc>().add(
+        FetchLogosEvent(companyName: widget.company.name),
+      );
+    }
+  }
 
   @override
   void dispose() {
@@ -262,6 +275,7 @@ class _CreateCommunityModalState extends State<CreateCommunityModal> {
             name: _nomController.text,
             code: _codeController.text,
             companyId: widget.company.id,
+            logoUrl: _selectedLogoUrl,
           ),
         );
       }
@@ -305,6 +319,8 @@ class _CreateCommunityModalState extends State<CreateCommunityModal> {
             final colors = AdminColors.of(context);
             bool isSubmitting = false;
             String? errorMessage;
+            List<String>? logos;
+            bool isLoadingLogos = false;
 
             if (state is CommunityLoaded) {
               isSubmitting = state.operationStatus == SectionStatus.loading;
@@ -312,6 +328,8 @@ class _CreateCommunityModalState extends State<CreateCommunityModal> {
                   state.operationStatus == SectionStatus.failure
                       ? state.operationError
                       : null;
+              logos = state.availableLogos;
+              isLoadingLogos = state.isLoadingLogos;
             }
 
             return Column(
@@ -337,6 +355,7 @@ class _CreateCommunityModalState extends State<CreateCommunityModal> {
                         label: 'Nom de la communauté *',
                         controller: _nomController,
                         error: _nomError,
+                        inputFormatter: FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9 \-]')),
                         hint: 'Ex: Éco-Warriors Paris',
                         onChanged: (_) => setState(() => _nomError = null),
                       ),
@@ -347,7 +366,6 @@ class _CreateCommunityModalState extends State<CreateCommunityModal> {
                         error: _codeError,
                         hint: 'Ex: ECO2023',
                         maxLength: 6,
-                        textCapitalization: TextCapitalization.characters,
                         onChanged: (_) => setState(() => _codeError = null),
                       ),
                       const SizedBox(height: 4),
@@ -357,6 +375,14 @@ class _CreateCommunityModalState extends State<CreateCommunityModal> {
                           fontSize: 12,
                           color: colors.mutedForeground,
                         ),
+                      ),
+                      const SizedBox(height: AdminTheme.spacingMd),
+                      LogoPickerSection(
+                        selectedLogoUrl: _selectedLogoUrl,
+                        logos: logos,
+                        isLoading: isLoadingLogos,
+                        onSelect: (url) =>
+                            setState(() => _selectedLogoUrl = url),
                       ),
                       if (errorMessage != null) ...[
                         const SizedBox(height: AdminTheme.spacingMd),

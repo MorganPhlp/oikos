@@ -14,6 +14,7 @@ sealed class Community with _$Community {
     @JsonKey(name: 'nombre_membres') @Default(0) int? membersCount,
     @JsonKey(name: 'bilan_moyen') @Default(0) double? avgScore,
     @JsonKey(name: 'logo_url')  String? logoUrl,
+    @JsonKey(name:'couleurhex') String? colorHex,
   }) = _Community;
 
   factory Community.fromJson(Map<String, dynamic> json) => _$CommunityFromJson(json);

@@ -345,7 +345,7 @@ void _initAdmin() {
   );
   serviceLocator.registerLazySingleton<CommunityRep>(
     () => CommunityImpl(
-      serviceLocator<SupabaseClient>(instanceName: "supabaseLocal"),
+      serviceLocator<SupabaseClient>(instanceName: "supabaseExternal"),
     ),
   );
   serviceLocator.registerLazySingleton<UserRep>(

@@ -14,6 +14,7 @@ _Community _$CommunityFromJson(Map<String, dynamic> json) => _Community(
   membersCount: (json['nombre_membres'] as num?)?.toInt() ?? 0,
   avgScore: (json['bilan_moyen'] as num?)?.toDouble() ?? 0,
   logoUrl: json['logo_url'] as String?,
+  colorHex: json['couleurhex'] as String?,
 );
 
 Map<String, dynamic> _$CommunityToJson(_Community instance) =>
@@ -25,4 +26,5 @@ Map<String, dynamic> _$CommunityToJson(_Community instance) =>
       'nombre_membres': instance.membersCount,
       'bilan_moyen': instance.avgScore,
       'logo_url': instance.logoUrl,
+      'couleurhex': instance.colorHex,
     };

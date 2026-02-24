@@ -43,7 +43,7 @@ class CommunityImpl extends CommunityRep {
       final mokResponse = [
         {
           "code": "VIVDEV",
-          "nom": "Viveris Dev Team",
+          "nom": "VIVERIS DEV TEAM",
           "entreprise_id": "2efcc515-54c1-4beb-a45a-90cc251d5792",
           "description": "Communauté des développeurs de Viveris.",
           "nombre_membres": 3,
@@ -51,7 +51,7 @@ class CommunityImpl extends CommunityRep {
         },
         {
           "code": "VIVRH",
-          "nom": "Viveris RH & Admin",
+          "nom": "VIVERIS RH & ADMIN",
           "entreprise_id": "2efcc515-54c1-4beb-a45a-90cc251d5792",
           "description": "Équipe administrative Viveris.",
           "nombre_membres": 2,
@@ -59,7 +59,7 @@ class CommunityImpl extends CommunityRep {
         },
         {
           "code": "ECOMKT",
-          "nom": "EcoCorp Marketing",
+          "nom": "EcoCorp Marketing".toUpperCase(),
           "entreprise_id": "2efcc515-54c1-4beb-a45a-90cc251d5792",
           "description": "Marketing vert.",
           "nombre_membres": 5,
@@ -67,7 +67,7 @@ class CommunityImpl extends CommunityRep {
         },
         {
           "code": "ECOPROD",
-          "nom": "EcoCorp Production",
+          "nom": "EcoCorp Production".toUpperCase(),
           "entreprise_id": "2efcc515-54c1-4beb-a45a-90cc251d5792",
           "description": "L'usine responsable.",
           "nombre_membres": 0,
@@ -177,14 +177,14 @@ class CommunityImpl extends CommunityRep {
       final mokResponse = [
         {
           "id": "comp-111",
-          "nom": "Viveris",
+          "nom": "Viveris".toUpperCase(),
           "logo_url": "https://logo.com/viveris.png",
           "domaine_email": "viveris.fr",
           "description": "Expertise en conseil et ingénierie informatique.",
         },
         {
           "id": "comp-222",
-          "nom": "EcoCorp",
+          "nom": "EcoCorp".toUpperCase(),
           "logo_url": null,
           "domaine_email": "ecocorp.com",
           "description": "Leader de solutions durables.",
@@ -207,7 +207,14 @@ class CommunityImpl extends CommunityRep {
   @override
   Future<Either<Failure, void>> createCommunity(Community community) async {
     try {
-      // await supabase.from('communaute').insert(community.toJson());
+      await supabase.from('communaute').insert({
+        "code": community.code,
+        "nom": community.name,
+        "entreprise_id": community.companyId,
+        "description": community.description,
+        "logo_url": community.logoUrl,
+        "couleurhex": "#FFFFFF", 
+      });
       return right(null);
     } on supa.PostgrestException catch (e) {
       logger.e("Erreur Repository", error: e);
