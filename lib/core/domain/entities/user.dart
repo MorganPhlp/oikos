@@ -70,6 +70,6 @@ extension UserX on User {
       // Génère un avatar avec les initiales si pas d'image
       return "https://ui-avatars.com/api/?name=$pseudo&background=random";
     }
-    return StorageUtils.getPublicUrl('logos', avatarUrl!);
+    return StorageUtils.getPublicUrl('avatars', avatarUrl!);
   }
 }

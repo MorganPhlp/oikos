@@ -64,7 +64,7 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
                   ),
                   child: Builder(
                     builder: (context) {
-                      final state = context.read<AppUserCubit>().state;
+                      final state = context.watch<AppUserCubit>().state;
                       if (state is AppUserLoggedIn &&
                           state.user.isAdmin &&
                           state.company != null) {
