@@ -1,7 +1,4 @@
-DROP TRIGGER IF EXISTS trigger_calculer_streak_on_action ON public.realisation_actions;
-DROP TRIGGER IF EXISTS trigger_init_streak ON public.utilisateur;
-DROP TRIGGER IF EXISTS trigger_create_saison ON public.entreprise;
-DROP TRIGGER IF EXISTS trigger_saison_consistency ON public.saison;
+
 
 CREATE TABLE IF NOT EXISTS public.utilisateur_streak (
     utilisateur_id uuid PRIMARY KEY,
@@ -27,6 +24,10 @@ CREATE TABLE IF NOT EXISTS public.streak_steps(
     required_actions_quotidiennes int not null,
     required_actions_communautaires int not null
 );
+DROP TRIGGER IF EXISTS trigger_calculer_streak_on_action ON public.realisation_actions;
+DROP TRIGGER IF EXISTS trigger_init_streak ON public.utilisateur;
+DROP TRIGGER IF EXISTS trigger_create_saison ON public.entreprise;
+DROP TRIGGER IF EXISTS trigger_saison_consistency ON public.saison;
 
 CREATE OR REPLACE FUNCTION public.execute_calcul_streak(p_user_id uuid, p_date_ref timestamptz)
 RETURNS void AS $$
@@ -180,7 +181,7 @@ CREATE OR REPLACE FUNCTION public.handle_new_user_streak()
 RETURNS TRIGGER AS $$
 BEGIN
     INSERT INTO public.utilisateur_streak (utilisateur_id, current_streak, last_updated, last_streak_seen)
-    VALUES (NEW.id, 0, CURRENT_TIMESTAMP, 0);
+    VALUES (NEW.id, 0, '-infinity'::timestamp, 0);
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;

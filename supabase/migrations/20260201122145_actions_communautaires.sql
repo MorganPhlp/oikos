@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS action_communautaire_participation (
   user_id uuid REFERENCES utilisateur(id) ON DELETE CASCADE,
   code_communaute text NOT NULL,
   created_at timestamptz DEFAULT now(),
-  PRIMARY KEY (defi_id, user_id)
+  PRIMARY KEY (action_id, user_id)
 );
 
 -- Vue des actions actives
@@ -27,7 +27,7 @@ SELECT
   COALESCE(dc.titre_personnalise, a.titre) AS titre,
   a.description,
   a.icon_name,
-  a.xp_gain,
+  a.impact_score,
   dc.date_fin,
   (SELECT count(*) FROM action_communautaire_participation dp WHERE dp.action_id = dc.id) AS participants_count
 FROM action_communautaire dc
@@ -82,12 +82,3 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Table du suivi des actions réalisées
-CREATE TABLE IF NOT EXISTS public.realisation_actions (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    utilisateur_id UUID REFERENCES public.utilisateur(id) ON DELETE CASCADE,
-    action_id UUID REFERENCES public.actions(id),
-    date_realisation TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()),
-    xp_gagne INTEGER NOT NULL DEFAULT 0,
-    co2_economise FLOAT DEFAULT 0.0,
-);
