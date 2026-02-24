@@ -4,6 +4,7 @@ import 'package:oikos/core/theme/admin_theme.dart';
 import 'package:oikos/features/admin/presentation/bloc/profile_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/profile_event.dart';
 import 'package:oikos/features/admin/presentation/bloc/profile_state.dart';
+import 'package:oikos/core/utils/utils.dart';
 import 'package:oikos/features/admin/presentation/widget/profile_page/shared_widgets.dart';
 
 class AvatarPickerModal extends StatefulWidget {
@@ -112,7 +113,7 @@ class _AvatarPickerModalState extends State<AvatarPickerModal> {
                                   ),
                                 ),
                                 child: CircleAvatar(
-                                  backgroundImage: NetworkImage(url),
+                                  backgroundImage: NetworkImage(StorageUtils.getPublicUrl('avatars', url)),
                                   backgroundColor: colors.pageBackground,
                                 ),
                               ),

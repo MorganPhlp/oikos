@@ -75,7 +75,7 @@ class _CommunityManagementPageState extends State<CommunityManagementPage> {
               size: 16,
             ),
             const SizedBox(width: AdminTheme.spacingSm),
-            Expanded(child: Text(message)),
+            Expanded(child: Text(message, style: const TextStyle(color: Colors.white))),
           ],
         ),
         backgroundColor:
@@ -240,7 +240,7 @@ class _CommunityManagementPageState extends State<CommunityManagementPage> {
         );
 
       case MobileView.editLogo:
-        return MobileEditLogo(onBack: () => _goBack(context));
+        return MobileEditLogo(onBack: () => _goBack(context), companyName: company.name);
     }
   }
 
@@ -435,7 +435,7 @@ class _CommunityManagementPageState extends State<CommunityManagementPage> {
   void _showLogoPickerModal(BuildContext context, int index) {
     final bloc = context.read<CommunityBloc>();
     bloc.add(SelectedCommunityEvent(index: index));
-    bloc.add(FetchLogosEvent());
+    bloc.add(FetchLogosEvent(companyName: company.name));
     showDialog(
       context: context,
       builder: (_) =>

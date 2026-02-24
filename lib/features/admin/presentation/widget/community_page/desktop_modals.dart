@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/domain/entities/user.dart';
 import 'package:oikos/core/theme/admin_theme.dart';
+import 'package:oikos/core/utils/utils.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_event.dart';
@@ -175,7 +176,7 @@ class _LogoPickerModalState extends State<LogoPickerModal> {
                                         AdminTheme.radiusMd,
                                       ),
                                       child: Image.network(
-                                        url,
+                                        StorageUtils.getPublicUrl('avatars', url),
                                         fit: BoxFit.cover,
                                         errorBuilder: (_, _, _) => Container(
                                           color: colors.pageBackground,

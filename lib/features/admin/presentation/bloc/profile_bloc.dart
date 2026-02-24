@@ -180,7 +180,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
       emit(current.copyWith(isLoadingLogos: true));
 
-      final result = await getLogos.call();
+      final result = await getLogos.call(event.companyName);
       result.fold(
         (failure) => emit(current.copyWith(isLoadingLogos: false)),
         (logos) => emit(

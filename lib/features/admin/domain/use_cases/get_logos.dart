@@ -7,11 +7,19 @@ class GetLogos {
 
   GetLogos(this.repository);
 
-  Future<Either<Failure, List<String>>> call() async {
-    final logosResult = await repository.getLogos();
+  Future<Either<Failure, List<String>>> call(String companyName) async {
+    final logosResult = await repository.getLogos(companyName);
     return logosResult.fold(
       (failure) => left(failure),
       (logos) => right(logos),
+    );
+  }
+
+  Future<Either<Failure, List<String>>> getAvatars() async {
+    final result = await repository.getAvatars();
+    return result.fold(
+      (failure) => left(failure),
+      (avatars) => right(avatars),
     );
   }
 }

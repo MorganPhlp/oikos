@@ -55,7 +55,7 @@ class _CompanyCardState extends State<CompanyCard> {
   void _showLogoPicker() {
     final bloc = context.read<ProfileBloc>();
     if ((bloc.state as ProfileLoaded).availableLogos == null) {
-      bloc.add(ProfileFetchLogos());
+      bloc.add(ProfileFetchLogos(companyName: widget.company.name));
     }
     showDialog(
       context: context,
@@ -122,14 +122,12 @@ class _CompanyCardState extends State<CompanyCard> {
                 const SizedBox(height: AdminTheme.spacingXs),
                 TextFormField(
                   controller: _nameController,
+                  readOnly: true,
                   decoration: profileInputDecoration(
                     context,
                     hint: "Nom de votre entreprise",
                     prefixIcon: Icons.business_rounded,
                   ),
-                  validator: (v) => v == null || v.trim().isEmpty
-                      ? "Le nom de l'entreprise est requis"
-                      : null,
                 ),
                 const SizedBox(height: AdminTheme.spacingMd),
                 const FieldLabel(label: 'Domaine email'),

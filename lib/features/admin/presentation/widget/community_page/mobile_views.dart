@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/domain/entities/user.dart';
 import 'package:oikos/core/theme/admin_theme.dart';
+import 'package:oikos/core/utils/utils.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_event.dart';
@@ -709,8 +710,9 @@ class MobileDeleteConfirmation extends StatelessWidget {
 /// Écran mobile de sélection du logo d'une communauté
 class MobileEditLogo extends StatefulWidget {
   final VoidCallback onBack;
+  final String companyName;
 
-  const MobileEditLogo({super.key, required this.onBack});
+  const MobileEditLogo({super.key, required this.onBack, required this.companyName});
 
   @override
   State<MobileEditLogo> createState() => _MobileEditLogoState();
@@ -726,7 +728,7 @@ class _MobileEditLogoState extends State<MobileEditLogo> {
     if (state is CommunityLoaded) {
       _selectedLogoUrl = state.selectedCommunity?.logoUrl;
       if (state.availableLogos == null) {
-        context.read<CommunityBloc>().add(FetchLogosEvent());
+        context.read<CommunityBloc>().add(FetchLogosEvent(companyName: widget.companyName));
       }
     }
   }
@@ -865,7 +867,7 @@ class _MobileEditLogoState extends State<MobileEditLogo> {
                                     AdminTheme.radiusMd,
                                   ),
                                   child: Image.network(
-                                    url,
+                                    StorageUtils.getPublicUrl('avatars', url),
                                     fit: BoxFit.cover,
                                     errorBuilder: (_, _, _) => Container(
                                       color: colors.pageBackground,

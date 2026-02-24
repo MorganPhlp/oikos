@@ -2,6 +2,7 @@ import 'package:oikos/core/domain/entities/user.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
 
 import 'package:oikos/features/admin/presentation/pages/community_management_page.dart';
+
 abstract class CommunityEvent {}
 
 // ============================================================================
@@ -123,7 +124,11 @@ class ResetCommunityStatusEvent extends CommunityEvent {}
 // ============================================================================
 
 /// Charge la liste des logos disponibles depuis le storage
-class FetchLogosEvent extends CommunityEvent {}
+class FetchLogosEvent extends CommunityEvent {
+  final String companyName;
+
+  FetchLogosEvent({required this.companyName});
+}
 
 /// Met à jour le logo d'une communauté
 class UpdateCommunityLogoEvent extends CommunityEvent {

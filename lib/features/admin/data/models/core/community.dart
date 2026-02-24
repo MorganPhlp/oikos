@@ -23,6 +23,6 @@ extension CommunityExtension on Community {
   String get logoFullUrl => logoUrl != null && logoUrl!.isNotEmpty
       ? (logoUrl!.startsWith('http')
           ? logoUrl!
-          : StorageUtils.getPublicUrl('logos', logoUrl!))
+          : StorageUtils.getPublicUrl('avatars', logoUrl!))
       : 'https://ui-avatars.com/api/?name=$name&background=random';
 }

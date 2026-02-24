@@ -44,7 +44,10 @@ class ProfileResetStatus extends ProfileEvent {
 class ProfileFetchAvatars extends ProfileEvent {}
 
 /// Charge la liste des logos disponibles (bucket 'logos').
-class ProfileFetchLogos extends ProfileEvent {}
+class ProfileFetchLogos extends ProfileEvent {
+  final String companyName;
+  ProfileFetchLogos({required this.companyName});
+}
 
 /// Met à jour l'avatar de l'administrateur.
 class ProfileUpdateAvatar extends ProfileEvent {

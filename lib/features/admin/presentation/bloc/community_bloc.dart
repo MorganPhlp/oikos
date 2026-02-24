@@ -528,7 +528,7 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
       final currentState = state;
       if (currentState is CommunityLoaded) {
         emit(currentState.copyWith(isLoadingLogos: true));
-        final result = await getLogos.call();
+        final result = await getLogos.getAvatars();
         result.fold(
           (failure) => emit(currentState.copyWith(isLoadingLogos: false)),
           (logos) => emit(

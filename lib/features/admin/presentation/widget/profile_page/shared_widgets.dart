@@ -20,7 +20,7 @@ void showProfileSnackBar(
             size: 16,
           ),
           const SizedBox(width: AdminTheme.spacingSm),
-          Expanded(child: Text(message)),
+          Expanded(child: Text(message, style: const TextStyle(color: Colors.white))),
         ],
       ),
       backgroundColor:

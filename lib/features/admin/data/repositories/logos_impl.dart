@@ -9,22 +9,20 @@ class LogosImpl extends LogosRep {
 
   LogosImpl(this.supabase);
   @override
-  Future<Either<Failure, List<String>>> getLogos() async {
+  Future<Either<Failure, List<String>>> getLogos(String companyName) async {
     try {
       // 1. Lister tous les fichiers dans le bucket 'logos'
       final List<FileObject> objects = await supabase.storage
           .from('logos')
-          .list();
+          .list(path: companyName.toLowerCase()); 
       
 
-      // 2. Transformer la liste d'objets en liste d'URLs publiques
+      // 2. Retourner les chemins relatifs (ex: viveris/logo.png)
       final List<String> urls = objects
           .where(
             (file) => !file.name.startsWith('.'),
           ) // Exclure les fichiers cachés
-          .map((file) {
-            return supabase.storage.from('logos').getPublicUrl(file.name);
-          })
+          .map((file) => '${companyName.toLowerCase()}/${file.name}')
           .toList();
 
       logger.d("${urls.length} logos récupérés avec succès");
@@ -46,14 +44,12 @@ class LogosImpl extends LogosRep {
           .list();
       
 
-      // 2. Transformer la liste d'objets en liste d'URLs publiques
+      // 2. Retourner les chemins relatifs (ex: avatar1.png)
       final List<String> urls = objects
           .where(
             (file) => !file.name.startsWith('.'),
           ) // Exclure les fichiers cachés
-          .map((file) {
-            return supabase.storage.from('avatars').getPublicUrl(file.name);
-          })
+          .map((file) => file.name)
           .toList();
 
       logger.d("${urls.length} avatars récupérés avec succès");
