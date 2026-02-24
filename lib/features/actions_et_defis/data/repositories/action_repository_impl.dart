@@ -3,12 +3,11 @@ import '../../domain/repositories/action_repository.dart';
 import '../datasources/action_remote_data_source.dart';
 
 class ActionRepositoryImpl implements ActionRepository {
-  final ActionRemoteDataSourceImpl remoteDataSource; // Assure-toi que le type est bon
+  final ActionRemoteDataSourceImpl remoteDataSource;
 
   ActionRepositoryImpl(this.remoteDataSource);
 
   @override
-  // 👇 Ajout de userId ici pour respecter le contrat qu'on a modifié à l'étape 1
   Future<List<ActionEntity>> getActions(String userId) async {
     return await remoteDataSource.fetchActions(userId);
   }
@@ -31,5 +30,10 @@ class ActionRepositoryImpl implements ActionRepository {
   @override
   Future<void> removeChallenge(String userId, String actionId) async {
     await remoteDataSource.removeChallenge(userId, actionId);
+  }
+
+  @override
+  Future<void> setLifestyle(String userId, String actionId, bool isLifestyle) async {
+    await remoteDataSource.setLifestyle(userId, actionId, isLifestyle);
   }
 }

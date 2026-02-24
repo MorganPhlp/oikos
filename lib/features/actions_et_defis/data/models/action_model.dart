@@ -2,65 +2,61 @@ import 'package:flutter/material.dart';
 import '../../domain/entities/action_entity.dart';
 
 class ActionModel extends ActionEntity {
-  const ActionModel({
+  ActionModel({
     required super.id,
+    required super.categoryName,
     required super.title,
     required super.description,
-    required super.categoryName,
     required super.difficulty,
-    required super.points, // xp_gain
-    required super.co2Saved, // gain_co2
+    required super.points,
     required super.icon,
     required super.tips,
     required super.frequency,
+    required super.co2Saved,
+    // Valeurs par défaut pour la progression
+    super.progress = 0,
+    super.isLifestyle = false,
   });
 
+  // Transforme les données JSON de Supabase en un objet ActionModel
   factory ActionModel.fromJson(Map<String, dynamic> json) {
-    return ActionModel(
-      id: json['id'],
-      title: json['titre'] ?? 'Sans titre',
-      description: json['description'] ?? '',
 
-      // 👇 ICI : On récupère le NOM de la catégorie (ex: 'Transport')
-      categoryName: json['categorie_nom'] ?? 'Divers',
-
-      difficulty: json['difficulte'] ?? 'Facile',
-
-      // 👇 ICI : Correspondance avec tes colonnes SQL
-      points: json['xp_gain'] ?? 0,
-      co2Saved: "${json['gain_co2'] ?? 0} kg", // On affiche le float + "kg"
-
-      icon: _getIconByName(json['icon_name']),
-      tips: List<String>.from(json['tips'] ?? []),
-      frequency: json['frequence']?? 'unique',
-    );
-  }
-
-  // Petite map pour transformer le texte en Icône Flutter
-  static IconData _getIconByName(String? name) {
-    switch (name) {
-    // Tes nouvelles icônes
-      case 'directions_walk': return Icons.directions_walk;
-      case 'pedal_bike': return Icons.pedal_bike;
-      case 'electric_bike': return Icons.electric_bike;
-      case 'videocam': return Icons.videocam;
-      case 'water': return Icons.water_drop;
-      case 'spa': return Icons.spa;
-      case 'sentiment_very_satisfied': return Icons.sentiment_very_satisfied;
-      case 'delete_sweep': return Icons.delete_sweep;
-      case 'power_settings_new': return Icons.power_settings_new;
-      case 'local_bar': return Icons.local_bar;
-      case 'shower': return Icons.shower;
-      case 'cloud': return Icons.cloud;
-      case 'checkroom': return Icons.checkroom;
-      case 'wb_sunny': return Icons.wb_sunny;
-      case 'router': return Icons.router;
-      case 'receipt_long': return Icons.receipt_long;
-      case 'shopping_basket': return Icons.shopping_basket;
-      case 'savings': return Icons.savings;
-      case 'markunread_mailbox': return Icons.markunread_mailbox;
-    // Par défaut
-      default: return Icons.eco;
+    // Associe un nom d'icône texte à un widget IconData de Flutter
+    IconData getIcon(String? iconName) {
+      if (iconName == null) return Icons.eco;
+      final name = iconName.toLowerCase();
+      if (name.contains('monitor') || name.contains('ecran')) return Icons.monitor;
+      if (name.contains('food') || name.contains('repas') || name.contains('veg')) return Icons.restaurant;
+      if (name.contains('car') || name.contains('voiture')) return Icons.directions_car;
+      if (name.contains('water') || name.contains('eau')) return Icons.water_drop;
+      if (name.contains('bike') || name.contains('velo')) return Icons.directions_bike;
+      if (name.contains('stairs') || name.contains('escalier')) return Icons.stairs;
+      if (name.contains('cup') || name.contains('tasse')) return Icons.local_cafe;
+      return Icons.eco;
     }
+
+    // Gestion de la liste des conseils (tips)
+    List<String> parsedTips = [];
+    if (json['tips'] != null) {
+      parsedTips = List<String>.from(json['tips']);
+    }
+
+    // Création de l'instance avec sécurisation des données (null-safety)
+    return ActionModel(
+      id: json['id']?.toString() ?? '',
+      categoryName: json['categorie_nom'] ?? 'Général',
+      title: json['titre'] ?? 'Action sans titre',
+      description: json['description'] ?? '',
+      difficulty: json['difficulte'] ?? 'Facile',
+      points: (json['impact_score'] as num?)?.toInt() ?? 10,
+      icon: getIcon(json['icon_name']),
+      tips: parsedTips.isNotEmpty ? parsedTips : ["Suis les instructions de l'action."],
+      frequency: json['frequence'] ?? 'quotidienne',
+      co2Saved: json['co2_economise'] != null ? "-${json['co2_economise']}g CO2" : "-50g CO2",
+
+      // Récupération de l'état d'avancement depuis la table intermédiaire
+      progress: (json['progression'] as num?)?.toInt() ?? 0,
+      isLifestyle: json['mode_de_vie'] == true,
+    );
   }
 }

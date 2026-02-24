@@ -17,8 +17,12 @@ class ChallengeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color mainColor = isCompleted ? Colors.grey : const Color(0xFF76B82A);
-    final Color bgColor = isCompleted ? Colors.grey.shade50 : Colors.white;
+    final colors = Theme.of(context).colorScheme;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+    // Définition des couleurs selon si l'action est terminée ou non
+    final Color mainColor = isCompleted ? colors.onSurface.withOpacity(0.4) : colors.primary;
+    final Color bgColor = colors.surface;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -26,19 +30,23 @@ class ChallengeCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          if (!isCompleted)
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-        ],
-        border: isCompleted ? Border.all(color: Colors.grey.shade200) : null,
+        // Ombre légère uniquement en mode clair et pour les défis actifs
+        boxShadow: (!isCompleted && !isDarkMode)
+            ? [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ]
+            : null,
+        border: Border.all(
+          color: isCompleted ? colors.outline.withOpacity(0.5) : colors.outline.withOpacity(0.2),
+        ),
       ),
       child: Row(
         children: [
-          // 1. ICONE RONDE
+          // Icône ronde à gauche
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
@@ -49,7 +57,7 @@ class ChallengeCard extends StatelessWidget {
           ),
           const SizedBox(width: 15),
 
-          // 2. TEXTES
+          // Textes : Titre, description et points
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,44 +65,50 @@ class ChallengeCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Titre
+                    // Titre du défi (barré si terminé)
                     Expanded(
                       child: Text(
                         action.title,
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
-                          color: isCompleted ? Colors.grey : Colors.black87,
+                          color: isCompleted ? colors.onSurface.withOpacity(0.5) : colors.onSurface,
                           decoration: isCompleted ? TextDecoration.lineThrough : null,
                         ),
                       ),
                     ),
-                    // PETITE POUBELLE DISCRÈTE
-                    if (!isCompleted) // On cache la poubelle si c'est validé aujourd'hui (optionnel)
+                    // Bouton pour supprimer le défi de sa liste
+                    if (!isCompleted)
                       GestureDetector(
                         onTap: onDelete,
-                        child: Icon(Icons.close, size: 18, color: Colors.grey[400]),
+                        child: Icon(Icons.close, size: 18, color: colors.onSurface.withOpacity(0.4)),
                       ),
                   ],
                 ),
                 const SizedBox(height: 4),
+
                 Text(
                   action.description,
-                  style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                  style: TextStyle(color: colors.onSurface.withOpacity(0.5), fontSize: 12),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 6),
-                // Points
+
+                // Petit badge affichant les points gagnés
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.1),
+                    color: colors.tertiary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     "+${action.points} pts",
-                    style: TextStyle(color: Colors.orange[700], fontSize: 10, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: colors.tertiary,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 )
               ],
@@ -103,7 +117,7 @@ class ChallengeCard extends StatelessWidget {
 
           const SizedBox(width: 10),
 
-          // 3. BOUTON CHECK
+          // Bouton de validation (Cercle à cocher)
           GestureDetector(
             onTap: isCompleted ? null : onValidate,
             child: AnimatedContainer(
@@ -111,16 +125,16 @@ class ChallengeCard extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: isCompleted ? Colors.green[100] : Colors.white,
+                color: isCompleted ? colors.primary.withOpacity(0.15) : Colors.transparent,
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isCompleted ? Colors.transparent : Colors.grey.shade300,
+                  color: isCompleted ? Colors.transparent : colors.outline,
                   width: 2,
                 ),
               ),
               child: isCompleted
-                  ? const Icon(Icons.check, color: Colors.green, size: 24)
-                  : Icon(Icons.circle_outlined, color: Colors.grey.shade300, size: 28),
+                  ? Icon(Icons.check, color: colors.primary, size: 24)
+                  : Icon(Icons.circle_outlined, color: colors.outline, size: 28),
             ),
           ),
         ],
