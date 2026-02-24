@@ -6,67 +6,90 @@ import 'package:oikos/features/actions_et_defis/data/datasources/action_remote_d
 import 'package:oikos/features/actions_et_defis/data/repositories/action_repository_impl.dart';
 import 'package:oikos/features/actions_et_defis/presentation/bloc/actions_bloc.dart';
 import 'package:oikos/features/actions_et_defis/presentation/pages/my_actions_tab.dart';
-import 'package:oikos/core/theme/app_colors.dart';
-import '../widgets/actions_header.dart';
 
-class MyActionsPage extends StatelessWidget {
+class MyActionsPage extends StatefulWidget {
   const MyActionsPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // 1. Initialisation
+  State<MyActionsPage> createState() => _MyActionsPageState();
+}
+
+class _MyActionsPageState extends State<MyActionsPage> {
+  late final String userId;
+  late final ActionRepositoryImpl repo;
+
+  @override
+  void initState() {
+    super.initState();
     final supabase = Supabase.instance.client;
-    final userId = supabase.auth.currentUser!.id;
+    userId = supabase.auth.currentUser!.id;
     final dataSource = ActionRemoteDataSourceImpl(supabase);
-    final repo = ActionRepositoryImpl(dataSource);
+    repo = ActionRepositoryImpl(dataSource);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
 
     return BlocProvider(
       create: (_) => ActionsBloc(repository: repo)..add(LoadAllDataEvent(userId)),
       child: Scaffold(
-        backgroundColor: AppColors.lightBackground,
         body: Column(
           children: [
-            // L'ENTÊTE
-            const ActionsHeader(
-              title: " Mes Actions ",      // Le titre change
-              subtitle: " ", // Le sous-titre change
-              userPoints: 1250,        // Garde la cohérence des points
-            ),
-
-
-            // LE CONTENU (TAB & LISTE)
             Expanded(
               child: BlocBuilder<ActionsBloc, ActionsState>(
                 builder: (context, state) {
                   if (state is ActionsLoading) {
-                    return const Center(child: CircularProgressIndicator());
+                    return Center(child: CircularProgressIndicator(color: colors.primary));
                   }
 
                   if (state is ActionsLoaded) {
                     return MyActionsTab(
                       challenges: state.mesDefis,
 
-                      // Validation simple (pas encore terminé)
+                      // Validation action et refresh
                       onValidate: (actionId) async {
                         await repo.validateAction(userId, actionId, 10, 0.5);
-
-                        // ignore: use_build_context_synchronously
+                        if (!context.mounted) return;
+                        context.read<ActionsBloc>().add(LoadAllDataEvent(userId));
                         ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Action validée ! Continue comme ça ! 🌱"),
-                              backgroundColor: Colors.green,
-                              duration: Duration(milliseconds: 1500),
-                            )
+                          SnackBar(
+                              content: Text("Action validée !", style: TextStyle(color: colors.onPrimary)),
+                              backgroundColor: colors.primary,
+                              duration: const Duration(milliseconds: 1500)
+                          ),
                         );
                       },
 
-                      // Suppression
+                      // Passage en mode lifestyle
+                      onSetLifestyle: (actionId, isLifestyle) async {
+                        await repo.setLifestyle(userId, actionId, isLifestyle);
+                        if (!context.mounted) return;
+                        context.read<ActionsBloc>().add(LoadAllDataEvent(userId));
+                      },
+
+                      // Suppression d'un défi
                       onDelete: (actionId) async {
                         await repo.removeChallenge(userId, actionId);
-                        // ignore: use_build_context_synchronously
+                        if (!context.mounted) return;
                         context.read<ActionsBloc>().add(LoadAllDataEvent(userId));
                         ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Défi arrêté."))
+                          SnackBar(content: Text("Défi arrêté.", style: TextStyle(color: colors.onSurface)), backgroundColor: colors.surface),
+                        );
+                      },
+
+                      // Logique bonus : remove et refresh pour retour catalogue
+                      onCompleteBonus: (actionId) async {
+                        await repo.removeChallenge(userId, actionId);
+                        if (!context.mounted) return;
+
+                        context.read<ActionsBloc>().add(LoadAllDataEvent(userId));
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text("Bonus terminé ! Bien joué !", style: TextStyle(color: colors.onPrimary)),
+                              backgroundColor: colors.primary
+                          ),
                         );
                       },
                     );

@@ -4,7 +4,7 @@ import '../../domain/repositories/action_repository.dart';
 
 // EVENTS
 abstract class ActionsEvent {}
-class LoadAllDataEvent extends ActionsEvent { // On charge TOUT d'un coup
+class LoadAllDataEvent extends ActionsEvent {
   final String userId;
   LoadAllDataEvent(this.userId);
 }
@@ -31,7 +31,7 @@ class ActionsBloc extends Bloc<ActionsEvent, ActionsState> {
     on<LoadAllDataEvent>((event, emit) async {
       emit(ActionsLoading());
       try {
-        // 1. On lance les deux requêtes en parallèle (c'est plus rapide)
+        // 1. On lance les deux requêtes en parallèle
         final results = await Future.wait([
           repository.getActions(event.userId),      // Index 0
           repository.getMyChallenges(event.userId), // Index 1
