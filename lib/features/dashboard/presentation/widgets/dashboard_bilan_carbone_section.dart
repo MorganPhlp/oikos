@@ -4,6 +4,7 @@ import 'package:oikos/features/bilanCarbone/presentation/widgets/bilan_category_
 import 'package:oikos/features/bilanCarbone/presentation/widgets/bilan_category_pie_chart.dart';
 import 'package:oikos/features/bilanCarbone/presentation/widgets/bilan_equivalents_list.dart';
 import 'package:oikos/features/bilanCarbone/presentation/widgets/bilan_hero_score.dart';
+import 'package:oikos/features/dashboard/presentation/widgets/dashboard_info_button.dart';
 
 class DashboardBilanCarboneSection extends StatelessWidget {
   final double scoreKg;
@@ -22,10 +23,21 @@ class DashboardBilanCarboneSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(
-          'Bilan Carbone',
-          style: Theme.of(context).textTheme.titleLarge,
-          textAlign: TextAlign.center,
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Bilan Carbone',
+              style: Theme.of(context).textTheme.titleLarge,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(width: 8),
+            const DashboardInfoButton(
+              title: 'Bilan Carbone',
+              message:
+                  "Affiche la répartition de ton empreinte par catégorie pour ton dernier bilan. Pratique pour repérer les catégories les plus importantes.",
+            ),
+          ],
         ),
         const SizedBox(height: 12),
         BilanHeroScore(scoreKg: scoreKg),

@@ -18,6 +18,11 @@ abstract interface class DashboardRemoteDataSource {
   /// XP gagné sur les 5 derniers mois (données brutes).
   Future<({DateTime minDate, DateTime maxDate, List<({DateTime date, int xp})> rows})?>
       getMyXpGainedRaw();
+
+    /// Points de la communauté : points user + code communauté + points des membres.
+    /// Utilise `utilisateur.impact_score_xp` et `utilisateur.code_communaute`.
+    Future<({double userPoints, String? communityCode, List<double> memberPoints})>
+      getMyCommunityPositioningRaw();
 }
 
 class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
@@ -205,5 +210,46 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
     }
 
     return (minDate: minDate, maxDate: maxDate, rows: rows);
+  }
+
+  @override
+  Future<({double userPoints, String? communityCode, List<double> memberPoints})>
+      getMyCommunityPositioningRaw() async {
+    final user = supabaseClient.auth.currentUser;
+    if (user == null) {
+      throw AuthException('User not logged in');
+    }
+
+    final userRow = await supabaseClient
+        .from('utilisateur')
+        .select('impact_score_xp, code_communaute')
+        .eq('id', user.id)
+        .single();
+
+    final userPoints = (userRow['impact_score_xp'] as num?)?.toDouble() ?? 0.0;
+    final communityCode = (userRow['code_communaute'] as String?)?.trim();
+    final normalizedCode = (communityCode == null || communityCode.isEmpty) ? null : communityCode;
+
+    if (normalizedCode == null) {
+      return (userPoints: userPoints, communityCode: null, memberPoints: <double>[userPoints]);
+    }
+
+    final membersRes = await supabaseClient
+        .from('vue_user_ranking')
+        .select('total_xp')
+        .eq('code_communaute', normalizedCode);
+
+    final rows = List<Map<String, dynamic>>.from(membersRes as List);
+    final memberPoints = <double>[];
+    for (final row in rows) {
+      final v = row['total_xp'];
+      if (v is num) memberPoints.add(v.toDouble());
+    }
+
+    if (memberPoints.isEmpty) {
+      memberPoints.add(userPoints);
+    }
+
+    return (userPoints: userPoints, communityCode: normalizedCode, memberPoints: memberPoints);
   }
 }

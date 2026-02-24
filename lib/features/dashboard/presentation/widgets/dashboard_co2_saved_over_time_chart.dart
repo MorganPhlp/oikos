@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:oikos/features/dashboard/domain/entities/dashboard_xp_point.dart';
+import 'package:oikos/features/dashboard/presentation/widgets/dashboard_info_button.dart';
 
 class DashboardXpGainedOverTimeChart extends StatelessWidget {
   final List<DashboardXpPoint> points;
@@ -56,15 +57,25 @@ class DashboardXpGainedOverTimeChart extends StatelessWidget {
     final safeMaxY = (maxY <= 0 ? 1.0 : maxY * 1.1);
 
     final lineColor = theme.colorScheme.primary;
-    final gridColor = theme.dividerColor.withValues(alpha: 0.4);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(
-          'XP gagné',
-          style: theme.textTheme.titleLarge,
-          textAlign: TextAlign.center,
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'XP gagné',
+              style: theme.textTheme.titleLarge,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(width: 8),
+            const DashboardInfoButton(
+              title: 'XP gagné',
+              message:
+                  "Montre tes points gagnés dans le temps (cumul hebdomadaire sur les 5 derniers mois). Utile pour suivre ta progression.",
+            ),
+          ],
         ),
         const SizedBox(height: 12),
         SizedBox(
@@ -76,10 +87,7 @@ class DashboardXpGainedOverTimeChart extends StatelessWidget {
               minY: 0,
               maxY: safeMaxY,
               gridData: FlGridData(
-                show: true,
-                drawVerticalLine: true,
-                getDrawingHorizontalLine: (value) => FlLine(color: gridColor, strokeWidth: 1),
-                getDrawingVerticalLine: (value) => FlLine(color: gridColor, strokeWidth: 1),
+                show: false,
               ),
               borderData: FlBorderData(
                 show: true,
@@ -111,8 +119,12 @@ class DashboardXpGainedOverTimeChart extends StatelessWidget {
                     interval: (maxX <= 0) ? 1 : (maxX / 4).clamp(1, 9999),
                     getTitlesWidget: (value, meta) {
                       final d = start.add(Duration(days: value.round()));
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 8),
+                      return SideTitleWidget(
+                        meta: meta,
+                        fitInside: SideTitleFitInsideData.fromTitleMeta(
+                          meta,
+                          distanceFromEdge: 0,
+                        ),
                         child: Text(
                           _formatMonthYear(d),
                           style: theme.textTheme.bodySmall,

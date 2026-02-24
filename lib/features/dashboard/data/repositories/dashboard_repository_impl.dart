@@ -4,6 +4,7 @@ import 'package:oikos/features/dashboard/domain/entities/dashboard_bilan_carbone
 import 'package:oikos/features/dashboard/domain/entities/dashboard_actions_distribution.dart';
 import 'package:oikos/features/dashboard/domain/entities/dashboard_heatmap_data.dart';
 import 'package:oikos/features/dashboard/domain/entities/dashboard_xp_point.dart';
+import 'package:oikos/features/dashboard/domain/entities/dashboard_community_positioning_stats.dart';
 import '../../domain/repository/dashboard_repository.dart';
 import '../datasources/dashboard_remote_data_source.dart';
 
@@ -150,6 +151,56 @@ class DashboardRepositoryImpl implements DashboardRepository {
       }
 
       return right(points);
+    } catch (e) {
+      return left(Failure(e.toString()));
+    }
+  }
+
+  double _percentileCont(List<double> sortedValues, double p) {
+    if (sortedValues.isEmpty) return 0.0;
+    if (sortedValues.length == 1) return sortedValues.first;
+
+    final clampedP = p.clamp(0.0, 1.0);
+    final n = sortedValues.length;
+    final pos = (n - 1) * clampedP;
+    final lowerIndex = pos.floor();
+    final upperIndex = pos.ceil();
+    final lower = sortedValues[lowerIndex];
+    final upper = sortedValues[upperIndex];
+    final weight = pos - lowerIndex;
+    return lower + (upper - lower) * weight;
+  }
+
+  @override
+  Future<Either<Failure, DashboardCommunityPositioningStats?>>
+      getMyCommunityPositioningStats() async {
+    try {
+      final raw = await remoteDataSource.getMyCommunityPositioningRaw();
+
+      final userPoints = raw.userPoints;
+      final members = raw.memberPoints;
+      if (members.isEmpty) {
+        return right(
+          DashboardCommunityPositioningStats(
+            userPoints: userPoints,
+            communityAveragePoints: userPoints,
+            communityTop10PercentPoints: userPoints,
+          ),
+        );
+      }
+
+      final sorted = [...members]..sort();
+      final sum = sorted.fold<double>(0.0, (acc, v) => acc + v);
+      final avg = sum / sorted.length;
+      final top10 = _percentileCont(sorted, 0.90);
+
+      return right(
+        DashboardCommunityPositioningStats(
+          userPoints: userPoints,
+          communityAveragePoints: avg,
+          communityTop10PercentPoints: top10,
+        ),
+      );
     } catch (e) {
       return left(Failure(e.toString()));
     }

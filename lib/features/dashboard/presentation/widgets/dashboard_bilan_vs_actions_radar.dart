@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:radar_chart_plus/radar_chart_plus.dart';
+import 'package:oikos/features/dashboard/presentation/widgets/dashboard_info_button.dart';
 
 class DashboardBilanVsActionsRadar extends StatelessWidget {
   final Map<String, double> bilanScoresKg;
@@ -83,10 +84,21 @@ class DashboardBilanVsActionsRadar extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(
-          'Bilan carbone vs Actions',
-          style: theme.textTheme.titleLarge,
-          textAlign: TextAlign.center,
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Bilan carbone vs Actions',
+              style: theme.textTheme.titleLarge,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(width: 8),
+            const DashboardInfoButton(
+              title: 'Bilan carbone vs Actions',
+              message:
+                  "Compare la répartition de ton bilan carbone avec celle de tes actions par catégorie. Aide à vérifier si tes efforts ciblent les bonnes catégories.",
+            ),
+          ],
         ),
         const SizedBox(height: 12),
         SizedBox(
