@@ -24,7 +24,7 @@ class CommunityActionModel {
       id: json['id']?.toString() ?? '',
       title: json['titre'] ?? '',
       subtitle: json['description'] ?? '',
-      xpGain: (json['xp_gain'] as num?)?.toInt() ?? 0,
+      xpGain: (json['impact_score'] as num?)?.toInt() ?? 0,
       iconKey: json['icon_name'] ?? 'bolt',
     );
   }
