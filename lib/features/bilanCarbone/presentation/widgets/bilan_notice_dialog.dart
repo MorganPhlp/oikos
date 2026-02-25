@@ -67,9 +67,9 @@ class BilanNoticeDialog extends StatelessWidget {
               ),
             ),
             if (hintText != null) ...[
-              SizedBox(height: size.height * 0.1),
+              SizedBox(height: size.height * 0.04),
               Container(
-                padding: EdgeInsets.all(size.width * 0.04),
+                padding: EdgeInsets.all(size.width * 0.05),
                 width: double.infinity,
                 decoration: BoxDecoration(
                   color: colorScheme.tertiary.withValues(alpha: 0.1),
@@ -86,7 +86,7 @@ class BilanNoticeDialog extends StatelessWidget {
                       size: 20,
                       color: colorScheme.tertiary.withValues(alpha: 0.8),
                     ),
-                    SizedBox(width: size.width * 0.1),
+                    SizedBox(width: size.width * 0.04),
                     Expanded(
                       child: Text(
                         hintText!,
@@ -101,9 +101,9 @@ class BilanNoticeDialog extends StatelessWidget {
                   ],
                 ),
               ),
-              SizedBox(height: size.height * 0.1),
+
             ],
-            SizedBox(height: size.height * 0.05),
+            SizedBox(height: size.height * 0.03),
             GradientButton(
               label: buttonLabel,
               isTertiary: true,
