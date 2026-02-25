@@ -49,7 +49,7 @@ class StreakBloc extends Bloc<StreakEvent, StreakState> {
       StreakUpdated(
         streak: initialStreak,
         evolution: StreakEvolution.none,
-        actionsQuotidiennes: initialActions,
+        actionsIndividuelles: initialActions,
         hasCompletedActionCommunautaire: initialHasCommunautaire,
         streakSteps: streakSteps,
       ),
@@ -74,14 +74,14 @@ class StreakBloc extends Bloc<StreakEvent, StreakState> {
         }
 
         // Calcul des actions réalisées pour la barre de progression
-        final (actionsQuotidiennes, hasCompletedActionCommunautaire) =
+        final (actionsIndividuelles, hasCompletedActionCommunautaire) =
             await calculerActionsRealiseesUseCase(event.userId, streakEntity);
         // Emission de l'état avec les données mises à jour
         emit(
           StreakUpdated(
             streak: streakEntity,
             evolution: _calculateEvolution(state.streak, streakEntity),
-            actionsQuotidiennes: actionsQuotidiennes,
+            actionsIndividuelles: actionsIndividuelles,
             hasCompletedActionCommunautaire: hasCompletedActionCommunautaire,
             streakSteps: streakSteps,
           ),

@@ -7,7 +7,7 @@ abstract class StreakRepository {
     String userId,
     String entrepriseId,
   );
-  Future<int> getNombreActionsQuotidiennesValidesDepuis(
+  Future<int> getNombreActionsIndividuellesValidesDepuis(
     String userId,
     DateTime date,
   );

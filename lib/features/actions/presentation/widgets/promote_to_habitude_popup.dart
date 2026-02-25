@@ -121,16 +121,16 @@ class _PromoteToHabitudeOverlayState extends State<PromoteToHabitudeOverlay> {
             "Bravo pour ton assiduité !",
             textAlign: TextAlign.center,
             style: theme.textTheme.headlineSmall?.copyWith(
-              color: theme.colorScheme.onPrimary,
+              color: theme.colorScheme.onSurface,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 12),
           Text(
-            "Et si on transformait ces actions en véritables habitudes ?",
+            "Et si on transformait cette action en véritable habitude ?",
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onPrimary.withValues(alpha: 0.8),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
             ),
           ),
         ],
@@ -150,7 +150,7 @@ class _PromoteToHabitudeOverlayState extends State<PromoteToHabitudeOverlay> {
         alignment: Alignment.bottomCenter,
         children: [
           SizedBox(
-            height: 520,
+            height: 500,
             child: CardSwiper(
               isLoop: false,
               controller: _controller,
@@ -180,9 +180,8 @@ class _PromoteToHabitudeOverlayState extends State<PromoteToHabitudeOverlay> {
                 }
                 return true;
               },
-              cardBuilder: (context, index, x, y) => ActionCardToPromote(
-                action: widget.promotableActions[index].action,
-              ),
+              cardBuilder: (context, index, x, y) =>
+                  ActionCardToPromote(action: widget.promotableActions[index]),
             ),
           ),
           Positioned(bottom: 10, child: _buildActionButtons(colorScheme)),

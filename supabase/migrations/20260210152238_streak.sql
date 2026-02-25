@@ -1,7 +1,4 @@
-DROP TRIGGER IF EXISTS trigger_calculer_streak_on_action ON public.realisation_actions;
-DROP TRIGGER IF EXISTS trigger_init_streak ON public.utilisateur;
-DROP TRIGGER IF EXISTS trigger_create_saison ON public.entreprise;
-DROP TRIGGER IF EXISTS trigger_saison_consistency ON public.saison;
+
 
 CREATE TABLE IF NOT EXISTS public.utilisateur_streak (
     utilisateur_id uuid PRIMARY KEY,
@@ -24,9 +21,13 @@ CREATE TABLE IF NOT EXISTS public.saison (
 CREATE TABLE IF NOT EXISTS public.streak_steps(
     from_streak_phase int not null primary key,
     to_streak_phase int not null,
-    required_actions_quotidiennes int not null,
+    required_actions_individuelles int not null,
     required_actions_communautaires int not null
 );
+DROP TRIGGER IF EXISTS trigger_calculer_streak_on_action ON public.realisation_actions;
+DROP TRIGGER IF EXISTS trigger_init_streak ON public.utilisateur;
+DROP TRIGGER IF EXISTS trigger_create_saison ON public.entreprise;
+DROP TRIGGER IF EXISTS trigger_saison_consistency ON public.saison;
 
 CREATE OR REPLACE FUNCTION public.execute_calcul_streak(p_user_id uuid, p_date_ref timestamptz)
 RETURNS void AS $$
@@ -42,8 +43,8 @@ DECLARE
     next_seen INT;
     next_updated timestamptz;
     
-    n_actions_quotidiennes INT := 0;
-    n_requis_quotidiennes INT := 0;
+    n_actions_individuelles INT := 0;
+    n_requis_individuelles INT := 0;
 
     n_actions_communautaires INT := 0;
     n_requis_communautaires INT := 0;
@@ -71,18 +72,16 @@ BEGIN
 
     -- Calcul de progression (limité à la phase 4 dans ton exemple)
     IF d_debut_saison IS NOT NULL AND next_streak < 4 THEN
-        -- Actions quotidiennes
-        SELECT COUNT(*) INTO n_actions_quotidiennes
+        -- Actions individuelles
+        SELECT COUNT(*) INTO n_actions_individuelles
         FROM public.realisation_actions ra
         JOIN public.actions a ON ra.action_id = a.id
         WHERE ra.utilisateur_id = p_user_id 
           AND (ra.date_realisation > next_updated) 
-          AND ra.date_realisation >= d_debut_saison
-          AND a.frequence = 'quotidienne';
-
+          AND ra.date_realisation >= d_debut_saison;
         -- Paliers requis
-        SELECT required_actions_quotidiennes, required_actions_communautaires 
-        INTO n_requis_quotidiennes, n_requis_communautaires
+        SELECT required_actions_individuelles, required_actions_communautaires 
+        INTO n_requis_individuelles, n_requis_communautaires
         FROM public.streak_steps WHERE from_streak_phase = next_streak;
 
         -- Actions communautaires
@@ -93,7 +92,7 @@ BEGIN
           AND created_at >= d_debut_saison;
 
         -- Vérification du passage au palier suivant
-        IF n_actions_quotidiennes >= n_requis_quotidiennes AND n_actions_communautaires >= n_requis_communautaires THEN
+        IF n_actions_individuelles >= n_requis_individuelles AND n_actions_communautaires >= n_requis_communautaires THEN
             next_seen := next_streak;
             next_streak := next_streak + 1;
             next_updated := p_date_ref; 
@@ -180,7 +179,7 @@ CREATE OR REPLACE FUNCTION public.handle_new_user_streak()
 RETURNS TRIGGER AS $$
 BEGIN
     INSERT INTO public.utilisateur_streak (utilisateur_id, current_streak, last_updated, last_streak_seen)
-    VALUES (NEW.id, 0, CURRENT_TIMESTAMP, 0);
+    VALUES (NEW.id, 0, '-infinity'::timestamp, 0);
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;

@@ -42,7 +42,7 @@ class _CommunityChallengesCardWidgetState
         _isLoading = true;
       });
     }
-    
+
     try {
       final client = Supabase.instance.client;
 
@@ -95,12 +95,19 @@ class _CommunityChallengesCardWidgetState
       );
 
       // 2. MODIFICATION 2 : On ajoute réellement les XP au joueur !
-      final userRes = await client.from('utilisateur').select('impact_score_xp').eq('id', userId).single();
+      final userRes = await client
+          .from('utilisateur')
+          .select('impact_score_xp')
+          .eq('id', userId)
+          .single();
       final currentXp = userRes['impact_score_xp'] as int? ?? 0;
       final newXp = currentXp + challenge.xpGain;
-      
+
       // On met à jour le profil (ce qui mettra à jour le classement de la communauté)
-      await client.from('utilisateur').update({'impact_score_xp': newXp}).eq('id', userId);
+      await client
+          .from('utilisateur')
+          .update({'impact_score_xp': newXp})
+          .eq('id', userId);
 
       // 3. Succès et rechargement silencieux
       if (mounted) {
@@ -111,7 +118,7 @@ class _CommunityChallengesCardWidgetState
             behavior: SnackBarBehavior.floating,
           ),
         );
-        
+
         // On recharge les données SANS faire clignoter l'écran
         _loadChallenges(showLoading: false);
       }
@@ -349,7 +356,7 @@ class _ChallengeCard extends StatelessWidget {
 class _ProgressBar extends StatelessWidget {
   final int current;
   final int target;
-  
+
   const _ProgressBar({required this.current, required this.target});
 
   @override
@@ -365,7 +372,7 @@ class _ProgressBar extends StatelessWidget {
             ),
             Text(
               // CORRECTION ICI : "participant(s)" au lieu de "%"
-              "Objectif : $target participant(s)", 
+              "Objectif : $target participant(s)",
               style: const TextStyle(fontSize: 11, color: Colors.grey),
             ),
           ],

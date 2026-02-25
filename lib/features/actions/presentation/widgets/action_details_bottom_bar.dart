@@ -100,7 +100,6 @@ class ActionDetailBottomBar extends StatelessWidget {
         confirmLabel: 'Oui, écarter',
         onConfirm: () {
           onEcarter?.call(action.id);
-          Navigator.pop(context); // Ferme la modal de détail
         },
       ),
     );

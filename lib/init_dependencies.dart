@@ -47,6 +47,17 @@ import 'package:oikos/features/bilanCarbone/domain/use_cases/recuperer_questions
 import 'package:oikos/features/bilanCarbone/domain/use_cases/recuperer_reponses_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/reprendre_bilan_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/verifier_bilan_en_cours_use_case.dart';
+import 'package:oikos/features/community/data/datasources/defis_remote_datasrouce.dart';
+import 'package:oikos/features/community/data/repositories/defi_repository_impl.dart';
+import 'package:oikos/features/community/domain/repositories/defis_repository.dart';
+import 'package:oikos/features/community/domain/use_cases/fetch_adversaries_use_case.dart';
+import 'package:oikos/features/community/domain/use_cases/fetch_defis.dart';
+import 'package:oikos/features/community/domain/use_cases/fetch_participations_defis.dart';
+import 'package:oikos/features/community/domain/use_cases/fetch_votes_use_case.dart';
+import 'package:oikos/features/community/domain/use_cases/lancer_defi.dart';
+import 'package:oikos/features/community/domain/use_cases/validate_defi.dart';
+import 'package:oikos/features/community/domain/use_cases/vote_defi.dart';
+import 'package:oikos/features/community/presentation/bloc/defis_cubit.dart';
 import 'package:oikos/features/notifications/data/datasources/notifications_datasource.dart';
 import 'package:oikos/features/notifications/data/repositories/notifications_repository_impl.dart';
 import 'package:oikos/features/notifications/domain/repositories/notifications_repository.dart';
@@ -157,6 +168,7 @@ Future<void> initDependencies() async {
   _initActions();
   _initHome();
   _initNotifications();
+  _initDefis();
 }
 
 void _initAuth() {
@@ -398,11 +410,17 @@ void _initDashboard() {
 
   // UseCase : on donne le repo au use case
   serviceLocator.registerFactory(() => GetMyPseudo(serviceLocator()));
-  serviceLocator.registerFactory(() => GetMyLatestBilanCarboneSummary(serviceLocator()));
+  serviceLocator.registerFactory(
+    () => GetMyLatestBilanCarboneSummary(serviceLocator()),
+  );
   serviceLocator.registerFactory(() => GetMyHeatmapData(serviceLocator()));
-  serviceLocator.registerFactory(() => GetMyActionsDistribution(serviceLocator()));
+  serviceLocator.registerFactory(
+    () => GetMyActionsDistribution(serviceLocator()),
+  );
   serviceLocator.registerFactory(() => GetMyXpGainedSeries(serviceLocator()));
-  serviceLocator.registerFactory(() => GetMyCommunityPositioningStats(serviceLocator()));
+  serviceLocator.registerFactory(
+    () => GetMyCommunityPositioningStats(serviceLocator()),
+  );
 
   // Bloc : on donne le use case au bloc pour qu'il gère l'état de la page
   serviceLocator.registerLazySingleton(
@@ -651,6 +669,53 @@ void _initNotifications() {
       appUserCubit: serviceLocator<AppUserCubit>(),
       markAsReadUseCase: serviceLocator<MarkAsReadUseCase>(),
       watchNotificationsUseCase: serviceLocator<WatchNotificationsUseCase>(),
+    ),
+  );
+}
+
+void _initDefis() {
+  serviceLocator.registerFactory(
+    () => DefisRemoteDatasrouce(serviceLocator<SupabaseClient>()),
+  );
+  serviceLocator.registerFactory(
+    () => DefiRepositoryImpl(serviceLocator<DefisRemoteDatasrouce>()),
+  );
+
+  serviceLocator.registerFactory(
+    () => VoteDefiUseCase(serviceLocator<DefiRepositoryImpl>()),
+  );
+
+  serviceLocator.registerFactory(
+    () => FetchDefisUseCase(serviceLocator<DefiRepositoryImpl>()),
+  );
+  serviceLocator.registerFactory(
+    () => ValidateDefiUseCase(serviceLocator<DefiRepositoryImpl>()),
+  );
+
+  serviceLocator.registerFactory(
+    () => FetchAdversariesUseCase(serviceLocator<DefiRepositoryImpl>()),
+  );
+
+  serviceLocator.registerFactory(
+    () => LancerDefiUseCase(serviceLocator<DefiRepositoryImpl>()),
+  );
+
+  serviceLocator.registerFactory(
+    () => FetchVotesUseCase(serviceLocator<DefiRepositoryImpl>()),
+  );
+
+  serviceLocator.registerLazySingleton(
+    () => FetchParticipationsDefisUseCase(serviceLocator<DefiRepositoryImpl>()),
+  );
+  serviceLocator.registerFactory(
+    () => DefisCubit(
+      voteDefiUseCase: serviceLocator(),
+      fetchDefisUseCase: serviceLocator(),
+      validateDefiUseCase: serviceLocator(),
+      fetchAdversariesUseCase: serviceLocator(),
+      lancerDefiUseCase: serviceLocator(),
+      fetchVotesUseCase: serviceLocator(),
+      fetchParticipationsDefisUseCase: serviceLocator(),
     ),
   );
 }

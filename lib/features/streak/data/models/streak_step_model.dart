@@ -11,8 +11,8 @@ sealed class StreakStepModel with _$StreakStepModel {
   const factory StreakStepModel({
     @JsonKey(name: 'from_streak_phase') required int from,
     @JsonKey(name: 'to_streak_phase') required int to,
-    @JsonKey(name: 'required_actions_quotidiennes')
-    required int requiredActionsQuotidiennes,
+    @JsonKey(name: 'required_actions_individuelles')
+    required int requiredActionsIndividuelles,
     @JsonKey(name: 'required_actions_communautaires')
     required int requiredActionsCommunautaires,
   }) = _StreakStepModel;
@@ -24,7 +24,7 @@ sealed class StreakStepModel with _$StreakStepModel {
     return StreakStepEntity(
       from: from,
       to: to,
-      requiredActionsQuotidiennes: requiredActionsQuotidiennes,
+      requiredActionsIndividuelles: requiredActionsIndividuelles,
       requiredActionsCommunautaires: requiredActionsCommunautaires,
     );
   }

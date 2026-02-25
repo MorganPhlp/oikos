@@ -1,23 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/core/common/presentation/widgets/oikos_avatar.dart';
 import 'package:oikos/core/common/presentation/widgets/gradient_button.dart';
+import 'package:oikos/features/community/domain/entities/community_entity.dart';
+import 'package:oikos/features/community/domain/use_cases/lancer_defi.dart';
+import 'package:oikos/features/community/presentation/bloc/defis_cubit.dart';
+import 'package:oikos/features/community/presentation/bloc/defis_state.dart';
 import 'setup_duel_modal.dart';
 import '../../data/models/leaderboard_entry_model.dart';
 
-// Widget pour le modal d'action sur le classement
 class RankingActionModal extends StatelessWidget {
   final String name;
   final String avatarUrl;
-  final bool isCommunity;     // true = Communauté, false = Utilisateur
-  final VoidCallback onSeeProfile; // Action quand on clique sur "Voir le profil"
-  final VoidCallback onDuel;       // Action quand on clique sur "Lancer un défi" //TODO
+  final bool isCommunity;
+  final VoidCallback onSeeProfile;
+  final VoidCallback onDuel;
   final LeaderboardEntryModel targetCommunity;
   final String myCommunityCode;
   final String entrepriseId;
+  final String?
+  currentUserId; // Injecté par le parent pour éviter ProviderNotFound
 
   const RankingActionModal({
-    Key? key,
+    super.key,
     required this.name,
     required this.avatarUrl,
     required this.isCommunity,
@@ -26,26 +33,14 @@ class RankingActionModal extends StatelessWidget {
     required this.targetCommunity,
     required this.myCommunityCode,
     required this.entrepriseId,
-  }) : super(key: key);
+    this.currentUserId,
+  });
 
-@override
+  @override
   Widget build(BuildContext context) {
+    print(targetCommunity);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-
-    // ignore: unused_local_variable
-    ImageProvider? imageProvider;
-    
-    if (avatarUrl.isNotEmpty) {
-      if (avatarUrl.startsWith('http') || avatarUrl.startsWith('https')) {
-        // URL Internet (Supabase)
-        imageProvider = NetworkImage(avatarUrl);
-      } else {
-        // Fichier Local (Asset)
-        String cleanPath = avatarUrl.replaceAll('file:///', '').replaceAll('C:/src/projet/oikos/', '');
-        imageProvider = AssetImage(cleanPath);
-      }
-    }
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
@@ -98,24 +93,17 @@ class RankingActionModal extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 24),
-
-            // Bouton "Voir le profil"
             SizedBox(
               width: double.infinity,
-              height: 55, // Même hauteur que GradientButton
+              height: 55,
               child: OutlinedButton(
                 onPressed: onSeeProfile,
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: colorScheme.primary, // Texte Vert
-                  side: BorderSide(
-                    color: colorScheme.primary,
-                    width: 2,
-                  ), // Bordure Verte
+                  foregroundColor: colorScheme.primary,
+                  side: BorderSide(color: colorScheme.primary, width: 2),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
-                  elevation: 0, // Zéro ombre garantie
-                  backgroundColor: Colors.transparent,
                 ),
                 child: Text(
                   "Voir le profil",
@@ -132,23 +120,67 @@ class RankingActionModal extends StatelessWidget {
               label: "Lance un défi",
               icon: const Icon(Icons.flash_on, color: Colors.white, size: 20),
               onPressed: () {
-                  // 1. On ferme le petit modal actuel
-                  Navigator.of(context).pop();
+                // 1. CAPTURE : On récupère tout ce dont on a besoin AVANT le pop
+                final navigator = Navigator.of(
+                  context,
+                ); // Le navigator du dashboard
+                final defisCubit = context.read<DefisCubit>();
+                final defiState = defisCubit.state;
 
-                  // 2. On ouvre la page avec les choix (Transport, Alimentation...)
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    builder: (context) => SetupDuelModal(
-                      targetCommunity: targetCommunity,
-                      myCommunityCode: myCommunityCode,
-                      entrepriseId: entrepriseId,
+                final userState = context.read<AppUserCubit>().state;
+                final String? userId = userState is AppUserLoggedIn
+                    ? userState.user.id
+                    : currentUserId;
+
+                final CommunityEntity? targetCommunityEntity =
+                    switch (defiState) {
+                      DefisLoaded(adversaries: final ads) =>
+                        ads.cast<CommunityEntity?>().firstWhere(
+                          (c) =>
+                              c?.code.toLowerCase() ==
+                              targetCommunity.id.toLowerCase(),
+                          orElse: () => null,
+                        ),
+                      _ => null,
+                    };
+
+                // Si on ne trouve pas l'entité, on ne ferme même pas pour pouvoir débugger
+                if (targetCommunityEntity == null || userId == null) {
+                  return;
+                }
+
+                // 2. FERMETURE : On ferme le Dialog
+                navigator.pop();
+
+                // 3. OUVERTURE : On utilise le navigator capturé pour ouvrir le BottomSheet
+                // On utilise rootNavigator: false pour rester dans le flow de l'app
+                showModalBottomSheet(
+                  context: navigator
+                      .context, // <--- On utilise le contexte du Navigator parent
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (modalContext) => BlocProvider.value(
+                    value: defisCubit,
+                    child: SetupDuelModal(
+                      targetCommunity: targetCommunityEntity,
+                      myCommunity: myCommunityCode,
+                      userId: userId,
+                      onConfirm: (category, duration, creatorId) {
+                        defisCubit.proposeDuel(
+                          LancerDefiParams(
+                            userId: creatorId,
+                            targetCommunityCode: targetCommunityEntity.code,
+                            categorieNom: category,
+                            durationDays: duration,
+                          ),
+                          myCommunityCode,
+                        );
+                      },
                     ),
-                  );
-                },
+                  ),
+                );
+              },
             ),
-
             const SizedBox(height: 16),
             InkWell(
               onTap: () => Navigator.of(context).pop(),

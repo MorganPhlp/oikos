@@ -38,6 +38,11 @@ class NotificationItemFactory extends StatelessWidget {
           notification: notification,
           onDismiss: onDismiss,
         );
+      case NotificationType.defiCollectifTermine:
+        return CollectiveChallengeNotification(
+          onDismiss: onDismiss,
+          notification: notification,
+        );
     }
   }
 }

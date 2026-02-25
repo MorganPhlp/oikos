@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
-import 'package:oikos/features/community/presentation/widgets/community_challenges_card_widget.dart';
 import 'package:oikos/features/home/presentation/bloc/home_stats_cubit.dart';
 import 'package:oikos/features/home/presentation/bloc/home_stats_state.dart';
 import 'package:oikos/features/home/presentation/widgets/quick_access_widget.dart';
@@ -78,10 +77,9 @@ class HomePage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    CommunityChallengesCardWidget(
-                      entrepriseId: entrepriseId,
-                      myCommunityCode: myCommunityCode,
-                    ),
+                    // ActionsCommunautairesWidget(
+                    //   myCommunityCode: myCommunityCode,
+                    // ),
                   ] else
                     const Text("Rejoins une communauté pour voir les défis"),
 

@@ -43,7 +43,7 @@ class UserActiveActionEntity {
     }
   }
 
-  bool get isCompletedForPeriod {
+  bool get periodCompletion {
     if (lastCompletedAt == null) return false;
 
     final now = DateTime.now();

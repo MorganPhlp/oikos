@@ -10,25 +10,26 @@ class CalculerProgresUseCase {
     String userId,
     UtilisateurStreakEntity streak,
   ) async {
-    int quotidiennes = 0;
+    int individuelles = 0;
     bool collectif = false;
 
     if (streak.lastUpdated == null) {
       // Si lastUpdated est null, cela signifie que l'utilisateur n'a pas encore commencé sa streak
       // On considère donc qu'il n'a pas encore validé d'actions quotidiennes ni d'action communautaire
-      quotidiennes = 0;
+      individuelles = 0;
       collectif = false;
     } else {
-      quotidiennes = await repository.getNombreActionsQuotidiennesValidesDepuis(
-        userId,
-        streak.lastUpdated!,
-      );
+      individuelles = await repository
+          .getNombreActionsIndividuellesValidesDepuis(
+            userId,
+            streak.lastUpdated!,
+          );
       collectif = await repository.hasCompletedActionCommunautaireDepuis(
         userId,
         streak.lastUpdated!,
       );
     }
 
-    return (quotidiennes, collectif);
+    return (individuelles, collectif);
   }
 }

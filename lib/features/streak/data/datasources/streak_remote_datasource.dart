@@ -71,7 +71,6 @@ class StreakRemoteDatasource {
           .from('realisation_actions')
           .select('*, actions!inner(frequence)')
           .eq('utilisateur_id', userId)
-          .eq('actions.frequence', 'quotidienne')
           .gt('date_realisation', date.toIso8601String())
           .count(CountOption.exact);
 

@@ -12,6 +12,7 @@ import 'package:oikos/features/auth/presentation/pages/intro_page.dart';
 import 'package:oikos/features/auth/presentation/pages/signup_page.dart';
 import 'package:oikos/features/auth/presentation/pages/update_password_page.dart';
 import 'package:oikos/features/bilanCarbone/presentation/pages/bilan_flow.dart';
+import 'package:oikos/features/community/presentation/bloc/defis_cubit.dart';
 import 'package:oikos/features/community/presentation/pages/community_dashboard_screen.dart';
 
 import 'package:oikos/features/home/presentation/pages/home_page.dart';
@@ -221,7 +222,26 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
           GoRoute(
             path: '/community',
             name: 'community',
-            builder: (context, state) => const CommunityDashboardScreen(),
+            builder: (context, state) {
+              final communityCode =
+                  context.read<AppUserCubit>().state is AppUserLoggedIn
+                  ? (context.read<AppUserCubit>().state as AppUserLoggedIn)
+                        .user
+                        .communityCode
+                  : null;
+              final userId =
+                  context.read<AppUserCubit>().state is AppUserLoggedIn
+                  ? (context.read<AppUserCubit>().state as AppUserLoggedIn)
+                        .user
+                        .id
+                  : '';
+              return BlocProvider(
+                create: (context) =>
+                    serviceLocator<DefisCubit>()
+                      ..loadDefis(communityCode ?? '', userId),
+                child: const CommunityDashboardScreen(),
+              );
+            },
           ),
         ],
       ),
