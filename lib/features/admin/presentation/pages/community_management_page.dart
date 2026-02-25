@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/theme/admin_theme.dart';
 import 'package:oikos/core/theme/breakpoints.dart';
-import 'package:oikos/core/domain/entities/user.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_event.dart';
@@ -75,11 +75,14 @@ class _CommunityManagementPageState extends State<CommunityManagementPage> {
               size: 16,
             ),
             const SizedBox(width: AdminTheme.spacingSm),
-            Expanded(child: Text(message, style: const TextStyle(color: Colors.white))),
+            Expanded(
+              child: Text(message, style: const TextStyle(color: Colors.white)),
+            ),
           ],
         ),
-        backgroundColor:
-            isError ? AdminTheme.errorForeground : AdminTheme.actionGreen,
+        backgroundColor: isError
+            ? AdminTheme.errorForeground
+            : AdminTheme.actionGreen,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
@@ -240,7 +243,10 @@ class _CommunityManagementPageState extends State<CommunityManagementPage> {
         );
 
       case MobileView.editLogo:
-        return MobileEditLogo(onBack: () => _goBack(context), companyName: company.name);
+        return MobileEditLogo(
+          onBack: () => _goBack(context),
+          companyName: company.name,
+        );
     }
   }
 
@@ -329,11 +335,7 @@ class _CommunityManagementPageState extends State<CommunityManagementPage> {
       decoration: colors.cardDecoration,
       child: Column(
         children: [
-          Icon(
-            Icons.groups_rounded,
-            size: 64,
-            color: colors.mutedForeground,
-          ),
+          Icon(Icons.groups_rounded, size: 64, color: colors.mutedForeground),
           const SizedBox(height: AdminTheme.spacingMd),
           Text(
             'Aucune communauté',

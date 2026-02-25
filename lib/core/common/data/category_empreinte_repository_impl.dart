@@ -1,5 +1,5 @@
-import 'package:oikos/core/domain/entities/categorie_empreinte_entity.dart';
-import 'package:oikos/core/domain/interfaces/categorie_empreinte_repository.dart';
+import 'package:oikos/core/common/domain/entities/categorie_empreinte_entity.dart';
+import 'package:oikos/core/common/domain/interfaces/categorie_empreinte_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CategorieEmpreinteRepositoryImpl implements CategorieEmpreinteRepository {
@@ -36,23 +36,25 @@ class CategorieEmpreinteRepositoryImpl implements CategorieEmpreinteRepository {
       final user = _supabase.auth.currentUser;
       if (user == null) throw Exception('Utilisateur non authentifié');
 
-      // 1. Préparer les données pour une insertion groupée (Bulk insert)
-      // C'est beaucoup plus performant qu'une boucle !
-      final dataToUpsert = categories.map((cat) => {
-        'utilisateur_id': user.id,
-        'categorie_nom': cat.nom,
-      }).toList();
-
-      // 2. Exécuter l'upsert en une seule fois
-      // Supabase gère très bien les listes de Maps pour l'upsert.
+      // Suppression de toutes les préférences actuelles de l'utilisateur
       await _supabase
           .from('utilisateur_categorie_preference')
-          .upsert(dataToUpsert, onConflict: 'utilisateur_id, categorie_nom'); 
-          // Note: l'onConflict dépend de tes contraintes en base de données
+          .delete()
+          .eq('utilisateur_id', user.id);
 
+      // Si la liste n'est pas vide, on insère les nouvelles préférences
+      if (categories.isNotEmpty){
+        final dataToInsert = categories.map((cat) => {
+          'utilisateur_id': user.id,
+          'categorie_nom': cat.nom,
+        }).toList();
+
+        await _supabase
+            .from('utilisateur_categorie_preference')
+            .insert(dataToInsert);
+      }
     } catch (e) {
-      // Dans les versions récentes de supabase_flutter, les erreurs lancent des PostgrestException
-      throw Exception('Erreur lors de la sélection des catégories: $e');
+      throw Exception('Erreur lors de la sauvegarde des centres d\'intérêts: $e');
     }
   }
 

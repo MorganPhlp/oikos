@@ -11,8 +11,7 @@ class CompanyLogoPickerModal extends StatefulWidget {
   const CompanyLogoPickerModal({super.key});
 
   @override
-  State<CompanyLogoPickerModal> createState() =>
-      _CompanyLogoPickerModalState();
+  State<CompanyLogoPickerModal> createState() => _CompanyLogoPickerModalState();
 }
 
 class _CompanyLogoPickerModalState extends State<CompanyLogoPickerModal> {
@@ -81,9 +80,7 @@ class _CompanyLogoPickerModalState extends State<CompanyLogoPickerModal> {
                             padding: const EdgeInsets.all(32),
                             child: Text(
                               'Aucun logo disponible',
-                              style: TextStyle(
-                                color: colors.mutedForeground,
-                              ),
+                              style: TextStyle(color: colors.mutedForeground),
                             ),
                           ),
                         )
@@ -120,7 +117,7 @@ class _CompanyLogoPickerModalState extends State<CompanyLogoPickerModal> {
                                     AdminTheme.radiusMd,
                                   ),
                                   child: Image.network(
-                                    StorageUtils.getPublicUrl('logos', url),
+                                    StorageUtils.getNetworkUrl('logos', url),
                                     fit: BoxFit.cover,
                                     errorBuilder: (_, _, _) => Container(
                                       color: colors.pageBackground,

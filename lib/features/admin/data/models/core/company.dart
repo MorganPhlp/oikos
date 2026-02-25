@@ -24,7 +24,11 @@ sealed class Company with _$Company {
 
 extension CompanyExtension on Company {
 
-  String get logoFullUrl => logoUrl != null && logoUrl!.isNotEmpty
-      ? StorageUtils.getPublicUrl('logos', logoUrl!)
+   String get logoNetworkUrl => logoUrl != null && logoUrl!.isNotEmpty
+      ? StorageUtils.getNetworkUrl('logos', logoUrl!)
+      : 'https://ui-avatars.com/api/?name=$name&background=random';
+
+  String get logoLocalUrl => logoUrl != null && logoUrl!.isNotEmpty
+      ? StorageUtils.getLocalUrl('logos', logoUrl!)
       : 'https://ui-avatars.com/api/?name=$name&background=random';
 }

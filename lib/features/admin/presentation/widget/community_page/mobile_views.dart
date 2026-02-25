@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/domain/entities/user.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:oikos/core/theme/admin_theme.dart';
 import 'package:oikos/core/utils/utils.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
@@ -42,9 +42,7 @@ class MobileCommunityList extends StatelessWidget {
       children: [
         _buildHeader(colors),
         Expanded(
-          child: communities.isEmpty
-              ? _buildEmptyState(colors)
-              : _buildList(),
+          child: communities.isEmpty ? _buildEmptyState(colors) : _buildList(),
         ),
       ],
     );
@@ -69,10 +67,7 @@ class MobileCommunityList extends StatelessWidget {
               ),
               Text(
                 '${communities.length} communauté${communities.length > 1 ? 's' : ''}',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: colors.mutedForeground,
-                ),
+                style: TextStyle(fontSize: 13, color: colors.mutedForeground),
               ),
             ],
           ),
@@ -92,11 +87,7 @@ class MobileCommunityList extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.groups_rounded,
-            size: 64,
-            color: colors.mutedForeground,
-          ),
+          Icon(Icons.groups_rounded, size: 64, color: colors.mutedForeground),
           const SizedBox(height: AdminTheme.spacingMd),
           Text(
             'Aucune communauté',
@@ -214,10 +205,7 @@ class MobileMembersList extends StatelessWidget {
                 ),
                 Text(
                   '${users.length} membre${users.length > 1 ? 's' : ''}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: colors.mutedForeground,
-                  ),
+                  style: TextStyle(fontSize: 12, color: colors.mutedForeground),
                 ),
               ],
             ),
@@ -308,7 +296,8 @@ class _MobileCreateCommunityState extends State<MobileCreateCommunity> {
 
   String? _validateCode(String code) {
     if (code.isEmpty) return 'Le code est requis';
-    if (code.length != 6) return 'Le code doit contenir exactement 6 caractères';
+    if (code.length != 6)
+      return 'Le code doit contenir exactement 6 caractères';
     return null;
   }
 
@@ -340,10 +329,9 @@ class _MobileCreateCommunityState extends State<MobileCreateCommunity> {
 
         if (state is CommunityLoaded) {
           isSubmitting = state.operationStatus == SectionStatus.loading;
-          errorMessage =
-              state.operationStatus == SectionStatus.failure
-                  ? state.operationError
-                  : null;
+          errorMessage = state.operationStatus == SectionStatus.failure
+              ? state.operationError
+              : null;
           logos = state.availableLogos;
           isLoadingLogos = state.isLoadingLogos;
         }
@@ -388,8 +376,7 @@ class _MobileCreateCommunityState extends State<MobileCreateCommunity> {
                       selectedLogoUrl: _selectedLogoUrl,
                       logos: logos,
                       isLoading: isLoadingLogos,
-                      onSelect: (url) =>
-                          setState(() => _selectedLogoUrl = url),
+                      onSelect: (url) => setState(() => _selectedLogoUrl = url),
                     ),
                     if (errorMessage != null) ...[
                       const SizedBox(height: AdminTheme.spacingMd),
@@ -472,10 +459,9 @@ class _MobileEditCodeState extends State<MobileEditCode> {
 
         if (state is CommunityLoaded) {
           isSubmitting = state.operationStatus == SectionStatus.loading;
-          errorMessage =
-              state.operationStatus == SectionStatus.failure
-                  ? state.operationError
-                  : null;
+          errorMessage = state.operationStatus == SectionStatus.failure
+              ? state.operationError
+              : null;
         }
 
         return Column(
@@ -690,7 +676,9 @@ class MobileDeleteConfirmation extends StatelessWidget {
                         ),
                         side: BorderSide(color: colors.border),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
+                          borderRadius: BorderRadius.circular(
+                            AdminTheme.radiusLg,
+                          ),
                         ),
                       ),
                       child: const Text('Annuler'),
@@ -712,7 +700,9 @@ class MobileDeleteConfirmation extends StatelessWidget {
                           vertical: AdminTheme.spacingMd,
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
+                          borderRadius: BorderRadius.circular(
+                            AdminTheme.radiusLg,
+                          ),
                         ),
                       ),
                       child: const Text('Supprimer'),
@@ -737,7 +727,11 @@ class MobileEditLogo extends StatefulWidget {
   final VoidCallback onBack;
   final String companyName;
 
-  const MobileEditLogo({super.key, required this.onBack, required this.companyName});
+  const MobileEditLogo({
+    super.key,
+    required this.onBack,
+    required this.companyName,
+  });
 
   @override
   State<MobileEditLogo> createState() => _MobileEditLogoState();
@@ -753,7 +747,9 @@ class _MobileEditLogoState extends State<MobileEditLogo> {
     if (state is CommunityLoaded) {
       _selectedLogoUrl = state.selectedCommunity?.logoUrl;
       if (state.availableLogos == null) {
-        context.read<CommunityBloc>().add(FetchLogosEvent(companyName: widget.companyName));
+        context.read<CommunityBloc>().add(
+          FetchLogosEvent(companyName: widget.companyName),
+        );
       }
     }
   }
@@ -802,7 +798,7 @@ class _MobileEditLogoState extends State<MobileEditLogo> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(AdminTheme.radiusXxl),
                     child: Image.network(
-                      community.logoFullUrl,
+                      community.avatarNetworkUrl,
                       width: 48,
                       height: 48,
                       fit: BoxFit.cover,
@@ -853,60 +849,60 @@ class _MobileEditLogoState extends State<MobileEditLogo> {
                       ),
                     )
                   : logos == null || logos.isEmpty
-                      ? Center(
-                          child: Text(
-                            'Aucun logo disponible',
-                            style: TextStyle(color: colors.mutedForeground),
-                          ),
-                        )
-                      : GridView.builder(
-                          padding: const EdgeInsets.all(AdminTheme.spacingMd),
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
+                  ? Center(
+                      child: Text(
+                        'Aucun logo disponible',
+                        style: TextStyle(color: colors.mutedForeground),
+                      ),
+                    )
+                  : GridView.builder(
+                      padding: const EdgeInsets.all(AdminTheme.spacingMd),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 4,
                             crossAxisSpacing: AdminTheme.spacingMd,
                             mainAxisSpacing: AdminTheme.spacingMd,
                           ),
-                          itemCount: logos.length,
-                          itemBuilder: (context, index) {
-                            final url = logos[index];
-                            final isSelected = _selectedLogoUrl == url;
-                            return GestureDetector(
-                              onTap: () =>
-                                  setState(() => _selectedLogoUrl = url),
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 150),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(
-                                    AdminTheme.radiusLg,
-                                  ),
-                                  border: Border.all(
-                                    color: isSelected
-                                        ? AdminTheme.actionGreen
-                                        : colors.border,
-                                    width: isSelected ? 3 : 1,
-                                  ),
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(
-                                    AdminTheme.radiusMd,
-                                  ),
-                                  child: Image.network(
-                                    StorageUtils.getPublicUrl('avatars', url),
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, _, _) => Container(
-                                      color: colors.pageBackground,
-                                      child: Icon(
-                                        Icons.broken_image_rounded,
-                                        color: colors.mutedForeground,
-                                      ),
-                                    ),
+                      itemCount: logos.length,
+                      itemBuilder: (context, index) {
+                        final url = logos[index];
+                        final isSelected = _selectedLogoUrl == url;
+                        return GestureDetector(
+                          onTap: () => setState(() => _selectedLogoUrl = url),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 150),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(
+                                AdminTheme.radiusLg,
+                              ),
+                              border: Border.all(
+                                color: isSelected
+                                    ? AdminTheme.actionGreen
+                                    : colors.border,
+                                width: isSelected ? 3 : 1,
+                              ),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(
+                                AdminTheme.radiusMd,
+                              ),
+                              child: Image.network(
+                                StorageUtils.getNetworkUrl('avatars', url),
+
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, _, _) => Container(
+                                  color: colors.pageBackground,
+                                  child: Icon(
+                                    Icons.broken_image_rounded,
+                                    color: colors.mutedForeground,
                                   ),
                                 ),
                               ),
-                            );
-                          },
-                        ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
             ),
 
             FormActions(

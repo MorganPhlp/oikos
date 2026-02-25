@@ -1,7 +1,7 @@
 import 'package:oikos/core/error/failures.dart';
 import 'package:fpdart/fpdart.dart';
 import '../repository/home_repository.dart';
-import '../../../../core/usecase/usecase.dart';
+import '../../../../core/common/domain/usecase/usecase.dart';
 
 class GetMyPseudo implements UseCase<String, NoParams> {
   final HomeRepository repository;

@@ -5,7 +5,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:oikos/core/common/widgets/loader.dart';
 import 'dart:ui';
 import 'package:oikos/core/theme/app_colors.dart';
-import 'package:oikos/core/presentation/widgets/gradient_button.dart';
+import 'package:oikos/core/common/presentation/widgets/gradient_button.dart';
 import 'package:oikos/features/bilanCarbone/domain/entities/carbone_equivalent_entity.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_resultat_bloc.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_resultat_state.dart';

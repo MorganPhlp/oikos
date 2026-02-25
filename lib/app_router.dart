@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:oikos/core/common/cubits/app_user/app_user_cubit.dart';
-import 'package:oikos/core/domain/entities/user.dart';
-import 'package:oikos/core/presentation/widgets/admin_scaffold.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
+import 'package:oikos/core/common/presentation/widgets/admin_scaffold.dart';
 import 'package:oikos/core/theme/admin_theme.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
@@ -43,6 +43,8 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
           final tabs = [
             '/admin/dashboard',
             '/admin/community',
+            '/admin/ranking',
+            '/admin/users',
             '/admin/profil',
           ];
           // On cherche l'index correspondant au chemin actuel
@@ -70,8 +72,7 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
                           state.company != null) {
                         Company company = state.company!;
                         return AdminScaffold(
-                          title: 'Oikos',
-                          logo: Image.network(company.logoFullUrl),
+                          logo: Image.network(company.logoNetworkUrl),
                           currentIndex: currentIndex < 0
                               ? 0
                               : currentIndex, // Sécurité si index non trouvé
@@ -87,26 +88,38 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
                               label: 'Communautés',
                             ),
                             NavigationDestination(
+                              icon: Icon(Icons.emoji_events_outlined),
+                              selectedIcon: Icon(Icons.emoji_events),
+                              label: 'Classement',
+                            ),
+                            NavigationDestination(
+                              icon: Icon(Icons.person_outline),
+                              selectedIcon: Icon(Icons.person),
+                              label: 'Utilisateurs',
+                            ),
+                            NavigationDestination(
                               icon: CircleAvatar(
                                 radius: 12,
                                 backgroundImage: NetworkImage(
-                                  state.user.avatarFullUrl,
+                                  state.user.avatarNetworkUrl,
                                 ),
                               ),
                               selectedIcon: CircleAvatar(
                                 radius: 12,
                                 backgroundImage: NetworkImage(
-                                  state.user.avatarFullUrl,
+                                  state.user.avatarNetworkUrl,
                                 ),
                               ),
-                              label: 'Profil',
+                              label: 'Profile',
                             ),
                           ],
                           onNavigationIndexChange: (index) {
                             // Au lieu de setState, on utilise GoRouter pour changer l'URL
                             if (index == 0) context.goNamed('adminDashboard');
                             if (index == 1) context.goNamed('adminCommunity');
-                            if (index == 2) context.goNamed('adminProfil');
+                            if (index == 2) context.goNamed('adminRanking');
+                            if (index == 3) context.goNamed('adminUsers');
+                            if (index == 4) context.goNamed('adminProfil');
                           },
                           onLogout: () {
                             context.read<AuthBloc>().add(AuthLogout());
@@ -162,6 +175,44 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
                 final User user = appUserState.user;
                 final Company? company = appUserState.company;
                 return ProfilPage(user: user, company: company!);
+              }
+              return const IntroPage();
+            },
+          ),
+          GoRoute(
+            path: '/admin/ranking',
+            name: 'adminRanking',
+            builder: (context, state) {
+              final appUserState = context.read<AppUserCubit>().state;
+              if (appUserState is AppUserLoggedIn) {
+                // final User user = appUserState.user;
+                // final Company? company = appUserState.company;
+                //TODO: Créer une page de classement et y injecter les données nécessaires (user, company, etc.)
+                return Center(
+                  child: Text(
+                    'Page de classement à venir',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                );
+              }
+              return const IntroPage();
+            },
+          ),
+          GoRoute(
+            path: '/admin/users',
+            name: 'adminUsers',
+            builder: (context, state) {
+              final appUserState = context.read<AppUserCubit>().state;
+              if (appUserState is AppUserLoggedIn) {
+                // final User user = appUserState.user;
+                // final Company? company = appUserState.company;
+                //TODO: Créer une page de classement et y injecter les données nécessaires (user, company, etc.)
+                return Center(
+                  child: Text(
+                    'Page des utilisateurs à venir',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                );
               }
               return const IntroPage();
             },

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/domain/entities/user.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:oikos/core/theme/admin_theme.dart';
 import 'package:oikos/core/utils/utils.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
@@ -77,9 +77,11 @@ class _LogoPickerModalState extends State<LogoPickerModal> {
                   child: Row(
                     children: [
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(AdminTheme.radiusXxl),
+                        borderRadius: BorderRadius.circular(
+                          AdminTheme.radiusXxl,
+                        ),
                         child: Image.network(
-                          community.logoFullUrl,
+                          community.avatarNetworkUrl,
                           width: 48,
                           height: 48,
                           fit: BoxFit.cover,
@@ -133,65 +135,63 @@ class _LogoPickerModalState extends State<LogoPickerModal> {
                           ),
                         )
                       : logos == null || logos.isEmpty
-                          ? Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(32),
-                                child: Text(
-                                  'Aucun logo disponible',
-                                  style: TextStyle(
-                                    color: colors.mutedForeground,
-                                  ),
-                                ),
-                              ),
-                            )
-                          : GridView.builder(
-                              padding: const EdgeInsets.all(AdminTheme.spacingMd),
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                      ? Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(32),
+                            child: Text(
+                              'Aucun logo disponible',
+                              style: TextStyle(color: colors.mutedForeground),
+                            ),
+                          ),
+                        )
+                      : GridView.builder(
+                          padding: const EdgeInsets.all(AdminTheme.spacingMd),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 4,
                                 crossAxisSpacing: AdminTheme.spacingMd,
                                 mainAxisSpacing: AdminTheme.spacingMd,
                               ),
-                              itemCount: logos.length,
-                              itemBuilder: (context, index) {
-                                final url = logos[index];
-                                final isSelected = _selectedLogoUrl == url;
-                                return GestureDetector(
-                                  onTap: () =>
-                                      setState(() => _selectedLogoUrl = url),
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 150),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(
-                                        AdminTheme.radiusLg,
-                                      ),
-                                      border: Border.all(
-                                        color: isSelected
-                                            ? AdminTheme.actionGreen
-                                            : colors.border,
-                                        width: isSelected ? 3 : 1,
-                                      ),
-                                    ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(
-                                        AdminTheme.radiusMd,
-                                      ),
-                                      child: Image.network(
-                                        StorageUtils.getPublicUrl('avatars', url),
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (_, _, _) => Container(
-                                          color: colors.pageBackground,
-                                          child: Icon(
-                                            Icons.broken_image_rounded,
-                                            color: colors.mutedForeground,
-                                          ),
-                                        ),
+                          itemCount: logos.length,
+                          itemBuilder: (context, index) {
+                            final url = logos[index];
+                            final isSelected = _selectedLogoUrl == url;
+                            return GestureDetector(
+                              onTap: () =>
+                                  setState(() => _selectedLogoUrl = url),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 150),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(
+                                    AdminTheme.radiusLg,
+                                  ),
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? AdminTheme.actionGreen
+                                        : colors.border,
+                                    width: isSelected ? 3 : 1,
+                                  ),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(
+                                    AdminTheme.radiusMd,
+                                  ),
+                                  child: Image.network(
+                                    StorageUtils.getNetworkUrl('avatars', url),
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, _, _) => Container(
+                                      color: colors.pageBackground,
+                                      child: Icon(
+                                        Icons.broken_image_rounded,
+                                        color: colors.mutedForeground,
                                       ),
                                     ),
                                   ),
-                                );
-                              },
-                            ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                 ),
 
                 Divider(height: 1, color: colors.border),
@@ -284,7 +284,8 @@ class _CreateCommunityModalState extends State<CreateCommunityModal> {
 
   String? _validateCode(String code) {
     if (code.isEmpty) return 'Le code est requis';
-    if (code.length != 6) return 'Le code doit contenir exactement 6 caractères';
+    if (code.length != 6)
+      return 'Le code doit contenir exactement 6 caractères';
     return null;
   }
 
@@ -324,10 +325,9 @@ class _CreateCommunityModalState extends State<CreateCommunityModal> {
 
             if (state is CommunityLoaded) {
               isSubmitting = state.operationStatus == SectionStatus.loading;
-              errorMessage =
-                  state.operationStatus == SectionStatus.failure
-                      ? state.operationError
-                      : null;
+              errorMessage = state.operationStatus == SectionStatus.failure
+                  ? state.operationError
+                  : null;
               logos = state.availableLogos;
               isLoadingLogos = state.isLoadingLogos;
             }
@@ -355,7 +355,9 @@ class _CreateCommunityModalState extends State<CreateCommunityModal> {
                         label: 'Nom de la communauté *',
                         controller: _nomController,
                         error: _nomError,
-                        inputFormatter: FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9 \-]')),
+                        inputFormatter: FilteringTextInputFormatter.allow(
+                          RegExp(r'[a-zA-Z0-9 \-]'),
+                        ),
                         hint: 'Ex: Éco-Warriors Paris',
                         onChanged: (_) => setState(() => _nomError = null),
                       ),
@@ -478,10 +480,9 @@ class _EditCodeModalState extends State<EditCodeModal> {
 
             if (state is CommunityLoaded) {
               isSubmitting = state.operationStatus == SectionStatus.loading;
-              errorMessage =
-                  state.operationStatus == SectionStatus.failure
-                      ? state.operationError
-                      : null;
+              errorMessage = state.operationStatus == SectionStatus.failure
+                  ? state.operationError
+                  : null;
             }
 
             return Column(
@@ -504,10 +505,7 @@ class _EditCodeModalState extends State<EditCodeModal> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ReadOnlyField(
-                        label: 'Communauté',
-                        value: _communityName,
-                      ),
+                      ReadOnlyField(label: 'Communauté', value: _communityName),
                       const SizedBox(height: AdminTheme.spacingMd),
                       FormTextField(
                         label: "Nouveau code d'accès *",
@@ -644,7 +642,9 @@ class MembersListModal extends StatelessWidget {
                         ),
                         side: BorderSide(color: colors.border),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
+                          borderRadius: BorderRadius.circular(
+                            AdminTheme.radiusLg,
+                          ),
                         ),
                       ),
                       child: const Text('Fermer'),
@@ -663,10 +663,7 @@ class MembersListModal extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(40),
-        child: Text(
-          'Aucun membre',
-          style: TextStyle(color: mutedColor),
-        ),
+        child: Text('Aucun membre', style: TextStyle(color: mutedColor)),
       ),
     );
   }
@@ -681,8 +678,7 @@ class MembersListModal extends StatelessWidget {
       shrinkWrap: true,
       padding: const EdgeInsets.all(AdminTheme.spacingLg),
       itemCount: users.length,
-      separatorBuilder: (_, _) =>
-          const SizedBox(height: AdminTheme.spacingMd),
+      separatorBuilder: (_, _) => const SizedBox(height: AdminTheme.spacingMd),
       itemBuilder: (context, index) {
         final user = users[index];
         return MemberCard(

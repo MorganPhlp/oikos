@@ -65,11 +65,19 @@ sealed class User with _$User {
 extension UserX on User {
   bool get isAdmin => role == RoleUtilisateur.administrateur;
 
-  String get avatarFullUrl {
+  String get avatarNetworkUrl {
       if (avatarUrl == null || avatarUrl!.isEmpty) {
       // Génère un avatar avec les initiales si pas d'image
       return "https://ui-avatars.com/api/?name=$pseudo&background=random";
     }
-    return StorageUtils.getPublicUrl('avatars', avatarUrl!);
+    return StorageUtils.getNetworkUrl('avatars', avatarUrl!);
+  }
+
+  String get avatarLocalUrl {
+    if (avatarUrl == null || avatarUrl!.isEmpty) {
+      // Génère un avatar avec les initiales si pas d'image
+      return "https://ui-avatars.com/api/?name=$pseudo&background=random";
+    }
+    return StorageUtils.getLocalUrl('avatars', avatarUrl!);
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/domain/entities/categorie_empreinte_entity.dart';
+
 import 'package:oikos/features/bilanCarbone/domain/entities/detail_bilan_entity.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/calculer_bilan_categories_use_case.dart';
 import 'package:oikos/features/bilanCarbone/domain/use_cases/choix_categories_use_case.dart';
@@ -9,6 +9,8 @@ import 'package:oikos/features/bilanCarbone/domain/use_cases/preparer_choix_obje
 import 'package:oikos/features/bilanCarbone/domain/use_cases/recuperer_equivalents_carbone_use_case.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_resultat_event.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_resultat_state.dart';
+import 'package:oikos/core/common/domain/entities/categorie_empreinte_entity.dart';
+
 
 class BilanResultatBloc extends Bloc<ResultatEvent, ResultatState> {
   final DemarrerApprofondissementUseCase demarrerApproUseCase;

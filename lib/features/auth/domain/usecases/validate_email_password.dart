@@ -1,6 +1,6 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:oikos/core/error/failures.dart';
-import 'package:oikos/core/usecase/usecase.dart';
+import 'package:oikos/core/common/domain/usecase/usecase.dart';
 import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
 import 'package:oikos/features/auth/utils/auth_validators.dart';
 

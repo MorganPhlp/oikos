@@ -13,17 +13,20 @@ sealed class Community with _$Community {
     required String description,
     @JsonKey(name: 'nombre_membres') @Default(0) int? membersCount,
     @JsonKey(name: 'bilan_moyen') @Default(0) double? avgScore,
-    @JsonKey(name: 'logo_url')  String? logoUrl,
-    @JsonKey(name:'couleurhex') String? colorHex,
+    @JsonKey(name: 'logo_url') String? logoUrl,
+    @JsonKey(name: 'couleurhex') String? colorHex,
   }) = _Community;
 
-  factory Community.fromJson(Map<String, dynamic> json) => _$CommunityFromJson(json);
+  factory Community.fromJson(Map<String, dynamic> json) =>
+      _$CommunityFromJson(json);
 }
 
 extension CommunityExtension on Community {
-  String get logoFullUrl => logoUrl != null && logoUrl!.isNotEmpty
-      ? (logoUrl!.startsWith('http')
-          ? logoUrl!
-          : StorageUtils.getPublicUrl('avatars', logoUrl!))
+  String get avatarNetworkUrl => logoUrl != null && logoUrl!.isNotEmpty
+      ? StorageUtils.getNetworkUrl('avatars', logoUrl!)
+      : 'https://ui-avatars.com/api/?name=$name&background=random';
+
+  String get avatarLocalUrl => logoUrl != null && logoUrl!.isNotEmpty
+      ? StorageUtils.getLocalUrl('avatars', logoUrl!)
       : 'https://ui-avatars.com/api/?name=$name&background=random';
 }

@@ -1,13 +1,14 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:oikos/core/error/failures.dart';
 import 'package:oikos/core/logger.dart';
-import 'package:oikos/core/domain/entities/user.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
 import 'package:oikos/features/admin/domain/repositories/community_rep.dart';
-import 'package:supabase_flutter/supabase_flutter.dart' as supa;
+import 'package:supabase_flutter/supabase_flutter.dart' hide User;
+
 
 class CommunityImpl extends CommunityRep {
-  final supa.SupabaseClient supabase;
+  final SupabaseClient supabase;
 
   CommunityImpl(this.supabase);
 
@@ -24,7 +25,7 @@ class CommunityImpl extends CommunityRep {
       //       .eq("code", oldCode);
       // }
       return right(null);
-    } on supa.PostgrestException catch (e) {
+    } on PostgrestException catch (e) {
       logger.e("Erreur Repository", error: e);
       return left(Failure("Erreur supabase : ${e.message}"));
     } catch (e) {
@@ -158,7 +159,7 @@ class CommunityImpl extends CommunityRep {
       final users = mokResponse.map((json) => User.fromJson(json)).toList();
 
       return right(users);
-    } on supa.PostgrestException catch (e) {
+    } on PostgrestException catch (e) {
       logger.e("Erreur Repository", error: e);
       return left(Failure("Erreur supabase : ${e.message}"));
     } catch (e) {
@@ -195,7 +196,7 @@ class CommunityImpl extends CommunityRep {
           .map((json) => Company.fromJson(json))
           .toList();
       return right(companies);
-    } on supa.PostgrestException catch (e) {
+    } on PostgrestException catch (e) {
       logger.e("Erreur Repository", error: e);
       return left(Failure("Erreur supabase : ${e.message}"));
     } catch (e) {
@@ -216,7 +217,7 @@ class CommunityImpl extends CommunityRep {
         "couleurhex": "#FFFFFF", 
       });
       return right(null);
-    } on supa.PostgrestException catch (e) {
+    } on PostgrestException catch (e) {
       logger.e("Erreur Repository", error: e);
       return left(Failure("Erreur supabase : ${e.message}"));
     } catch (e) {
@@ -235,7 +236,7 @@ class CommunityImpl extends CommunityRep {
       // }
       // return right(codeExist);
       return right(false);
-    } on supa.PostgrestException catch (e) {
+    } on PostgrestException catch (e) {
       logger.e("Erreur Repository", error: e);
       return left(Failure("Erreur supabase : ${e.message}"));
     } catch (e) {
@@ -249,7 +250,7 @@ class CommunityImpl extends CommunityRep {
     try {
       // await supabase.from('communaute').delete().eq('code', code);
       return right(null);
-    } on supa.PostgrestException catch (e) {
+    } on PostgrestException catch (e) {
       logger.e("Erreur Repository", error: e);
       return left(Failure("Erreur supabase : ${e.message}"));
     } catch (e) {
@@ -269,7 +270,7 @@ class CommunityImpl extends CommunityRep {
       //     .update({'logo_url': logoFileName})
       //     .eq('code', communityCode);
       return right(null);
-    } on supa.PostgrestException catch (e) {
+    } on PostgrestException catch (e) {
       logger.e("Erreur Repository", error: e);
       return left(Failure("Erreur supabase : ${e.message}"));
     } catch (e) {

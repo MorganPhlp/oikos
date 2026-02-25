@@ -1,4 +1,4 @@
-import 'package:oikos/core/domain/entities/user.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
 
 /// Statut d'une opération de sauvegarde pour une section du profil.
@@ -69,9 +69,15 @@ class ProfileLoaded extends ProfileState {
       profileStatus: profileStatus ?? this.profileStatus,
       companyStatus: companyStatus ?? this.companyStatus,
       passwordStatus: passwordStatus ?? this.passwordStatus,
-      profileError: clearProfileError ? null : (profileError ?? this.profileError),
-      companyError: clearCompanyError ? null : (companyError ?? this.companyError),
-      passwordError: clearPasswordError ? null : (passwordError ?? this.passwordError),
+      profileError: clearProfileError
+          ? null
+          : (profileError ?? this.profileError),
+      companyError: clearCompanyError
+          ? null
+          : (companyError ?? this.companyError),
+      passwordError: clearPasswordError
+          ? null
+          : (passwordError ?? this.passwordError),
       availableAvatars: availableAvatars ?? this.availableAvatars,
       availableLogos: availableLogos ?? this.availableLogos,
       isLoadingAvatars: isLoadingAvatars ?? this.isLoadingAvatars,

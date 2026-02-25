@@ -1,4 +1,4 @@
-import 'package:oikos/core/usecase/usecase.dart';
+import 'package:oikos/core/common/domain/usecase/usecase.dart';
 import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
 import 'package:fpdart/fpdart.dart';
 

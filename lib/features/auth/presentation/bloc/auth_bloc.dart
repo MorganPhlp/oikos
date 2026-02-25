@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/common/cubits/app_user/app_user_cubit.dart';
-import 'package:oikos/core/domain/entities/user.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:oikos/features/admin/domain/use_cases/get_company_info.dart';
 import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
 import 'package:oikos/features/auth/domain/usecases/current_user.dart';
@@ -10,7 +10,7 @@ import 'package:oikos/features/auth/domain/usecases/user_signup.dart';
 import 'package:oikos/features/auth/domain/usecases/validate_email_password.dart';
 import 'package:oikos/features/auth/domain/usecases/validate_pseudo.dart';
 
-import '../../../../core/usecase/usecase.dart';
+import '../../../../core/common/domain/usecase/usecase.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
@@ -25,7 +25,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final ValidatePseudo _validatePseudo;
   final GetCompanyInfo _getCompanyInfo;
 
-
   AuthBloc({
     required UserSignup userSignup,
     required UserSignin userSignin,
@@ -34,7 +33,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required AuthRepository authRepository,
     required ValidateEmailPassword validateEmailPassword,
     required ValidatePseudo validatePseudo,
-     required GetCompanyInfo getCompanyInfo,
+    required GetCompanyInfo getCompanyInfo,
   }) : _userSignin = userSignin,
        _userSignup = userSignup,
        _currentUser = currentUser,
@@ -55,7 +54,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthLogout>(_onAuthLogout);
     on<AuthUpdatePasswordRequested>(_onAuthChangePassword);
   }
-
 
   void _onAuthChangePassword(
     AuthUpdatePasswordRequested event,

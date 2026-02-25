@@ -80,9 +80,7 @@ class _AvatarPickerModalState extends State<AvatarPickerModal> {
                             padding: const EdgeInsets.all(32),
                             child: Text(
                               'Aucun avatar disponible',
-                              style: TextStyle(
-                                color: colors.mutedForeground,
-                              ),
+                              style: TextStyle(color: colors.mutedForeground),
                             ),
                           ),
                         )
@@ -113,7 +111,9 @@ class _AvatarPickerModalState extends State<AvatarPickerModal> {
                                   ),
                                 ),
                                 child: CircleAvatar(
-                                  backgroundImage: NetworkImage(StorageUtils.getPublicUrl('avatars', url)),
+                                  backgroundImage: NetworkImage(
+                                    StorageUtils.getNetworkUrl('avatars', url),
+                                  ),
                                   backgroundColor: colors.pageBackground,
                                 ),
                               ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/domain/entities/user.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:oikos/core/theme/admin_theme.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_bloc.dart';
@@ -46,7 +46,7 @@ class CommunityCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 _CommunityLogo(
-                  logoUrl: community.logoFullUrl,
+                  logoUrl: community.avatarNetworkUrl,
                   size: 40,
                   onTap: onEditLogo,
                 ),
@@ -91,10 +91,7 @@ class CommunityCard extends StatelessWidget {
               icon: Icons.people_rounded,
               child: Text(
                 '${community.membersCount ?? 0} membre${(community.membersCount ?? 0) > 1 ? 's' : ''}',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: colors.mutedForeground,
-                ),
+                style: TextStyle(fontSize: 13, color: colors.mutedForeground),
               ),
               colors: colors,
             ),
@@ -135,11 +132,7 @@ class CommunityCard extends StatelessWidget {
   }) {
     return Row(
       children: [
-        Icon(
-          icon,
-          size: 16,
-          color: iconColor ?? colors.mutedForeground,
-        ),
+        Icon(icon, size: 16, color: iconColor ?? colors.mutedForeground),
         const SizedBox(width: AdminTheme.spacingSm),
         child,
       ],
@@ -194,7 +187,7 @@ class MobileCommunityCard extends StatelessWidget {
             child: Row(
               children: [
                 _CommunityLogo(
-                  logoUrl: community.logoFullUrl,
+                  logoUrl: community.avatarNetworkUrl,
                   size: 48,
                   onTap: onEditLogo,
                 ),
@@ -513,10 +506,7 @@ class MemberCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   user.email,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: colors.mutedForeground,
-                  ),
+                  style: TextStyle(fontSize: 13, color: colors.mutedForeground),
                 ),
               ],
             ),

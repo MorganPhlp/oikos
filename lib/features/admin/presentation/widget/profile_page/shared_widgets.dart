@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:oikos/core/domain/entities/user.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:oikos/core/theme/admin_theme.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
 
@@ -20,11 +20,14 @@ void showProfileSnackBar(
             size: 16,
           ),
           const SizedBox(width: AdminTheme.spacingSm),
-          Expanded(child: Text(message, style: const TextStyle(color: Colors.white))),
+          Expanded(
+            child: Text(message, style: const TextStyle(color: Colors.white)),
+          ),
         ],
       ),
-      backgroundColor:
-          isError ? AdminTheme.errorForeground : AdminTheme.actionGreen,
+      backgroundColor: isError
+          ? AdminTheme.errorForeground
+          : AdminTheme.actionGreen,
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
@@ -44,10 +47,7 @@ InputDecoration profileInputDecoration(
   final colors = AdminColors.of(context);
   return InputDecoration(
     hintText: hint,
-    hintStyle: TextStyle(
-      color: colors.mutedForeground,
-      fontSize: 14,
-    ),
+    hintStyle: TextStyle(color: colors.mutedForeground, fontSize: 14),
     prefixIcon: Icon(prefixIcon, size: 18, color: colors.mutedForeground),
     suffixIcon: suffixIcon,
     filled: true,
@@ -74,10 +74,7 @@ InputDecoration profileInputDecoration(
     ),
     focusedErrorBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
-      borderSide: const BorderSide(
-        color: AdminTheme.errorForeground,
-        width: 2,
-      ),
+      borderSide: const BorderSide(color: AdminTheme.errorForeground, width: 2),
     ),
   );
 }
@@ -180,8 +177,7 @@ class SaveButton extends StatelessWidget {
             )
           : Text(
               label,
-              style:
-                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             ),
     );
   }
@@ -214,9 +210,7 @@ class RoleBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            isAdmin
-                ? Icons.admin_panel_settings_rounded
-                : Icons.person_rounded,
+            isAdmin ? Icons.admin_panel_settings_rounded : Icons.person_rounded,
             size: 14,
             color: isAdmin ? AdminTheme.actionGreen : colors.mutedForeground,
           ),
@@ -254,7 +248,7 @@ class AvatarEditor extends StatelessWidget {
           child: CircleAvatar(
             radius: 48,
             backgroundColor: colors.muted,
-            backgroundImage: NetworkImage(user.avatarFullUrl),
+            backgroundImage: NetworkImage(user.avatarNetworkUrl),
           ),
         ),
         GestureDetector(
@@ -304,7 +298,7 @@ class LogoEditor extends StatelessWidget {
             ),
             clipBehavior: Clip.antiAlias,
             child: Image.network(
-              company.logoFullUrl,
+              company.logoNetworkUrl,
               fit: BoxFit.contain,
               errorBuilder: (_, _, _) => Icon(
                 Icons.business_rounded,
@@ -494,10 +488,7 @@ class PasswordField extends StatelessWidget {
           obscureText: obscure,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(
-              color: colors.mutedForeground,
-              fontSize: 14,
-            ),
+            hintStyle: TextStyle(color: colors.mutedForeground, fontSize: 14),
             prefixIcon: Icon(
               Icons.lock_outline_rounded,
               size: 18,
@@ -536,8 +527,7 @@ class PasswordField extends StatelessWidget {
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
-              borderSide:
-                  const BorderSide(color: AdminTheme.errorForeground),
+              borderSide: const BorderSide(color: AdminTheme.errorForeground),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AdminTheme.radiusMd),

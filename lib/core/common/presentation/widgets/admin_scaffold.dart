@@ -1,5 +1,12 @@
+
+
+
+
+
+
+
 import 'package:flutter/material.dart';
-import 'package:oikos/core/presentation/widgets/admin_background.dart';
+import 'package:oikos/core/common/presentation/widgets/admin_background.dart';
 import 'package:oikos/core/theme/admin_theme.dart';
 import 'package:oikos/core/theme/breakpoints.dart';
 
@@ -11,7 +18,6 @@ import 'package:oikos/core/theme/breakpoints.dart';
 /// [GradientBackground.of(context)] without any additional setup.
 class AdminScaffold extends StatelessWidget {
   final Widget body;
-  final String title;
   final Widget logo;
   final List<NavigationDestination> destinations;
   final int currentIndex;
@@ -21,7 +27,6 @@ class AdminScaffold extends StatelessWidget {
   const AdminScaffold({
     super.key,
     required this.body,
-    required this.title,
     required this.destinations,
     required this.currentIndex,
     required this.onNavigationIndexChange,
@@ -42,8 +47,9 @@ class AdminScaffold extends StatelessWidget {
           // Tout le contenu ci-dessous bénéficie de AdminColors + GradientBackground
           return LayoutBuilder(
             builder: (context, constraints) {
-              final screenType =
-                  Breakpoints.getScreenType(constraints.maxWidth);
+              final screenType = Breakpoints.getScreenType(
+                constraints.maxWidth,
+              );
 
               if (screenType == ScreenType.desktop ||
                   screenType == ScreenType.tablet) {
@@ -146,15 +152,7 @@ class AdminScaffold extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          title,
-                          style: Theme.of(context).textTheme.titleSmall
-                              ?.copyWith(
-                                fontWeight: FontWeight.w700,
-                                color: colors.foreground,
-                              ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                        Image.asset('assets/logos/oikos_logo.png'),
                         Text(
                           'admin dashboard',
                           style: Theme.of(context).textTheme.bodySmall
@@ -200,9 +198,7 @@ class AdminScaffold extends StatelessWidget {
     final colors = AdminColors.of(context);
     return ColoredBox(
       color: colors.pageBackground,
-      child: AdminBackground(
-        child: SafeArea(child: body),
-      ),
+      child: AdminBackground(child: SafeArea(child: body)),
     );
   }
 
@@ -219,32 +215,31 @@ class AdminScaffold extends StatelessWidget {
       scrolledUnderElevation: 1,
       shadowColor: colors.border,
       titleSpacing: AdminTheme.spacingMd,
-      title: Row(
-        spacing: AdminTheme.spacingSm,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 32),
-            child: logo,
-          ),
-          Flexible(
-            child: Text(
-              title,
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w500,
-                color: colors.foreground,
-              ),
-              overflow: TextOverflow.ellipsis,
+      title: Padding(
+        padding: EdgeInsets.symmetric(horizontal: AdminTheme.spacingMd),
+        child: Row(
+          spacing: AdminTheme.spacingSm,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 32),
+              child: logo,
             ),
-          ),
-          Text(
-            'Admin',
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w500,
-              color: colors.foreground,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Image.asset('assets/logos/oikos_logo.png', height: 32),
+                Text(
+                  'admin',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    color: colors.mutedForeground,
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
+            SizedBox.shrink(),
+          ],
+        ),
       ),
       actions: [
         IconButton(
@@ -276,10 +271,10 @@ class AdminScaffold extends StatelessWidget {
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         shadowColor: Colors.transparent,
-        indicatorColor: AdminTheme.actionGreenLight,
+        indicatorColor: AdminTheme.actionGreen,
         selectedIndex: currentIndex,
         onDestinationSelected: onNavigationIndexChange,
-        labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
         destinations: destinations,
       ),
     );
@@ -341,3 +336,5 @@ class _LogoutButton extends StatelessWidget {
     );
   }
 }
+
+

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/common/widgets/loader.dart';
-import 'package:oikos/core/domain/entities/categorie_empreinte_entity.dart';
-import 'package:oikos/core/presentation/widgets/gradient_button.dart';
+import 'package:oikos/core/common/domain/entities/categorie_empreinte_entity.dart';
+import 'package:oikos/core/common/presentation/widgets/gradient_button.dart';
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_resultat_bloc.dart';
 import 'package:oikos/features/bilanCarbone/presentation/bloc/bilan_resultat_event.dart';

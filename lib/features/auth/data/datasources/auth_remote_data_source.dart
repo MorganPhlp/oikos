@@ -1,4 +1,4 @@
-import 'package:oikos/core/domain/entities/user.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:oikos/core/error/exceptions.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sup;
 

@@ -1,7 +1,8 @@
-import 'package:oikos/core/domain/interfaces/utilisateur_repository.dart';
+import 'package:oikos/core/common/domain/interfaces/user_rep.dart';
+
 
 class DefinirObjectifUseCase {
-  final UtilisateurRepository utilisateurRepo;
+  final UserRep utilisateurRepo;
   DefinirObjectifUseCase({required this.utilisateurRepo});
   void call(double objectifRatio) {
     utilisateurRepo.setObjetifsUtilisateur(objectifRatio);

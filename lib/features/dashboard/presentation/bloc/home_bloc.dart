@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/usecase/usecase.dart';
+import 'package:oikos/core/common/domain/usecase/usecase.dart';
 import '../../domain/usecases/get_my_profile.dart';
 
 part 'home_event.dart';

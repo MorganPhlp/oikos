@@ -1,7 +1,7 @@
 import 'package:oikos/features/admin/data/repositories/community_impl.dart';
 import 'package:oikos/features/admin/data/repositories/company_impl.dart';
 import 'package:oikos/features/admin/data/repositories/logos_impl.dart';
-import 'package:oikos/features/admin/data/repositories/user_impl.dart';
+import 'package:oikos/core/common/data/user_impl.dart';
 import 'package:oikos/features/admin/domain/repositories/carbon_foot_print_rep.dart';
 import 'package:oikos/features/admin/data/repositories/carbon_foot_print.dart';
 import 'package:oikos/features/admin/domain/repositories/community_rep.dart';
@@ -340,7 +340,7 @@ void _initAdmin() {
   //Repositories
   serviceLocator.registerLazySingleton<CarbonFootPrintRep>(
     () => CarbonFootPrintImpl(
-      serviceLocator<SupabaseClient>(instanceName: "supabaseLocal"),
+      serviceLocator<SupabaseClient>(instanceName: "supabaseExternal"),
     ),
   );
   serviceLocator.registerLazySingleton<CommunityRep>(

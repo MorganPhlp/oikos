@@ -420,8 +420,7 @@ class LogoPickerSection extends StatelessWidget {
           ),
         ),
         child: ClipOval(
-          child: Image.network(
-            StorageUtils.getPublicUrl('avatars', url),
+          child: Image.network(StorageUtils.getNetworkUrl('avatars', url),
             fit: BoxFit.cover,
             errorBuilder: (_, _, _) => Container(
               color: colors.pageBackground,

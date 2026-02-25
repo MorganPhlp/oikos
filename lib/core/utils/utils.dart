@@ -12,15 +12,33 @@ Color hexToColor(String hexString) {
 }
 
 class StorageUtils {
-  static String getPublicUrl(String bucket, String path) {
+  static String getNetworkUrl(String bucket, String path) {
 
-    final String publicUrl = serviceLocator<SupabaseClient>(instanceName: 'supabaseExternal')
+    final String netWorkUrl = serviceLocator<SupabaseClient>(instanceName: 'supabaseExternal')
         .storage
         .from(bucket)
         .getPublicUrl(path.trim());
 
-    logger.d('Generated public URL for bucket "$bucket" and path "$path": $publicUrl');
-    return publicUrl;
+    logger.d('Generated public URL for bucket "$bucket" and path "$path": $netWorkUrl');
+    return netWorkUrl;
+  }
+
+  static String getLocalUrl(String bucket, String path) {
+
+    final String getLocalUrl = "assets/$bucket/${path.trim()}";
+
+    logger.d('Generated local URL for bucket "$bucket" and path "$path": $getLocalUrl');
+    return getLocalUrl;
+  }
+
+
+}
+
+
+extension StringExtension on String {
+  String capitalize() {
+    if (isEmpty) return this;
+    return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
   }
 }
 

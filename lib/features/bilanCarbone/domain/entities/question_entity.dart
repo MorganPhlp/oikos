@@ -1,5 +1,5 @@
 import 'dart:collection';
-import 'package:oikos/core/common/util.dart';
+import 'package:oikos/core/utils/utils.dart';
 
 import 'type_widget.dart';
 class QuestionBilanEntity {

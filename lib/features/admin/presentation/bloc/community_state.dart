@@ -1,4 +1,4 @@
-import 'package:oikos/core/domain/entities/user.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
 import 'package:oikos/features/admin/presentation/bloc/profile_state.dart'
     show SectionStatus;
@@ -77,10 +77,12 @@ class CommunityLoaded extends CommunityState {
     return CommunityLoaded(
       data: data ?? this.data,
       operationStatus: operationStatus ?? this.operationStatus,
-      operationError:
-          clearOperationError ? null : (operationError ?? this.operationError),
-      successMessage:
-          clearSuccessMessage ? null : (successMessage ?? this.successMessage),
+      operationError: clearOperationError
+          ? null
+          : (operationError ?? this.operationError),
+      successMessage: clearSuccessMessage
+          ? null
+          : (successMessage ?? this.successMessage),
       currentMobileView: currentMobileView ?? this.currentMobileView,
       selectedCommunity: selectedCommunity ?? this.selectedCommunity,
       selectedUser: selectedUser ?? this.selectedUser,
