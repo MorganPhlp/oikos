@@ -70,14 +70,14 @@ class DefiEntity extends Equatable {
     if (totalMembers1 <= 0) return 0.0;
     final current = isVotePhase ? votesOui1 : participantsCommu1;
     // Objectif : 60% des membres
-    return (current / (totalMembers1 * 0.6)).clamp(0.0, 1.0);
+    return (current / (totalMembers1)).clamp(0.0, 1.0);
   }
 
   /// Calcul de progression générique pour la Communauté 2 (Cible)
   double get progress2 {
     if (totalMembers2 <= 0) return 0.0;
     final current = isVotePhase ? votesOui2 : participantsCommu2;
-    return (current / (totalMembers2 * 0.6)).clamp(0.0, 1.0);
+    return (current / totalMembers2.clamp(0.0, 1.0));
   }
 
   /// Temps restant en format lisible
