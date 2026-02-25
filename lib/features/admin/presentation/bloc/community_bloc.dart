@@ -308,10 +308,6 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
       if (currentState is CommunityLoaded) {
         switch (currentState.currentMobileView) {
           case MobileView.members:
-          case MobileView.createCommunity:
-          case MobileView.editCode:
-          case MobileView.deleteConfirm:
-          case MobileView.editLogo:
             emit(
               currentState.copyWith(
                 currentMobileView: MobileView.list,

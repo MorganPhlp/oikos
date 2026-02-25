@@ -1,4 +1,4 @@
-import 'package:oikos/core/common/domain/entities/user.dart';
+import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
 
 /// Statut d'une opération de sauvegarde pour une section du profil.
@@ -11,7 +11,7 @@ class ProfileInitial extends ProfileState {}
 
 /// État chargé : contient les données courantes et les statuts de chaque section.
 class ProfileLoaded extends ProfileState {
-  final User user;
+  final Utilisateurs user;
   final Company company;
 
   final SectionStatus profileStatus;
@@ -47,7 +47,7 @@ class ProfileLoaded extends ProfileState {
   });
 
   ProfileLoaded copyWith({
-    User? user,
+    Utilisateurs? user,
     Company? company,
     SectionStatus? profileStatus,
     SectionStatus? companyStatus,

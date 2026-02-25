@@ -1,7 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:oikos/core/error/failures.dart';
 import 'package:oikos/core/logger.dart';
-import 'package:oikos/features/admin/domain/repositories/logos_rep.dart';
+import 'package:oikos/features/admin/domain/interfaces/logos_rep.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LogosImpl extends LogosRep {

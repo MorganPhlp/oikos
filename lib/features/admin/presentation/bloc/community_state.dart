@@ -1,4 +1,4 @@
-import 'package:oikos/core/common/domain/entities/user.dart';
+import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
 import 'package:oikos/features/admin/presentation/bloc/profile_state.dart'
     show SectionStatus;
@@ -30,10 +30,10 @@ class CommunityLoaded extends CommunityState {
 
   /// Communauté sélectionnée (pour les actions)
   final Community? selectedCommunity;
-  final List<User>? selectedUsers;
+  final List<Utilisateurs>? selectedUsers;
 
   /// Utilisateur sélectionné (pour les actions)
-  final User? selectedUser;
+  final Utilisateurs? selectedUser;
 
   /// Nouvelle communauté sélectionnée (pour le changement de communauté)
   final String? selectedNewCommunityId;
@@ -67,8 +67,8 @@ class CommunityLoaded extends CommunityState {
     bool clearSuccessMessage = false,
     MobileView? currentMobileView,
     Community? selectedCommunity,
-    User? selectedUser,
-    List<User>? selectedUsers,
+    Utilisateurs? selectedUser,
+    List<Utilisateurs>? selectedUsers,
     String? selectedNewCommunityId,
     String? selectedCompanyId,
     List<String>? availableLogos,

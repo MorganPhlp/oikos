@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:oikos/core/common/cubits/app_user/app_user_cubit.dart';
-import 'package:oikos/core/common/domain/entities/user.dart';
+import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
 import 'package:oikos/core/common/presentation/widgets/admin_scaffold.dart';
 import 'package:oikos/core/theme/admin_theme.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,10 +10,10 @@ import 'package:oikos/features/admin/data/models/models.dart';
 import 'package:oikos/features/admin/presentation/pages/community_management_page.dart';
 import 'package:oikos/features/admin/presentation/pages/global_vue_page.dart';
 import 'package:oikos/features/admin/presentation/pages/profil_page.dart';
+import 'package:oikos/features/admin/presentation/pages/ranking_page.dart';
+import 'package:oikos/features/admin/presentation/pages/users_page.dart';
 import 'package:oikos/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:oikos/features/auth/presentation/pages/intro_page.dart';
-import 'package:oikos/features/bilanCarbone/presentation/pages/bilan_flow.dart';
-import 'package:oikos/features/dashboard/presentation/pages/home_page.dart';
 
 GoRouter createRouter(AppUserCubit appUserCubit) {
   return GoRouter(
@@ -26,16 +26,6 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
         path: '/',
         name: 'intro',
         builder: (context, state) => const IntroPage(),
-      ),
-      GoRoute(
-        path: '/bilan',
-        name: 'bilan',
-        builder: (context, state) => const BilanFlow(),
-      ),
-      GoRoute(
-        path: '/home',
-        name: 'home',
-        builder: (context, state) => const HomePage(),
       ),
       ShellRoute(
         builder: (context, state, child) {
@@ -144,7 +134,7 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
               final appUserState = context.read<AppUserCubit>().state;
 
               if (appUserState is AppUserLoggedIn) {
-                final User user = appUserState.user;
+                final Utilisateurs user = appUserState.user;
                 final Company? company = appUserState.company;
                 return GlobalVuePage(user: user, company: company!);
               }
@@ -159,7 +149,7 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
               final appUserState = context.read<AppUserCubit>().state;
 
               if (appUserState is AppUserLoggedIn) {
-                final User user = appUserState.user;
+                final Utilisateurs user = appUserState.user;
                 final Company? company = appUserState.company;
                 return CommunityManagementPage(user: user, company: company!);
               }
@@ -172,7 +162,7 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
             builder: (context, state) {
               final appUserState = context.read<AppUserCubit>().state;
               if (appUserState is AppUserLoggedIn) {
-                final User user = appUserState.user;
+                final Utilisateurs user = appUserState.user;
                 final Company? company = appUserState.company;
                 return ProfilPage(user: user, company: company!);
               }
@@ -185,15 +175,9 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
             builder: (context, state) {
               final appUserState = context.read<AppUserCubit>().state;
               if (appUserState is AppUserLoggedIn) {
-                // final User user = appUserState.user;
-                // final Company? company = appUserState.company;
-                //TODO: Créer une page de classement et y injecter les données nécessaires (user, company, etc.)
-                return Center(
-                  child: Text(
-                    'Page de classement à venir',
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                );
+                final Utilisateurs user = appUserState.user;
+                final Company company = appUserState.company!;
+                return RankingPage(user: user, company: company);
               }
               return const IntroPage();
             },
@@ -204,15 +188,9 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
             builder: (context, state) {
               final appUserState = context.read<AppUserCubit>().state;
               if (appUserState is AppUserLoggedIn) {
-                // final User user = appUserState.user;
-                // final Company? company = appUserState.company;
-                //TODO: Créer une page de classement et y injecter les données nécessaires (user, company, etc.)
-                return Center(
-                  child: Text(
-                    'Page des utilisateurs à venir',
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                );
+                final Utilisateurs user = appUserState.user;
+                final Company company = appUserState.company!;
+                return UsersPage(user: user, company: company);
               }
               return const IntroPage();
             },
@@ -232,7 +210,9 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
           if (authState.user.isAdmin) {
             return '/admin/dashboard';
           }
-          return authState.user.hasCompletedBilan ? '/home' : '/bilan';
+
+          //ici se trouve normalement le Code pour rediriger vers la page utilisateur classique, mais je ne m'occupe que du dashboard admin donc on reste sur l'intro pour éviter les erreurs
+          return null;
         }
         // Admin sur une route non-admin → forcer vers /admin/dashboard
         if (authState.user.isAdmin && !location.startsWith('/admin')) {

@@ -25,7 +25,7 @@ class GlobalInsightsKPIs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final numberFormat = NumberFormat('#,##0', 'fr_FR');
-    final decimalFormat = NumberFormat('#,##0.0', 'fr_FR');
+    // final decimalFormat = NumberFormat('#,##0.0', 'fr_FR');
 
  
 

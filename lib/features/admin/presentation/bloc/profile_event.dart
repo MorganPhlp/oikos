@@ -1,4 +1,4 @@
-import 'package:oikos/core/common/domain/entities/user.dart';
+import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
 
 abstract class ProfileEvent {}
@@ -6,14 +6,14 @@ abstract class ProfileEvent {}
 /// Initialise le bloc avec l'utilisateur et l'entreprise courants.
 /// Dispatché dans `initState` de [ProfilPage].
 class ProfileInitEvent extends ProfileEvent {
-  final User user;
+  final Utilisateurs user;
   final Company company;
   ProfileInitEvent({required this.user, required this.company});
 }
 
 /// Sauvegarde les informations du profil (pseudo, email).
 class ProfileUpdateUser extends ProfileEvent {
-  final User user;
+  final Utilisateurs user;
   ProfileUpdateUser({required this.user});
 }
 

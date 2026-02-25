@@ -25,7 +25,7 @@ migration:
       create_revision: b45fa18946ecc2d9b4009952c636ba7e2ffbb787
       base_revision: b45fa18946ecc2d9b4009952c636ba7e2ffbb787
 
-  # User provided section
+  # Utilisateurs provided section
 
   # List of Local paths (relative to this file) that should be
   # ignored by the migrate tool.

@@ -18,23 +18,9 @@ class FormHeader extends StatelessWidget {
     final colors = AdminColors.of(context);
     return Container(
       padding: const EdgeInsets.all(AdminTheme.spacingMd),
-      decoration: BoxDecoration(
-        color: colors.background,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      
       child: Row(
         children: [
-          IconButton(
-            onPressed: onBack,
-            icon: const Icon(Icons.close),
-            color: colors.mutedForeground,
-          ),
           const SizedBox(width: AdminTheme.spacingSm),
           Text(
             title,

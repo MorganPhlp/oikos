@@ -1,6 +1,6 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:oikos/core/error/failures.dart';
-import 'package:oikos/features/admin/domain/repositories/logos_rep.dart';
+import 'package:oikos/features/admin/domain/interfaces/logos_rep.dart';
 
 class GetAvatars {
   final LogosRep repository;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/common/domain/entities/user.dart';
+import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
 import 'package:oikos/core/theme/admin_theme.dart';
 import 'package:oikos/core/utils/utils.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
@@ -670,7 +670,7 @@ class MembersListModal extends StatelessWidget {
 
   Widget _buildMembersList(
     BuildContext context,
-    List<User> users,
+    List<Utilisateurs> users,
     Community community,
   ) {
     return ListView.separated(
@@ -695,7 +695,7 @@ class MembersListModal extends StatelessWidget {
     );
   }
 
-  void _showChangeModal(BuildContext context, User user) {
+  void _showChangeModal(BuildContext context, Utilisateurs user) {
     final bloc = context.read<CommunityBloc>();
     bloc.add(SelectUserEvent(user: user));
     showDialog(

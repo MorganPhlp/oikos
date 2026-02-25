@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/theme/admin_theme.dart';
 import 'package:oikos/core/theme/breakpoints.dart';
-import 'package:oikos/core/common/domain/entities/user.dart';
+import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_event.dart';
@@ -18,24 +18,12 @@ enum MobileView {
   /// Liste des membres d'une communauté sélectionnée
   members,
 
-  /// Formulaire de création d'une nouvelle communauté
-  createCommunity,
-
-  /// Formulaire de modification du code d'accès
-  editCode,
-
   /// Formulaire pour changer un utilisateur de communauté
   changeUser,
-
-  /// Confirmation de suppression d'une communauté
-  deleteConfirm,
-
-  /// Sélection du logo d'une communauté
-  editLogo,
 }
 
 class CommunityManagementPage extends StatefulWidget {
-  final User user;
+  final Utilisateurs user;
   final Company company;
   const CommunityManagementPage({
     super.key,
@@ -57,7 +45,7 @@ class _CommunityManagementPageState extends State<CommunityManagementPage> {
     );
   }
 
-  User get user => widget.user;
+  Utilisateurs get user => widget.user;
   Company get company => widget.company;
 
   // ============================================================================
@@ -100,7 +88,7 @@ class _CommunityManagementPageState extends State<CommunityManagementPage> {
     BuildContext context,
     MobileView view, {
     Community? community,
-    User? user,
+    Utilisateurs? user,
   }) {
     // Si on navigue vers changeUser, on sélectionne d'abord l'utilisateur
     if (view == MobileView.changeUser && user != null) {
@@ -121,7 +109,7 @@ class _CommunityManagementPageState extends State<CommunityManagementPage> {
   // ============================================================================
 
   /// Récupère les utilisateurs d'une communauté spécifique
-  List<User> _getUsers(String communityId, List<User> users) {
+  List<Utilisateurs> _getUsers(String communityId, List<Utilisateurs> users) {
     return users.where((u) => u.codeCommunaute == communityId).toList();
   }
 
@@ -197,15 +185,12 @@ class _CommunityManagementPageState extends State<CommunityManagementPage> {
           communities: communities,
           users: users,
           onCreateCommunity: () =>
-              _navigateTo(context, MobileView.createCommunity),
+              showMobileCreateCommunitySheet(context, company),
           onViewMembers: (c) =>
               _navigateTo(context, MobileView.members, community: c),
-          onEditCode: (c) =>
-              _navigateTo(context, MobileView.editCode, community: c),
-          onDelete: (c) =>
-              _navigateTo(context, MobileView.deleteConfirm, community: c),
-          onEditLogo: (c) =>
-              _navigateTo(context, MobileView.editLogo, community: c),
+          onEditCode: (c) => showMobileEditCodeSheet(context, c),
+          onDelete: (c) => showMobileDeleteConfirmSheet(context, c),
+          onEditLogo: (c) => showMobileEditLogoSheet(context, c, company.name),
         );
 
       case MobileView.members:
@@ -222,31 +207,8 @@ class _CommunityManagementPageState extends State<CommunityManagementPage> {
           },
         );
 
-      case MobileView.createCommunity:
-        return MobileCreateCommunity(
-          company: company,
-          onBack: () => _goBack(context),
-        );
-
-      case MobileView.editCode:
-        return MobileEditCode(onBack: () => _goBack(context));
-
       case MobileView.changeUser:
         return MobileChangeUserCommunity(onBack: () => _goBack(context));
-
-      case MobileView.deleteConfirm:
-        return MobileDeleteConfirmation(
-          onBack: () {
-            _goBack(context);
-            context.read<CommunityBloc>().add(ResetCommunityStatusEvent());
-          },
-        );
-
-      case MobileView.editLogo:
-        return MobileEditLogo(
-          onBack: () => _goBack(context),
-          companyName: company.name,
-        );
     }
   }
 

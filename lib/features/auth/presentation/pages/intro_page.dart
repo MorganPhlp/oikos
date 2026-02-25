@@ -30,7 +30,7 @@ class _IntroPageState extends State<IntroPage> {
                     top: 20,
                     right: 20,
                     child: Image(
-                      image: AssetImage('assets/logos/viveris_logo.png'),
+                      image: AssetImage('assets/logos/viveris/viveris_logo.png'),
                       height: 28,
                       fit: BoxFit.contain,
                     ),

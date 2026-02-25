@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/common/cubits/app_user/app_user_cubit.dart';
-import 'package:oikos/core/common/domain/entities/user.dart';
+import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
 import 'package:oikos/features/admin/domain/use_cases/get_company_info.dart';
 import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
 import 'package:oikos/features/auth/domain/usecases/current_user.dart';
@@ -180,7 +180,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
   }
 
-  Future<void> _emitAuthSuccess(User user, Emitter<AuthState> emit) async {
+  Future<void> _emitAuthSuccess(
+    Utilisateurs user,
+    Emitter<AuthState> emit,
+  ) async {
     if (user.entrepriseId.isNotEmpty) {
       final companyRes = await _getCompanyInfo(user.entrepriseId);
       companyRes.fold(

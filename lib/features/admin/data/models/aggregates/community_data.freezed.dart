@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$CommunityData {
 
-@JsonSerializable(explicitToJson: true) List<User> get users;@JsonSerializable(explicitToJson: true) List<Community> get communities;@JsonSerializable(explicitToJson: true) List<Company> get companies;
+@JsonSerializable(explicitToJson: true) List<Utilisateurs> get users;@JsonSerializable(explicitToJson: true) List<Community> get communities;
 /// Create a copy of CommunityData
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $CommunityDataCopyWith<CommunityData> get copyWith => _$CommunityDataCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CommunityData&&const DeepCollectionEquality().equals(other.users, users)&&const DeepCollectionEquality().equals(other.communities, communities)&&const DeepCollectionEquality().equals(other.companies, companies));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CommunityData&&const DeepCollectionEquality().equals(other.users, users)&&const DeepCollectionEquality().equals(other.communities, communities));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(users),const DeepCollectionEquality().hash(communities),const DeepCollectionEquality().hash(companies));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(users),const DeepCollectionEquality().hash(communities));
 
 @override
 String toString() {
-  return 'CommunityData(users: $users, communities: $communities, companies: $companies)';
+  return 'CommunityData(users: $users, communities: $communities)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $CommunityDataCopyWith<$Res>  {
   factory $CommunityDataCopyWith(CommunityData value, $Res Function(CommunityData) _then) = _$CommunityDataCopyWithImpl;
 @useResult
 $Res call({
-@JsonSerializable(explicitToJson: true) List<User> users,@JsonSerializable(explicitToJson: true) List<Community> communities,@JsonSerializable(explicitToJson: true) List<Company> companies
+@JsonSerializable(explicitToJson: true) List<Utilisateurs> users,@JsonSerializable(explicitToJson: true) List<Community> communities
 });
 
 
@@ -65,12 +65,11 @@ class _$CommunityDataCopyWithImpl<$Res>
 
 /// Create a copy of CommunityData
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? users = null,Object? communities = null,Object? companies = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? users = null,Object? communities = null,}) {
   return _then(_self.copyWith(
 users: null == users ? _self.users : users // ignore: cast_nullable_to_non_nullable
-as List<User>,communities: null == communities ? _self.communities : communities // ignore: cast_nullable_to_non_nullable
-as List<Community>,companies: null == companies ? _self.companies : companies // ignore: cast_nullable_to_non_nullable
-as List<Company>,
+as List<Utilisateurs>,communities: null == communities ? _self.communities : communities // ignore: cast_nullable_to_non_nullable
+as List<Community>,
   ));
 }
 
@@ -152,10 +151,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonSerializable(explicitToJson: true)  List<User> users, @JsonSerializable(explicitToJson: true)  List<Community> communities, @JsonSerializable(explicitToJson: true)  List<Company> companies)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonSerializable(explicitToJson: true)  List<Utilisateurs> users, @JsonSerializable(explicitToJson: true)  List<Community> communities)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CommunityData() when $default != null:
-return $default(_that.users,_that.communities,_that.companies);case _:
+return $default(_that.users,_that.communities);case _:
   return orElse();
 
 }
@@ -173,10 +172,10 @@ return $default(_that.users,_that.communities,_that.companies);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonSerializable(explicitToJson: true)  List<User> users, @JsonSerializable(explicitToJson: true)  List<Community> communities, @JsonSerializable(explicitToJson: true)  List<Company> companies)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonSerializable(explicitToJson: true)  List<Utilisateurs> users, @JsonSerializable(explicitToJson: true)  List<Community> communities)  $default,) {final _that = this;
 switch (_that) {
 case _CommunityData():
-return $default(_that.users,_that.communities,_that.companies);}
+return $default(_that.users,_that.communities);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -190,10 +189,10 @@ return $default(_that.users,_that.communities,_that.companies);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonSerializable(explicitToJson: true)  List<User> users, @JsonSerializable(explicitToJson: true)  List<Community> communities, @JsonSerializable(explicitToJson: true)  List<Company> companies)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonSerializable(explicitToJson: true)  List<Utilisateurs> users, @JsonSerializable(explicitToJson: true)  List<Community> communities)?  $default,) {final _that = this;
 switch (_that) {
 case _CommunityData() when $default != null:
-return $default(_that.users,_that.communities,_that.companies);case _:
+return $default(_that.users,_that.communities);case _:
   return null;
 
 }
@@ -205,11 +204,11 @@ return $default(_that.users,_that.communities,_that.companies);case _:
 @JsonSerializable()
 
 class _CommunityData implements CommunityData {
-  const _CommunityData({@JsonSerializable(explicitToJson: true) required final  List<User> users, @JsonSerializable(explicitToJson: true) required final  List<Community> communities, @JsonSerializable(explicitToJson: true) required final  List<Company> companies}): _users = users,_communities = communities,_companies = companies;
+  const _CommunityData({@JsonSerializable(explicitToJson: true) required final  List<Utilisateurs> users, @JsonSerializable(explicitToJson: true) required final  List<Community> communities}): _users = users,_communities = communities;
   factory _CommunityData.fromJson(Map<String, dynamic> json) => _$CommunityDataFromJson(json);
 
- final  List<User> _users;
-@override@JsonSerializable(explicitToJson: true) List<User> get users {
+ final  List<Utilisateurs> _users;
+@override@JsonSerializable(explicitToJson: true) List<Utilisateurs> get users {
   if (_users is EqualUnmodifiableListView) return _users;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_users);
@@ -220,13 +219,6 @@ class _CommunityData implements CommunityData {
   if (_communities is EqualUnmodifiableListView) return _communities;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_communities);
-}
-
- final  List<Company> _companies;
-@override@JsonSerializable(explicitToJson: true) List<Company> get companies {
-  if (_companies is EqualUnmodifiableListView) return _companies;
-  // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_companies);
 }
 
 
@@ -243,16 +235,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CommunityData&&const DeepCollectionEquality().equals(other._users, _users)&&const DeepCollectionEquality().equals(other._communities, _communities)&&const DeepCollectionEquality().equals(other._companies, _companies));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CommunityData&&const DeepCollectionEquality().equals(other._users, _users)&&const DeepCollectionEquality().equals(other._communities, _communities));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_users),const DeepCollectionEquality().hash(_communities),const DeepCollectionEquality().hash(_companies));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_users),const DeepCollectionEquality().hash(_communities));
 
 @override
 String toString() {
-  return 'CommunityData(users: $users, communities: $communities, companies: $companies)';
+  return 'CommunityData(users: $users, communities: $communities)';
 }
 
 
@@ -263,7 +255,7 @@ abstract mixin class _$CommunityDataCopyWith<$Res> implements $CommunityDataCopy
   factory _$CommunityDataCopyWith(_CommunityData value, $Res Function(_CommunityData) _then) = __$CommunityDataCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonSerializable(explicitToJson: true) List<User> users,@JsonSerializable(explicitToJson: true) List<Community> communities,@JsonSerializable(explicitToJson: true) List<Company> companies
+@JsonSerializable(explicitToJson: true) List<Utilisateurs> users,@JsonSerializable(explicitToJson: true) List<Community> communities
 });
 
 
@@ -280,12 +272,11 @@ class __$CommunityDataCopyWithImpl<$Res>
 
 /// Create a copy of CommunityData
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? users = null,Object? communities = null,Object? companies = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? users = null,Object? communities = null,}) {
   return _then(_CommunityData(
 users: null == users ? _self._users : users // ignore: cast_nullable_to_non_nullable
-as List<User>,communities: null == communities ? _self._communities : communities // ignore: cast_nullable_to_non_nullable
-as List<Community>,companies: null == companies ? _self._companies : companies // ignore: cast_nullable_to_non_nullable
-as List<Company>,
+as List<Utilisateurs>,communities: null == communities ? _self._communities : communities // ignore: cast_nullable_to_non_nullable
+as List<Community>,
   ));
 }
 

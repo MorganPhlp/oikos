@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/common/domain/entities/user.dart';
+import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
 import 'package:oikos/core/theme/admin_theme.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_bloc.dart';
@@ -95,22 +95,22 @@ class CommunityCard extends StatelessWidget {
               ),
               colors: colors,
             ),
-            const SizedBox(height: AdminTheme.spacingSm),
+            // const SizedBox(height: AdminTheme.spacingSm),
 
-            // Rang
-            _buildInfoRow(
-              icon: Icons.emoji_events_rounded,
-              iconColor: _getRankColor(rank, colors),
-              child: Text(
-                'Rang $rank',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: _getRankColor(rank, colors),
-                ),
-              ),
-              colors: colors,
-            ),
+            // // Rang
+            // _buildInfoRow(
+            //   icon: Icons.emoji_events_rounded,
+            //   iconColor: _getRankColor(rank, colors),
+            //   child: Text(
+            //     'Rang $rank',
+            //     style: TextStyle(
+            //       fontSize: 13,
+            //       fontWeight: FontWeight.w500,
+            //       color: _getRankColor(rank, colors),
+            //     ),
+            //   ),
+            //   colors: colors,
+            // ),
             const SizedBox(height: AdminTheme.spacingSm),
 
             // Boutons d'action
@@ -229,21 +229,21 @@ class MobileCommunityCard extends StatelessWidget {
                       const SizedBox(height: AdminTheme.spacingSm),
                       Row(
                         children: [
-                          Icon(
-                            Icons.emoji_events_rounded,
-                            size: 14,
-                            color: _getRankColor(rank, colors),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            'Rang $rank',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: _getRankColor(rank, colors),
-                            ),
-                          ),
-                          const SizedBox(width: AdminTheme.spacingMd),
+                          // Icon(
+                          //   Icons.emoji_events_rounded,
+                          //   size: 14,
+                          //   color: _getRankColor(rank, colors),
+                          // ),
+                          // const SizedBox(width: 4),
+                          // Text(
+                          //   'Rang $rank',
+                          //   style: TextStyle(
+                          //     fontSize: 12,
+                          //     fontWeight: FontWeight.w500,
+                          //     color: _getRankColor(rank, colors),
+                          //   ),
+                          // ),
+                          // const SizedBox(width: AdminTheme.spacingMd),
                           Icon(
                             Icons.eco_rounded,
                             size: 14,
@@ -468,7 +468,7 @@ class _ActionButtons extends StatelessWidget {
 
 /// Carte affichant les informations d'un membre
 class MemberCard extends StatelessWidget {
-  final User user;
+  final Utilisateurs user;
   final VoidCallback onChangeCommunity;
   final VoidCallback onRemoveFromCommunity;
 

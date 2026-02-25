@@ -1,9 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-// Les noms après 'part' doivent correspondre EXACTEMENT au nom du fichier sur le disque
+
 part 'categorie_empreinte_entity.freezed.dart';
 part 'categorie_empreinte_entity.g.dart';
-
 @freezed
 sealed class CategorieEmpreinteEntity with _$CategorieEmpreinteEntity {
   // Ajout du constructeur privé pour autoriser les getters (comme la conversion HEX -> Color)

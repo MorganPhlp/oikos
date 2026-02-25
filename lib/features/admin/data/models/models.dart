@@ -1,4 +1,4 @@
-export 'analytics/time_series/carbon_footprint_data.dart';
+export 'analytics/time_series/carbon_time_series.dart';
 export 'analytics/distribution/category_data.dart';
 export 'core/community.dart';
 export 'aggregates/community_data.dart';

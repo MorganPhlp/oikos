@@ -1,4 +1,4 @@
-import 'package:oikos/core/common/domain/entities/user.dart';
+import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
 import 'package:oikos/core/error/exceptions.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sup;
 
@@ -6,19 +6,19 @@ abstract interface class AuthRemoteDataSource {
   sup.Session? get currentUserSession;
   sup.SupabaseClient get client;
 
-  Future<User> signUpWithEmailAndPassword({
+  Future<Utilisateurs> signUpWithEmailAndPassword({
     required String email,
     required String password,
     required String pseudo,
     required String communityCode,
   });
 
-  Future<User> signInWithEmailAndPassword({
+  Future<Utilisateurs> signInWithEmailAndPassword({
     required String email,
     required String password,
   });
 
-  Future<User?> getCurrentUserData();
+  Future<Utilisateurs?> getCurrentUserData();
 
   Future<void> signOut();
 }
@@ -36,7 +36,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   sup.SupabaseClient get client => supabaseClient;
 
   @override
-  Future<User> signUpWithEmailAndPassword({
+  Future<Utilisateurs> signUpWithEmailAndPassword({
     required String email,
     required String password,
     required String pseudo,
@@ -49,7 +49,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         data: {'pseudo': pseudo, 'community_code': communityCode},
       );
       if (response.user == null) {
-        throw ServerException('User is null');
+        throw ServerException('Utilisateurs is null');
       }
       // on ajoute les donnees supplementaires de l'utilisateur dans la table utilisateur
       await supabaseClient
@@ -63,14 +63,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           .eq('id', response.user!.id)
           .single();
 
-      return User.fromJson(userData);
+      return Utilisateurs.fromJson(userData);
     } catch (e) {
       throw ServerException(e.toString());
     }
   }
 
   @override
-  Future<User> signInWithEmailAndPassword({
+  Future<Utilisateurs> signInWithEmailAndPassword({
     required String email,
     required String password,
   }) async {
@@ -80,7 +80,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         email: email,
       );
       if (response.user == null) {
-        throw ServerException('User is null');
+        throw ServerException('Utilisateurs is null');
       }
       // on recupere les donnees supplementaires de l'utilisateur
       final userData = await supabaseClient
@@ -89,14 +89,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           .eq('id', response.user!.id)
           .single();
 
-      return User.fromJson(userData);
+      return Utilisateurs.fromJson(userData);
     } catch (e) {
       throw ServerException(e.toString());
     }
   }
 
   @override
-  Future<User?> getCurrentUserData() async {
+  Future<Utilisateurs?> getCurrentUserData() async {
     try {
       if (currentUserSession == null) {
         return null;
@@ -105,7 +105,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           .from('utilisateur')
           .select()
           .eq('id', currentUserSession!.user.id);
-      return User.fromJson(userData.first);
+      return Utilisateurs.fromJson(userData.first);
     } catch (e) {
       throw ServerException(e.toString());
     }

@@ -5,13 +5,14 @@ import 'package:oikos/app_router.dart';
 import 'package:oikos/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/core/common/cubits/theme/theme_cubit.dart';
 import 'package:oikos/core/theme/app_theme.dart';
+import 'package:oikos/features/admin/presentation/bloc/carbon_stats_bloc.dart';
 import 'package:oikos/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:oikos/features/dashboard/presentation/bloc/home_bloc.dart';
 import 'package:oikos/init_dependencies.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:oikos/features/admin/presentation/bloc/carbon_stats_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/profile_bloc.dart';
+import 'package:oikos/features/admin/presentation/bloc/ranking_bloc.dart';
+import 'package:oikos/features/admin/presentation/bloc/users_bloc.dart';
 import 'package:oikos/core/app_bloc_observer.dart';
 
 void main() async {
@@ -25,12 +26,11 @@ void main() async {
         BlocProvider(create: (_) => ThemeCubit()),
         BlocProvider(create: (_) => serviceLocator<AppUserCubit>()),
         BlocProvider(create: (_) => serviceLocator<AuthBloc>()),
-        BlocProvider(create: (_) => serviceLocator<HomeBloc>()),
-        BlocProvider(
-          create: (context) => serviceLocator<CarbonFootPrintBloc>(),
-        ),
         BlocProvider(create: (context) => serviceLocator<CommunityBloc>()),
         BlocProvider(create: (context) => serviceLocator<ProfileBloc>()),
+        BlocProvider(create: (context) => serviceLocator<RankingBloc>()),
+        BlocProvider(create: (context) => serviceLocator<UsersBloc>()),
+        BlocProvider(create: (context) => serviceLocator<CarbonFootPrintBloc>()),
       ],
       child: const MyApp(),
     ),

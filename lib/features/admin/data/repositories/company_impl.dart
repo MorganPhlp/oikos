@@ -1,6 +1,6 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:oikos/core/error/failures.dart';
-import 'package:oikos/features/admin/domain/repositories/company_rep.dart';
+import 'package:oikos/features/admin/domain/interfaces/company_rep.dart';
 import 'package:oikos/core/logger.dart';
 import 'package:oikos/core/supabase_ext.dart';
 import 'package:oikos/features/admin/data/models/models.dart';

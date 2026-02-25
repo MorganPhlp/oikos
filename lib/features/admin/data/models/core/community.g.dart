@@ -10,11 +10,12 @@ _Community _$CommunityFromJson(Map<String, dynamic> json) => _Community(
   code: json['code'] as String,
   name: json['nom'] as String,
   companyId: json['entreprise_id'] as String,
-  description: json['description'] as String,
+  description: json['description'] as String?,
   membersCount: (json['nombre_membres'] as num?)?.toInt() ?? 0,
   avgScore: (json['bilan_moyen'] as num?)?.toDouble() ?? 0,
   logoUrl: json['logo_url'] as String?,
-  colorHex: json['couleurhex'] as String?,
+  colorHex: json['couleurhex'] as String? ?? '#FFFFFF',
+  plantXp: (json['plant_xp'] as num?)?.toInt() ?? 0,
 );
 
 Map<String, dynamic> _$CommunityToJson(_Community instance) =>
@@ -27,4 +28,5 @@ Map<String, dynamic> _$CommunityToJson(_Community instance) =>
       'bilan_moyen': instance.avgScore,
       'logo_url': instance.logoUrl,
       'couleurhex': instance.colorHex,
+      'plant_xp': instance.plantXp,
     };

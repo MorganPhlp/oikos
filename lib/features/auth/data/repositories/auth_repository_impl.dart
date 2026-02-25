@@ -1,5 +1,5 @@
 import 'package:fpdart/fpdart.dart';
-import 'package:oikos/core/common/domain/entities/user.dart';
+import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
 import 'package:oikos/core/error/exceptions.dart';
 import 'package:oikos/core/error/failures.dart';
 import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
@@ -29,11 +29,11 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, User>> currentUser() async {
+  Future<Either<Failure, Utilisateurs>> currentUser() async {
     try {
       final user = await remoteDataSource.getCurrentUserData();
       if (user == null) {
-        return left(Failure('User not logged in!'));
+        return left(Failure('Utilisateurs not logged in!'));
       }
       return right(user);
     } on ServerException catch (e) {
@@ -48,7 +48,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, User>> signInWithEmailPassword({
+  Future<Either<Failure, Utilisateurs>> signInWithEmailPassword({
     required String email,
     required String password,
   }) async {
@@ -61,7 +61,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, User>> signUpWithEmailPassword({
+  Future<Either<Failure, Utilisateurs>> signUpWithEmailPassword({
     required String email,
     required String password,
     required String pseudo,
@@ -175,7 +175,9 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   // Helper method to reduce code duplication
-  Future<Either<Failure, User>> _getUser(Future<User> Function() fn) async {
+  Future<Either<Failure, Utilisateurs>> _getUser(
+    Future<Utilisateurs> Function() fn,
+  ) async {
     try {
       final user = await fn();
 

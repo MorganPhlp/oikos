@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:oikos/core/common/domain/entities/user.dart';
+import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
 import 'package:oikos/core/theme/admin_theme.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
 
@@ -232,7 +232,7 @@ class RoleBadge extends StatelessWidget {
 // ─── AvatarEditor ────────────────────────────────────────────────────────────
 
 class AvatarEditor extends StatelessWidget {
-  final User user;
+  final Utilisateurs user;
   final VoidCallback onTap;
 
   const AvatarEditor({super.key, required this.user, required this.onTap});

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart' ;
-import 'package:oikos/core/common/domain/entities/user.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
 import 'package:oikos/core/logger.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
 
@@ -10,7 +10,7 @@ class AppUserCubit extends Cubit<AppUserState> {
   AppUserCubit()
     : super(AppUserInitial()); // État initial sans utilisateur connecté
 
-  void updateUser(User? user, {Company? company}) {
+  void updateUser(Utilisateurs? user, {Company? company}) {
     if (user == null) {
       emit(AppUserInitial()); // Pour gérer la déconnexion de l'utilisateur
     } else {

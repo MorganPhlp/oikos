@@ -10,8 +10,8 @@ enum TimeScale { monthly, annual }
 
 /// Widget d'évolution de l'empreinte carbone - Version Responsive avec Scroll
 class CarbonEvolutionChart extends StatefulWidget {
-  final List<CarbonFootprintData> monthlyData;
-  final List<CarbonFootprintData> annualData;
+  final List<CarbonTimeSeries> monthlyData;
+  final List<CarbonTimeSeries> annualData;
 
   const CarbonEvolutionChart({
     super.key,
@@ -27,7 +27,7 @@ class _CarbonEvolutionChartState extends State<CarbonEvolutionChart> {
   TimeScale _timeScale = TimeScale.monthly;
   late ScrollController _scrollController;
 
-  List<CarbonFootprintData> get _currentData =>
+  List<CarbonTimeSeries> get _currentData =>
       _timeScale == TimeScale.monthly ? widget.monthlyData : widget.annualData;
 
   @override
@@ -268,7 +268,7 @@ class _CarbonEvolutionChartState extends State<CarbonEvolutionChart> {
   /// Construit le contenu du graphique (sans l'axe Y)
   Widget _buildChartContent(
     _ChartDimensions dim,
-    List<CarbonFootprintData> data,
+    List<CarbonTimeSeries> data,
     double maxY,
     double interval,
   ) {
@@ -427,7 +427,7 @@ class _CarbonEvolutionChartState extends State<CarbonEvolutionChart> {
 
   Widget _buildBottomTitle(
     double value,
-    List<CarbonFootprintData> data,
+    List<CarbonTimeSeries> data,
     _ChartDimensions dim,
     bool isMonthly,
   ) {
@@ -636,7 +636,7 @@ class ExampleChartPage extends StatelessWidget {
   Widget build(BuildContext context) {
     // Données de test (12 mois)
     final monthlyData = List.generate(12, (index) {
-      return CarbonFootprintData(
+      return CarbonTimeSeries(
         period: DateTime(2024, index + 1),
         averageCo2: 5 + (index * 0.8) + (index % 3) * 2,
       );
@@ -644,7 +644,7 @@ class ExampleChartPage extends StatelessWidget {
 
     // Données annuelles (5 ans)
     final annualData = List.generate(5, (index) {
-      return CarbonFootprintData(
+      return CarbonTimeSeries(
         period: DateTime(2020 + index),
         averageCo2: 50 + (index * 15) + (index % 2) * 10,
       );

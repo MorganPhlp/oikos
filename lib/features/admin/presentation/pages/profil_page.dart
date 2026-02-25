@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/common/domain/entities/user.dart';
+import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
 import 'package:oikos/core/theme/admin_theme.dart';
 import 'package:oikos/core/theme/breakpoints.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
@@ -12,7 +12,7 @@ import 'package:oikos/features/admin/presentation/widget/profile_page/password_c
 import 'package:oikos/features/admin/presentation/widget/profile_page/profile_card.dart';
 
 class ProfilPage extends StatefulWidget {
-  final User user;
+  final Utilisateurs user;
   final Company company;
 
   const ProfilPage({super.key, required this.user, required this.company});

@@ -5,7 +5,11 @@
       "Bash(dart run build_runner build:*)",
       "Bash(flutter pub run build_runner build:*)",
       "Bash(del:*)",
-      "Bash(powershell -Command:*)"
+      "Bash(powershell -Command:*)",
+      "Bash(Set-Content -Path 'C:/Users/samy0/OneDrive/Bureau/info/genie_logiciel/oikos/lib/features/admin/presentation/bloc/users_bloc.dart' -Encoding UTF8)",
+      "Bash(Write-Output 'DONE')",
+      "Bash(\")",
+      "Bash(dart analyze:*)"
     ]
   }
 }
