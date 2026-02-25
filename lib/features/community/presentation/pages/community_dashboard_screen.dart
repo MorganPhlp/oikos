@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:http/http.dart';
 import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
+import 'package:oikos/features/community/domain/entities/defi_entity.dart';
 import 'package:oikos/features/community/presentation/bloc/defis_cubit.dart';
-
+import 'package:oikos/features/community/presentation/bloc/defis_state.dart';
 import 'package:oikos/features/community/presentation/widgets/community_challenge_sheet.dart';
+import 'package:oikos/features/community/presentation/widgets/defi_end_overlay.dart';
 import 'package:oikos/features/community/presentation/widgets/defis_actions_section.dart';
 import 'package:oikos/features/community/presentation/widgets/profile_details_modal.dart';
 import 'package:oikos/features/community/presentation/widgets/ranking_action_modal.dart';
+import 'package:oikos/features/notifications/domain/entities/notification_entity.dart';
+import 'package:oikos/features/notifications/presentation/bloc/notifications_cubit.dart';
+import 'package:oikos/features/notifications/presentation/bloc/notifications_state.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:oikos/core/theme/app_colors.dart';
 import 'package:oikos/core/common/presentation/widgets/oikos_avatar.dart';
@@ -17,7 +21,7 @@ import '../../data/models/community_action_model.dart';
 import '../../domain/entities/leaderboard_entry.dart';
 
 class CommunityDashboardScreen extends StatefulWidget {
-  const CommunityDashboardScreen({Key? key}) : super(key: key);
+  const CommunityDashboardScreen({super.key});
 
   @override
   State<CommunityDashboardScreen> createState() =>
@@ -28,7 +32,7 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
     with SingleTickerProviderStateMixin {
   late CommunityRemoteDataSource _dataSource;
   late TabController _tabController;
-  final List<dynamic> _communityDefis = []; // Initialisé vide
+  final List<dynamic> _communityDefis = [];
 
   bool _isLoading = true;
   String? _error;
@@ -96,18 +100,6 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
       _myCommunityCode = userRes['code_communaute'];
       _myEntrepriseId = userRes['entreprise_id'];
 
-      // Récupération des membres pour le calcul du quorum
-      final activeUsersRes = await Supabase.instance.client
-          .from('utilisateur')
-          .select('id')
-          .eq('code_communaute', _myCommunityCode!)
-          .eq('est_compte_valide', true)
-          .eq('est_actif', true)
-          .neq('role', 'ADMINISTRATEUR');
-
-      int required = (activeUsersRes.length * 0.6).ceil();
-      if (required < 1) required = 1;
-
       final results = await Future.wait([
         _dataSource.getUserLeaderboard(_myCommunityCode!),
         _dataSource.getCommunityLeaderboard(
@@ -120,7 +112,6 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
       if (!mounted) return;
 
       setState(() {
-        // Mapping sécurisé pour renommer l'utilisateur courant
         _userList = (results[0] as List<LeaderboardEntryModel>).map((entry) {
           return entry.isMe ? entry.copyWith(label: "Moi") : entry;
         }).toList();
@@ -134,6 +125,46 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
           _isLoading = false;
           _error = "Erreur lors du chargement des données.";
         });
+      }
+    }
+  }
+
+  void _processDefiNotifications(
+    NotificationsState notifState,
+    DefisState defiState,
+  ) {
+    if (defiState is! DefisLoaded) return;
+
+    final endDefisNotif = notifState.notifications
+        .where((n) => n.type == NotificationType.defiCollectifTermine)
+        .toList();
+
+    if (endDefisNotif.isEmpty) return;
+
+    for (var notif in endDefisNotif) {
+      final defiId = notif.data['defi_id'];
+
+      try {
+        final defi = defiState.defis.firstWhere((d) => d.id == defiId);
+
+        late OverlayEntry overlayEntry;
+        overlayEntry = OverlayEntry(
+          builder: (context) => Material(
+            color: Colors.transparent,
+            child: DefiEndOverlay(
+              defi: defi,
+              onClose: () {
+                context.read<NotificationsCubit>().markAsRead(notif.id);
+                overlayEntry.remove();
+              },
+            ),
+          ),
+        );
+        Overlay.of(context, rootOverlay: true).insert(overlayEntry);
+
+        context.read<NotificationsCubit>().markAsRead(notif.id);
+      } catch (e) {
+        debugPrint("Défi $defiId non trouvé dans le state");
       }
     }
   }
@@ -153,7 +184,6 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
   }
 
   void _showRankingInfo(BuildContext context, LeaderboardEntry entry) {
-    // 1. On récupère les instances du contexte actuel (la page)
     final defisCubit = context.read<DefisCubit>();
     final appUserCubit = context.read<AppUserCubit>();
 
@@ -161,7 +191,6 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
       context: context,
       builder: (dialogContext) => MultiBlocProvider(
         providers: [
-          // 2. On "injecte" les instances existantes dans le contexte du Dialog
           BlocProvider.value(value: defisCubit),
           BlocProvider.value(value: appUserCubit),
         ],
@@ -174,7 +203,6 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
           entrepriseId: _myEntrepriseId!,
           onSeeProfile: () {
             Navigator.pop(dialogContext);
-            // On peut faire la même chose ici pour le ProfileDetailsModal
             showDialog(
               context: context,
               builder: (context) => BlocProvider.value(
@@ -206,21 +234,42 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
       return Scaffold(body: Center(child: Text(_error!)));
     }
 
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: Column(
-        children: [
-          _buildTabBar(isDark),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildLeaderboardView(_userList, isCommunity: false),
-                _buildLeaderboardView(_communityList, isCommunity: true),
-              ],
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<NotificationsCubit, NotificationsState>(
+          listenWhen: (prev, curr) =>
+              curr.notifications.length > prev.notifications.length,
+          listener: (context, state) {
+            _processDefiNotifications(state, context.read<DefisCubit>().state);
+          },
+        ),
+        BlocListener<DefisCubit, DefisState>(
+          listenWhen: (prev, curr) =>
+              prev is! DefisLoaded && curr is DefisLoaded,
+          listener: (context, state) {
+            _processDefiNotifications(
+              context.read<NotificationsCubit>().state,
+              state,
+            );
+          },
+        ),
+      ],
+      child: Scaffold(
+        backgroundColor: theme.scaffoldBackgroundColor,
+        body: Column(
+          children: [
+            _buildTabBar(isDark),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildLeaderboardView(_userList, isCommunity: false),
+                  _buildLeaderboardView(_communityList, isCommunity: true),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -291,7 +340,6 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
       return const Center(child: Text("Aucun classement disponible"));
     }
 
-    // Construction sécurisée de la liste d'affichage
     List<LeaderboardEntry> displayList = list.take(10).toList();
     bool amIInTop10 = displayList.any((e) => e.isMe);
 
@@ -363,7 +411,6 @@ class _CommunityDashboardScreenState extends State<CommunityDashboardScreen>
   Widget _buildPodium(List<LeaderboardEntry> top3, bool isCommunity) {
     if (top3.isEmpty) return const SizedBox();
 
-    // Mapping des positions pour l'ordre visuel : 2nd, 1er, 3ème
     LeaderboardEntry? first = top3.isNotEmpty ? top3[0] : null;
     LeaderboardEntry? second = top3.length > 1 ? top3[1] : null;
     LeaderboardEntry? third = top3.length > 2 ? top3[2] : null;

@@ -3,6 +3,7 @@ enum NotificationType {
   nouveauDefiCollectif('nouveau_defi_collectif'),
   streakLoss('streak_loss'),
   bilan('bilan'),
+  defiCollectifTermine('defi_termine'),
   nouvelleActionCommunautaire('nouvelle_action_communautaire');
 
   final String value;

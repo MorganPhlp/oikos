@@ -36,6 +36,9 @@ class DefiEntity extends Equatable {
   final String? logoCommu1;
   final String? logoCommu2;
 
+  final String? gagnantCode;
+  final String? gagnantNom;
+
   const DefiEntity({
     required this.id,
     required this.status,
@@ -57,6 +60,8 @@ class DefiEntity extends Equatable {
     this.totalMembers2 = 0,
     this.logoCommu1,
     this.logoCommu2,
+    this.gagnantCode,
+    this.gagnantNom,
   });
 
   /// Titre intelligent : priorité au titre personnalisé, puis titre de l'action
@@ -77,7 +82,7 @@ class DefiEntity extends Equatable {
   double get progress2 {
     if (totalMembers2 <= 0) return 0.0;
     final current = isVotePhase ? votesOui2 : participantsCommu2;
-    return (current / totalMembers2.clamp(0.0, 1.0));
+    return (current / totalMembers2).clamp(0.0, 1.0);
   }
 
   /// Temps restant en format lisible
@@ -100,6 +105,8 @@ class DefiEntity extends Equatable {
     participantsCommu2,
     totalMembers1,
     totalMembers2,
+    gagnantCode,
+    gagnantNom,
   ];
 }
 

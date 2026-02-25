@@ -83,6 +83,8 @@ SELECT
   d.created_at,
   d.is_global,
   d.communaute_gagnante_code,
+  d.communaute_gagnante_code as gagnant_code,
+  (SELECT nom FROM communaute WHERE code = d.communaute_gagnante_code) AS gagnant_nom,
   a.id AS action_id,
   a.titre AS action_titre,
   a.description AS action_description,

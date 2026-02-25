@@ -30,6 +30,8 @@ class DefiModel extends DefiEntity {
     super.totalMembers2,
     super.logoCommu1,
     super.logoCommu2,
+    super.gagnantCode,
+    super.gagnantNom,
   });
 
   factory DefiModel.fromJson(Map<String, dynamic> json, {ActionModel? action}) {
@@ -81,6 +83,8 @@ class DefiModel extends DefiEntity {
       totalMembers2: (json['membres_total_commu2'] as num?)?.toInt() ?? 0,
       logoCommu1: json['logo_commu1']?.toString(),
       logoCommu2: json['logo_commu2']?.toString(),
+      gagnantCode: json['gagnant_code']?.toString(),
+      gagnantNom: json['gagnant_nom']?.toString(),
     );
   }
 }

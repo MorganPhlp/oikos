@@ -3,7 +3,9 @@ CREATE TYPE notification_type AS ENUM (
     'nouveau_defi_collectif', 
     'streak_loss',
      'bilan',
-     'nouvelle_action_communautaire');
+     'nouvelle_action_communautaire',
+     'defi_termine');
+     
 
 CREATE TABLE public.notifications (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -14,6 +16,8 @@ CREATE TABLE public.notifications (
     
     data jsonb NOT NULL DEFAULT '{}'::jsonb 
 );
+
+
 
 
 
@@ -49,8 +53,8 @@ BEGIN
             'nouveau_defi_collectif'::notification_type,
             jsonb_build_object(
                 'defi_id', NEW.id,
-                'titre', 'Le défi est lancé !',
-                'message', 'Le quorum a été atteint. Relevez le défi dès maintenant !'
+                'titre', 'Un nouveau défi à relever !',
+                'message', 'Affronte ' || (SELECT c.nom FROM public.communaute c WHERE c.code = NEW.communaute_cible_code) || ' !'
             )
         FROM public.utilisateur u
         WHERE u.code_communaute IN (NEW.communaute_demandeur_code, NEW.communaute_cible_code)
@@ -62,7 +66,7 @@ BEGIN
         INSERT INTO public.notifications (user_id, type, data)
         SELECT 
             u.id, 
-            'bilan'::notification_type,
+            'defi_termine'::notification_type,
             jsonb_build_object(
                 'defi_id', NEW.id,
                 'titre', 'Défi terminé',
@@ -81,3 +85,6 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+CREATE TRIGGER trg_defi_notifications
+AFTER INSERT OR UPDATE ON public.defi
+FOR EACH ROW EXECUTE FUNCTION fn_notify_defi_events();

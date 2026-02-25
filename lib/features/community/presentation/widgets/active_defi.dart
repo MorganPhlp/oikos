@@ -4,6 +4,7 @@ import 'package:oikos/core/theme/action_card_theme.dart';
 import 'package:oikos/features/community/domain/entities/defi_entity.dart';
 import 'package:oikos/features/community/presentation/bloc/defis_cubit.dart';
 import 'package:oikos/features/community/presentation/widgets/active_defi_details_card.dart';
+import 'package:oikos/features/community/presentation/widgets/community_avatar.dart';
 
 class ActiveDefiCard extends StatelessWidget {
   final DefiEntity defi;
@@ -172,7 +173,7 @@ class ActiveDefiCard extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: alignment,
       children: [
-        _buildAvatar(url, name, color),
+        CommunityAvatar(url: url, name: name, color: color),
         const SizedBox(height: 6),
         Text(
           name,
@@ -188,37 +189,6 @@ class ActiveDefiCard extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildAvatar(String url, String name, Color color) {
-    return Container(
-      width: 50,
-      height: 50,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white,
-        border: Border.all(color: Colors.white, width: 3),
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 8)],
-      ),
-      child: ClipOval(
-        child: Image.network(
-          url,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => Container(
-            color: color.withValues(alpha: 0.1),
-            alignment: Alignment.center,
-            child: Text(
-              name.isNotEmpty ? name[0].toUpperCase() : "?",
-              style: TextStyle(
-                color: color,
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 

@@ -22,7 +22,6 @@ class DefisActionsSection extends StatelessWidget {
 
     return BlocBuilder<DefisCubit, DefisState>(
       builder: (context, state) {
-        print(state);
         if (state is DefisLoaded) {
           final activeDefis = state.defis.activeDefis;
           final hasActive = activeDefis.isNotEmpty;
