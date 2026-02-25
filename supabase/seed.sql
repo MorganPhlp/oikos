@@ -23,7 +23,11 @@ INSERT INTO communaute (code, nom, entreprise_id, description, couleurHEX) VALUE
 ON CONFLICT (code) DO NOTHING;
 -- communaute fictive pour les tests
 INSERT INTO communaute (code, nom, entreprise_id, description, couleurHEX) VALUES
-('DEMO001', 'Communauté de Démo', (SELECT id FROM entreprise WHERE nom = 'Viveris'), 'Communauté pour les tests et démonstrations', '#2196F3')
+('VIV456', 'Service RH Viveris', (SELECT id FROM entreprise WHERE nom = 'Viveris'), 'Communauté pour les tests et démonstrations', '#2196F3')
+ON CONFLICT (code) DO NOTHING;
+-- communaute fictive pour les tests
+INSERT INTO communaute (code, nom, entreprise_id, description, couleurHEX) VALUES
+('VIV789', 'Service Innovation Viveris', (SELECT id FROM entreprise WHERE nom = 'Viveris'), 'Communauté pour les tests et démonstrations à Nantes', '#FF5722')
 ON CONFLICT (code) DO NOTHING;
 
 
