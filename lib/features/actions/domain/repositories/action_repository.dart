@@ -51,4 +51,9 @@ abstract interface class ActionRepository {
     String userId,
   );
   Future<Either<Failure, List<TagEcarteEntity>>> getTagsEcartees(String userId);
+
+  Future<Either<Failure, void>> removeHabitude(
+    String userId,
+    String habitudeId,
+  );
 }

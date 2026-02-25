@@ -216,4 +216,17 @@ class ActionRepositoryImpl implements ActionRepository {
       return left(Failure(e.message));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> removeHabitude(
+    String userId,
+    String habitudeId,
+  ) async {
+    try {
+      await remoteDataSource.removeFromHabitudes(userId, habitudeId);
+      return right(null);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
 }

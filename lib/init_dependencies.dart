@@ -11,6 +11,7 @@ import 'package:oikos/features/actions/domain/usecases/ecarter_tag_use_case.dart
 import 'package:oikos/features/actions/domain/usecases/get_limite_actions_freq_use_case.dart';
 import 'package:oikos/features/actions/domain/usecases/get_my_habitudes_use_case.dart';
 import 'package:oikos/features/actions/domain/usecases/promote_to_habitude_use_case.dart';
+import 'package:oikos/features/actions/domain/usecases/remove_from_habitudes_use_case.dart';
 import 'package:oikos/features/actions/presentation/bloc/habitudes_cubit.dart';
 import 'package:oikos/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:oikos/features/auth/data/repositories/auth_repository_impl.dart';
@@ -555,6 +556,9 @@ void _initActions() {
     () => EcarterTagUseCase(repository: serviceLocator()),
   );
 
+  serviceLocator.registerLazySingleton(
+    () => RemoveHabitudeUseCase(serviceLocator<ActionRepository>()),
+  );
   // Bloc
   serviceLocator.registerFactory(
     () => ActionsBloc(
@@ -573,7 +577,10 @@ void _initActions() {
   );
 
   serviceLocator.registerFactory<HabitudeCubit>(
-    () => HabitudeCubit(getMyHabitudesUseCase: serviceLocator()),
+    () => HabitudeCubit(
+      getMyHabitudesUseCase: serviceLocator(),
+      removeHabitudeUseCase: serviceLocator(),
+    ),
   );
 }
 

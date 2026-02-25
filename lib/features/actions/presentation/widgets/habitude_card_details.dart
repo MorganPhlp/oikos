@@ -5,8 +5,13 @@ import 'package:oikos/features/actions/domain/entities/habitude_entity.dart';
 import 'package:oikos/features/actions/presentation/widgets/action_stats.dart';
 
 class HabitudeCardDetails extends StatefulWidget {
+  final VoidCallback onRemove;
   final HabitudeEntity habitude;
-  const HabitudeCardDetails({super.key, required this.habitude});
+  const HabitudeCardDetails({
+    super.key,
+    required this.habitude,
+    required this.onRemove,
+  });
 
   @override
   State<HabitudeCardDetails> createState() => _HabitudeCardDetailsState();
@@ -138,6 +143,7 @@ class _HabitudeCardDetailsState extends State<HabitudeCardDetails> {
                                         _buildActionButton(
                                           context,
                                           categoryColor,
+                                          widget.onRemove,
                                         ),
                                       ],
                                     ),
@@ -181,7 +187,12 @@ class _HabitudeCardDetailsState extends State<HabitudeCardDetails> {
     );
   }
 
-  Widget _buildActionButton(BuildContext context, Color color) {
+  Widget _buildActionButton(
+    BuildContext context,
+    Color color,
+    VoidCallback onPressed,
+  ) {
+    final theme = Theme.of(context);
     return Container(
       width: double.infinity,
       height: 56,
@@ -198,13 +209,16 @@ class _HabitudeCardDetailsState extends State<HabitudeCardDetails> {
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
-          foregroundColor: Colors.white,
+          foregroundColor: theme.colorScheme.onPrimary,
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
         ),
-        onPressed: () {},
+        onPressed: () {
+          onPressed();
+          Navigator.pop(context);
+        },
         child: const Text(
           "Je ne veux plus de cette habitude",
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),

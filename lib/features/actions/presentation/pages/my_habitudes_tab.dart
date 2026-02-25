@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/features/actions/presentation/bloc/habitudes_cubit.dart';
 import 'package:oikos/features/actions/presentation/bloc/habitudes_state.dart';
 import 'package:oikos/features/actions/presentation/widgets/habitude_card.dart';
@@ -10,6 +11,10 @@ class MyHabitudesTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userId = switch (context.watch<AppUserCubit>().state) {
+      AppUserLoggedIn(user: var u) => u.id,
+      _ => '',
+    };
     return BlocBuilder<HabitudeCubit, HabitudeState>(
       builder: (BuildContext context, HabitudeState state) {
         if (state is HabitudeLoaded) {
@@ -29,7 +34,15 @@ class MyHabitudesTab extends StatelessWidget {
                           ),
                       itemCount: state.habitudes.length,
                       itemBuilder: (context, index) {
-                        return HabitudeCard(habitude: state.habitudes[index]);
+                        return HabitudeCard(
+                          habitude: state.habitudes[index],
+                          onRemove: () {
+                            context.read<HabitudeCubit>().removeHabitude(
+                              userId,
+                              state.habitudes[index].action.id,
+                            );
+                          },
+                        );
                       },
                     ),
                   ),

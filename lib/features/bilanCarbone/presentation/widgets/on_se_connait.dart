@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:oikos/core/common/presentation/widgets/gradient_button.dart';
 
 class OnSeConnait extends StatelessWidget {
   const OnSeConnait({super.key});
@@ -11,7 +12,6 @@ class OnSeConnait extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return BackdropFilter(
-      // Flou d'arrière-plan pour faire ressortir la modale
       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
       child: AlertDialog(
         backgroundColor: colorScheme.surface.withValues(alpha: 0.9),
@@ -21,7 +21,6 @@ class OnSeConnait extends StatelessWidget {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Icone stylisée Oikos
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -56,21 +55,9 @@ class OnSeConnait extends StatelessWidget {
             // Bouton d'action principal
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
+              child: GradientButton(
+                label: "C'est parti",
                 onPressed: () => Navigator.of(context).pop(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colorScheme.primary,
-                  foregroundColor: colorScheme.onPrimary,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                child: const Text(
-                  "C'est parti !",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
               ),
             ),
           ],

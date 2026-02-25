@@ -4,9 +4,14 @@ import 'package:oikos/features/actions/domain/entities/habitude_entity.dart';
 import 'package:oikos/features/actions/presentation/widgets/habitude_card_details.dart';
 
 class HabitudeCard extends StatelessWidget {
+  final VoidCallback onRemove;
   final HabitudeEntity habitude;
 
-  const HabitudeCard({super.key, required this.habitude});
+  const HabitudeCard({
+    super.key,
+    required this.habitude,
+    required this.onRemove,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +31,10 @@ class HabitudeCard extends StatelessWidget {
             transitionDuration: const Duration(milliseconds: 350),
             reverseTransitionDuration: const Duration(milliseconds: 300),
             pageBuilder: (context, animation, secondaryAnimation) {
-              return HabitudeCardDetails(habitude: habitude);
+              return HabitudeCardDetails(
+                habitude: habitude,
+                onRemove: onRemove,
+              );
             },
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {

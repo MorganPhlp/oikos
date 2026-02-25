@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:oikos/core/common/presentation/widgets/gradient_button.dart';
 
 class HelpButton extends StatelessWidget {
   final Widget child;
@@ -41,14 +42,9 @@ class HelpButton extends StatelessWidget {
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
-                child: FilledButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: FilledButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text("J'ai compris"),
+                child: GradientButton(
+                  label: "Fermer",
+                  onPressed: () => Navigator.of(context).pop(),
                 ),
               ),
             ],

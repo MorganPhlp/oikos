@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:oikos/core/theme/app_colors.dart';
 
 class CommunityAvatar extends StatelessWidget {
   final String url;
@@ -14,13 +15,15 @@ class CommunityAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    print("Building CommunityAvatar for $name with URL: $url");
     return Container(
       width: 50,
       height: 50,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Colors.white,
-        border: Border.all(color: Colors.white, width: 3),
+        color: AppColors.lightMuted,
+        border: Border.all(color: theme.colorScheme.surface, width: 3),
         boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 8)],
       ),
       child: ClipOval(
@@ -33,7 +36,7 @@ class CommunityAvatar extends StatelessWidget {
             child: Text(
               name.isNotEmpty ? name[0].toUpperCase() : "?",
               style: TextStyle(
-                color: color,
+                color: theme.colorScheme.onSurface,
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
               ),

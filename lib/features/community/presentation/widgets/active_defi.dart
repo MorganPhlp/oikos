@@ -89,7 +89,7 @@ class ActiveDefiCard extends StatelessWidget {
                   ),
                 ),
 
-                _buildDuelSection(categoryColor),
+                _buildDuelSection(context, categoryColor),
               ],
             ),
           ),
@@ -98,7 +98,8 @@ class ActiveDefiCard extends StatelessWidget {
     );
   }
 
-  Widget _buildDuelSection(Color accentColor) {
+  Widget _buildDuelSection(BuildContext context, Color accentColor) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: Stack(
@@ -123,6 +124,7 @@ class ActiveDefiCard extends StatelessWidget {
             children: [
               Expanded(
                 child: _buildCommunityInfo(
+                  context,
                   defi.logoUrl1,
                   defi.nomCommu1,
                   accentColor,
@@ -133,7 +135,7 @@ class ActiveDefiCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: theme.colorScheme.onPrimary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                   border: Border.all(color: accentColor, width: 2),
                 ),
@@ -150,6 +152,8 @@ class ActiveDefiCard extends StatelessWidget {
               // Communauté 2
               Expanded(
                 child: _buildCommunityInfo(
+                  context,
+
                   defi.logoUrl2,
                   defi.nomCommu2,
                   accentColor,
@@ -164,11 +168,13 @@ class ActiveDefiCard extends StatelessWidget {
   }
 
   Widget _buildCommunityInfo(
+    BuildContext context,
     String url,
     String name,
     Color color,
     CrossAxisAlignment alignment,
   ) {
+    final theme = Theme.of(context);
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: alignment,
@@ -177,15 +183,14 @@ class ActiveDefiCard extends StatelessWidget {
         const SizedBox(height: 6),
         Text(
           name,
-          // On retire maxLines pour autoriser le retour à la ligne
           textAlign: alignment == CrossAxisAlignment.start
               ? TextAlign.left
               : TextAlign.right,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
             height: 1.2, // Ajuste l'interligne pour les noms sur 2 lignes
             fontWeight: FontWeight.w600,
-            color: Colors.black87,
+            color: theme.colorScheme.onSurfaceVariant,
           ),
         ),
       ],

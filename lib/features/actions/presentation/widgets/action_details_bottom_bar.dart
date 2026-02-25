@@ -25,7 +25,7 @@ class ActionDetailBottomBar extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 36),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
       decoration: BoxDecoration(
         color: colorScheme.surface,
         boxShadow: [
@@ -47,7 +47,7 @@ class ActionDetailBottomBar extends StatelessWidget {
               label: 'Ajouter à mes actions',
             ),
             if (onEcarter != null) ...[
-              const SizedBox(height: 12),
+              const SizedBox(height: 9),
               TextButton(
                 onPressed: () => _showDismissDialog(context),
                 child: Text(

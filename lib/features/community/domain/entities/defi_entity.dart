@@ -122,6 +122,6 @@ extension DefiAssets on DefiEntity {
   static const _storagePath =
       '${AppSecrets.supabaseUrl}/storage/v1/object/public/logos';
 
-  String get logoUrl1 => '$_storagePath/$logoCommu1.png';
-  String get logoUrl2 => '$_storagePath/$logoCommu2.png';
+  String get logoUrl1 => '$_storagePath/$logoCommu1';
+  String get logoUrl2 => '$_storagePath/$logoCommu2';
 }
