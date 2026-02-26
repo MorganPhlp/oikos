@@ -209,9 +209,12 @@ class _RankingContent extends StatelessWidget {
         final rawValue = sortBy == CommunitySortBy.avgScore
             ? (c.avgScore ?? 0.0)
             : (c.plantXp ?? 0).toDouble();
-        final metricDisplay = sortBy == CommunitySortBy.avgScore
-            ? '${rawValue.toStringAsFixed(1)} kg CO₂'
-            : '${c.plantXp ?? 0} XP';
+        final isInactive = rawValue == 0;
+        final metricDisplay = isInactive
+            ? '—'
+            : sortBy == CommunitySortBy.avgScore
+                ? '${rawValue.toStringAsFixed(1)} kg CO₂'
+                : '${c.plantXp ?? 0} XP';
 
         return Padding(
           padding: const EdgeInsets.only(bottom: AppTheme.spacingMd),
@@ -236,11 +239,13 @@ class _RankingContent extends StatelessWidget {
                 ? 'Score CO₂ moyen'
                 : 'XP Plantes',
             metricDisplay: metricDisplay,
-            progressRatio: RankingBloc.progressPercent(
-              value: rawValue,
-              maxValue: maxValue,
-              isLowerBetter: isLowerBetter,
-            ),
+            progressRatio: isInactive
+                ? 0.0
+                : RankingBloc.progressPercent(
+                    value: rawValue,
+                    maxValue: maxValue,
+                    isLowerBetter: isLowerBetter,
+                  ),
           ),
         );
       }).toList(),
@@ -286,24 +291,19 @@ class _RankingContent extends StatelessWidget {
             .firstOrNull
             ?.name;
 
-        final rawValue = sortBy == UserSortBy.impactScoreXp
-            ? u.impactScoreXp.toDouble()
-            : () {
-                final s = RankingBloc.getLatestCarbonScore(
-                  u.id,
-                  state.data.carbonFootPrints,
-                );
-                return s == double.infinity ? 0.0 : s;
-              }();
-
-        final metricDisplay = sortBy == UserSortBy.impactScoreXp
-            ? '${u.impactScoreXp} XP'
-            : '${rawValue.toStringAsFixed(1)} kg CO₂';
-
         final latestCo2 = RankingBloc.getLatestCarbonScore(
           u.id,
           state.data.carbonFootPrints,
         );
+        final rawValue = sortBy == UserSortBy.impactScoreXp
+            ? u.impactScoreXp.toDouble()
+            : (latestCo2 == double.infinity ? 0.0 : latestCo2);
+        final isInactive = rawValue == 0;
+        final metricDisplay = isInactive
+            ? '—'
+            : sortBy == UserSortBy.impactScoreXp
+                ? '${u.impactScoreXp} XP'
+                : '${rawValue.toStringAsFixed(1)} kg CO₂';
 
         return Padding(
           padding: const EdgeInsets.only(bottom: AppTheme.spacingMd),
@@ -330,11 +330,13 @@ class _RankingContent extends StatelessWidget {
                 ? 'XP Impact'
                 : 'Score CO₂',
             metricDisplay: metricDisplay,
-            progressRatio: RankingBloc.progressPercent(
-              value: rawValue,
-              maxValue: maxValue,
-              isLowerBetter: isLowerBetter,
-            ),
+            progressRatio: isInactive
+                ? 0.0
+                : RankingBloc.progressPercent(
+                    value: rawValue,
+                    maxValue: maxValue,
+                    isLowerBetter: isLowerBetter,
+                  ),
           ),
         );
       }).toList(),

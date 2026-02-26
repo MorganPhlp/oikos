@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
 import 'package:oikos/features/admin/data/models/aggregates/community_data.dart';
 import 'package:oikos/features/admin/domain/use_cases/anonymize_user.dart';
@@ -92,7 +93,7 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> {
       updatedUser,
     ) {
       final updatedUsers = s.data.users
-          .map((u) => u.id == updatedUser.id ? updatedUser : u)
+          .where((u) => u.id != updatedUser.id)
           .toList();
       final updatedData = s.data.copyWith(users: updatedUsers);
       emit(
@@ -119,23 +120,33 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> {
     String? successMessage,
   }) {
     // 1. Exclure seulement les comptes supprimés (anonymisés restent visibles)
-    List<Utilisateurs> filtered = data.users
+    final nonSupprime = data.users
         .where((u) => u.etatCompte != EtatCompte.supprime)
         .toList();
 
-    // 2. Filtre par communauté
+    // 2. Filtre par communauté — les anonymisés passent toujours (leur
+    //    communauté a changé lors de l'anonymisation, on ne veut pas les perdre)
+    List<Utilisateurs> filtered;
     if (selectedCommunityCode != null) {
-      filtered = filtered
-          .where((u) => u.codeCommunaute == selectedCommunityCode)
+      filtered = nonSupprime
+          .where(
+            (u) =>
+                u.etatCompte == EtatCompte.anonymise ||
+                u.codeCommunaute == selectedCommunityCode,
+          )
           .toList();
+    } else {
+      filtered = nonSupprime;
     }
 
-    // 3. Recherche textuelle (pseudo ou email)
+    // 3. Recherche textuelle — les anonymisés passent toujours (leur pseudo/
+    //    email ont été remplacés par des valeurs aléatoires)
     if (searchQuery.isNotEmpty) {
       final q = searchQuery.toLowerCase();
       filtered = filtered
           .where(
             (u) =>
+                u.etatCompte == EtatCompte.anonymise ||
                 u.pseudo.toLowerCase().contains(q) ||
                 u.email.toLowerCase().contains(q),
           )

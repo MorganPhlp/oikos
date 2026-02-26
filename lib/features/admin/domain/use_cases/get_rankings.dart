@@ -29,30 +29,13 @@ class GetRankings {
         (carbonFootPrints) => communitiesResult.fold(
           (failure) => left(failure),
           (communities) {
-            final filteredCommunities = communities
-                .where((c) => c.membersCount! > 0 && c.plantXp! > 0 && c.avgScore! > 0)
-                .toList();
-
-            final filteredUsers = users
-                .where(
-                  (u) =>
-                      carbonFootPrints.any((c) => c.userId == u.id) &&
-                      u.impactScoreXp > 0,
-                )
-                .toList();
-
-            final fileredCarbonFootPrints = carbonFootPrints
-                .where(
-                  (c) =>
-                      filteredUsers.any((u) => u.id == c.userId && c.score > 0),
-                )
-                .toList();
+            
 
             return right(
               RankingData(
-                users: filteredUsers,
-                carbonFootPrints: fileredCarbonFootPrints,
-                communities: filteredCommunities,
+                users: users,
+                carbonFootPrints: carbonFootPrints,
+                communities: communities,
               ),
             );
           },

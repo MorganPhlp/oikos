@@ -1,8 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
 import 'package:oikos/features/admin/data/models/aggregates/ranking_data.dart';
 import 'package:oikos/features/admin/data/models/core/carbon_foot_print.dart';
-import 'package:oikos/features/admin/data/models/core/community.dart';
 import 'package:oikos/features/admin/domain/use_cases/get_rankings.dart';
 import 'package:oikos/features/admin/presentation/bloc/ranking_event.dart';
 import 'package:oikos/features/admin/presentation/bloc/ranking_state.dart';
@@ -121,72 +119,19 @@ class RankingBloc extends Bloc<RankingEvent, RankingState> {
       communitySortBy: communitySortBy,
       userSortBy: userSortBy,
       selectedCommunityCode: selectedCommunityCode,
-      sortedCommunities: _sortCommunities(data.communities, communitySortBy),
-      sortedUsers: _sortUsers(
-        data.users,
-        data.carbonFootPrints,
-        userSortBy,
-        selectedCommunityCode,
-      ),
+      sortedCommunities: switch (communitySortBy) {
+        CommunitySortBy.avgScore => data.sortedCommunitiesByAvgScore(),
+        CommunitySortBy.plantXp  => data.sortedCommunitiesByPlantXp(),
+      },
+      sortedUsers: switch (userSortBy) {
+        UserSortBy.impactScoreXp => data.sortedUsersByImpactScore(
+            communityCode: selectedCommunityCode,
+          ),
+        UserSortBy.carbonScore => data.sortedUsersByCarbonScore(
+            communityCode: selectedCommunityCode,
+          ),
+      },
     );
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // SORTING HELPERS
-  // ─────────────────────────────────────────────────────────────────────────
-
-  static List<Community> _sortCommunities(
-    List<Community> communities,
-    CommunitySortBy sortBy,
-  ) {
-    final sorted = List<Community>.from(communities);
-    switch (sortBy) {
-      case CommunitySortBy.avgScore:
-        // CO₂ moyen : plus petit = meilleur → tri ascendant
-        sorted.sort((a, b) => (a.avgScore ?? 0).compareTo(b.avgScore ?? 0));
-      case CommunitySortBy.plantXp:
-        // XP plantes : plus grand = meilleur → tri descendant
-        sorted.sort((a, b) => (b.plantXp ?? 0).compareTo(a.plantXp ?? 0));
-    }
-    return sorted;
-  }
-
-  static List<Utilisateurs> _sortUsers(
-    List<Utilisateurs> users,
-    List<CarbonFootPrint> footprints,
-    UserSortBy sortBy,
-    String? communityCode,
-  ) {
-    final filtered = communityCode == null
-        ? List<Utilisateurs>.from(users)
-        : users.where((u) => u.codeCommunaute == communityCode).toList();
-
-    switch (sortBy) {
-      case UserSortBy.impactScoreXp:
-        // XP impact : plus grand = meilleur → tri descendant
-        filtered.sort((a, b) => b.impactScoreXp.compareTo(a.impactScoreXp));
-      case UserSortBy.carbonScore:
-        // Dernier bilan CO₂ : plus petit = meilleur → tri ascendant
-        filtered.sort((a, b) {
-          final aScore = _latestCarbonScore(a.id, footprints);
-          final bScore = _latestCarbonScore(b.id, footprints);
-          return aScore.compareTo(bScore);
-        });
-    }
-    return filtered;
-  }
-
-  /// Renvoie le score du dernier bilan CO₂ d'un utilisateur.
-  /// Retourne [double.infinity] si aucun bilan disponible (classé dernier).
-  static double _latestCarbonScore(
-    String userId,
-    List<CarbonFootPrint> footprints,
-  ) {
-    final userFp = footprints.where((fp) => fp.userId == userId).toList();
-    if (userFp.isEmpty) return double.infinity;
-    // dateBilan est une chaîne ISO-8601 : tri lexicographique correct
-    userFp.sort((a, b) => b.dateBilan.compareTo(a.dateBilan));
-    return userFp.first.score;
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -213,5 +158,10 @@ class RankingBloc extends Bloc<RankingEvent, RankingState> {
   static double getLatestCarbonScore(
     String userId,
     List<CarbonFootPrint> footprints,
-  ) => _latestCarbonScore(userId, footprints);
+  ) {
+    final userFp = footprints.where((fp) => fp.userId == userId).toList();
+    if (userFp.isEmpty) return double.infinity;
+    userFp.sort((a, b) => b.dateBilan.compareTo(a.dateBilan));
+    return userFp.first.score;
+  }
 }

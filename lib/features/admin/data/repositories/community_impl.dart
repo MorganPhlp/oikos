@@ -52,7 +52,16 @@ class CommunityImpl extends CommunityRep {
   @override
   Future<Either<Failure, void>> createCommunity(Community community) async {
     try {
-      await supabase.from('communaute').insert(community.toJson());
+      // 1. On convertit en Map
+      final communityMap = community.toJson();
+
+      // 2. On crée une copie modifiable et on retire les champs calculés de la vue
+      final dataToInsert = Map<String, dynamic>.from(communityMap)
+        ..remove('bilan_moyen')
+        ..remove('nombre_membres');
+
+      // 3. On insère dans la table (et non la vue)
+      await supabase.from('communaute').insert(dataToInsert);
       return right(null);
     } on PostgrestException catch (e) {
       logger.e("Erreur Repository", error: e);

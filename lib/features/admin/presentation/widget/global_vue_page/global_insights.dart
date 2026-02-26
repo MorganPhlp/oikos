@@ -86,7 +86,7 @@ class GlobalInsightsKPIs extends StatelessWidget {
 
         // Défis Relevés
         KPICard(
-          title: 'Défis Relevés',
+          title: 'Actions Réalisées',
           value: challengesAcceptedKPI != null
               ? numberFormat.format(challengesAcceptedKPI.nbChallenges)
               : '0',

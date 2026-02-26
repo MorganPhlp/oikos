@@ -736,7 +736,7 @@ class ChangeUserCommunityModal extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppTheme.radiusXl),
           ),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 400),
+            constraints: const BoxConstraints(maxWidth: 400, maxHeight: 560),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -751,35 +751,37 @@ class ChangeUserCommunityModal extends StatelessWidget {
                 ),
                 Divider(height: 1, color: colors.border),
 
-                Padding(
-                  padding: const EdgeInsets.all(AppTheme.spacingLg),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ReadOnlyField(
-                        label: 'Membre',
-                        value: user.pseudo,
-                        subtitle: user.email,
-                      ),
-                      const SizedBox(height: AppTheme.spacingLg),
-                      Text(
-                        'Nouvelle communauté',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: colors.mutedForeground,
+                Flexible(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(AppTheme.spacingLg),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ReadOnlyField(
+                          label: 'Membre',
+                          value: user.pseudo,
+                          subtitle: user.email,
                         ),
-                      ),
-                      const SizedBox(height: AppTheme.spacingMd),
-                      ...communities.map(
-                        (c) => CommunityRadioTile(
-                          community: c,
-                          isSelected: selectedNewCommunityId == c.code,
-                          onTap: () => context.read<CommunityBloc>().add(
-                            SelectNewCommunityEvent(communityId: c.code),
+                        const SizedBox(height: AppTheme.spacingLg),
+                        Text(
+                          'Nouvelle communauté',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: colors.mutedForeground,
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: AppTheme.spacingMd),
+                        ...communities.map(
+                          (c) => CommunityRadioTile(
+                            community: c,
+                            isSelected: selectedNewCommunityId == c.code,
+                            onTap: () => context.read<CommunityBloc>().add(
+                              SelectNewCommunityEvent(communityId: c.code),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
 
