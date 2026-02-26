@@ -352,7 +352,9 @@ class _ActiveDefiDetailsCardState extends State<ActiveDefiDetailsCard>
     return Column(
       children: [
         Text(
-          defi.displayTitle,
+          defi.displayTitle.isEmpty
+              ? defi.action?.title ?? "Action communautaire"
+              : defi.displayTitle,
           textAlign: TextAlign.center,
           style: theme.textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.bold,
