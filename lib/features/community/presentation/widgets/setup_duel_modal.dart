@@ -71,19 +71,19 @@ class _SetupDuelModalState extends State<SetupDuelModal> {
 
           _TargetTeamCard(targetCommunity: widget.targetCommunity),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
 
           _buildSectionTitle(theme, "Catégorie (Tirage au sort)"),
           const SizedBox(height: 12),
           _buildCategoryGrid(theme),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
 
           _buildSectionTitle(theme, "Durée du défi"),
           const SizedBox(height: 12),
           _buildDurationPicker(theme),
 
-          const SizedBox(height: 32),
+          const SizedBox(height: 22),
 
           SizedBox(
             width: double.infinity,
