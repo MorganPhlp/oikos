@@ -199,12 +199,12 @@ BEGIN
     v_xp_gain := COALESCE(v_rec.impact_score, 0);
 
     -- 2. Totaux actifs
-    SELECT COUNT(*) INTO v_total_demandeur FROM utilisateur WHERE code_communaute = v_rec.communaute_demandeur_code AND est_actif = TRUE;
-    SELECT COUNT(*) INTO v_total_cible FROM utilisateur WHERE code_communaute = v_rec.communaute_cible_code AND est_actif = TRUE;
+    SELECT COUNT(*) INTO v_total_demandeur FROM utilisateur WHERE code_communaute = v_rec.communaute_demandeur_code AND est_actif = TRUE AND role != 'ADMINISTRATEUR' AND etat_compte != 'ANONYMISE';
+    SELECT COUNT(*) INTO v_total_cible FROM utilisateur WHERE code_communaute = v_rec.communaute_cible_code AND est_actif = TRUE AND role != 'ADMINISTRATEUR' AND etat_compte != 'ANONYMISE';
 
     -- 3. Participations
     SELECT COUNT(*) INTO v_part_demandeur FROM defi_participation dp JOIN utilisateur u ON dp.user_id = u.id
-    WHERE dp.defi_id = NEW.defi_id AND u.code_communaute = v_rec.communaute_demandeur_code;
+    WHERE dp.defi_id = NEW.defi_id AND u.code_communaute = v_rec.communaute_demandeur_code AND u.etat_compte != 'ANONYMISE';
 
     SELECT COUNT(*) INTO v_part_cible FROM defi_participation dp JOIN utilisateur u ON dp.user_id = u.id
     WHERE dp.defi_id = NEW.defi_id AND u.code_communaute = v_rec.communaute_cible_code;
