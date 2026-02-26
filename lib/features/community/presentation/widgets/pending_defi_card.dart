@@ -82,7 +82,7 @@ class PendingDefiCard extends StatelessWidget {
 
           // Section Progrès avec icônes indicatives
           _buildProgressSection(
-            label: "Votre communauté",
+            label: defi.nomCommu1,
             progress: defi.progress1,
             color: theme.colorScheme.primary,
             icon: Icons.shield_outlined,
