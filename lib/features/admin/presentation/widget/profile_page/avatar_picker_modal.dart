@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/theme/admin_theme.dart';
+import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/features/admin/presentation/bloc/profile_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/profile_event.dart';
 import 'package:oikos/features/admin/presentation/bloc/profile_state.dart';
@@ -51,7 +51,7 @@ class _AvatarPickerModalState extends State<AvatarPickerModal> {
 
         return Dialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AdminTheme.radiusXl),
+            borderRadius: BorderRadius.circular(AppTheme.radiusXl),
           ),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 500, maxHeight: 560),
@@ -70,7 +70,7 @@ class _AvatarPickerModalState extends State<AvatarPickerModal> {
                           child: Padding(
                             padding: EdgeInsets.all(32),
                             child: CircularProgressIndicator(
-                              color: AdminTheme.actionGreen,
+                              color: AppTheme.actionGreen,
                             ),
                           ),
                         )
@@ -85,12 +85,12 @@ class _AvatarPickerModalState extends State<AvatarPickerModal> {
                           ),
                         )
                       : GridView.builder(
-                          padding: const EdgeInsets.all(AdminTheme.spacingMd),
+                          padding: const EdgeInsets.all(AppTheme.spacingMd),
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 4,
-                                crossAxisSpacing: AdminTheme.spacingMd,
-                                mainAxisSpacing: AdminTheme.spacingMd,
+                                crossAxisSpacing: AppTheme.spacingMd,
+                                mainAxisSpacing: AppTheme.spacingMd,
                               ),
                           itemCount: avatars.length,
                           itemBuilder: (context, index) {
@@ -105,7 +105,7 @@ class _AvatarPickerModalState extends State<AvatarPickerModal> {
                                   shape: BoxShape.circle,
                                   border: Border.all(
                                     color: isSelected
-                                        ? AdminTheme.actionGreen
+                                        ? AppTheme.actionGreen
                                         : colors.border,
                                     width: isSelected ? 3 : 1,
                                   ),

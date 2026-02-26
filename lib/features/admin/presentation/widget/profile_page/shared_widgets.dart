@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
-import 'package:oikos/core/theme/admin_theme.dart';
+import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
 
 // ─── Snackbar helper ─────────────────────────────────────────────────────────
@@ -19,18 +19,18 @@ void showProfileSnackBar(
             color: Colors.white,
             size: 16,
           ),
-          const SizedBox(width: AdminTheme.spacingSm),
+          const SizedBox(width: AppTheme.spacingSm),
           Expanded(
             child: Text(message, style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),
       backgroundColor: isError
-          ? AdminTheme.errorForeground
-          : AdminTheme.actionGreen,
+          ? AppTheme.errorForeground
+          : AppTheme.actionGreen,
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
       ),
     ),
   );
@@ -53,28 +53,28 @@ InputDecoration profileInputDecoration(
     filled: true,
     fillColor: colors.inputBackground,
     contentPadding: const EdgeInsets.symmetric(
-      horizontal: AdminTheme.spacingMd,
-      vertical: AdminTheme.spacingMd,
+      horizontal: AppTheme.spacingMd,
+      vertical: AppTheme.spacingMd,
     ),
     border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
       borderSide: BorderSide(color: colors.border),
     ),
     enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
       borderSide: BorderSide(color: colors.border),
     ),
     focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
-      borderSide: const BorderSide(color: AdminTheme.actionGreen, width: 2),
+      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+      borderSide: const BorderSide(color: AppTheme.actionGreen, width: 2),
     ),
     errorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
-      borderSide: const BorderSide(color: AdminTheme.errorForeground),
+      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+      borderSide: const BorderSide(color: AppTheme.errorForeground),
     ),
     focusedErrorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
-      borderSide: const BorderSide(color: AdminTheme.errorForeground, width: 2),
+      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+      borderSide: const BorderSide(color: AppTheme.errorForeground, width: 2),
     ),
   );
 }
@@ -93,14 +93,14 @@ class SectionHeader extends StatelessWidget {
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(AdminTheme.spacingSm),
+          padding: const EdgeInsets.all(AppTheme.spacingSm),
           decoration: BoxDecoration(
-            color: AdminTheme.actionGreenLight,
-            borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+            color: AppTheme.actionGreenLight,
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
           ),
-          child: Icon(icon, size: 18, color: AdminTheme.actionGreen),
+          child: Icon(icon, size: 18, color: AppTheme.actionGreen),
         ),
-        const SizedBox(width: AdminTheme.spacingMd),
+        const SizedBox(width: AppTheme.spacingMd),
         Text(
           title,
           style: TextStyle(
@@ -154,15 +154,15 @@ class SaveButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: isLoading ? null : onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: AdminTheme.actionGreen,
-        foregroundColor: AdminTheme.actionGreenForeground,
-        disabledBackgroundColor: AdminTheme.actionGreen.withValues(alpha: 0.6),
+        backgroundColor: AppTheme.actionGreen,
+        foregroundColor: AppTheme.actionGreenForeground,
+        disabledBackgroundColor: AppTheme.actionGreen.withValues(alpha: 0.6),
         padding: const EdgeInsets.symmetric(
-          horizontal: AdminTheme.spacingXl,
-          vertical: AdminTheme.spacingMd,
+          horizontal: AppTheme.spacingXl,
+          vertical: AppTheme.spacingMd,
         ),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
+          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
         ),
         elevation: 0,
       ),
@@ -196,14 +196,14 @@ class RoleBadge extends StatelessWidget {
     final isAdmin = role == RoleUtilisateur.administrateur;
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AdminTheme.spacingMd,
-        vertical: AdminTheme.spacingXs,
+        horizontal: AppTheme.spacingMd,
+        vertical: AppTheme.spacingXs,
       ),
       decoration: BoxDecoration(
-        color: isAdmin ? AdminTheme.actionGreenLight : colors.muted,
-        borderRadius: BorderRadius.circular(AdminTheme.radiusXxl),
+        color: isAdmin ? AppTheme.actionGreenLight : colors.muted,
+        borderRadius: BorderRadius.circular(AppTheme.radiusXxl),
         border: Border.all(
-          color: isAdmin ? AdminTheme.actionGreen : colors.border,
+          color: isAdmin ? AppTheme.actionGreen : colors.border,
         ),
       ),
       child: Row(
@@ -212,15 +212,15 @@ class RoleBadge extends StatelessWidget {
           Icon(
             isAdmin ? Icons.admin_panel_settings_rounded : Icons.person_rounded,
             size: 14,
-            color: isAdmin ? AdminTheme.actionGreen : colors.mutedForeground,
+            color: isAdmin ? AppTheme.actionGreen : colors.mutedForeground,
           ),
-          const SizedBox(width: AdminTheme.spacingXs),
+          const SizedBox(width: AppTheme.spacingXs),
           Text(
             isAdmin ? 'Administrateur' : 'Utilisateur',
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
-              color: isAdmin ? AdminTheme.actionGreen : colors.mutedForeground,
+              color: isAdmin ? AppTheme.actionGreen : colors.mutedForeground,
             ),
           ),
         ],
@@ -254,9 +254,9 @@ class AvatarEditor extends StatelessWidget {
         GestureDetector(
           onTap: onTap,
           child: Container(
-            padding: const EdgeInsets.all(AdminTheme.spacingXs),
+            padding: const EdgeInsets.all(AppTheme.spacingXs),
             decoration: BoxDecoration(
-              color: AdminTheme.actionGreen,
+              color: AppTheme.actionGreen,
               shape: BoxShape.circle,
               border: Border.all(color: Colors.white, width: 2),
             ),
@@ -292,7 +292,7 @@ class LogoEditor extends StatelessWidget {
             width: 96,
             height: 96,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AdminTheme.radiusXl),
+              borderRadius: BorderRadius.circular(AppTheme.radiusXl),
               border: Border.all(color: colors.border),
               color: colors.muted,
             ),
@@ -311,9 +311,9 @@ class LogoEditor extends StatelessWidget {
         GestureDetector(
           onTap: onTap,
           child: Container(
-            padding: const EdgeInsets.all(AdminTheme.spacingXs),
+            padding: const EdgeInsets.all(AppTheme.spacingXs),
             decoration: BoxDecoration(
-              color: AdminTheme.actionGreen,
+              color: AppTheme.actionGreen,
               shape: BoxShape.circle,
               border: Border.all(color: Colors.white, width: 2),
             ),
@@ -347,11 +347,11 @@ class PickerModalHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = AdminColors.of(context);
     return Padding(
-      padding: const EdgeInsets.all(AdminTheme.spacingLg),
+      padding: const EdgeInsets.all(AppTheme.spacingLg),
       child: Row(
         children: [
-          Icon(icon, color: AdminTheme.actionGreen),
-          const SizedBox(width: AdminTheme.spacingMd),
+          Icon(icon, color: AppTheme.actionGreen),
+          const SizedBox(width: AppTheme.spacingMd),
           Expanded(
             child: Text(
               title,
@@ -394,10 +394,10 @@ class PickerModalActions extends StatelessWidget {
     final colors = AdminColors.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-        AdminTheme.spacingLg,
+        AppTheme.spacingLg,
         0,
-        AdminTheme.spacingLg,
-        AdminTheme.spacingLg,
+        AppTheme.spacingLg,
+        AppTheme.spacingLg,
       ),
       child: Row(
         children: [
@@ -406,28 +406,28 @@ class PickerModalActions extends StatelessWidget {
               onPressed: onCancel,
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
-                  vertical: AdminTheme.spacingMd,
+                  vertical: AppTheme.spacingMd,
                 ),
                 side: BorderSide(color: colors.border),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                 ),
               ),
               child: const Text('Annuler'),
             ),
           ),
-          const SizedBox(width: AdminTheme.spacingMd),
+          const SizedBox(width: AppTheme.spacingMd),
           Expanded(
             child: ElevatedButton(
               onPressed: isSubmitting ? null : onSubmit,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AdminTheme.actionGreen,
-                foregroundColor: AdminTheme.actionGreenForeground,
+                backgroundColor: AppTheme.actionGreen,
+                foregroundColor: AppTheme.actionGreenForeground,
                 padding: const EdgeInsets.symmetric(
-                  vertical: AdminTheme.spacingMd,
+                  vertical: AppTheme.spacingMd,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                 ),
               ),
               child: isSubmitting
@@ -482,7 +482,7 @@ class PasswordField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         FieldLabel(label: label),
-        const SizedBox(height: AdminTheme.spacingXs),
+        const SizedBox(height: AppTheme.spacingXs),
         TextFormField(
           controller: controller,
           obscureText: obscure,
@@ -507,32 +507,32 @@ class PasswordField extends StatelessWidget {
             filled: true,
             fillColor: colors.inputBackground,
             contentPadding: const EdgeInsets.symmetric(
-              horizontal: AdminTheme.spacingMd,
-              vertical: AdminTheme.spacingMd,
+              horizontal: AppTheme.spacingMd,
+              vertical: AppTheme.spacingMd,
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
               borderSide: BorderSide(color: colors.border),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
               borderSide: BorderSide(color: colors.border),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
               borderSide: const BorderSide(
-                color: AdminTheme.actionGreen,
+                color: AppTheme.actionGreen,
                 width: 2,
               ),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
-              borderSide: const BorderSide(color: AdminTheme.errorForeground),
+              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+              borderSide: const BorderSide(color: AppTheme.errorForeground),
             ),
             focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
               borderSide: const BorderSide(
-                color: AdminTheme.errorForeground,
+                color: AppTheme.errorForeground,
                 width: 2,
               ),
             ),

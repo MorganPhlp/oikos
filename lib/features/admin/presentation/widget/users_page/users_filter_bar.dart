@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/theme/admin_theme.dart';
+import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/features/admin/presentation/bloc/users_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/users_event.dart';
 import 'package:oikos/features/admin/presentation/bloc/users_state.dart';
@@ -20,9 +20,9 @@ class UsersFilterBar extends StatelessWidget {
     return Row(
       children: [
         Expanded(flex: 3, child: _SearchField(state: state)),
-        const SizedBox(width: AdminTheme.spacingMd),
+        const SizedBox(width: AppTheme.spacingMd),
         Expanded(flex: 2, child: _CommunityDropdown(state: state)),
-        const SizedBox(width: AdminTheme.spacingMd),
+        const SizedBox(width: AppTheme.spacingMd),
         _SortToggle(state: state),
       ],
     );
@@ -45,8 +45,8 @@ class UsersFilterSummary extends StatelessWidget {
         state.selectedCommunityCode != null;
 
     return Wrap(
-      spacing: AdminTheme.spacingSm,
-      runSpacing: AdminTheme.spacingXs,
+      spacing: AppTheme.spacingSm,
+      runSpacing: AppTheme.spacingXs,
       children: [
         _FilterChip(
           label: state.sortOrder == UsersSortOrder.pseudoAsc
@@ -62,7 +62,7 @@ class UsersFilterSummary extends StatelessWidget {
         if (hasActiveFilters)
           TextButton.icon(
             style: TextButton.styleFrom(
-              foregroundColor: AdminTheme.errorForeground,
+              foregroundColor: AppTheme.errorForeground,
               padding:
                   const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -92,20 +92,20 @@ class _FilterChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: AdminTheme.actionGreenLight,
-        borderRadius: BorderRadius.circular(AdminTheme.radiusXxl),
+        color: AppTheme.actionGreenLight,
+        borderRadius: BorderRadius.circular(AppTheme.radiusXxl),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 12, color: AdminTheme.actionGreen),
+          Icon(icon, size: 12, color: AppTheme.actionGreen),
           const SizedBox(width: 4),
           Text(
             label,
             style: const TextStyle(
               fontSize: 11,
-              color: AdminTheme.actionGreen,
-              fontWeight: AdminTheme.fontWeightMedium,
+              color: AppTheme.actionGreen,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -144,10 +144,10 @@ class _UsersFilterSheet extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.card,
         borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(AdminTheme.radiusXxl),
+          top: Radius.circular(AppTheme.radiusXxl),
         ),
       ),
-      padding: const EdgeInsets.all(AdminTheme.spacingLg),
+      padding: const EdgeInsets.all(AppTheme.spacingLg),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -162,36 +162,36 @@ class _UsersFilterSheet extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: AdminTheme.spacingLg),
+          const SizedBox(height: AppTheme.spacingLg),
           Text('Filtres & Tri',
               style: Theme.of(context).textTheme.headlineSmall),
-          const SizedBox(height: AdminTheme.spacingLg),
+          const SizedBox(height: AppTheme.spacingLg),
           Text('Recherche',
               style: Theme.of(context).textTheme.labelMedium),
-          const SizedBox(height: AdminTheme.spacingSm),
+          const SizedBox(height: AppTheme.spacingSm),
           _SearchField(state: state),
-          const SizedBox(height: AdminTheme.spacingLg),
+          const SizedBox(height: AppTheme.spacingLg),
           Text('Communauté',
               style: Theme.of(context).textTheme.labelMedium),
-          const SizedBox(height: AdminTheme.spacingSm),
+          const SizedBox(height: AppTheme.spacingSm),
           _CommunityDropdown(state: state),
-          const SizedBox(height: AdminTheme.spacingLg),
+          const SizedBox(height: AppTheme.spacingLg),
           Text('Tri par pseudo',
               style: Theme.of(context).textTheme.labelMedium),
-          const SizedBox(height: AdminTheme.spacingSm),
+          const SizedBox(height: AppTheme.spacingSm),
           _SortButtons(state: state),
-          const SizedBox(height: AdminTheme.spacingLg),
+          const SizedBox(height: AppTheme.spacingLg),
           SizedBox(
             width: double.infinity,
             child: FilledButton(
               style: FilledButton.styleFrom(
-                backgroundColor: AdminTheme.actionGreen,
+                backgroundColor: AppTheme.actionGreen,
               ),
               onPressed: () => Navigator.of(context).pop(),
               child: const Text('Appliquer',style:TextStyle(color: Colors.white)),
             ),
           ),
-          const SizedBox(height: AdminTheme.spacingMd),
+          const SizedBox(height: AppTheme.spacingMd),
         ],
       ),
     );
@@ -251,15 +251,15 @@ class _SearchFieldState extends State<_SearchField> {
         filled: true,
         fillColor: colors.inputBackground,
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: AdminTheme.spacingMd,
-          vertical: AdminTheme.spacingSm,
+          horizontal: AppTheme.spacingMd,
+          vertical: AppTheme.spacingSm,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
           borderSide: BorderSide.none,
         ),
       ),
@@ -276,10 +276,10 @@ class _CommunityDropdown extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = AdminColors.of(context);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AdminTheme.spacingMd),
+      padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingMd),
       decoration: BoxDecoration(
         color: colors.inputBackground,
-        borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String?>(
@@ -332,14 +332,14 @@ class _SortToggle extends StatelessWidget {
           : 'Pseudo Z→A — cliquer pour A→Z',
       child: OutlinedButton.icon(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AdminTheme.actionGreen,
-          side: const BorderSide(color: AdminTheme.actionGreen),
+          foregroundColor: AppTheme.actionGreen,
+          side: const BorderSide(color: AppTheme.actionGreen),
           padding: const EdgeInsets.symmetric(
-            horizontal: AdminTheme.spacingMd,
-            vertical: AdminTheme.spacingSm,
+            horizontal: AppTheme.spacingMd,
+            vertical: AppTheme.spacingSm,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
           ),
         ),
         icon: Icon(
@@ -379,7 +379,7 @@ class _SortButtons extends StatelessWidget {
                 ),
           ),
         ),
-        const SizedBox(width: AdminTheme.spacingSm),
+        const SizedBox(width: AppTheme.spacingSm),
         Expanded(
           child: _SortButton(
             label: 'Z → A',
@@ -411,13 +411,13 @@ class _SortButton extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(vertical: AdminTheme.spacingMd),
+        padding: const EdgeInsets.symmetric(vertical: AppTheme.spacingMd),
         decoration: BoxDecoration(
-          color: isSelected ? AdminTheme.actionGreenLight : Colors.transparent,
-          borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+          color: isSelected ? AppTheme.actionGreenLight : Colors.transparent,
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
           border: Border.all(
             color: isSelected
-                ? AdminTheme.actionGreen
+                ? AppTheme.actionGreen
                 : AdminColors.of(context).border,
           ),
         ),
@@ -426,7 +426,7 @@ class _SortButton extends StatelessWidget {
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.labelMedium?.copyWith(
                 color: isSelected
-                    ? AdminTheme.actionGreen
+                    ? AppTheme.actionGreen
                     : AdminColors.of(context).mutedForeground,
               ),
         ),

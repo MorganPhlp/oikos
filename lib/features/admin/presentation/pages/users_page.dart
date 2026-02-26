@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
-import 'package:oikos/core/theme/admin_theme.dart';
+import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/core/theme/breakpoints.dart';
 import 'package:oikos/core/utils/show_snackbar.dart';
 import 'package:oikos/features/admin/data/models/core/company.dart';
@@ -51,19 +51,19 @@ class _UsersPageState extends State<UsersPage> {
               children: [
                 const Icon(
                   Icons.error_outline_rounded,
-                  color: AdminTheme.errorForeground,
+                  color: AppTheme.errorForeground,
                   size: 48,
                 ),
-                const SizedBox(height: AdminTheme.spacingMd),
+                const SizedBox(height: AppTheme.spacingMd),
                 Text(
                   state.message,
-                  style: const TextStyle(color: AdminTheme.errorForeground),
+                  style: const TextStyle(color: AppTheme.errorForeground),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: AdminTheme.spacingMd),
+                const SizedBox(height: AppTheme.spacingMd),
                 FilledButton.icon(
                   style: FilledButton.styleFrom(
-                    backgroundColor: AdminTheme.actionGreen,
+                    backgroundColor: AppTheme.actionGreen,
                   ),
                   icon: const Icon(Icons.refresh_rounded),
                   label: const Text('Réessayer'),
@@ -106,16 +106,16 @@ class _UsersContent extends StatelessWidget {
     return Stack(
       children: [
         SingleChildScrollView(
-          padding: const EdgeInsets.all(AdminTheme.spacingLg),
+          padding: const EdgeInsets.all(AppTheme.spacingLg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _buildHeader(context),
-              const SizedBox(height: AdminTheme.spacingLg),
+              const SizedBox(height: AppTheme.spacingLg),
               _buildStatsRow(context),
-              const SizedBox(height: AdminTheme.spacingLg),
+              const SizedBox(height: AppTheme.spacingLg),
               _buildBody(context),
-              const SizedBox(height: AdminTheme.spacingLg),
+              const SizedBox(height: AppTheme.spacingLg),
             ],
           ),
         ),
@@ -135,7 +135,7 @@ class _UsersContent extends StatelessWidget {
     final colors = AdminColors.of(context);
     return Container(
       decoration: colors.cardDecoration,
-      padding: const EdgeInsets.all(AdminTheme.spacingLg),
+      padding: const EdgeInsets.all(AppTheme.spacingLg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -143,10 +143,10 @@ class _UsersContent extends StatelessWidget {
             children: [
               const Icon(
                 Icons.people_rounded,
-                color: AdminTheme.actionGreen,
+                color: AppTheme.actionGreen,
                 size: 28,
               ),
-              const SizedBox(width: AdminTheme.spacingSm),
+              const SizedBox(width: AppTheme.spacingSm),
               Text(
                 'Utilisateurs',
                 style: Theme.of(context).textTheme.headlineMedium,
@@ -155,10 +155,10 @@ class _UsersContent extends StatelessWidget {
               if (isMobile)
                 OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AdminTheme.actionGreen,
-                    side: const BorderSide(color: AdminTheme.actionGreen),
+                    foregroundColor: AppTheme.actionGreen,
+                    side: const BorderSide(color: AppTheme.actionGreen),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                     ),
                   ),
                   icon: const Icon(Icons.tune_rounded, size: 16),
@@ -167,7 +167,7 @@ class _UsersContent extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: AdminTheme.spacingMd),
+          const SizedBox(height: AppTheme.spacingMd),
           // Desktop → filtres inline ; Mobile → résumé des filtres actifs
           if (!isMobile)
             UsersFilterBar(state: state)
@@ -194,7 +194,7 @@ class _UsersContent extends StatelessWidget {
             value: '$totalActifs',
           ),
         ),
-        const SizedBox(width: AdminTheme.spacingMd),
+        const SizedBox(width: AppTheme.spacingMd),
         Expanded(
           child: _StatCard(
             icon: Icons.filter_list_rounded,
@@ -202,7 +202,7 @@ class _UsersContent extends StatelessWidget {
             value: '${state.filteredUsers.length}',
           ),
         ),
-        const SizedBox(width: AdminTheme.spacingMd),
+        const SizedBox(width: AppTheme.spacingMd),
         Expanded(
           child: _StatCard(
             icon: Icons.group_work_rounded,
@@ -231,7 +231,7 @@ class _UsersContent extends StatelessWidget {
          
 
           return Padding(
-            padding: const EdgeInsets.only(bottom: AdminTheme.spacingSm),
+            padding: const EdgeInsets.only(bottom: AppTheme.spacingSm),
             child: UserMobileCard(
               user: user,
               communityName: communityName,
@@ -268,18 +268,18 @@ class _StatCard extends StatelessWidget {
     final colors = AdminColors.of(context);
     return Container(
       decoration: colors.cardDecoration,
-      padding: const EdgeInsets.all(AdminTheme.spacingMd),
+      padding: const EdgeInsets.all(AppTheme.spacingMd),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(AdminTheme.spacingSm),
+            padding: const EdgeInsets.all(AppTheme.spacingSm),
             decoration: BoxDecoration(
-              color: AdminTheme.actionGreenLight,
-              borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+              color: AppTheme.actionGreenLight,
+              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
             ),
-            child: Icon(icon, size: 20, color: AdminTheme.actionGreen),
+            child: Icon(icon, size: 20, color: AppTheme.actionGreen),
           ),
-          const SizedBox(width: AdminTheme.spacingMd),
+          const SizedBox(width: AppTheme.spacingMd),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -287,7 +287,7 @@ class _StatCard extends StatelessWidget {
                 Text(
                   value,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: AdminTheme.fontWeightSemibold,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 Text(
@@ -312,7 +312,7 @@ class _EmptyState extends StatelessWidget {
     final colors = AdminColors.of(context);
     return Container(
       decoration: colors.cardDecoration,
-      padding: const EdgeInsets.all(AdminTheme.spacingXxl),
+      padding: const EdgeInsets.all(AppTheme.spacingXxl),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -321,12 +321,12 @@ class _EmptyState extends StatelessWidget {
             size: 64,
             color: colors.mutedForeground,
           ),
-          const SizedBox(height: AdminTheme.spacingMd),
+          const SizedBox(height: AppTheme.spacingMd),
           Text(
             'Aucun utilisateur trouvé',
             style: Theme.of(context).textTheme.headlineSmall,
           ),
-          const SizedBox(height: AdminTheme.spacingSm),
+          const SizedBox(height: AppTheme.spacingSm),
           Text(
             'Essayez de modifier vos filtres de recherche.',
             style: Theme.of(

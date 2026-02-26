@@ -11,7 +11,6 @@ part of 'ranking_data.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$RankingData {
 
@@ -22,8 +21,6 @@ mixin _$RankingData {
 @pragma('vm:prefer-inline')
 $RankingDataCopyWith<RankingData> get copyWith => _$RankingDataCopyWithImpl<RankingData>(this as RankingData, _$identity);
 
-  /// Serializes this RankingData to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -31,7 +28,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is RankingData&&const DeepCollectionEquality().equals(other.users, users)&&const DeepCollectionEquality().equals(other.carbonFootPrints, carbonFootPrints)&&const DeepCollectionEquality().equals(other.communities, communities));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(users),const DeepCollectionEquality().hash(carbonFootPrints),const DeepCollectionEquality().hash(communities));
 
@@ -202,11 +199,11 @@ return $default(_that.users,_that.carbonFootPrints,_that.communities);case _:
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _RankingData implements RankingData {
   const _RankingData({required final  List<Utilisateurs> users, required final  List<CarbonFootPrint> carbonFootPrints, required final  List<Community> communities}): _users = users,_carbonFootPrints = carbonFootPrints,_communities = communities;
-  factory _RankingData.fromJson(Map<String, dynamic> json) => _$RankingDataFromJson(json);
+  
 
  final  List<Utilisateurs> _users;
 @override List<Utilisateurs> get users {
@@ -236,17 +233,14 @@ class _RankingData implements RankingData {
 @pragma('vm:prefer-inline')
 _$RankingDataCopyWith<_RankingData> get copyWith => __$RankingDataCopyWithImpl<_RankingData>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$RankingDataToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _RankingData&&const DeepCollectionEquality().equals(other._users, _users)&&const DeepCollectionEquality().equals(other._carbonFootPrints, _carbonFootPrints)&&const DeepCollectionEquality().equals(other._communities, _communities));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_users),const DeepCollectionEquality().hash(_carbonFootPrints),const DeepCollectionEquality().hash(_communities));
 

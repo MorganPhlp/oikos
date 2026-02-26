@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/theme/admin_theme.dart';
+import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/features/admin/presentation/bloc/ranking_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/ranking_event.dart';
 import 'package:oikos/features/admin/presentation/bloc/ranking_state.dart';
@@ -32,7 +32,7 @@ class RankingFilterBar extends StatelessWidget {
                         rankingType: RankingType.communities),
                   ),
             ),
-            const SizedBox(width: AdminTheme.spacingSm),
+            const SizedBox(width: AppTheme.spacingSm),
             _TypeButton(
               label: 'Utilisateurs',
               icon: Icons.person_rounded,
@@ -44,7 +44,7 @@ class RankingFilterBar extends StatelessWidget {
           ],
         ),
 
-        const SizedBox(height: AdminTheme.spacingMd),
+        const SizedBox(height: AppTheme.spacingMd),
 
         // ── Dropdowns de tri ─────────────────────────────────────────────
         if (state.rankingType == RankingType.communities)
@@ -95,7 +95,7 @@ class RankingFilterBar extends StatelessWidget {
                   },
                 ),
               ),
-              const SizedBox(width: AdminTheme.spacingMd),
+              const SizedBox(width: AppTheme.spacingMd),
               Expanded(
                 child: _SortDropdown<String>(
                   label: 'Filtrer par communauté',
@@ -125,7 +125,7 @@ class RankingFilterBar extends StatelessWidget {
             ],
           ),
 
-        const SizedBox(height: AdminTheme.spacingSm),
+        const SizedBox(height: AppTheme.spacingSm),
 
         // ── Texte résumé ─────────────────────────────────────────────────
         Text(
@@ -167,10 +167,10 @@ class RankingFilterSummary extends StatelessWidget {
           value: state.rankingType == RankingType.communities
               ? 'Communautés'
               : 'Utilisateurs',
-          color: AdminTheme.actionGreenLight,
-          textColor: AdminTheme.actionGreen,
+          color: AppTheme.actionGreenLight,
+          textColor: AppTheme.actionGreen,
         ),
-        const SizedBox(height: AdminTheme.spacingXs),
+        const SizedBox(height: AppTheme.spacingXs),
         _SummaryRow(
           label: 'Tri',
           value: state.rankingType == RankingType.communities
@@ -181,7 +181,7 @@ class RankingFilterSummary extends StatelessWidget {
         ),
         if (state.rankingType == RankingType.users &&
             state.selectedCommunityCode != null) ...[
-          const SizedBox(height: AdminTheme.spacingXs),
+          const SizedBox(height: AppTheme.spacingXs),
           _SummaryRow(
             label: 'Communauté',
             value: state.data.communities
@@ -226,25 +226,25 @@ class _FilterSheet extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.card,
         borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(AdminTheme.radiusXxl),
+          top: Radius.circular(AppTheme.radiusXxl),
         ),
       ),
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom +
-            AdminTheme.spacingLg,
+            AppTheme.spacingLg,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           // Poignée
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: AdminTheme.spacingMd),
+            padding: const EdgeInsets.symmetric(vertical: AppTheme.spacingMd),
             child: Container(
               width: 40,
               height: 4,
               decoration: BoxDecoration(
                 color: colors.muted,
-                borderRadius: BorderRadius.circular(AdminTheme.radiusXxl),
+                borderRadius: BorderRadius.circular(AppTheme.radiusXxl),
               ),
             ),
           ),
@@ -252,7 +252,7 @@ class _FilterSheet extends StatelessWidget {
           // Titre + fermeture
           Padding(
             padding: const EdgeInsets.symmetric(
-                horizontal: AdminTheme.spacingLg),
+                horizontal: AppTheme.spacingLg),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -271,14 +271,14 @@ class _FilterSheet extends StatelessWidget {
           const Divider(height: 1),
 
           Padding(
-            padding: const EdgeInsets.all(AdminTheme.spacingLg),
+            padding: const EdgeInsets.all(AppTheme.spacingLg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // ── Type ────────────────────────────────────────────────
                 Text('Type de classement',
                     style: Theme.of(context).textTheme.labelMedium),
-                const SizedBox(height: AdminTheme.spacingMd),
+                const SizedBox(height: AppTheme.spacingMd),
                 Row(
                   children: [
                     _MobileTypeCard(
@@ -294,7 +294,7 @@ class _FilterSheet extends StatelessWidget {
                         Navigator.of(context).pop();
                       },
                     ),
-                    const SizedBox(width: AdminTheme.spacingMd),
+                    const SizedBox(width: AppTheme.spacingMd),
                     _MobileTypeCard(
                       label: 'Utilisateurs',
                       icon: Icons.person_rounded,
@@ -310,12 +310,12 @@ class _FilterSheet extends StatelessWidget {
                   ],
                 ),
 
-                const SizedBox(height: AdminTheme.spacingLg),
+                const SizedBox(height: AppTheme.spacingLg),
 
                 // ── Tri ─────────────────────────────────────────────────
                 Text('Trier par',
                     style: Theme.of(context).textTheme.labelMedium),
-                const SizedBox(height: AdminTheme.spacingSm),
+                const SizedBox(height: AppTheme.spacingSm),
                 if (state.rankingType == RankingType.communities)
                   _SortDropdown<CommunitySortBy>(
                     value: state.communitySortBy,
@@ -356,10 +356,10 @@ class _FilterSheet extends StatelessWidget {
                           .add(UserSortChanged(sortBy: v));
                     },
                   ),
-                  const SizedBox(height: AdminTheme.spacingMd),
+                  const SizedBox(height: AppTheme.spacingMd),
                   Text('Filtrer par communauté',
                       style: Theme.of(context).textTheme.labelMedium),
-                  const SizedBox(height: AdminTheme.spacingSm),
+                  const SizedBox(height: AppTheme.spacingSm),
                   _SortDropdown<String>(
                     value: state.selectedCommunityCode ?? 'all',
                     items: [
@@ -385,19 +385,19 @@ class _FilterSheet extends StatelessWidget {
                   ),
                 ],
 
-                const SizedBox(height: AdminTheme.spacingLg),
+                const SizedBox(height: AppTheme.spacingLg),
 
                 // ── Bouton appliquer ─────────────────────────────────────
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(
                     style: FilledButton.styleFrom(
-                      backgroundColor: AdminTheme.actionGreen,
+                      backgroundColor: AppTheme.actionGreen,
                       padding: const EdgeInsets.symmetric(
-                          vertical: AdminTheme.spacingMd),
+                          vertical: AppTheme.spacingMd),
                       shape: RoundedRectangleBorder(
                         borderRadius:
-                            BorderRadius.circular(AdminTheme.radiusMd),
+                            BorderRadius.circular(AppTheme.radiusMd),
                       ),
                     ),
                     onPressed: () => Navigator.of(context).pop(),
@@ -457,15 +457,15 @@ class _TypeButton extends StatelessWidget {
     return FilledButton.icon(
       style: FilledButton.styleFrom(
         backgroundColor:
-            selected ? AdminTheme.actionGreen : AdminTheme.actionGreenLight,
+            selected ? AppTheme.actionGreen : AppTheme.actionGreenLight,
         foregroundColor:
-            selected ? Colors.white : AdminTheme.actionGreen,
+            selected ? Colors.white : AppTheme.actionGreen,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
         ),
         padding: const EdgeInsets.symmetric(
-          horizontal: AdminTheme.spacingMd,
-          vertical: AdminTheme.spacingSm,
+          horizontal: AppTheme.spacingMd,
+          vertical: AppTheme.spacingSm,
         ),
       ),
       onPressed: onTap,
@@ -495,15 +495,15 @@ class _MobileTypeCard extends StatelessWidget {
         onTap: onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
-          padding: const EdgeInsets.all(AdminTheme.spacingMd),
+          padding: const EdgeInsets.all(AppTheme.spacingMd),
           decoration: BoxDecoration(
             color: selected
-                ? AdminTheme.actionGreenLight
+                ? AppTheme.actionGreenLight
                 : AdminColors.of(context).accent,
-            borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
             border: Border.all(
               color: selected
-                  ? AdminTheme.actionGreen
+                  ? AppTheme.actionGreen
                   : AdminColors.of(context).border,
               width: selected ? 2 : 1,
             ),
@@ -513,16 +513,16 @@ class _MobileTypeCard extends StatelessWidget {
               Icon(
                 icon,
                 color: selected
-                    ? AdminTheme.actionGreen
+                    ? AppTheme.actionGreen
                     : AdminColors.of(context).mutedForeground,
                 size: 28,
               ),
-              const SizedBox(height: AdminTheme.spacingXs),
+              const SizedBox(height: AppTheme.spacingXs),
               Text(
                 label,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                       color: selected
-                          ? AdminTheme.actionGreen
+                          ? AppTheme.actionGreen
                           : AdminColors.of(context).foreground,
                     ),
                 textAlign: TextAlign.center,
@@ -570,18 +570,18 @@ class _SortDropdown<T> extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: AdminTheme.spacingXs),
+          const SizedBox(height: AppTheme.spacingXs),
         ],
         // DropdownButton dans un Container stylisé pour éviter le
         // DropdownButtonFormField.value déprécié (Flutter ≥ 3.33).
         Container(
           decoration: BoxDecoration(
             color: colors.inputBackground,
-            borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
             border: Border.all(color: colors.border),
           ),
           padding: const EdgeInsets.symmetric(
-            horizontal: AdminTheme.spacingMd,
+            horizontal: AppTheme.spacingMd,
           ),
           child: DropdownButton<T>(
             value: value,
@@ -589,7 +589,7 @@ class _SortDropdown<T> extends StatelessWidget {
             onChanged: onChanged,
             isExpanded: true,
             underline: const SizedBox.shrink(),
-            borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
             style: Theme.of(context).textTheme.bodyMedium,
             dropdownColor: colors.card,
           ),
@@ -620,19 +620,19 @@ class _SummaryRow extends StatelessWidget {
             style: Theme.of(context)
                 .textTheme
                 .bodySmall
-                ?.copyWith(fontWeight: AdminTheme.fontWeightMedium)),
+                ?.copyWith(fontWeight: FontWeight.w500)),
         Container(
           padding:
               const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
             color: color,
-            borderRadius: BorderRadius.circular(AdminTheme.radiusXxl),
+            borderRadius: BorderRadius.circular(AppTheme.radiusXxl),
           ),
           child: Text(
             value,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: textColor,
-                  fontWeight: AdminTheme.fontWeightMedium,
+                  fontWeight: FontWeight.w500,
                 ),
           ),
         ),

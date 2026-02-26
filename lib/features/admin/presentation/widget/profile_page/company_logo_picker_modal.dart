@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/theme/admin_theme.dart';
+import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/features/admin/presentation/bloc/profile_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/profile_event.dart';
 import 'package:oikos/features/admin/presentation/bloc/profile_state.dart';
@@ -51,7 +51,7 @@ class _CompanyLogoPickerModalState extends State<CompanyLogoPickerModal> {
 
         return Dialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AdminTheme.radiusXl),
+            borderRadius: BorderRadius.circular(AppTheme.radiusXl),
           ),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 500, maxHeight: 560),
@@ -70,7 +70,7 @@ class _CompanyLogoPickerModalState extends State<CompanyLogoPickerModal> {
                           child: Padding(
                             padding: EdgeInsets.all(32),
                             child: CircularProgressIndicator(
-                              color: AdminTheme.actionGreen,
+                              color: AppTheme.actionGreen,
                             ),
                           ),
                         )
@@ -85,12 +85,12 @@ class _CompanyLogoPickerModalState extends State<CompanyLogoPickerModal> {
                           ),
                         )
                       : GridView.builder(
-                          padding: const EdgeInsets.all(AdminTheme.spacingMd),
+                          padding: const EdgeInsets.all(AppTheme.spacingMd),
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 4,
-                                crossAxisSpacing: AdminTheme.spacingMd,
-                                mainAxisSpacing: AdminTheme.spacingMd,
+                                crossAxisSpacing: AppTheme.spacingMd,
+                                mainAxisSpacing: AppTheme.spacingMd,
                               ),
                           itemCount: logos.length,
                           itemBuilder: (context, index) {
@@ -103,18 +103,18 @@ class _CompanyLogoPickerModalState extends State<CompanyLogoPickerModal> {
                                 duration: const Duration(milliseconds: 150),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(
-                                    AdminTheme.radiusLg,
+                                    AppTheme.radiusLg,
                                   ),
                                   border: Border.all(
                                     color: isSelected
-                                        ? AdminTheme.actionGreen
+                                        ? AppTheme.actionGreen
                                         : colors.border,
                                     width: isSelected ? 3 : 1,
                                   ),
                                 ),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(
-                                    AdminTheme.radiusMd,
+                                    AppTheme.radiusMd,
                                   ),
                                   child: Image.network(
                                     StorageUtils.getNetworkUrl('logos', url),

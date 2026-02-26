@@ -9,7 +9,12 @@
       "Bash(Set-Content -Path 'C:/Users/samy0/OneDrive/Bureau/info/genie_logiciel/oikos/lib/features/admin/presentation/bloc/users_bloc.dart' -Encoding UTF8)",
       "Bash(Write-Output 'DONE')",
       "Bash(\")",
-      "Bash(dart analyze:*)"
+      "Bash(dart analyze:*)",
+      "Bash(LIB=\"c:/Users/samy0/OneDrive/Bureau/info/genie_logiciel/oikos/lib\" echo \"=== admin_theme ===\" grep -rl \"admin_theme\" \"$LIB\")",
+      "Bash(echo \"Aucune ✓\" echo \"=== AdminTheme ===\" grep -rl \"AdminTheme\" \"$LIB\")",
+      "Bash(echo \"Aucune ✓\" echo \"=== GradientBackground ===\" grep -rl \"GradientBackground\" \"$LIB\")",
+      "Bash(echo \"Aucune ✓\" echo \"=== AdminBackground ===\" grep -rl \"AdminBackground\" \"$LIB\")",
+      "Bash(echo \"Aucune ✓\" echo \"\" echo \"=== Vérification que AdminColors est bien utilisé ===\" grep -rl \"AdminColors\" \"$LIB\")"
     ]
   }
 }

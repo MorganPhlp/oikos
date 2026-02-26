@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
-import 'package:oikos/core/theme/admin_theme.dart';
+import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/core/utils/utils.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_bloc.dart';
@@ -50,7 +50,7 @@ class MobileCommunityList extends StatelessWidget {
 
   Widget _buildHeader(AdminColors colors) {
     return Padding(
-      padding: const EdgeInsets.all(AdminTheme.spacingMd),
+      padding: const EdgeInsets.all(AppTheme.spacingMd),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -74,7 +74,7 @@ class MobileCommunityList extends StatelessWidget {
           IconButton(
             onPressed: onCreateCommunity,
             icon: const Icon(Icons.add_circle_rounded),
-            color: AdminTheme.actionGreen,
+            color: AppTheme.actionGreen,
             iconSize: 32,
           ),
         ],
@@ -88,7 +88,7 @@ class MobileCommunityList extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.groups_rounded, size: 64, color: colors.mutedForeground),
-          const SizedBox(height: AdminTheme.spacingMd),
+          const SizedBox(height: AppTheme.spacingMd),
           Text(
             'Aucune communauté',
             style: TextStyle(
@@ -97,7 +97,7 @@ class MobileCommunityList extends StatelessWidget {
               color: colors.foreground,
             ),
           ),
-          const SizedBox(height: AdminTheme.spacingSm),
+          const SizedBox(height: AppTheme.spacingSm),
           Text(
             'Appuyez sur + pour créer',
             style: TextStyle(fontSize: 14, color: colors.mutedForeground),
@@ -110,11 +110,11 @@ class MobileCommunityList extends StatelessWidget {
   Widget _buildList() {
     return ListView.separated(
       padding: const EdgeInsets.symmetric(
-        horizontal: AdminTheme.spacingMd,
-        vertical: AdminTheme.spacingSm,
+        horizontal: AppTheme.spacingMd,
+        vertical: AppTheme.spacingSm,
       ),
       itemCount: communities.length,
-      separatorBuilder: (_, _) => const SizedBox(height: AdminTheme.spacingMd),
+      separatorBuilder: (_, _) => const SizedBox(height: AppTheme.spacingMd),
       itemBuilder: (context, index) {
         final community = communities[index];
         return MobileCommunityCard(
@@ -173,7 +173,7 @@ class MobileMembersList extends StatelessWidget {
 
   Widget _buildHeader(AdminColors colors) {
     return Container(
-      padding: const EdgeInsets.all(AdminTheme.spacingMd),
+      padding: const EdgeInsets.all(AppTheme.spacingMd),
       decoration: BoxDecoration(
         color: colors.background,
         boxShadow: [
@@ -217,9 +217,9 @@ class MobileMembersList extends StatelessWidget {
 
   Widget _buildList(BuildContext context) {
     return ListView.separated(
-      padding: const EdgeInsets.all(AdminTheme.spacingMd),
+      padding: const EdgeInsets.all(AppTheme.spacingMd),
       itemCount: users.length,
-      separatorBuilder: (_, _) => const SizedBox(height: AdminTheme.spacingMd),
+      separatorBuilder: (_, _) => const SizedBox(height: AppTheme.spacingMd),
       itemBuilder: (context, index) {
         final user = users[index];
         return MemberCard(
@@ -342,7 +342,7 @@ class _MobileCreateCommunityState extends State<MobileCreateCommunity> {
 
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(AdminTheme.spacingMd),
+                padding: const EdgeInsets.all(AppTheme.spacingMd),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -353,7 +353,7 @@ class _MobileCreateCommunityState extends State<MobileCreateCommunity> {
                       hint: 'Ex: Éco-Warriors Paris',
                       onChanged: (_) => setState(() => _nomError = null),
                     ),
-                    const SizedBox(height: AdminTheme.spacingLg),
+                    const SizedBox(height: AppTheme.spacingLg),
                     FormTextField(
                       label: "Code d'accès *",
                       controller: _codeController,
@@ -363,7 +363,7 @@ class _MobileCreateCommunityState extends State<MobileCreateCommunity> {
                       textCapitalization: TextCapitalization.characters,
                       onChanged: (_) => setState(() => _codeError = null),
                     ),
-                    const SizedBox(height: AdminTheme.spacingSm),
+                    const SizedBox(height: AppTheme.spacingSm),
                     Text(
                       'Le code sera automatiquement converti en majuscules',
                       style: TextStyle(
@@ -371,7 +371,7 @@ class _MobileCreateCommunityState extends State<MobileCreateCommunity> {
                         color: colors.mutedForeground,
                       ),
                     ),
-                    const SizedBox(height: AdminTheme.spacingLg),
+                    const SizedBox(height: AppTheme.spacingLg),
                     LogoPickerSection(
                       selectedLogoUrl: _selectedLogoUrl,
                       logos: logos,
@@ -379,11 +379,11 @@ class _MobileCreateCommunityState extends State<MobileCreateCommunity> {
                       onSelect: (url) => setState(() => _selectedLogoUrl = url),
                     ),
                     if (errorMessage != null) ...[
-                      const SizedBox(height: AdminTheme.spacingMd),
+                      const SizedBox(height: AppTheme.spacingMd),
                       Text(
                         errorMessage,
                         style: const TextStyle(
-                          color: AdminTheme.errorForeground,
+                          color: AppTheme.errorForeground,
                         ),
                       ),
                     ],
@@ -437,7 +437,7 @@ class MobileChangeUserCommunity extends StatelessWidget {
 
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(AdminTheme.spacingMd),
+                padding: const EdgeInsets.all(AppTheme.spacingMd),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -446,7 +446,7 @@ class MobileChangeUserCommunity extends StatelessWidget {
                       value: user.pseudo,
                       subtitle: user.email,
                     ),
-                    const SizedBox(height: AdminTheme.spacingXl),
+                    const SizedBox(height: AppTheme.spacingXl),
                     Text(
                       'Nouvelle communauté',
                       style: TextStyle(
@@ -454,7 +454,7 @@ class MobileChangeUserCommunity extends StatelessWidget {
                         color: colors.mutedForeground,
                       ),
                     ),
-                    const SizedBox(height: AdminTheme.spacingMd),
+                    const SizedBox(height: AppTheme.spacingMd),
                     ...communities.map(
                       (c) => CommunityRadioTile(
                         community: c,
@@ -514,19 +514,19 @@ class MobileDeleteConfirmation extends StatelessWidget {
 
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(AdminTheme.spacingMd),
+                padding: const EdgeInsets.all(AppTheme.spacingMd),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: AdminTheme.spacingXl),
+                    const SizedBox(height: AppTheme.spacingXl),
                     const Center(
                       child: Icon(
                         Icons.warning_amber_rounded,
                         size: 64,
-                        color: AdminTheme.errorForeground,
+                        color: AppTheme.errorForeground,
                       ),
                     ),
-                    const SizedBox(height: AdminTheme.spacingXl),
+                    const SizedBox(height: AppTheme.spacingXl),
                     Center(
                       child: Text(
                         'Voulez-vous vraiment supprimer la communauté "${community.name}" ?',
@@ -538,7 +538,7 @@ class MobileDeleteConfirmation extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: AdminTheme.spacingMd),
+                    const SizedBox(height: AppTheme.spacingMd),
                     Center(
                       child: Text(
                         'Cette action est irréversible.',
@@ -555,7 +555,7 @@ class MobileDeleteConfirmation extends StatelessWidget {
             ),
 
             Padding(
-              padding: const EdgeInsets.all(AdminTheme.spacingMd),
+              padding: const EdgeInsets.all(AppTheme.spacingMd),
               child: Row(
                 children: [
                   Expanded(
@@ -563,19 +563,19 @@ class MobileDeleteConfirmation extends StatelessWidget {
                       onPressed: onBack,
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
-                          vertical: AdminTheme.spacingMd,
+                          vertical: AppTheme.spacingMd,
                         ),
                         side: BorderSide(color: colors.border),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
-                            AdminTheme.radiusLg,
+                            AppTheme.radiusLg,
                           ),
                         ),
                       ),
                       child: const Text('Annuler'),
                     ),
                   ),
-                  const SizedBox(width: AdminTheme.spacingMd),
+                  const SizedBox(width: AppTheme.spacingMd),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
@@ -585,14 +585,14 @@ class MobileDeleteConfirmation extends StatelessWidget {
                         onBack();
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AdminTheme.errorForeground,
+                        backgroundColor: AppTheme.errorForeground,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
-                          vertical: AdminTheme.spacingMd,
+                          vertical: AppTheme.spacingMd,
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
-                            AdminTheme.radiusLg,
+                            AppTheme.radiusLg,
                           ),
                         ),
                       ),
@@ -683,11 +683,11 @@ class _MobileEditLogoState extends State<MobileEditLogo> {
 
             // Logo actuel
             Padding(
-              padding: const EdgeInsets.all(AdminTheme.spacingMd),
+              padding: const EdgeInsets.all(AppTheme.spacingMd),
               child: Row(
                 children: [
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(AdminTheme.radiusXxl),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusXxl),
                     child: Image.network(
                       community.avatarNetworkUrl,
                       width: 48,
@@ -703,7 +703,7 @@ class _MobileEditLogoState extends State<MobileEditLogo> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: AdminTheme.spacingMd),
+                  const SizedBox(width: AppTheme.spacingMd),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -736,7 +736,7 @@ class _MobileEditLogoState extends State<MobileEditLogo> {
               child: isLoadingLogos
                   ? const Center(
                       child: CircularProgressIndicator(
-                        color: AdminTheme.actionGreen,
+                        color: AppTheme.actionGreen,
                       ),
                     )
                   : logos == null || logos.isEmpty
@@ -747,12 +747,12 @@ class _MobileEditLogoState extends State<MobileEditLogo> {
                       ),
                     )
                   : GridView.builder(
-                      padding: const EdgeInsets.all(AdminTheme.spacingMd),
+                      padding: const EdgeInsets.all(AppTheme.spacingMd),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 4,
-                            crossAxisSpacing: AdminTheme.spacingMd,
-                            mainAxisSpacing: AdminTheme.spacingMd,
+                            crossAxisSpacing: AppTheme.spacingMd,
+                            mainAxisSpacing: AppTheme.spacingMd,
                           ),
                       itemCount: logos.length,
                       itemBuilder: (context, index) {
@@ -764,18 +764,18 @@ class _MobileEditLogoState extends State<MobileEditLogo> {
                             duration: const Duration(milliseconds: 150),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(
-                                AdminTheme.radiusLg,
+                                AppTheme.radiusLg,
                               ),
                               border: Border.all(
                                 color: isSelected
-                                    ? AdminTheme.actionGreen
+                                    ? AppTheme.actionGreen
                                     : colors.border,
                                 width: isSelected ? 3 : 1,
                               ),
                             ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(
-                                AdminTheme.radiusMd,
+                                AppTheme.radiusMd,
                               ),
                               child: Image.network(
                                 StorageUtils.getNetworkUrl('avatars', url),
@@ -826,14 +826,14 @@ class _SheetContainer extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.card,
         borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(AdminTheme.radiusXxl),
+          top: Radius.circular(AppTheme.radiusXxl),
         ),
       ),
       child: Column(
         children: [
           Center(
             child: Container(
-              margin: const EdgeInsets.only(top: AdminTheme.spacingMd),
+              margin: const EdgeInsets.only(top: AppTheme.spacingMd),
               width: 40,
               height: 4,
               decoration: BoxDecoration(
@@ -993,7 +993,7 @@ class _EditCodeSheetContentState extends State<_EditCodeSheetContent> {
             FormHeader(title: "Modifier le code", onBack: widget.onClose),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(AdminTheme.spacingMd),
+                padding: const EdgeInsets.all(AppTheme.spacingMd),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -1001,7 +1001,7 @@ class _EditCodeSheetContentState extends State<_EditCodeSheetContent> {
                       label: 'Communauté',
                       value: widget.community.name,
                     ),
-                    const SizedBox(height: AdminTheme.spacingLg),
+                    const SizedBox(height: AppTheme.spacingLg),
                     FormTextField(
                       label: "Nouveau code d'accès *",
                       controller: _codeController,
@@ -1010,7 +1010,7 @@ class _EditCodeSheetContentState extends State<_EditCodeSheetContent> {
                       maxLength: 6,
                       textCapitalization: TextCapitalization.characters,
                     ),
-                    const SizedBox(height: AdminTheme.spacingMd),
+                    const SizedBox(height: AppTheme.spacingMd),
                     const WarningBox(
                       message:
                           'Les membres devront utiliser le nouveau code pour rejoindre.',
@@ -1056,19 +1056,19 @@ class _DeleteConfirmSheetContent extends StatelessWidget {
         FormHeader(title: 'Supprimer la communauté', onBack: onClose),
         Expanded(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(AdminTheme.spacingMd),
+            padding: const EdgeInsets.all(AppTheme.spacingMd),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: AdminTheme.spacingXl),
+                const SizedBox(height: AppTheme.spacingXl),
                 const Center(
                   child: Icon(
                     Icons.warning_amber_rounded,
                     size: 64,
-                    color: AdminTheme.errorForeground,
+                    color: AppTheme.errorForeground,
                   ),
                 ),
-                const SizedBox(height: AdminTheme.spacingXl),
+                const SizedBox(height: AppTheme.spacingXl),
                 Center(
                   child: Text(
                     'Voulez-vous vraiment supprimer la communauté "${community.name}" ?',
@@ -1080,7 +1080,7 @@ class _DeleteConfirmSheetContent extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: AdminTheme.spacingMd),
+                const SizedBox(height: AppTheme.spacingMd),
                 Center(
                   child: Text(
                     'Cette action est irréversible.',
@@ -1096,7 +1096,7 @@ class _DeleteConfirmSheetContent extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.all(AdminTheme.spacingMd),
+          padding: const EdgeInsets.all(AppTheme.spacingMd),
           child: Row(
             children: [
               Expanded(
@@ -1104,17 +1104,17 @@ class _DeleteConfirmSheetContent extends StatelessWidget {
                   onPressed: onClose,
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
-                      vertical: AdminTheme.spacingMd,
+                      vertical: AppTheme.spacingMd,
                     ),
                     side: BorderSide(color: colors.border),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                     ),
                   ),
                   child: const Text('Annuler'),
                 ),
               ),
-              const SizedBox(width: AdminTheme.spacingMd),
+              const SizedBox(width: AppTheme.spacingMd),
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
@@ -1124,13 +1124,13 @@ class _DeleteConfirmSheetContent extends StatelessWidget {
                     onClose();
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AdminTheme.errorForeground,
+                    backgroundColor: AppTheme.errorForeground,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
-                      vertical: AdminTheme.spacingMd,
+                      vertical: AppTheme.spacingMd,
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                     ),
                   ),
                   child: const Text('Supprimer'),
@@ -1193,11 +1193,11 @@ class _EditLogoSheetContentState extends State<_EditLogoSheetContent> {
           children: [
             FormHeader(title: 'Changer le logo', onBack: widget.onClose),
             Padding(
-              padding: const EdgeInsets.all(AdminTheme.spacingMd),
+              padding: const EdgeInsets.all(AppTheme.spacingMd),
               child: Row(
                 children: [
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(AdminTheme.radiusXxl),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusXxl),
                     child: Image.network(
                       widget.community.avatarNetworkUrl,
                       width: 48,
@@ -1213,7 +1213,7 @@ class _EditLogoSheetContentState extends State<_EditLogoSheetContent> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: AdminTheme.spacingMd),
+                  const SizedBox(width: AppTheme.spacingMd),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1244,7 +1244,7 @@ class _EditLogoSheetContentState extends State<_EditLogoSheetContent> {
               child: isLoadingLogos
                   ? const Center(
                       child: CircularProgressIndicator(
-                        color: AdminTheme.actionGreen,
+                        color: AppTheme.actionGreen,
                       ),
                     )
                   : logos == null || logos.isEmpty
@@ -1255,12 +1255,12 @@ class _EditLogoSheetContentState extends State<_EditLogoSheetContent> {
                       ),
                     )
                   : GridView.builder(
-                      padding: const EdgeInsets.all(AdminTheme.spacingMd),
+                      padding: const EdgeInsets.all(AppTheme.spacingMd),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 4,
-                            crossAxisSpacing: AdminTheme.spacingMd,
-                            mainAxisSpacing: AdminTheme.spacingMd,
+                            crossAxisSpacing: AppTheme.spacingMd,
+                            mainAxisSpacing: AppTheme.spacingMd,
                           ),
                       itemCount: logos.length,
                       itemBuilder: (context, index) {
@@ -1272,18 +1272,18 @@ class _EditLogoSheetContentState extends State<_EditLogoSheetContent> {
                             duration: const Duration(milliseconds: 150),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(
-                                AdminTheme.radiusLg,
+                                AppTheme.radiusLg,
                               ),
                               border: Border.all(
                                 color: isSelected
-                                    ? AdminTheme.actionGreen
+                                    ? AppTheme.actionGreen
                                     : colors.border,
                                 width: isSelected ? 3 : 1,
                               ),
                             ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(
-                                AdminTheme.radiusMd,
+                                AppTheme.radiusMd,
                               ),
                               child: Image.network(
                                 StorageUtils.getNetworkUrl('avatars', url),

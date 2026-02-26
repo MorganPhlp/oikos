@@ -36,6 +36,6 @@
         "**/.symlinks": true,
         "**/.plugin_symlinks": true,
         "**/*.g.dart":true,
-        "**/*.freezed.dart":true
+        "**/*.freezed.dart":true,
     }
 }

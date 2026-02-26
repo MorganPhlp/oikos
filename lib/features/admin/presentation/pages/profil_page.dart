@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
-import 'package:oikos/core/theme/admin_theme.dart';
+import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/core/theme/breakpoints.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
 import 'package:oikos/features/admin/presentation/bloc/profile_bloc.dart';
@@ -42,7 +42,7 @@ class _ProfilPageState extends State<ProfilPage> {
             final isDesktop = Breakpoints.isDesktop(constraints.maxWidth);
             return SingleChildScrollView(
               padding: EdgeInsets.all(
-                isDesktop ? AdminTheme.spacingLg : AdminTheme.spacingMd,
+                isDesktop ? AppTheme.spacingLg : AppTheme.spacingMd,
               ),
               child: isDesktop
                   ? _DesktopLayout(state: state)
@@ -72,12 +72,12 @@ class _DesktopLayout extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(child: ProfileCard(user: state.user)),
-              const SizedBox(width: AdminTheme.spacingLg),
+              const SizedBox(width: AppTheme.spacingLg),
               Expanded(child: CompanyCard(company: state.company)),
             ],
           ),
         ),
-        const SizedBox(height: AdminTheme.spacingLg),
+        const SizedBox(height: AppTheme.spacingLg),
         const PasswordCard(),
       ],
     );
@@ -95,9 +95,9 @@ class _MobileLayout extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ProfileCard(user: state.user),
-        const SizedBox(height: AdminTheme.spacingMd),
+        const SizedBox(height: AppTheme.spacingMd),
         CompanyCard(company: state.company),
-        const SizedBox(height: AdminTheme.spacingMd),
+        const SizedBox(height: AppTheme.spacingMd),
         const PasswordCard(),
       ],
     );

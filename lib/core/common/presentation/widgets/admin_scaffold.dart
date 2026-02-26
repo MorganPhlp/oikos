@@ -1,21 +1,11 @@
-
-
-
-
-
-
-
 import 'package:flutter/material.dart';
-import 'package:oikos/core/common/presentation/widgets/admin_background.dart';
-import 'package:oikos/core/theme/admin_theme.dart';
+import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/core/theme/breakpoints.dart';
 
 /// Root scaffold for the admin section.
 ///
-/// Automatically applies [AdminTheme.lightTheme] or [AdminTheme.darkTheme]
-/// based on the platform brightness resolved by [MaterialApp].
-/// All child widgets can therefore call [AdminColors.of(context)] or
-/// [GradientBackground.of(context)] without any additional setup.
+/// Uses [AdminColors] from the parent [AppTheme] — no additional theme injection needed.
+/// All child widgets can call [AdminColors.of(context)] directly.
 class AdminScaffold extends StatelessWidget {
   final Widget body;
   final Widget logo;
@@ -36,34 +26,20 @@ class AdminScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ── 1. Résoudre la luminosité depuis le thème de l'app ──────────────────
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final screenType = Breakpoints.getScreenType(constraints.maxWidth);
 
-    // ── 2. Injecter le thème admin correspondant ────────────────────────────
-    return Theme(
-      data: isDark ? AdminTheme.darkTheme : AdminTheme.lightTheme,
-      child: Builder(
-        builder: (context) {
-          // Tout le contenu ci-dessous bénéficie de AdminColors + GradientBackground
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              final screenType = Breakpoints.getScreenType(
-                constraints.maxWidth,
-              );
-
-              if (screenType == ScreenType.desktop ||
-                  screenType == ScreenType.tablet) {
-                return _buildWideLayout(
-                  context,
-                  extended: screenType == ScreenType.desktop,
-                );
-              }
-
-              return _buildMobileLayout(context);
-            },
+        if (screenType == ScreenType.desktop ||
+            screenType == ScreenType.tablet) {
+          return _buildWideLayout(
+            context,
+            extended: screenType == ScreenType.desktop,
           );
-        },
-      ),
+        }
+
+        return _buildMobileLayout(context);
+      },
     );
   }
 
@@ -84,7 +60,7 @@ class AdminScaffold extends StatelessWidget {
           ),
           // Séparateur
           Container(width: 1, color: colors.border),
-          // Corps principal avec dégradé
+          // Corps principal
           Expanded(child: _buildBody(context)),
         ],
       ),
@@ -100,7 +76,7 @@ class AdminScaffold extends StatelessWidget {
     return Scaffold(
       backgroundColor: colors.pageBackground,
       appBar: _buildMobileAppBar(context),
-      body: AdminBackground(child: body),
+      body: body,
       bottomNavigationBar: _buildMobileNav(context),
     );
   }
@@ -119,10 +95,10 @@ class AdminScaffold extends StatelessWidget {
       labelType: extended
           ? NavigationRailLabelType.none
           : NavigationRailLabelType.all,
-      indicatorColor: AdminTheme.actionGreenLight,
-      selectedIconTheme: const IconThemeData(color: AdminTheme.actionGreen),
+      indicatorColor: AppTheme.actionGreenLight,
+      selectedIconTheme: const IconThemeData(color: AppTheme.actionGreen),
       selectedLabelTextStyle: const TextStyle(
-        color: AdminTheme.actionGreen,
+        color: AppTheme.actionGreen,
         fontWeight: FontWeight.w600,
         fontSize: 12,
       ),
@@ -138,15 +114,15 @@ class AdminScaffold extends StatelessWidget {
             height: 100,
             width: extended ? 200 : 72,
             padding: const EdgeInsets.symmetric(
-              vertical: AdminTheme.spacingMd,
-              horizontal: AdminTheme.spacingSm,
+              vertical: AppTheme.spacingMd,
+              horizontal: AppTheme.spacingSm,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 logo,
                 if (extended) ...[
-                  const SizedBox(width: AdminTheme.spacingSm),
+                  const SizedBox(width: AppTheme.spacingSm),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -165,7 +141,7 @@ class AdminScaffold extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: AdminTheme.spacingMd),
+          const SizedBox(width: AppTheme.spacingMd),
           _SidebarDivider(extended: extended),
         ],
       ),
@@ -181,9 +157,9 @@ class AdminScaffold extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             _SidebarDivider(extended: extended),
-            const SizedBox(height: AdminTheme.spacingLg),
+            const SizedBox(height: AppTheme.spacingLg),
             _LogoutButton(extended: extended, onLogout: onLogout),
-            const SizedBox(height: AdminTheme.spacingLg),
+            const SizedBox(height: AppTheme.spacingLg),
           ],
         ),
       ),
@@ -198,7 +174,7 @@ class AdminScaffold extends StatelessWidget {
     final colors = AdminColors.of(context);
     return ColoredBox(
       color: colors.pageBackground,
-      child: AdminBackground(child: SafeArea(child: body)),
+      child: SafeArea(child: body),
     );
   }
 
@@ -214,11 +190,11 @@ class AdminScaffold extends StatelessWidget {
       elevation: 0,
       scrolledUnderElevation: 1,
       shadowColor: colors.border,
-      titleSpacing: AdminTheme.spacingMd,
+      titleSpacing: AppTheme.spacingMd,
       title: Padding(
-        padding: EdgeInsets.symmetric(horizontal: AdminTheme.spacingMd),
+        padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingMd),
         child: Row(
-          spacing: AdminTheme.spacingSm,
+          spacing: AppTheme.spacingSm,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             ConstrainedBox(
@@ -237,7 +213,7 @@ class AdminScaffold extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox.shrink(),
+            const SizedBox.shrink(),
           ],
         ),
       ),
@@ -247,7 +223,7 @@ class AdminScaffold extends StatelessWidget {
           icon: Icon(Icons.logout_rounded, color: colors.mutedForeground),
           tooltip: 'Déconnexion',
         ),
-        const SizedBox(width: AdminTheme.spacingXs),
+        const SizedBox(width: AppTheme.spacingXs),
       ],
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(1),
@@ -271,7 +247,7 @@ class AdminScaffold extends StatelessWidget {
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         shadowColor: Colors.transparent,
-        indicatorColor: AdminTheme.actionGreen,
+        indicatorColor: AppTheme.actionGreen,
         selectedIndex: currentIndex,
         onDestinationSelected: onNavigationIndexChange,
         labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
@@ -323,8 +299,8 @@ class _LogoutButton extends StatelessWidget {
         ),
         style: TextButton.styleFrom(
           padding: const EdgeInsets.symmetric(
-            horizontal: AdminTheme.spacingMd,
-            vertical: AdminTheme.spacingSm,
+            horizontal: AppTheme.spacingMd,
+            vertical: AppTheme.spacingSm,
           ),
         ),
       );
@@ -336,5 +312,3 @@ class _LogoutButton extends StatelessWidget {
     );
   }
 }
-
-

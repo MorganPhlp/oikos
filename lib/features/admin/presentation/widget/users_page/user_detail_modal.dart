@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
-import 'package:oikos/core/theme/admin_theme.dart';
+import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/features/admin/presentation/bloc/users_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/users_event.dart';
 import 'package:oikos/features/admin/presentation/widget/users_page/user_status_badge.dart';
@@ -47,7 +47,7 @@ class _UserDetailSheet extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.card,
         borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(AdminTheme.radiusXxl),
+          top: Radius.circular(AppTheme.radiusXxl),
         ),
       ),
       child: Column(
@@ -56,7 +56,7 @@ class _UserDetailSheet extends StatelessWidget {
           // Poignée de glissement
           Center(
             child: Container(
-              margin: const EdgeInsets.only(top: AdminTheme.spacingMd),
+              margin: const EdgeInsets.only(top: AppTheme.spacingMd),
               width: 40,
               height: 4,
               decoration: BoxDecoration(
@@ -67,20 +67,20 @@ class _UserDetailSheet extends StatelessWidget {
           ),
           Flexible(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AdminTheme.spacingLg),
+              padding: const EdgeInsets.all(AppTheme.spacingLg),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildHeader(context, colors),
-                  const SizedBox(height: AdminTheme.spacingLg),
+                  const SizedBox(height: AppTheme.spacingLg),
                   _buildInfoSection(context, colors),
-                  const SizedBox(height: AdminTheme.spacingLg),
+                  const SizedBox(height: AppTheme.spacingLg),
                   _buildStatsSection(context, colors),
                   if (user.etatCompte == EtatCompte.actif && !user.isAdmin) ...[
-                    const SizedBox(height: AdminTheme.spacingLg),
+                    const SizedBox(height: AppTheme.spacingLg),
                     _buildAnonymizeButton(context),
                   ],
-                  const SizedBox(height: AdminTheme.spacingMd),
+                  const SizedBox(height: AppTheme.spacingMd),
                 ],
               ),
             ),
@@ -101,7 +101,7 @@ class _UserDetailSheet extends StatelessWidget {
           backgroundImage: NetworkImage(user.avatarNetworkUrl),
           backgroundColor: colors.muted,
         ),
-        const SizedBox(width: AdminTheme.spacingMd),
+        const SizedBox(width: AppTheme.spacingMd),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,7 +110,7 @@ class _UserDetailSheet extends StatelessWidget {
                 user.pseudo,
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
-              const SizedBox(height: AdminTheme.spacingXs),
+              const SizedBox(height: AppTheme.spacingXs),
               Text(
                 user.email,
                 style: Theme.of(
@@ -132,12 +132,12 @@ class _UserDetailSheet extends StatelessWidget {
 
     return Container(
       decoration: colors.cardDecoration,
-      padding: const EdgeInsets.all(AdminTheme.spacingMd),
+      padding: const EdgeInsets.all(AppTheme.spacingMd),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Informations', style: Theme.of(context).textTheme.labelLarge),
-          const SizedBox(height: AdminTheme.spacingMd),
+          const SizedBox(height: AppTheme.spacingMd),
           _InfoRow(
             icon: Icons.group_rounded,
             label: 'Communauté',
@@ -182,16 +182,7 @@ class _UserDetailSheet extends StatelessWidget {
             colors: colors,
           ),
         ),
-        const SizedBox(width: AdminTheme.spacingMd),
-        Expanded(
-          child: _StatCard(
-            icon: Icons.eco_rounded,
-            label: 'CO₂ économisé',
-            value: user.co2EconomiseTotal.toStringAsFixed(1),
-            unit: 'kg',
-            colors: colors,
-          ),
-        ),
+        const SizedBox(width: AppTheme.spacingMd)
       ],
     );
   }
@@ -203,11 +194,11 @@ class _UserDetailSheet extends StatelessWidget {
       width: double.infinity,
       child: OutlinedButton.icon(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AdminTheme.errorForeground,
-          side: const BorderSide(color: AdminTheme.errorForeground),
-          padding: const EdgeInsets.symmetric(vertical: AdminTheme.spacingMd),
+          foregroundColor: AppTheme.errorForeground,
+          side: const BorderSide(color: AppTheme.errorForeground),
+          padding: const EdgeInsets.symmetric(vertical: AppTheme.spacingMd),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
           ),
         ),
         icon: const Icon(Icons.person_remove_rounded, size: 18),
@@ -224,7 +215,7 @@ class _UserDetailSheet extends StatelessWidget {
       builder: (dialogContext) => AlertDialog(
         backgroundColor: colors.card,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AdminTheme.radiusXl),
+          borderRadius: BorderRadius.circular(AppTheme.radiusXl),
         ),
         title: const Text('Anonymiser l\'utilisateur'),
         content: Text(
@@ -238,7 +229,7 @@ class _UserDetailSheet extends StatelessWidget {
           ),
           FilledButton(
             style: FilledButton.styleFrom(
-              backgroundColor: AdminTheme.errorForeground,
+              backgroundColor: AppTheme.errorForeground,
             ),
             onPressed: () {
               Navigator.of(dialogContext).pop();
@@ -279,11 +270,11 @@ class _InfoRow extends StatelessWidget {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: AdminTheme.spacingSm),
+          padding: const EdgeInsets.symmetric(vertical: AppTheme.spacingSm),
           child: Row(
             children: [
               Icon(icon, size: 18, color: colors.mutedForeground),
-              const SizedBox(width: AdminTheme.spacingSm),
+              const SizedBox(width: AppTheme.spacingSm),
               Text(
                 label,
                 style: Theme.of(
@@ -320,26 +311,26 @@ class _StatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: colors.cardDecoration,
-      padding: const EdgeInsets.all(AdminTheme.spacingMd),
+      padding: const EdgeInsets.all(AppTheme.spacingMd),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 20, color: AdminTheme.actionGreen),
-          const SizedBox(height: AdminTheme.spacingSm),
+          Icon(icon, size: 20, color: AppTheme.actionGreen),
+          const SizedBox(height: AppTheme.spacingSm),
           Text(
             label,
             style: Theme.of(
               context,
             ).textTheme.bodySmall?.copyWith(color: colors.mutedForeground),
           ),
-          const SizedBox(height: AdminTheme.spacingXs),
+          const SizedBox(height: AppTheme.spacingXs),
           RichText(
             text: TextSpan(
               children: [
                 TextSpan(
                   text: value,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: AdminTheme.fontWeightSemibold,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 TextSpan(

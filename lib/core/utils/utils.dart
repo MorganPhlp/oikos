@@ -19,7 +19,6 @@ class StorageUtils {
         .from(bucket)
         .getPublicUrl(path.trim());
 
-    logger.d('Generated public URL for bucket "$bucket" and path "$path": $netWorkUrl');
     return netWorkUrl;
   }
 
@@ -27,7 +26,7 @@ class StorageUtils {
 
     final String getLocalUrl = "assets/$bucket/${path.trim()}";
 
-    logger.d('Generated local URL for bucket "$bucket" and path "$path": $getLocalUrl');
+
     return getLocalUrl;
   }
 

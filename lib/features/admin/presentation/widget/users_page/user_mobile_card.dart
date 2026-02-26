@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
-import 'package:oikos/core/theme/admin_theme.dart';
+import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/features/admin/presentation/widget/users_page/user_detail_modal.dart';
 import 'package:oikos/features/admin/presentation/widget/users_page/user_status_badge.dart';
 
@@ -22,10 +22,10 @@ class UserMobileCard extends StatelessWidget {
     return InkWell(
       onTap: () =>
           showUserDetailModal(context, user, communityName),
-      borderRadius: BorderRadius.circular(AdminTheme.radiusXl),
+      borderRadius: BorderRadius.circular(AppTheme.radiusXl),
       child: Container(
         decoration: colors.cardDecoration,
-        padding: const EdgeInsets.all(AdminTheme.spacingMd),
+        padding: const EdgeInsets.all(AppTheme.spacingMd),
         child: Row(
           children: [
             CircleAvatar(
@@ -33,7 +33,7 @@ class UserMobileCard extends StatelessWidget {
               backgroundImage: NetworkImage(user.avatarNetworkUrl),
               backgroundColor: colors.muted,
             ),
-            const SizedBox(width: AdminTheme.spacingMd),
+            const SizedBox(width: AppTheme.spacingMd),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,11 +47,11 @@ class UserMobileCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      const SizedBox(width: AdminTheme.spacingXs),
+                      const SizedBox(width: AppTheme.spacingXs),
                       UserStatusBadge(etatCompte: user.etatCompte),
                     ],
                   ),
-                  const SizedBox(height: AdminTheme.spacingXs),
+                  const SizedBox(height: AppTheme.spacingXs),
                   Text(
                     user.email,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -60,7 +60,7 @@ class UserMobileCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   ...[
-                    const SizedBox(height: AdminTheme.spacingXs),
+                    const SizedBox(height: AppTheme.spacingXs),
                     Row(
                       children: [
                         Icon(

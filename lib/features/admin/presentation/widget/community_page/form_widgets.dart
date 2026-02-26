@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:oikos/core/theme/admin_theme.dart';
+import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/core/utils/utils.dart';
 
 /// Header pour les formulaires mobile (plein écran)
@@ -17,11 +17,11 @@ class FormHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = AdminColors.of(context);
     return Container(
-      padding: const EdgeInsets.all(AdminTheme.spacingMd),
+      padding: const EdgeInsets.all(AppTheme.spacingMd),
       
       child: Row(
         children: [
-          const SizedBox(width: AdminTheme.spacingSm),
+          const SizedBox(width: AppTheme.spacingSm),
           Text(
             title,
             style: TextStyle(
@@ -78,7 +78,7 @@ class FormTextField extends StatelessWidget {
           label,
           style: TextStyle(fontSize: 14, color: colors.mutedForeground),
         ),
-        const SizedBox(height: AdminTheme.spacingSm),
+        const SizedBox(height: AppTheme.spacingSm),
 
         // TextField
         TextField(
@@ -111,7 +111,7 @@ class FormTextField extends StatelessWidget {
               error!,
               style: const TextStyle(
                 fontSize: 12,
-                color: AdminTheme.errorForeground,
+                color: AppTheme.errorForeground,
               ),
             ),
           ),
@@ -122,7 +122,7 @@ class FormTextField extends StatelessWidget {
               success!,
               style: const TextStyle(
                 fontSize: 12,
-                color: AdminTheme.successForeground,
+                color: AppTheme.successForeground,
               ),
             ),
           ),
@@ -132,12 +132,12 @@ class FormTextField extends StatelessWidget {
 
   OutlineInputBorder _buildBorder(bool hasError, bool isFocused, Color borderColor) {
     return OutlineInputBorder(
-      borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
+      borderRadius: BorderRadius.circular(AppTheme.radiusLg),
       borderSide: BorderSide(
         color: hasError
-            ? AdminTheme.errorForeground
+            ? AppTheme.errorForeground
             : isFocused
-            ? AdminTheme.actionGreen
+            ? AppTheme.actionGreen
             : borderColor,
         width: isFocused ? 2 : 1,
       ),
@@ -166,7 +166,7 @@ class FormActions extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = AdminColors.of(context);
     return Container(
-      padding: const EdgeInsets.all(AdminTheme.spacingMd),
+      padding: const EdgeInsets.all(AppTheme.spacingMd),
       decoration: BoxDecoration(
         color: colors.background,
         boxShadow: [
@@ -185,30 +185,30 @@ class FormActions extends StatelessWidget {
               onPressed: onCancel,
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
-                  vertical: AdminTheme.spacingMd,
+                  vertical: AppTheme.spacingMd,
                 ),
                 side: BorderSide(color: colors.border),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                 ),
               ),
               child: const Text('Annuler'),
             ),
           ),
-          const SizedBox(width: AdminTheme.spacingMd),
+          const SizedBox(width: AppTheme.spacingMd),
 
           // Bouton principal
           Expanded(
             child: ElevatedButton(
               onPressed: onSubmit,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AdminTheme.actionGreen,
-                foregroundColor: AdminTheme.actionGreenForeground,
+                backgroundColor: AppTheme.actionGreen,
+                foregroundColor: AppTheme.actionGreenForeground,
                 padding: const EdgeInsets.symmetric(
-                  vertical: AdminTheme.spacingMd,
+                  vertical: AppTheme.spacingMd,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                 ),
               ),
               child: isSubmitting == true
@@ -223,7 +223,7 @@ class FormActions extends StatelessWidget {
                             strokeWidth: 2,
                           ),
                         ),
-                        const SizedBox(width: AdminTheme.spacingSm),
+                        const SizedBox(width: AppTheme.spacingSm),
                         Text(submitLabel),
                       ],
                     )
@@ -261,13 +261,13 @@ class ReadOnlyField extends StatelessWidget {
           label,
           style: TextStyle(fontSize: 14, color: colors.mutedForeground),
         ),
-        const SizedBox(height: AdminTheme.spacingSm),
+        const SizedBox(height: AppTheme.spacingSm),
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(AdminTheme.spacingMd),
+          padding: const EdgeInsets.all(AppTheme.spacingMd),
           decoration: BoxDecoration(
             color: colors.pageBackground,
-            borderRadius: BorderRadius.circular(AdminTheme.radiusSm),
+            borderRadius: BorderRadius.circular(AppTheme.radiusSm),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -321,16 +321,16 @@ class LogoPickerSection extends StatelessWidget {
           'Logo (optionnel)',
           style: TextStyle(fontSize: 14, color: colors.mutedForeground),
         ),
-        const SizedBox(height: AdminTheme.spacingSm),
+        const SizedBox(height: AppTheme.spacingSm),
         Container(
           height: 200,
           decoration: BoxDecoration(
             color: colors.background,
-            borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
+            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
             border: Border.all(color: colors.border),
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
+            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
             child: _buildContent(colors),
           ),
         ),
@@ -341,7 +341,7 @@ class LogoPickerSection extends StatelessWidget {
   Widget _buildContent(AdminColors colors) {
     if (isLoading) {
       return const Center(
-        child: CircularProgressIndicator(color: AdminTheme.actionGreen),
+        child: CircularProgressIndicator(color: AppTheme.actionGreen),
       );
     }
 
@@ -355,11 +355,11 @@ class LogoPickerSection extends StatelessWidget {
     }
 
     return GridView.builder(
-      padding: const EdgeInsets.all(AdminTheme.spacingSm),
+      padding: const EdgeInsets.all(AppTheme.spacingSm),
       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
         maxCrossAxisExtent: 72,
-        crossAxisSpacing: AdminTheme.spacingSm,
-        mainAxisSpacing: AdminTheme.spacingSm,
+        crossAxisSpacing: AppTheme.spacingSm,
+        mainAxisSpacing: AppTheme.spacingSm,
       ),
       itemCount: logos!.length + 1,
       itemBuilder: (_, index) {
@@ -379,13 +379,13 @@ class LogoPickerSection extends StatelessWidget {
           shape: BoxShape.circle,
           color: colors.pageBackground,
           border: Border.all(
-            color: isSelected ? AdminTheme.actionGreen : colors.border,
+            color: isSelected ? AppTheme.actionGreen : colors.border,
             width: isSelected ? 3 : 1,
           ),
         ),
         child: Icon(
           Icons.block_rounded,
-          color: isSelected ? AdminTheme.actionGreen : colors.mutedForeground,
+          color: isSelected ? AppTheme.actionGreen : colors.mutedForeground,
           size: 24,
         ),
       ),
@@ -401,7 +401,7 @@ class LogoPickerSection extends StatelessWidget {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(
-            color: isSelected ? AdminTheme.actionGreen : colors.border,
+            color: isSelected ? AppTheme.actionGreen : colors.border,
             width: isSelected ? 3 : 1,
           ),
         ),
@@ -434,11 +434,11 @@ class WarningBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AdminTheme.spacingMd),
+      padding: const EdgeInsets.all(AppTheme.spacingMd),
       decoration: BoxDecoration(
-        color: AdminTheme.warningBackground,
-        border: Border.all(color: AdminTheme.warningBorder),
-        borderRadius: BorderRadius.circular(AdminTheme.radiusSm),
+        color: AppTheme.warningBackground,
+        border: Border.all(color: AppTheme.warningBorder),
+        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -446,15 +446,15 @@ class WarningBox extends StatelessWidget {
           Icon(
             Icons.warning_amber_rounded,
             size: 18,
-            color: AdminTheme.warningForeground,
+            color: AppTheme.warningForeground,
           ),
-          const SizedBox(width: AdminTheme.spacingSm),
+          const SizedBox(width: AppTheme.spacingSm),
           Expanded(
             child: Text(
               message,
               style: TextStyle(
                 fontSize: 13,
-                color: AdminTheme.warningForeground,
+                color: AppTheme.warningForeground,
               ),
             ),
           ),

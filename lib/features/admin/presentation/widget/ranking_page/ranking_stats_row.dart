@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:oikos/core/theme/admin_theme.dart';
+import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/features/admin/presentation/bloc/ranking_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/ranking_state.dart';
 
@@ -24,7 +24,7 @@ class RankingStatsRow extends StatelessWidget {
       return Column(
         children: cards
             .map((c) => Padding(
-                  padding: const EdgeInsets.only(bottom: AdminTheme.spacingMd),
+                  padding: const EdgeInsets.only(bottom: AppTheme.spacingMd),
                   child: c,
                 ))
             .toList(),
@@ -36,7 +36,7 @@ class RankingStatsRow extends StatelessWidget {
           .map((c) => Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: AdminTheme.spacingXs,
+                    horizontal: AppTheme.spacingXs,
                   ),
                   child: c,
                 ),
@@ -65,7 +65,7 @@ class RankingStatsRow extends StatelessWidget {
       ),
       _StatCard(
         icon: Icons.group_work_rounded,
-        iconColor: AdminTheme.actionGreen,
+        iconColor: AppTheme.actionGreen,
         label: 'Communautés',
         value: '${communities.length}',
         context: context,
@@ -106,7 +106,7 @@ class RankingStatsRow extends StatelessWidget {
       ),
       _StatCard(
         icon: Icons.bolt_rounded,
-        iconColor: AdminTheme.actionGreen,
+        iconColor: AppTheme.actionGreen,
         label: 'XP total',
         value: '$totalXp XP',
         context: context,
@@ -146,7 +146,7 @@ class _StatCard extends StatelessWidget {
     final colors = AdminColors.of(ctx);
     return Container(
       decoration: colors.cardDecoration,
-      padding: const EdgeInsets.all(AdminTheme.spacingLg),
+      padding: const EdgeInsets.all(AppTheme.spacingLg),
       child: Row(
         children: [
           Container(
@@ -154,11 +154,11 @@ class _StatCard extends StatelessWidget {
             height: 44,
             decoration: BoxDecoration(
               color: iconColor.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
             ),
             child: Icon(icon, color: iconColor, size: 22),
           ),
-          const SizedBox(width: AdminTheme.spacingMd),
+          const SizedBox(width: AppTheme.spacingMd),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -169,12 +169,12 @@ class _StatCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: AdminTheme.spacingXs),
+                const SizedBox(height: AppTheme.spacingXs),
                 Text(
                   value,
                   style: Theme.of(ctx).textTheme.headlineSmall?.copyWith(
                         color: iconColor,
-                        fontWeight: AdminTheme.fontWeightBold,
+                        fontWeight: FontWeight.w700,
                       ),
                 ),
               ],

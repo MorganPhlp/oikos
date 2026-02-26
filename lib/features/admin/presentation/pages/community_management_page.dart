@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/theme/admin_theme.dart';
+import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/core/theme/breakpoints.dart';
 import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
@@ -62,18 +62,18 @@ class _CommunityManagementPageState extends State<CommunityManagementPage> {
               color: Colors.white,
               size: 16,
             ),
-            const SizedBox(width: AdminTheme.spacingSm),
+            const SizedBox(width: AppTheme.spacingSm),
             Expanded(
               child: Text(message, style: const TextStyle(color: Colors.white)),
             ),
           ],
         ),
         backgroundColor: isError
-            ? AdminTheme.errorForeground
-            : AdminTheme.actionGreen,
+            ? AppTheme.errorForeground
+            : AppTheme.actionGreen,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
         ),
       ),
     );
@@ -293,12 +293,12 @@ class _CommunityManagementPageState extends State<CommunityManagementPage> {
     final colors = AdminColors.of(context);
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(AdminTheme.spacingXxl),
+      padding: const EdgeInsets.all(AppTheme.spacingXxl),
       decoration: colors.cardDecoration,
       child: Column(
         children: [
           Icon(Icons.groups_rounded, size: 64, color: colors.mutedForeground),
-          const SizedBox(height: AdminTheme.spacingMd),
+          const SizedBox(height: AppTheme.spacingMd),
           Text(
             'Aucune communauté',
             style: TextStyle(
@@ -307,23 +307,23 @@ class _CommunityManagementPageState extends State<CommunityManagementPage> {
               color: colors.foreground,
             ),
           ),
-          const SizedBox(height: AdminTheme.spacingSm),
+          const SizedBox(height: AppTheme.spacingSm),
           Text(
             'Commencez par créer votre première communauté',
             style: TextStyle(fontSize: 14, color: colors.mutedForeground),
           ),
-          const SizedBox(height: AdminTheme.spacingXl),
+          const SizedBox(height: AppTheme.spacingXl),
           ElevatedButton(
             onPressed: () => _showCreateCommunityModal(context),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AdminTheme.actionGreen,
-              foregroundColor: AdminTheme.actionGreenForeground,
+              backgroundColor: AppTheme.actionGreen,
+              foregroundColor: AppTheme.actionGreenForeground,
               padding: const EdgeInsets.symmetric(
-                horizontal: AdminTheme.spacingXl,
-                vertical: AdminTheme.spacingMd,
+                horizontal: AppTheme.spacingXl,
+                vertical: AppTheme.spacingMd,
               ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
+                borderRadius: BorderRadius.circular(AppTheme.radiusLg),
               ),
             ),
             child: const Text('Créer une communauté'),
@@ -337,20 +337,20 @@ class _CommunityManagementPageState extends State<CommunityManagementPage> {
   Widget _buildCreateButton(BuildContext context) {
     return Column(
       children: [
-        const SizedBox(height: AdminTheme.spacingXxl),
+        const SizedBox(height: AppTheme.spacingXxl),
         ElevatedButton.icon(
           onPressed: () => _showCreateCommunityModal(context),
           icon: const Icon(Icons.add_rounded, size: 20),
           label: const Text('Créer une communauté'),
           style: ElevatedButton.styleFrom(
-            backgroundColor: AdminTheme.actionGreen,
-            foregroundColor: AdminTheme.actionGreenForeground,
+            backgroundColor: AppTheme.actionGreen,
+            foregroundColor: AppTheme.actionGreenForeground,
             padding: const EdgeInsets.symmetric(
-              horizontal: AdminTheme.spacingLg,
-              vertical: AdminTheme.spacingMd,
+              horizontal: AppTheme.spacingLg,
+              vertical: AppTheme.spacingMd,
             ),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
+              borderRadius: BorderRadius.circular(AppTheme.radiusLg),
             ),
           ),
         ),
@@ -413,7 +413,7 @@ class _CommunityManagementPageState extends State<CommunityManagementPage> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AdminTheme.radiusXl),
+          borderRadius: BorderRadius.circular(AppTheme.radiusXl),
         ),
         title: const Text('Supprimer la communauté'),
         content: Text(
@@ -432,7 +432,7 @@ class _CommunityManagementPageState extends State<CommunityManagementPage> {
               Navigator.pop(ctx);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AdminTheme.errorForeground,
+              backgroundColor: AppTheme.errorForeground,
               foregroundColor: Colors.white,
             ),
             child: const Text('Supprimer'),

@@ -3,6 +3,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'categorie_empreinte_entity.freezed.dart';
 part 'categorie_empreinte_entity.g.dart';
+
+
 @freezed
 sealed class CategorieEmpreinteEntity with _$CategorieEmpreinteEntity {
   // Ajout du constructeur privé pour autoriser les getters (comme la conversion HEX -> Color)

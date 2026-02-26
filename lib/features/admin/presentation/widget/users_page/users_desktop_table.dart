@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
-import 'package:oikos/core/theme/admin_theme.dart';
+import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/features/admin/data/models/core/community.dart';
 
 import 'package:oikos/features/admin/presentation/widget/users_page/user_detail_modal.dart';
@@ -66,8 +66,8 @@ class _TableHeader extends StatelessWidget {
     return Container(
       color: colors.secondary,
       padding: const EdgeInsets.symmetric(
-        horizontal: AdminTheme.spacingMd,
-        vertical: AdminTheme.spacingSm,
+        horizontal: AppTheme.spacingMd,
+        vertical: AppTheme.spacingSm,
       ),
       child: Row(
         children: [
@@ -111,7 +111,7 @@ class _HeaderCell extends StatelessWidget {
       label,
       style: Theme.of(context).textTheme.labelSmall?.copyWith(
         color: colors.mutedForeground,
-        fontWeight: AdminTheme.fontWeightSemibold,
+        fontWeight: FontWeight.w600,
       ),
     );
   }
@@ -156,8 +156,8 @@ class _TableRowState extends State<_TableRow> {
           duration: const Duration(milliseconds: 150),
           color: _hovered ? colors.accent : Colors.transparent,
           padding: const EdgeInsets.symmetric(
-            horizontal: AdminTheme.spacingMd,
-            vertical: AdminTheme.spacingMd,
+            horizontal: AppTheme.spacingMd,
+            vertical: AppTheme.spacingMd,
           ),
           child: Row(
             children: [
@@ -167,7 +167,7 @@ class _TableRowState extends State<_TableRow> {
                 backgroundImage: NetworkImage(widget.user.avatarNetworkUrl),
                 backgroundColor: colors.muted,
               ),
-              const SizedBox(width: AdminTheme.spacingSm),
+              const SizedBox(width: AppTheme.spacingSm),
 
               // Pseudo
               Expanded(
@@ -209,7 +209,7 @@ class _TableRowState extends State<_TableRow> {
                     Icon(
                       Icons.bolt_rounded,
                       size: 14,
-                      color: AdminTheme.actionGreen,
+                      color: AppTheme.actionGreen,
                     ),
                     const SizedBox(width: 4),
                     Text(

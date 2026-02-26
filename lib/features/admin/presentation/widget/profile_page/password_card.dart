@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/theme/admin_theme.dart';
+import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/core/theme/breakpoints.dart';
 import 'package:oikos/features/admin/presentation/bloc/profile_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/profile_event.dart';
@@ -115,7 +115,7 @@ class _PasswordCardState extends State<PasswordCard> {
         ];
 
         return Container(
-          padding: const EdgeInsets.all(AdminTheme.spacingLg),
+          padding: const EdgeInsets.all(AppTheme.spacingLg),
           decoration: AdminColors.of(context).cardDecoration,
           child: Form(
             key: _formKey,
@@ -129,15 +129,15 @@ class _PasswordCardState extends State<PasswordCard> {
                       icon: Icons.lock_rounded,
                       title: 'Modifier le mot de passe',
                     ),
-                    const SizedBox(height: AdminTheme.spacingLg),
+                    const SizedBox(height: AppTheme.spacingLg),
                     if (isDesktop)
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(child: fields[0]),
-                          const SizedBox(width: AdminTheme.spacingMd),
+                          const SizedBox(width: AppTheme.spacingMd),
                           Expanded(child: fields[1]),
-                          const SizedBox(width: AdminTheme.spacingMd),
+                          const SizedBox(width: AppTheme.spacingMd),
                           Expanded(child: fields[2]),
                         ],
                       )
@@ -146,13 +146,13 @@ class _PasswordCardState extends State<PasswordCard> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           fields[0],
-                          const SizedBox(height: AdminTheme.spacingMd),
+                          const SizedBox(height: AppTheme.spacingMd),
                           fields[1],
-                          const SizedBox(height: AdminTheme.spacingMd),
+                          const SizedBox(height: AppTheme.spacingMd),
                           fields[2],
                         ],
                       ),
-                    const SizedBox(height: AdminTheme.spacingXl),
+                    const SizedBox(height: AppTheme.spacingXl),
                     SaveButton(
                       onPressed: _savePassword,
                       isLoading: isLoading,

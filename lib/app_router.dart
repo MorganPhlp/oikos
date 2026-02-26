@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:oikos/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
 import 'package:oikos/core/common/presentation/widgets/admin_scaffold.dart';
-import 'package:oikos/core/theme/admin_theme.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
 import 'package:oikos/features/admin/presentation/pages/community_management_page.dart';
@@ -42,88 +41,70 @@ GoRouter createRouter(AppUserCubit appUserCubit) {
             (path) => state.uri.path.startsWith(path),
           );
 
-          final brightness = MediaQuery.of(context).platformBrightness;
-          final bool isDarkMode = brightness == Brightness.dark;
-          return Theme(
-            data: isDarkMode ? AdminTheme.darkTheme : AdminTheme.lightTheme,
-            child: Builder(
-              builder: (themeContext) {
-                return Container(
-                  decoration: BoxDecoration(
-                    gradient: Theme.of(
-                      themeContext,
-                    ).extension<GradientBackground>()?.gradient,
-                  ),
-                  child: Builder(
-                    builder: (context) {
-                      final state = context.watch<AppUserCubit>().state;
-                      if (state is AppUserLoggedIn &&
-                          state.user.isAdmin &&
-                          state.company != null) {
-                        Company company = state.company!;
-                        return AdminScaffold(
-                          logo: Image.network(company.logoNetworkUrl),
-                          currentIndex: currentIndex < 0
-                              ? 0
-                              : currentIndex, // Sécurité si index non trouvé
-                          destinations: [
-                            NavigationDestination(
-                              icon: Icon(Icons.dashboard_outlined),
-                              selectedIcon: Icon(Icons.dashboard),
-                              label: 'Vue Globale',
-                            ),
-                            NavigationDestination(
-                              icon: Icon(Icons.people_outlined),
-                              selectedIcon: const Icon(Icons.people),
-                              label: 'Communautés',
-                            ),
-                            NavigationDestination(
-                              icon: Icon(Icons.emoji_events_outlined),
-                              selectedIcon: Icon(Icons.emoji_events),
-                              label: 'Classement',
-                            ),
-                            NavigationDestination(
-                              icon: Icon(Icons.person_outline),
-                              selectedIcon: Icon(Icons.person),
-                              label: 'Utilisateurs',
-                            ),
-                            NavigationDestination(
-                              icon: CircleAvatar(
-                                radius: 12,
-                                backgroundImage: NetworkImage(
-                                  state.user.avatarNetworkUrl,
-                                ),
-                              ),
-                              selectedIcon: CircleAvatar(
-                                radius: 12,
-                                backgroundImage: NetworkImage(
-                                  state.user.avatarNetworkUrl,
-                                ),
-                              ),
-                              label: 'Profile',
-                            ),
-                          ],
-                          onNavigationIndexChange: (index) {
-                            // Au lieu de setState, on utilise GoRouter pour changer l'URL
-                            if (index == 0) context.goNamed('adminDashboard');
-                            if (index == 1) context.goNamed('adminCommunity');
-                            if (index == 2) context.goNamed('adminRanking');
-                            if (index == 3) context.goNamed('adminUsers');
-                            if (index == 4) context.goNamed('adminProfil');
-                          },
-                          onLogout: () {
-                            context.read<AuthBloc>().add(AuthLogout());
-                          },
-                          body:
-                              child, // L'écran de la route actuelle injecté par GoRouter
-                        );
-                      }
-                      return IntroPage(); // Fallback si jamais l'état n'est pas celui attendu
-                    },
-                  ),
+          return Builder(
+            builder: (context) {
+              final state = context.watch<AppUserCubit>().state;
+              if (state is AppUserLoggedIn &&
+                  state.user.isAdmin &&
+                  state.company != null) {
+                Company company = state.company!;
+                return AdminScaffold(
+                  logo: Image.network(company.logoNetworkUrl),
+                  currentIndex: currentIndex < 0
+                      ? 0
+                      : currentIndex,
+                  destinations: [
+                    NavigationDestination(
+                      icon: Icon(Icons.dashboard_outlined),
+                      selectedIcon: Icon(Icons.dashboard),
+                      label: 'Vue Globale',
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.people_outlined),
+                      selectedIcon: const Icon(Icons.people),
+                      label: 'Communautés',
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.emoji_events_outlined),
+                      selectedIcon: Icon(Icons.emoji_events),
+                      label: 'Classement',
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.person_outline),
+                      selectedIcon: Icon(Icons.person),
+                      label: 'Utilisateurs',
+                    ),
+                    NavigationDestination(
+                      icon: CircleAvatar(
+                        radius: 12,
+                        backgroundImage: NetworkImage(
+                          state.user.avatarNetworkUrl,
+                        ),
+                      ),
+                      selectedIcon: CircleAvatar(
+                        radius: 12,
+                        backgroundImage: NetworkImage(
+                          state.user.avatarNetworkUrl,
+                        ),
+                      ),
+                      label: 'Profile',
+                    ),
+                  ],
+                  onNavigationIndexChange: (index) {
+                    if (index == 0) context.goNamed('adminDashboard');
+                    if (index == 1) context.goNamed('adminCommunity');
+                    if (index == 2) context.goNamed('adminRanking');
+                    if (index == 3) context.goNamed('adminUsers');
+                    if (index == 4) context.goNamed('adminProfil');
+                  },
+                  onLogout: () {
+                    context.read<AuthBloc>().add(AuthLogout());
+                  },
+                  body: child,
                 );
-              },
-            ),
+              }
+              return IntroPage();
+            },
           );
         },
         routes: [

@@ -10,6 +10,7 @@ class AppColors {
 
   static const Color lightPrimary = Color(0xFF65BA74);
   static const Color lightPrimaryForeground = Color(0xFFFFFFFF);
+  static const Color lightPrimaryContainer = Color(0xFFDCFCE7); // fond vert très clair (ex-actionGreenLight)
 
   static const Color gradientGreenStart = Color(0xFFBDEE63);
   static const Color gradientGreenEnd = Color(0xFF65BA74);

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:oikos/core/theme/admin_theme.dart';
+import 'package:oikos/core/theme/app_theme.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DONNÉES DU CHIP
@@ -102,7 +102,7 @@ class RankingItemCard extends StatelessWidget {
       duration: const Duration(milliseconds: 200),
       decoration: BoxDecoration(
         color: style.bgColor ?? colors.card,
-        borderRadius: BorderRadius.circular(AdminTheme.radiusXl),
+        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
         border: Border.all(
           color: style.borderColor ?? colors.border,
           width: rank <= 3 ? 2 : 1,
@@ -115,13 +115,13 @@ class RankingItemCard extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.all(AdminTheme.spacingMd),
+      padding: const EdgeInsets.all(AppTheme.spacingMd),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // ── Icône de rang ────────────────────────────────────────────────
           SizedBox(width: 44, child: _RankIcon(rank: rank)),
-          const SizedBox(width: AdminTheme.spacingMd),
+          const SizedBox(width: AppTheme.spacingMd),
 
           // ── Contenu ──────────────────────────────────────────────────────
           Expanded(
@@ -137,52 +137,54 @@ class RankingItemCard extends StatelessWidget {
                         backgroundImage: NetworkImage(avatarUrl!),
                         backgroundColor: colors.muted,
                       ),
-                      const SizedBox(width: AdminTheme.spacingSm),
+                      const SizedBox(width: AppTheme.spacingSm),
                     ],
                     Expanded(
                       child: Text(
                         name,
-                        style: rank<=3? Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color:Colors.black,  
-                        ): Theme.of(context).textTheme.labelLarge,
+                        style: rank <= 3
+                            ? Theme.of(context).textTheme.labelLarge?.copyWith(
+                                color: Colors.black,
+                              )
+                            : Theme.of(context).textTheme.labelLarge,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     if (rank <= 3)
                       Container(
-                        margin:
-                            const EdgeInsets.only(left: AdminTheme.spacingSm),
+                        margin: const EdgeInsets.only(left: AppTheme.spacingSm),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
                           color: style.badgeColor,
-                          borderRadius:
-                              BorderRadius.circular(AdminTheme.radiusXxl),
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.radiusXxl,
+                          ),
                         ),
                         child: Text(
                           'Top $rank',
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: style.badgeTextColor,
-                                    fontWeight: AdminTheme.fontWeightSemibold,
-                                  ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: style.badgeTextColor,
+                                fontWeight: FontWeight.w600,
+                              ),
                         ),
                       ),
                   ],
                 ),
 
-                const SizedBox(height: AdminTheme.spacingSm),
+                const SizedBox(height: AppTheme.spacingSm),
 
                 // Puces de détails
                 Wrap(
-                  spacing: AdminTheme.spacingMd,
-                  runSpacing: AdminTheme.spacingXs,
-                  children: details.map((d) => _ChipWidget(chip: d)).toList(),
+                  spacing: AppTheme.spacingMd,
+                  runSpacing: AppTheme.spacingXs,
+                  children: details.map((d) => _ChipWidget(chip: d,rank: rank,)).toList(),
                 ),
 
-                const SizedBox(height: AdminTheme.spacingMd),
+                const SizedBox(height: AppTheme.spacingMd),
 
                 // Barre de progression
                 Column(
@@ -193,29 +195,29 @@ class RankingItemCard extends StatelessWidget {
                       children: [
                         Text(
                           metricLabel,
-                          style: Theme.of(context).textTheme.bodySmall,
+                          style: rank <= 3
+                              ? Theme.of(context).textTheme.labelSmall?.copyWith(
+                                  color: Colors.black,
+                                )
+                              : Theme.of(context).textTheme.labelSmall,
                         ),
                         Text(
                           metricDisplay,
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelSmall
+                          style: Theme.of(context).textTheme.labelSmall
                               ?.copyWith(
-                                color: AdminTheme.actionGreen,
-                                fontWeight: AdminTheme.fontWeightSemibold,
+                                color: AppTheme.actionGreen,
+                                fontWeight: FontWeight.w600,
                               ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: AdminTheme.spacingXs),
+                    const SizedBox(height: AppTheme.spacingXs),
                     ClipRRect(
-                      borderRadius:
-                          BorderRadius.circular(AdminTheme.radiusXxl),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusXxl),
                       child: LinearProgressIndicator(
                         value: progressRatio,
                         minHeight: 8,
-                        backgroundColor:
-                            Colors.grey.withValues(alpha: 0.15),
+                        backgroundColor: Colors.grey.withValues(alpha: 0.15),
                         valueColor: AlwaysStoppedAnimation<Color>(
                           _barColor(rank),
                         ),
@@ -257,22 +259,31 @@ class _RankIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     switch (rank) {
       case 1:
-        return const Icon(Icons.emoji_events_rounded,
-            color: Color(0xFFEAB308), size: 36);
+        return const Icon(
+          Icons.emoji_events_rounded,
+          color: Color(0xFFEAB308),
+          size: 36,
+        );
       case 2:
-        return const Icon(Icons.military_tech_rounded,
-            color: Color(0xFF9CA3AF), size: 36);
+        return const Icon(
+          Icons.military_tech_rounded,
+          color: Color(0xFF9CA3AF),
+          size: 36,
+        );
       case 3:
-        return const Icon(Icons.workspace_premium_rounded,
-            color: Color(0xFFB45309), size: 36);
+        return const Icon(
+          Icons.workspace_premium_rounded,
+          color: Color(0xFFB45309),
+          size: 36,
+        );
       default:
         return Center(
           child: Text(
             '$rank',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: AdminTheme.mutedForeground,
-                  fontWeight: AdminTheme.fontWeightBold,
-                ),
+              color: AppTheme.mutedForeground,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         );
     }
@@ -285,16 +296,25 @@ class _RankIcon extends StatelessWidget {
 
 class _ChipWidget extends StatelessWidget {
   final RankChip chip;
-  const _ChipWidget({required this.chip});
+  final int rank;
+  const _ChipWidget({required this.chip, required this.rank });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(chip.icon, size: 14, color: AdminColors.of(context).mutedForeground),
+        Icon(
+          chip.icon,
+          size: 14,
+          color: AdminColors.of(context).mutedForeground,
+        ),
         const SizedBox(width: 3),
-        Text(chip.label, style: Theme.of(context).textTheme.bodySmall),
+        Text(chip.label, style: rank <= 3
+            ? Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Colors.black,
+              )
+            : Theme.of(context).textTheme.bodySmall)
       ],
     );
   }

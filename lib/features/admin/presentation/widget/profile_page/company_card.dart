@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/common/cubits/app_user/app_user_cubit.dart';
-import 'package:oikos/core/theme/admin_theme.dart';
+import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
 import 'package:oikos/features/admin/presentation/bloc/profile_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/profile_event.dart';
@@ -99,7 +99,7 @@ class _CompanyCardState extends State<CompanyCard> {
         if (state is! ProfileLoaded) return const SizedBox.shrink();
         final isLoading = state.companyStatus == SectionStatus.loading;
         return Container(
-          padding: const EdgeInsets.all(AdminTheme.spacingLg),
+          padding: const EdgeInsets.all(AppTheme.spacingLg),
           decoration: AdminColors.of(context).cardDecoration,
           child: Form(
             key: _formKey,
@@ -110,16 +110,16 @@ class _CompanyCardState extends State<CompanyCard> {
                   icon: Icons.business_rounded,
                   title: 'Entreprise',
                 ),
-                const SizedBox(height: AdminTheme.spacingLg),
+                const SizedBox(height: AppTheme.spacingLg),
                 Center(
                   child: LogoEditor(
                     company: state.company,
                     onTap: _showLogoPicker,
                   ),
                 ),
-                const SizedBox(height: AdminTheme.spacingLg),
+                const SizedBox(height: AppTheme.spacingLg),
                 const FieldLabel(label: "Nom de l'entreprise"),
-                const SizedBox(height: AdminTheme.spacingXs),
+                const SizedBox(height: AppTheme.spacingXs),
                 TextFormField(
                   controller: _nameController,
                   readOnly: true,
@@ -129,9 +129,9 @@ class _CompanyCardState extends State<CompanyCard> {
                     prefixIcon: Icons.business_rounded,
                   ),
                 ),
-                const SizedBox(height: AdminTheme.spacingMd),
+                const SizedBox(height: AppTheme.spacingMd),
                 const FieldLabel(label: 'Domaine email'),
-                const SizedBox(height: AdminTheme.spacingXs),
+                const SizedBox(height: AppTheme.spacingXs),
                 TextFormField(
                   controller: _domainController,
                   keyboardType: TextInputType.emailAddress,
@@ -144,7 +144,7 @@ class _CompanyCardState extends State<CompanyCard> {
                       ? 'Le domaine email est requis'
                       : null,
                 ),
-                const SizedBox(height: AdminTheme.spacingXl),
+                const SizedBox(height: AppTheme.spacingXl),
                 SizedBox(
                   width: double.infinity,
                   child: SaveButton(

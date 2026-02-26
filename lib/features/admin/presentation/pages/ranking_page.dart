@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
-import 'package:oikos/core/theme/admin_theme.dart';
+import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/core/theme/breakpoints.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
 import 'package:oikos/features/admin/presentation/bloc/ranking_bloc.dart';
@@ -45,19 +45,19 @@ class _RankingPageState extends State<RankingPage> {
               children: [
                 const Icon(
                   Icons.error_outline_rounded,
-                  color: AdminTheme.errorForeground,
+                  color: AppTheme.errorForeground,
                   size: 48,
                 ),
-                const SizedBox(height: AdminTheme.spacingMd),
+                const SizedBox(height: AppTheme.spacingMd),
                 Text(
                   state.message,
-                  style: const TextStyle(color: AdminTheme.errorForeground),
+                  style: const TextStyle(color: AppTheme.errorForeground),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: AdminTheme.spacingMd),
+                const SizedBox(height: AppTheme.spacingMd),
                 FilledButton.icon(
                   style: FilledButton.styleFrom(
-                    backgroundColor: AdminTheme.actionGreen,
+                    backgroundColor: AppTheme.actionGreen,
                   ),
                   icon: const Icon(Icons.refresh_rounded),
                   label: const Text('Réessayer'),
@@ -98,17 +98,17 @@ class _RankingContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(AdminTheme.spacingLg),
+      padding: const EdgeInsets.all(AppTheme.spacingLg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // ── Header ────────────────────────────────────────────────────
           _buildHeader(context),
-          const SizedBox(height: AdminTheme.spacingLg),
+          const SizedBox(height: AppTheme.spacingLg),
 
           // ── KPI cards ─────────────────────────────────────────────────
           RankingStatsRow(state: state, isMobile: isMobile),
-          const SizedBox(height: AdminTheme.spacingLg),
+          const SizedBox(height: AppTheme.spacingLg),
 
           // ── Liste du classement ───────────────────────────────────────
           _buildRankingList(context),
@@ -123,7 +123,7 @@ class _RankingContent extends StatelessWidget {
     final colors = AdminColors.of(context);
     return Container(
       decoration: colors.cardDecoration,
-      padding: const EdgeInsets.all(AdminTheme.spacingLg),
+      padding: const EdgeInsets.all(AppTheme.spacingLg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -131,10 +131,10 @@ class _RankingContent extends StatelessWidget {
             children: [
               const Icon(
                 Icons.emoji_events_rounded,
-                color: AdminTheme.actionGreen,
+                color: AppTheme.actionGreen,
                 size: 28,
               ),
-              const SizedBox(width: AdminTheme.spacingSm),
+              const SizedBox(width: AppTheme.spacingSm),
               Text(
                 'Classements',
                 style: Theme.of(context).textTheme.headlineMedium,
@@ -143,10 +143,10 @@ class _RankingContent extends StatelessWidget {
               if (isMobile)
                 OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AdminTheme.actionGreen,
-                    side: const BorderSide(color: AdminTheme.actionGreen),
+                    foregroundColor: AppTheme.actionGreen,
+                    side: const BorderSide(color: AppTheme.actionGreen),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                     ),
                   ),
                   icon: const Icon(Icons.tune_rounded, size: 16),
@@ -156,7 +156,7 @@ class _RankingContent extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: AdminTheme.spacingMd),
+          const SizedBox(height: AppTheme.spacingMd),
 
           // Desktop → filtres inline ; Mobile → résumé compact
           if (!isMobile)
@@ -214,7 +214,7 @@ class _RankingContent extends StatelessWidget {
             : '${c.plantXp ?? 0} XP';
 
         return Padding(
-          padding: const EdgeInsets.only(bottom: AdminTheme.spacingMd),
+          padding: const EdgeInsets.only(bottom: AppTheme.spacingMd),
           child: RankingItemCard(
             rank: rank,
             name: c.name,
@@ -306,7 +306,7 @@ class _RankingContent extends StatelessWidget {
         );
 
         return Padding(
-          padding: const EdgeInsets.only(bottom: AdminTheme.spacingMd),
+          padding: const EdgeInsets.only(bottom: AppTheme.spacingMd),
           child: RankingItemCard(
             rank: rank,
             name: u.pseudo,
@@ -362,14 +362,14 @@ class _EmptyState extends StatelessWidget {
     final colors = AdminColors.of(context);
     return Container(
       decoration: colors.cardDecoration,
-      padding: const EdgeInsets.all(AdminTheme.spacingXxl),
+      padding: const EdgeInsets.all(AppTheme.spacingXxl),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 64, color: colors.mutedForeground),
-          const SizedBox(height: AdminTheme.spacingMd),
+          const SizedBox(height: AppTheme.spacingMd),
           Text(title, style: Theme.of(context).textTheme.headlineSmall),
-          const SizedBox(height: AdminTheme.spacingSm),
+          const SizedBox(height: AppTheme.spacingSm),
           Text(
             subtitle,
             style: Theme.of(

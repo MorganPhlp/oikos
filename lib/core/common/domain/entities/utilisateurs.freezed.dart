@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Utilisateurs {
 
- String get id; String get email; String get pseudo;@JsonKey(name: 'avatar_url') String? get avatarUrl;@JsonKey(name: 'code_communaute') String get codeCommunaute;@JsonKey(name: 'entreprise_id') String get entrepriseId; RoleUtilisateur get role;@JsonKey(name: 'etat_compte') EtatCompte get etatCompte;@JsonKey(name: 'est_compte_valide') bool get estCompteValide;@JsonKey(name: 'impact_score_xp') int get impactScoreXp;@JsonKey(name: 'co2_economise_total') double get co2EconomiseTotal;@JsonKey(name: 'a_accepte_cgu') bool get aAccepteCgu;@JsonKey(name: 'a_complete_bilan') bool get hasCompletedBilan;// Ce champ n'existe pas dans ta table SQL 'utilisateur'.
+ String get id; String get email; String get pseudo;@JsonKey(name: 'avatar_url') String? get avatarUrl;@JsonKey(name: 'code_communaute') String get codeCommunaute;@JsonKey(name: 'entreprise_id') String get entrepriseId; RoleUtilisateur get role;@JsonKey(name: 'etat_compte') EtatCompte get etatCompte;@JsonKey(name: 'est_compte_valide') bool get estCompteValide;@JsonKey(name: 'impact_score_xp') int get impactScoreXp;@JsonKey(name: 'a_accepte_cgu') bool get aAccepteCgu;@JsonKey(name: 'a_complete_bilan') bool get hasCompletedBilan;// Ce champ n'existe pas dans ta table SQL 'utilisateur'.
 // S'il vient d'une jointure ou d'un calcul, garde-le, sinon il sera ignoré par Supabase.
  int get objectif;
 /// Create a copy of Utilisateurs
@@ -30,16 +30,16 @@ $UtilisateursCopyWith<Utilisateurs> get copyWith => _$UtilisateursCopyWithImpl<U
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Utilisateurs&&(identical(other.id, id) || other.id == id)&&(identical(other.email, email) || other.email == email)&&(identical(other.pseudo, pseudo) || other.pseudo == pseudo)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.codeCommunaute, codeCommunaute) || other.codeCommunaute == codeCommunaute)&&(identical(other.entrepriseId, entrepriseId) || other.entrepriseId == entrepriseId)&&(identical(other.role, role) || other.role == role)&&(identical(other.etatCompte, etatCompte) || other.etatCompte == etatCompte)&&(identical(other.estCompteValide, estCompteValide) || other.estCompteValide == estCompteValide)&&(identical(other.impactScoreXp, impactScoreXp) || other.impactScoreXp == impactScoreXp)&&(identical(other.co2EconomiseTotal, co2EconomiseTotal) || other.co2EconomiseTotal == co2EconomiseTotal)&&(identical(other.aAccepteCgu, aAccepteCgu) || other.aAccepteCgu == aAccepteCgu)&&(identical(other.hasCompletedBilan, hasCompletedBilan) || other.hasCompletedBilan == hasCompletedBilan)&&(identical(other.objectif, objectif) || other.objectif == objectif));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Utilisateurs&&(identical(other.id, id) || other.id == id)&&(identical(other.email, email) || other.email == email)&&(identical(other.pseudo, pseudo) || other.pseudo == pseudo)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.codeCommunaute, codeCommunaute) || other.codeCommunaute == codeCommunaute)&&(identical(other.entrepriseId, entrepriseId) || other.entrepriseId == entrepriseId)&&(identical(other.role, role) || other.role == role)&&(identical(other.etatCompte, etatCompte) || other.etatCompte == etatCompte)&&(identical(other.estCompteValide, estCompteValide) || other.estCompteValide == estCompteValide)&&(identical(other.impactScoreXp, impactScoreXp) || other.impactScoreXp == impactScoreXp)&&(identical(other.aAccepteCgu, aAccepteCgu) || other.aAccepteCgu == aAccepteCgu)&&(identical(other.hasCompletedBilan, hasCompletedBilan) || other.hasCompletedBilan == hasCompletedBilan)&&(identical(other.objectif, objectif) || other.objectif == objectif));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,email,pseudo,avatarUrl,codeCommunaute,entrepriseId,role,etatCompte,estCompteValide,impactScoreXp,co2EconomiseTotal,aAccepteCgu,hasCompletedBilan,objectif);
+int get hashCode => Object.hash(runtimeType,id,email,pseudo,avatarUrl,codeCommunaute,entrepriseId,role,etatCompte,estCompteValide,impactScoreXp,aAccepteCgu,hasCompletedBilan,objectif);
 
 @override
 String toString() {
-  return 'Utilisateurs(id: $id, email: $email, pseudo: $pseudo, avatarUrl: $avatarUrl, codeCommunaute: $codeCommunaute, entrepriseId: $entrepriseId, role: $role, etatCompte: $etatCompte, estCompteValide: $estCompteValide, impactScoreXp: $impactScoreXp, co2EconomiseTotal: $co2EconomiseTotal, aAccepteCgu: $aAccepteCgu, hasCompletedBilan: $hasCompletedBilan, objectif: $objectif)';
+  return 'Utilisateurs(id: $id, email: $email, pseudo: $pseudo, avatarUrl: $avatarUrl, codeCommunaute: $codeCommunaute, entrepriseId: $entrepriseId, role: $role, etatCompte: $etatCompte, estCompteValide: $estCompteValide, impactScoreXp: $impactScoreXp, aAccepteCgu: $aAccepteCgu, hasCompletedBilan: $hasCompletedBilan, objectif: $objectif)';
 }
 
 
@@ -50,7 +50,7 @@ abstract mixin class $UtilisateursCopyWith<$Res>  {
   factory $UtilisateursCopyWith(Utilisateurs value, $Res Function(Utilisateurs) _then) = _$UtilisateursCopyWithImpl;
 @useResult
 $Res call({
- String id, String email, String pseudo,@JsonKey(name: 'avatar_url') String? avatarUrl,@JsonKey(name: 'code_communaute') String codeCommunaute,@JsonKey(name: 'entreprise_id') String entrepriseId, RoleUtilisateur role,@JsonKey(name: 'etat_compte') EtatCompte etatCompte,@JsonKey(name: 'est_compte_valide') bool estCompteValide,@JsonKey(name: 'impact_score_xp') int impactScoreXp,@JsonKey(name: 'co2_economise_total') double co2EconomiseTotal,@JsonKey(name: 'a_accepte_cgu') bool aAccepteCgu,@JsonKey(name: 'a_complete_bilan') bool hasCompletedBilan, int objectif
+ String id, String email, String pseudo,@JsonKey(name: 'avatar_url') String? avatarUrl,@JsonKey(name: 'code_communaute') String codeCommunaute,@JsonKey(name: 'entreprise_id') String entrepriseId, RoleUtilisateur role,@JsonKey(name: 'etat_compte') EtatCompte etatCompte,@JsonKey(name: 'est_compte_valide') bool estCompteValide,@JsonKey(name: 'impact_score_xp') int impactScoreXp,@JsonKey(name: 'a_accepte_cgu') bool aAccepteCgu,@JsonKey(name: 'a_complete_bilan') bool hasCompletedBilan, int objectif
 });
 
 
@@ -67,7 +67,7 @@ class _$UtilisateursCopyWithImpl<$Res>
 
 /// Create a copy of Utilisateurs
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? email = null,Object? pseudo = null,Object? avatarUrl = freezed,Object? codeCommunaute = null,Object? entrepriseId = null,Object? role = null,Object? etatCompte = null,Object? estCompteValide = null,Object? impactScoreXp = null,Object? co2EconomiseTotal = null,Object? aAccepteCgu = null,Object? hasCompletedBilan = null,Object? objectif = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? email = null,Object? pseudo = null,Object? avatarUrl = freezed,Object? codeCommunaute = null,Object? entrepriseId = null,Object? role = null,Object? etatCompte = null,Object? estCompteValide = null,Object? impactScoreXp = null,Object? aAccepteCgu = null,Object? hasCompletedBilan = null,Object? objectif = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
@@ -79,8 +79,7 @@ as String,role: null == role ? _self.role : role // ignore: cast_nullable_to_non
 as RoleUtilisateur,etatCompte: null == etatCompte ? _self.etatCompte : etatCompte // ignore: cast_nullable_to_non_nullable
 as EtatCompte,estCompteValide: null == estCompteValide ? _self.estCompteValide : estCompteValide // ignore: cast_nullable_to_non_nullable
 as bool,impactScoreXp: null == impactScoreXp ? _self.impactScoreXp : impactScoreXp // ignore: cast_nullable_to_non_nullable
-as int,co2EconomiseTotal: null == co2EconomiseTotal ? _self.co2EconomiseTotal : co2EconomiseTotal // ignore: cast_nullable_to_non_nullable
-as double,aAccepteCgu: null == aAccepteCgu ? _self.aAccepteCgu : aAccepteCgu // ignore: cast_nullable_to_non_nullable
+as int,aAccepteCgu: null == aAccepteCgu ? _self.aAccepteCgu : aAccepteCgu // ignore: cast_nullable_to_non_nullable
 as bool,hasCompletedBilan: null == hasCompletedBilan ? _self.hasCompletedBilan : hasCompletedBilan // ignore: cast_nullable_to_non_nullable
 as bool,objectif: null == objectif ? _self.objectif : objectif // ignore: cast_nullable_to_non_nullable
 as int,
@@ -165,10 +164,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String email,  String pseudo, @JsonKey(name: 'avatar_url')  String? avatarUrl, @JsonKey(name: 'code_communaute')  String codeCommunaute, @JsonKey(name: 'entreprise_id')  String entrepriseId,  RoleUtilisateur role, @JsonKey(name: 'etat_compte')  EtatCompte etatCompte, @JsonKey(name: 'est_compte_valide')  bool estCompteValide, @JsonKey(name: 'impact_score_xp')  int impactScoreXp, @JsonKey(name: 'co2_economise_total')  double co2EconomiseTotal, @JsonKey(name: 'a_accepte_cgu')  bool aAccepteCgu, @JsonKey(name: 'a_complete_bilan')  bool hasCompletedBilan,  int objectif)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String email,  String pseudo, @JsonKey(name: 'avatar_url')  String? avatarUrl, @JsonKey(name: 'code_communaute')  String codeCommunaute, @JsonKey(name: 'entreprise_id')  String entrepriseId,  RoleUtilisateur role, @JsonKey(name: 'etat_compte')  EtatCompte etatCompte, @JsonKey(name: 'est_compte_valide')  bool estCompteValide, @JsonKey(name: 'impact_score_xp')  int impactScoreXp, @JsonKey(name: 'a_accepte_cgu')  bool aAccepteCgu, @JsonKey(name: 'a_complete_bilan')  bool hasCompletedBilan,  int objectif)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Utilisateurs() when $default != null:
-return $default(_that.id,_that.email,_that.pseudo,_that.avatarUrl,_that.codeCommunaute,_that.entrepriseId,_that.role,_that.etatCompte,_that.estCompteValide,_that.impactScoreXp,_that.co2EconomiseTotal,_that.aAccepteCgu,_that.hasCompletedBilan,_that.objectif);case _:
+return $default(_that.id,_that.email,_that.pseudo,_that.avatarUrl,_that.codeCommunaute,_that.entrepriseId,_that.role,_that.etatCompte,_that.estCompteValide,_that.impactScoreXp,_that.aAccepteCgu,_that.hasCompletedBilan,_that.objectif);case _:
   return orElse();
 
 }
@@ -186,10 +185,10 @@ return $default(_that.id,_that.email,_that.pseudo,_that.avatarUrl,_that.codeComm
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String email,  String pseudo, @JsonKey(name: 'avatar_url')  String? avatarUrl, @JsonKey(name: 'code_communaute')  String codeCommunaute, @JsonKey(name: 'entreprise_id')  String entrepriseId,  RoleUtilisateur role, @JsonKey(name: 'etat_compte')  EtatCompte etatCompte, @JsonKey(name: 'est_compte_valide')  bool estCompteValide, @JsonKey(name: 'impact_score_xp')  int impactScoreXp, @JsonKey(name: 'co2_economise_total')  double co2EconomiseTotal, @JsonKey(name: 'a_accepte_cgu')  bool aAccepteCgu, @JsonKey(name: 'a_complete_bilan')  bool hasCompletedBilan,  int objectif)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String email,  String pseudo, @JsonKey(name: 'avatar_url')  String? avatarUrl, @JsonKey(name: 'code_communaute')  String codeCommunaute, @JsonKey(name: 'entreprise_id')  String entrepriseId,  RoleUtilisateur role, @JsonKey(name: 'etat_compte')  EtatCompte etatCompte, @JsonKey(name: 'est_compte_valide')  bool estCompteValide, @JsonKey(name: 'impact_score_xp')  int impactScoreXp, @JsonKey(name: 'a_accepte_cgu')  bool aAccepteCgu, @JsonKey(name: 'a_complete_bilan')  bool hasCompletedBilan,  int objectif)  $default,) {final _that = this;
 switch (_that) {
 case _Utilisateurs():
-return $default(_that.id,_that.email,_that.pseudo,_that.avatarUrl,_that.codeCommunaute,_that.entrepriseId,_that.role,_that.etatCompte,_that.estCompteValide,_that.impactScoreXp,_that.co2EconomiseTotal,_that.aAccepteCgu,_that.hasCompletedBilan,_that.objectif);}
+return $default(_that.id,_that.email,_that.pseudo,_that.avatarUrl,_that.codeCommunaute,_that.entrepriseId,_that.role,_that.etatCompte,_that.estCompteValide,_that.impactScoreXp,_that.aAccepteCgu,_that.hasCompletedBilan,_that.objectif);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -203,10 +202,10 @@ return $default(_that.id,_that.email,_that.pseudo,_that.avatarUrl,_that.codeComm
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String email,  String pseudo, @JsonKey(name: 'avatar_url')  String? avatarUrl, @JsonKey(name: 'code_communaute')  String codeCommunaute, @JsonKey(name: 'entreprise_id')  String entrepriseId,  RoleUtilisateur role, @JsonKey(name: 'etat_compte')  EtatCompte etatCompte, @JsonKey(name: 'est_compte_valide')  bool estCompteValide, @JsonKey(name: 'impact_score_xp')  int impactScoreXp, @JsonKey(name: 'co2_economise_total')  double co2EconomiseTotal, @JsonKey(name: 'a_accepte_cgu')  bool aAccepteCgu, @JsonKey(name: 'a_complete_bilan')  bool hasCompletedBilan,  int objectif)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String email,  String pseudo, @JsonKey(name: 'avatar_url')  String? avatarUrl, @JsonKey(name: 'code_communaute')  String codeCommunaute, @JsonKey(name: 'entreprise_id')  String entrepriseId,  RoleUtilisateur role, @JsonKey(name: 'etat_compte')  EtatCompte etatCompte, @JsonKey(name: 'est_compte_valide')  bool estCompteValide, @JsonKey(name: 'impact_score_xp')  int impactScoreXp, @JsonKey(name: 'a_accepte_cgu')  bool aAccepteCgu, @JsonKey(name: 'a_complete_bilan')  bool hasCompletedBilan,  int objectif)?  $default,) {final _that = this;
 switch (_that) {
 case _Utilisateurs() when $default != null:
-return $default(_that.id,_that.email,_that.pseudo,_that.avatarUrl,_that.codeCommunaute,_that.entrepriseId,_that.role,_that.etatCompte,_that.estCompteValide,_that.impactScoreXp,_that.co2EconomiseTotal,_that.aAccepteCgu,_that.hasCompletedBilan,_that.objectif);case _:
+return $default(_that.id,_that.email,_that.pseudo,_that.avatarUrl,_that.codeCommunaute,_that.entrepriseId,_that.role,_that.etatCompte,_that.estCompteValide,_that.impactScoreXp,_that.aAccepteCgu,_that.hasCompletedBilan,_that.objectif);case _:
   return null;
 
 }
@@ -218,7 +217,7 @@ return $default(_that.id,_that.email,_that.pseudo,_that.avatarUrl,_that.codeComm
 @JsonSerializable()
 
 class _Utilisateurs implements Utilisateurs {
-  const _Utilisateurs({this.id = '', this.email = '', this.pseudo = '', @JsonKey(name: 'avatar_url') this.avatarUrl = '', @JsonKey(name: 'code_communaute') this.codeCommunaute = '', @JsonKey(name: 'entreprise_id') this.entrepriseId = '', this.role = RoleUtilisateur.utilisateur, @JsonKey(name: 'etat_compte') this.etatCompte = EtatCompte.actif, @JsonKey(name: 'est_compte_valide') this.estCompteValide = true, @JsonKey(name: 'impact_score_xp') this.impactScoreXp = 0, @JsonKey(name: 'co2_economise_total') this.co2EconomiseTotal = 0.0, @JsonKey(name: 'a_accepte_cgu') this.aAccepteCgu = false, @JsonKey(name: 'a_complete_bilan') this.hasCompletedBilan = false, this.objectif = -10});
+  const _Utilisateurs({this.id = '', this.email = '', this.pseudo = '', @JsonKey(name: 'avatar_url') this.avatarUrl = '', @JsonKey(name: 'code_communaute') this.codeCommunaute = '', @JsonKey(name: 'entreprise_id') this.entrepriseId = '', this.role = RoleUtilisateur.utilisateur, @JsonKey(name: 'etat_compte') this.etatCompte = EtatCompte.actif, @JsonKey(name: 'est_compte_valide') this.estCompteValide = true, @JsonKey(name: 'impact_score_xp') this.impactScoreXp = 0, @JsonKey(name: 'a_accepte_cgu') this.aAccepteCgu = false, @JsonKey(name: 'a_complete_bilan') this.hasCompletedBilan = false, this.objectif = -10});
   factory _Utilisateurs.fromJson(Map<String, dynamic> json) => _$UtilisateursFromJson(json);
 
 @override@JsonKey() final  String id;
@@ -231,7 +230,6 @@ class _Utilisateurs implements Utilisateurs {
 @override@JsonKey(name: 'etat_compte') final  EtatCompte etatCompte;
 @override@JsonKey(name: 'est_compte_valide') final  bool estCompteValide;
 @override@JsonKey(name: 'impact_score_xp') final  int impactScoreXp;
-@override@JsonKey(name: 'co2_economise_total') final  double co2EconomiseTotal;
 @override@JsonKey(name: 'a_accepte_cgu') final  bool aAccepteCgu;
 @override@JsonKey(name: 'a_complete_bilan') final  bool hasCompletedBilan;
 // Ce champ n'existe pas dans ta table SQL 'utilisateur'.
@@ -251,16 +249,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Utilisateurs&&(identical(other.id, id) || other.id == id)&&(identical(other.email, email) || other.email == email)&&(identical(other.pseudo, pseudo) || other.pseudo == pseudo)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.codeCommunaute, codeCommunaute) || other.codeCommunaute == codeCommunaute)&&(identical(other.entrepriseId, entrepriseId) || other.entrepriseId == entrepriseId)&&(identical(other.role, role) || other.role == role)&&(identical(other.etatCompte, etatCompte) || other.etatCompte == etatCompte)&&(identical(other.estCompteValide, estCompteValide) || other.estCompteValide == estCompteValide)&&(identical(other.impactScoreXp, impactScoreXp) || other.impactScoreXp == impactScoreXp)&&(identical(other.co2EconomiseTotal, co2EconomiseTotal) || other.co2EconomiseTotal == co2EconomiseTotal)&&(identical(other.aAccepteCgu, aAccepteCgu) || other.aAccepteCgu == aAccepteCgu)&&(identical(other.hasCompletedBilan, hasCompletedBilan) || other.hasCompletedBilan == hasCompletedBilan)&&(identical(other.objectif, objectif) || other.objectif == objectif));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Utilisateurs&&(identical(other.id, id) || other.id == id)&&(identical(other.email, email) || other.email == email)&&(identical(other.pseudo, pseudo) || other.pseudo == pseudo)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.codeCommunaute, codeCommunaute) || other.codeCommunaute == codeCommunaute)&&(identical(other.entrepriseId, entrepriseId) || other.entrepriseId == entrepriseId)&&(identical(other.role, role) || other.role == role)&&(identical(other.etatCompte, etatCompte) || other.etatCompte == etatCompte)&&(identical(other.estCompteValide, estCompteValide) || other.estCompteValide == estCompteValide)&&(identical(other.impactScoreXp, impactScoreXp) || other.impactScoreXp == impactScoreXp)&&(identical(other.aAccepteCgu, aAccepteCgu) || other.aAccepteCgu == aAccepteCgu)&&(identical(other.hasCompletedBilan, hasCompletedBilan) || other.hasCompletedBilan == hasCompletedBilan)&&(identical(other.objectif, objectif) || other.objectif == objectif));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,email,pseudo,avatarUrl,codeCommunaute,entrepriseId,role,etatCompte,estCompteValide,impactScoreXp,co2EconomiseTotal,aAccepteCgu,hasCompletedBilan,objectif);
+int get hashCode => Object.hash(runtimeType,id,email,pseudo,avatarUrl,codeCommunaute,entrepriseId,role,etatCompte,estCompteValide,impactScoreXp,aAccepteCgu,hasCompletedBilan,objectif);
 
 @override
 String toString() {
-  return 'Utilisateurs(id: $id, email: $email, pseudo: $pseudo, avatarUrl: $avatarUrl, codeCommunaute: $codeCommunaute, entrepriseId: $entrepriseId, role: $role, etatCompte: $etatCompte, estCompteValide: $estCompteValide, impactScoreXp: $impactScoreXp, co2EconomiseTotal: $co2EconomiseTotal, aAccepteCgu: $aAccepteCgu, hasCompletedBilan: $hasCompletedBilan, objectif: $objectif)';
+  return 'Utilisateurs(id: $id, email: $email, pseudo: $pseudo, avatarUrl: $avatarUrl, codeCommunaute: $codeCommunaute, entrepriseId: $entrepriseId, role: $role, etatCompte: $etatCompte, estCompteValide: $estCompteValide, impactScoreXp: $impactScoreXp, aAccepteCgu: $aAccepteCgu, hasCompletedBilan: $hasCompletedBilan, objectif: $objectif)';
 }
 
 
@@ -271,7 +269,7 @@ abstract mixin class _$UtilisateursCopyWith<$Res> implements $UtilisateursCopyWi
   factory _$UtilisateursCopyWith(_Utilisateurs value, $Res Function(_Utilisateurs) _then) = __$UtilisateursCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String email, String pseudo,@JsonKey(name: 'avatar_url') String? avatarUrl,@JsonKey(name: 'code_communaute') String codeCommunaute,@JsonKey(name: 'entreprise_id') String entrepriseId, RoleUtilisateur role,@JsonKey(name: 'etat_compte') EtatCompte etatCompte,@JsonKey(name: 'est_compte_valide') bool estCompteValide,@JsonKey(name: 'impact_score_xp') int impactScoreXp,@JsonKey(name: 'co2_economise_total') double co2EconomiseTotal,@JsonKey(name: 'a_accepte_cgu') bool aAccepteCgu,@JsonKey(name: 'a_complete_bilan') bool hasCompletedBilan, int objectif
+ String id, String email, String pseudo,@JsonKey(name: 'avatar_url') String? avatarUrl,@JsonKey(name: 'code_communaute') String codeCommunaute,@JsonKey(name: 'entreprise_id') String entrepriseId, RoleUtilisateur role,@JsonKey(name: 'etat_compte') EtatCompte etatCompte,@JsonKey(name: 'est_compte_valide') bool estCompteValide,@JsonKey(name: 'impact_score_xp') int impactScoreXp,@JsonKey(name: 'a_accepte_cgu') bool aAccepteCgu,@JsonKey(name: 'a_complete_bilan') bool hasCompletedBilan, int objectif
 });
 
 
@@ -288,7 +286,7 @@ class __$UtilisateursCopyWithImpl<$Res>
 
 /// Create a copy of Utilisateurs
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? email = null,Object? pseudo = null,Object? avatarUrl = freezed,Object? codeCommunaute = null,Object? entrepriseId = null,Object? role = null,Object? etatCompte = null,Object? estCompteValide = null,Object? impactScoreXp = null,Object? co2EconomiseTotal = null,Object? aAccepteCgu = null,Object? hasCompletedBilan = null,Object? objectif = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? email = null,Object? pseudo = null,Object? avatarUrl = freezed,Object? codeCommunaute = null,Object? entrepriseId = null,Object? role = null,Object? etatCompte = null,Object? estCompteValide = null,Object? impactScoreXp = null,Object? aAccepteCgu = null,Object? hasCompletedBilan = null,Object? objectif = null,}) {
   return _then(_Utilisateurs(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
@@ -300,8 +298,7 @@ as String,role: null == role ? _self.role : role // ignore: cast_nullable_to_non
 as RoleUtilisateur,etatCompte: null == etatCompte ? _self.etatCompte : etatCompte // ignore: cast_nullable_to_non_nullable
 as EtatCompte,estCompteValide: null == estCompteValide ? _self.estCompteValide : estCompteValide // ignore: cast_nullable_to_non_nullable
 as bool,impactScoreXp: null == impactScoreXp ? _self.impactScoreXp : impactScoreXp // ignore: cast_nullable_to_non_nullable
-as int,co2EconomiseTotal: null == co2EconomiseTotal ? _self.co2EconomiseTotal : co2EconomiseTotal // ignore: cast_nullable_to_non_nullable
-as double,aAccepteCgu: null == aAccepteCgu ? _self.aAccepteCgu : aAccepteCgu // ignore: cast_nullable_to_non_nullable
+as int,aAccepteCgu: null == aAccepteCgu ? _self.aAccepteCgu : aAccepteCgu // ignore: cast_nullable_to_non_nullable
 as bool,hasCompletedBilan: null == hasCompletedBilan ? _self.hasCompletedBilan : hasCompletedBilan // ignore: cast_nullable_to_non_nullable
 as bool,objectif: null == objectif ? _self.objectif : objectif // ignore: cast_nullable_to_non_nullable
 as int,

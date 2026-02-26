@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
-import 'package:oikos/core/theme/admin_theme.dart';
+import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_state.dart';
@@ -37,7 +37,7 @@ class CommunityCard extends StatelessWidget {
     return Container(
       decoration: colors.cardDecoration,
       child: Padding(
-        padding: const EdgeInsets.all(AdminTheme.spacingLg),
+        padding: const EdgeInsets.all(AppTheme.spacingLg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -50,7 +50,7 @@ class CommunityCard extends StatelessWidget {
                   size: 40,
                   onTap: onEditLogo,
                 ),
-                const SizedBox(width: AdminTheme.spacingSm),
+                const SizedBox(width: AppTheme.spacingSm),
                 Expanded(
                   child: Text(
                     community.name,
@@ -76,7 +76,7 @@ class CommunityCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: AdminTheme.spacingMd),
+            const SizedBox(height: AppTheme.spacingMd),
 
             // Code d'accès
             _buildInfoRow(
@@ -84,7 +84,7 @@ class CommunityCard extends StatelessWidget {
               child: _CodeBadge(code: community.code),
               colors: colors,
             ),
-            const SizedBox(height: AdminTheme.spacingSm),
+            const SizedBox(height: AppTheme.spacingSm),
 
             // Nombre de membres
             _buildInfoRow(
@@ -95,7 +95,7 @@ class CommunityCard extends StatelessWidget {
               ),
               colors: colors,
             ),
-            // const SizedBox(height: AdminTheme.spacingSm),
+            // const SizedBox(height: AppTheme.spacingSm),
 
             // // Rang
             // _buildInfoRow(
@@ -111,7 +111,7 @@ class CommunityCard extends StatelessWidget {
             //   ),
             //   colors: colors,
             // ),
-            const SizedBox(height: AdminTheme.spacingSm),
+            const SizedBox(height: AppTheme.spacingSm),
 
             // Boutons d'action
             _ActionButtons(
@@ -133,7 +133,7 @@ class CommunityCard extends StatelessWidget {
     return Row(
       children: [
         Icon(icon, size: 16, color: iconColor ?? colors.mutedForeground),
-        const SizedBox(width: AdminTheme.spacingSm),
+        const SizedBox(width: AppTheme.spacingSm),
         child,
       ],
     );
@@ -181,9 +181,9 @@ class MobileCommunityCard extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onViewMembers,
-          borderRadius: BorderRadius.circular(AdminTheme.radiusXl),
+          borderRadius: BorderRadius.circular(AppTheme.radiusXl),
           child: Padding(
-            padding: const EdgeInsets.all(AdminTheme.spacingMd),
+            padding: const EdgeInsets.all(AppTheme.spacingMd),
             child: Row(
               children: [
                 _CommunityLogo(
@@ -191,7 +191,7 @@ class MobileCommunityCard extends StatelessWidget {
                   size: 48,
                   onTap: onEditLogo,
                 ),
-                const SizedBox(width: AdminTheme.spacingMd),
+                const SizedBox(width: AppTheme.spacingMd),
 
                 // Informations
                 Expanded(
@@ -206,11 +206,11 @@ class MobileCommunityCard extends StatelessWidget {
                           color: colors.foreground,
                         ),
                       ),
-                      const SizedBox(height: AdminTheme.spacingSm),
+                      const SizedBox(height: AppTheme.spacingSm),
                       Row(
                         children: [
                           _CodeBadge(code: community.code, small: true),
-                          const SizedBox(width: AdminTheme.spacingMd),
+                          const SizedBox(width: AppTheme.spacingMd),
                           Icon(
                             Icons.people_rounded,
                             size: 14,
@@ -226,7 +226,7 @@ class MobileCommunityCard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(height: AdminTheme.spacingSm),
+                      const SizedBox(height: AppTheme.spacingSm),
                       Row(
                         children: [
                           // Icon(
@@ -243,7 +243,7 @@ class MobileCommunityCard extends StatelessWidget {
                           //     color: _getRankColor(rank, colors),
                           //   ),
                           // ),
-                          // const SizedBox(width: AdminTheme.spacingMd),
+                          // const SizedBox(width: AppTheme.spacingMd),
                           Icon(
                             Icons.eco_rounded,
                             size: 14,
@@ -358,13 +358,13 @@ class _CommunityLogo extends StatelessWidget {
               width: editSize,
               height: editSize,
               decoration: const BoxDecoration(
-                color: AdminTheme.actionGreen,
+                color: AppTheme.actionGreen,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.edit_rounded,
                 size: editSize * 0.55,
-                color: AdminTheme.actionGreenForeground,
+                color: AppTheme.actionGreenForeground,
               ),
             ),
           ),
@@ -392,7 +392,7 @@ class _CodeBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.pageBackground,
         borderRadius: BorderRadius.circular(
-          small ? AdminTheme.radiusSm : AdminTheme.radiusMd,
+          small ? AppTheme.radiusSm : AppTheme.radiusMd,
         ),
       ),
       child: Text(
@@ -429,15 +429,15 @@ class _ActionButtons extends StatelessWidget {
               foregroundColor: colors.mutedForeground,
               side: BorderSide(color: colors.border),
               padding: const EdgeInsets.symmetric(
-                vertical: AdminTheme.spacingSm,
+                vertical: AppTheme.spacingSm,
               ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
               ),
             ),
           ),
         ),
-        const SizedBox(height: AdminTheme.spacingSm),
+        const SizedBox(height: AppTheme.spacingSm),
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
@@ -445,14 +445,14 @@ class _ActionButtons extends StatelessWidget {
             icon: const Icon(Icons.visibility_rounded, size: 16),
             label: const Text('Voir les membres'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AdminTheme.actionGreenLight,
-              foregroundColor: AdminTheme.actionGreen,
+              backgroundColor: AppTheme.actionGreenLight,
+              foregroundColor: AppTheme.actionGreen,
               elevation: 0,
               padding: const EdgeInsets.symmetric(
-                vertical: AdminTheme.spacingSm,
+                vertical: AppTheme.spacingSm,
               ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
               ),
             ),
           ),
@@ -483,10 +483,10 @@ class MemberCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = AdminColors.of(context);
     return Container(
-      padding: const EdgeInsets.all(AdminTheme.spacingMd),
+      padding: const EdgeInsets.all(AppTheme.spacingMd),
       decoration: BoxDecoration(
         color: colors.pageBackground,
-        borderRadius: BorderRadius.circular(AdminTheme.radiusXl),
+        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -519,7 +519,7 @@ class MemberCard extends StatelessWidget {
                 onTap: onChangeCommunity,
                 tooltip: 'Changer de communauté',
               ),
-              const SizedBox(width: AdminTheme.spacingSm),
+              const SizedBox(width: AppTheme.spacingSm),
               IconButton(
                 icon: Icon(
                   Icons.delete_outline_rounded,
@@ -557,12 +557,12 @@ class _ActionIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final button = Material(
       color: color.withValues(alpha: 0.1),
-      borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
         child: Padding(
-          padding: const EdgeInsets.all(AdminTheme.spacingSm),
+          padding: const EdgeInsets.all(AppTheme.spacingSm),
           child: Icon(icon, size: 18, color: color),
         ),
       ),
@@ -596,13 +596,13 @@ class CommunityRadioTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = AdminColors.of(context);
     return Padding(
-      padding: const EdgeInsets.only(bottom: AdminTheme.spacingSm),
+      padding: const EdgeInsets.only(bottom: AppTheme.spacingSm),
       child: Material(
-        color: isSelected ? AdminTheme.actionGreenLight : colors.pageBackground,
-        borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
+        color: isSelected ? AppTheme.actionGreenLight : colors.pageBackground,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
+          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
           child: Padding(
             padding: const EdgeInsets.all(14),
             child: Row(
@@ -612,10 +612,10 @@ class CommunityRadioTile extends StatelessWidget {
                       ? Icons.radio_button_checked
                       : Icons.radio_button_off,
                   color: isSelected
-                      ? AdminTheme.actionGreen
+                      ? AppTheme.actionGreen
                       : colors.mutedForeground,
                 ),
-                const SizedBox(width: AdminTheme.spacingMd),
+                const SizedBox(width: AppTheme.spacingMd),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -625,7 +625,7 @@ class CommunityRadioTile extends StatelessWidget {
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
                           color: isSelected
-                              ? AdminTheme.actionGreen
+                              ? AppTheme.actionGreen
                               : colors.foreground,
                         ),
                       ),
@@ -665,13 +665,13 @@ class CompanyRadioTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = AdminColors.of(context);
     return Padding(
-      padding: const EdgeInsets.only(bottom: AdminTheme.spacingSm),
+      padding: const EdgeInsets.only(bottom: AppTheme.spacingSm),
       child: Material(
-        color: isSelected ? AdminTheme.actionGreenLight : colors.pageBackground,
-        borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
+        color: isSelected ? AppTheme.actionGreenLight : colors.pageBackground,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
+          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
           child: Padding(
             padding: const EdgeInsets.all(14),
             child: Row(
@@ -681,17 +681,17 @@ class CompanyRadioTile extends StatelessWidget {
                       ? Icons.radio_button_checked
                       : Icons.radio_button_off,
                   color: isSelected
-                      ? AdminTheme.actionGreen
+                      ? AppTheme.actionGreen
                       : colors.mutedForeground,
                 ),
-                const SizedBox(width: AdminTheme.spacingMd),
+                const SizedBox(width: AppTheme.spacingMd),
                 Expanded(
                   child: Text(
                     company.name,
                     style: TextStyle(
                       fontWeight: FontWeight.w500,
                       color: isSelected
-                          ? AdminTheme.actionGreen
+                          ? AppTheme.actionGreen
                           : colors.foreground,
                     ),
                   ),

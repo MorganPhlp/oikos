@@ -44,9 +44,6 @@ sealed class Utilisateurs with _$Utilisateurs {
 
     @JsonKey(name: 'impact_score_xp') @Default(0) int impactScoreXp,
 
-    @JsonKey(name: 'co2_economise_total')
-    @Default(0.0)
-    double co2EconomiseTotal,
 
     @JsonKey(name: 'a_accepte_cgu') // Matcher le snake_case SQL
     @Default(false)

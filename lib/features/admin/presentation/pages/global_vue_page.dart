@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
-import 'package:oikos/core/theme/admin_theme.dart';
+import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
 import 'package:oikos/features/admin/presentation/bloc/carbon_stats_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/carbon_stats_event.dart';
@@ -40,7 +40,7 @@ class _GlobalVuePageState extends State<GlobalVuePage> {
           return Center(
             child: Text(
               'Erreur',
-              style: const TextStyle(color: AdminTheme.errorForeground),
+              style: const TextStyle(color: AppTheme.errorForeground),
             ),
           );
         }
@@ -48,7 +48,7 @@ class _GlobalVuePageState extends State<GlobalVuePage> {
         if (state is CarbonFootPrintLoaded) {
           final data = state.data;
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(AdminTheme.spacingLg),
+            padding: const EdgeInsets.all(AppTheme.spacingLg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisSize: MainAxisSize.min,
@@ -57,9 +57,9 @@ class _GlobalVuePageState extends State<GlobalVuePage> {
                   annualData: data.co2PerformanceYear,
                   monthlyData: data.co2PerformanceMonthly,
                 ),
-                const SizedBox(height: AdminTheme.spacingLg),
+                const SizedBox(height: AppTheme.spacingLg),
                 CategoryBreakdown(data: data.categories),
-                const SizedBox(height: AdminTheme.spacingLg),
+                const SizedBox(height: AppTheme.spacingLg),
                 GlobalInsightsKPIs(stats: data.kpiStats, isLoading: false),
               ],
             ),

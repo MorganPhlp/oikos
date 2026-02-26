@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
-import 'package:oikos/core/theme/admin_theme.dart';
+import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/core/utils/utils.dart';
 import 'package:oikos/features/admin/data/models/models.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_bloc.dart';
@@ -50,7 +50,7 @@ class _LogoPickerModalState extends State<LogoPickerModal> {
 
         return Dialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AdminTheme.radiusXl),
+            borderRadius: BorderRadius.circular(AppTheme.radiusXl),
           ),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 500, maxHeight: 560),
@@ -61,7 +61,7 @@ class _LogoPickerModalState extends State<LogoPickerModal> {
                 _ModalHeader(
                   title: 'Changer le logo',
                   icon: Icons.image_outlined,
-                  iconColor: AdminTheme.actionGreen,
+                  iconColor: AppTheme.actionGreen,
                   onClose: () {
                     Navigator.pop(context);
                     context.read<CommunityBloc>().add(
@@ -73,12 +73,12 @@ class _LogoPickerModalState extends State<LogoPickerModal> {
 
                 // Logo actuel + nom communauté
                 Padding(
-                  padding: const EdgeInsets.all(AdminTheme.spacingMd),
+                  padding: const EdgeInsets.all(AppTheme.spacingMd),
                   child: Row(
                     children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(
-                          AdminTheme.radiusXxl,
+                          AppTheme.radiusXxl,
                         ),
                         child: Image.network(
                           community.avatarNetworkUrl,
@@ -95,7 +95,7 @@ class _LogoPickerModalState extends State<LogoPickerModal> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: AdminTheme.spacingMd),
+                      const SizedBox(width: AppTheme.spacingMd),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -130,7 +130,7 @@ class _LogoPickerModalState extends State<LogoPickerModal> {
                           child: Padding(
                             padding: EdgeInsets.all(32),
                             child: CircularProgressIndicator(
-                              color: AdminTheme.actionGreen,
+                              color: AppTheme.actionGreen,
                             ),
                           ),
                         )
@@ -145,12 +145,12 @@ class _LogoPickerModalState extends State<LogoPickerModal> {
                           ),
                         )
                       : GridView.builder(
-                          padding: const EdgeInsets.all(AdminTheme.spacingMd),
+                          padding: const EdgeInsets.all(AppTheme.spacingMd),
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 4,
-                                crossAxisSpacing: AdminTheme.spacingMd,
-                                mainAxisSpacing: AdminTheme.spacingMd,
+                                crossAxisSpacing: AppTheme.spacingMd,
+                                mainAxisSpacing: AppTheme.spacingMd,
                               ),
                           itemCount: logos.length,
                           itemBuilder: (context, index) {
@@ -163,18 +163,18 @@ class _LogoPickerModalState extends State<LogoPickerModal> {
                                 duration: const Duration(milliseconds: 150),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(
-                                    AdminTheme.radiusLg,
+                                    AppTheme.radiusLg,
                                   ),
                                   border: Border.all(
                                     color: isSelected
-                                        ? AdminTheme.actionGreen
+                                        ? AppTheme.actionGreen
                                         : colors.border,
                                     width: isSelected ? 3 : 1,
                                   ),
                                 ),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(
-                                    AdminTheme.radiusMd,
+                                    AppTheme.radiusMd,
                                   ),
                                   child: Image.network(
                                     StorageUtils.getNetworkUrl('avatars', url),
@@ -299,7 +299,7 @@ class _CreateCommunityModalState extends State<CreateCommunityModal> {
   Widget build(BuildContext context) {
     return Dialog(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AdminTheme.radiusXl),
+        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
       ),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 420),
@@ -347,7 +347,7 @@ class _CreateCommunityModalState extends State<CreateCommunityModal> {
                 Divider(height: 1, color: colors.border),
 
                 Padding(
-                  padding: const EdgeInsets.all(AdminTheme.spacingLg),
+                  padding: const EdgeInsets.all(AppTheme.spacingLg),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -361,7 +361,7 @@ class _CreateCommunityModalState extends State<CreateCommunityModal> {
                         hint: 'Ex: Éco-Warriors Paris',
                         onChanged: (_) => setState(() => _nomError = null),
                       ),
-                      const SizedBox(height: AdminTheme.spacingMd),
+                      const SizedBox(height: AppTheme.spacingMd),
                       FormTextField(
                         label: "Code d'accès *",
                         controller: _codeController,
@@ -378,7 +378,7 @@ class _CreateCommunityModalState extends State<CreateCommunityModal> {
                           color: colors.mutedForeground,
                         ),
                       ),
-                      const SizedBox(height: AdminTheme.spacingMd),
+                      const SizedBox(height: AppTheme.spacingMd),
                       LogoPickerSection(
                         selectedLogoUrl: _selectedLogoUrl,
                         logos: logos,
@@ -387,11 +387,11 @@ class _CreateCommunityModalState extends State<CreateCommunityModal> {
                             setState(() => _selectedLogoUrl = url),
                       ),
                       if (errorMessage != null) ...[
-                        const SizedBox(height: AdminTheme.spacingMd),
+                        const SizedBox(height: AppTheme.spacingMd),
                         Text(
                           errorMessage,
                           style: const TextStyle(
-                            color: AdminTheme.errorForeground,
+                            color: AppTheme.errorForeground,
                           ),
                         ),
                       ],
@@ -456,7 +456,7 @@ class _EditCodeModalState extends State<EditCodeModal> {
   Widget build(BuildContext context) {
     return Dialog(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AdminTheme.radiusXl),
+        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
       ),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 420),
@@ -491,7 +491,7 @@ class _EditCodeModalState extends State<EditCodeModal> {
                 _ModalHeader(
                   title: 'Modifier le code',
                   icon: Icons.vpn_key_rounded,
-                  iconColor: AdminTheme.actionGreen,
+                  iconColor: AppTheme.actionGreen,
                   onClose: () {
                     Navigator.pop(context);
                     context.read<CommunityBloc>().add(
@@ -501,12 +501,12 @@ class _EditCodeModalState extends State<EditCodeModal> {
                 ),
                 Divider(height: 1, color: colors.border),
                 Padding(
-                  padding: const EdgeInsets.all(AdminTheme.spacingLg),
+                  padding: const EdgeInsets.all(AppTheme.spacingLg),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       ReadOnlyField(label: 'Communauté', value: _communityName),
-                      const SizedBox(height: AdminTheme.spacingMd),
+                      const SizedBox(height: AppTheme.spacingMd),
                       FormTextField(
                         label: "Nouveau code d'accès *",
                         controller: _codeController,
@@ -566,7 +566,7 @@ class MembersListModal extends StatelessWidget {
 
         return Dialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AdminTheme.radiusXl),
+            borderRadius: BorderRadius.circular(AppTheme.radiusXl),
           ),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 600, maxHeight: 500),
@@ -575,7 +575,7 @@ class MembersListModal extends StatelessWidget {
               children: [
                 // Header
                 Padding(
-                  padding: const EdgeInsets.all(AdminTheme.spacingLg),
+                  padding: const EdgeInsets.all(AppTheme.spacingLg),
                   child: Row(
                     children: [
                       Expanded(
@@ -626,7 +626,7 @@ class MembersListModal extends StatelessWidget {
 
                 // Footer
                 Padding(
-                  padding: const EdgeInsets.all(AdminTheme.spacingLg),
+                  padding: const EdgeInsets.all(AppTheme.spacingLg),
                   child: SizedBox(
                     width: double.infinity,
                     child: OutlinedButton(
@@ -638,12 +638,12 @@ class MembersListModal extends StatelessWidget {
                       },
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
-                          vertical: AdminTheme.spacingMd,
+                          vertical: AppTheme.spacingMd,
                         ),
                         side: BorderSide(color: colors.border),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
-                            AdminTheme.radiusLg,
+                            AppTheme.radiusLg,
                           ),
                         ),
                       ),
@@ -676,9 +676,9 @@ class MembersListModal extends StatelessWidget {
     return ListView.separated(
       key: ValueKey('members_${users.length}_${community.code}'),
       shrinkWrap: true,
-      padding: const EdgeInsets.all(AdminTheme.spacingLg),
+      padding: const EdgeInsets.all(AppTheme.spacingLg),
       itemCount: users.length,
-      separatorBuilder: (_, _) => const SizedBox(height: AdminTheme.spacingMd),
+      separatorBuilder: (_, _) => const SizedBox(height: AppTheme.spacingMd),
       itemBuilder: (context, index) {
         final user = users[index];
         return MemberCard(
@@ -733,7 +733,7 @@ class ChangeUserCommunityModal extends StatelessWidget {
 
         return Dialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AdminTheme.radiusXl),
+            borderRadius: BorderRadius.circular(AppTheme.radiusXl),
           ),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 400),
@@ -752,7 +752,7 @@ class ChangeUserCommunityModal extends StatelessWidget {
                 Divider(height: 1, color: colors.border),
 
                 Padding(
-                  padding: const EdgeInsets.all(AdminTheme.spacingLg),
+                  padding: const EdgeInsets.all(AppTheme.spacingLg),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -761,7 +761,7 @@ class ChangeUserCommunityModal extends StatelessWidget {
                         value: user.pseudo,
                         subtitle: user.email,
                       ),
-                      const SizedBox(height: AdminTheme.spacingLg),
+                      const SizedBox(height: AppTheme.spacingLg),
                       Text(
                         'Nouvelle communauté',
                         style: TextStyle(
@@ -769,7 +769,7 @@ class ChangeUserCommunityModal extends StatelessWidget {
                           color: colors.mutedForeground,
                         ),
                       ),
-                      const SizedBox(height: AdminTheme.spacingMd),
+                      const SizedBox(height: AppTheme.spacingMd),
                       ...communities.map(
                         (c) => CommunityRadioTile(
                           community: c,
@@ -830,12 +830,12 @@ class _ModalHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = AdminColors.of(context);
     return Padding(
-      padding: const EdgeInsets.all(AdminTheme.spacingLg),
+      padding: const EdgeInsets.all(AppTheme.spacingLg),
       child: Row(
         children: [
           if (icon != null) ...[
             Icon(icon, color: iconColor ?? colors.mutedForeground),
-            const SizedBox(width: AdminTheme.spacingMd),
+            const SizedBox(width: AppTheme.spacingMd),
           ],
           Expanded(
             child: Text(
@@ -877,10 +877,10 @@ class _ModalActions extends StatelessWidget {
     final colors = AdminColors.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-        AdminTheme.spacingLg,
+        AppTheme.spacingLg,
         0,
-        AdminTheme.spacingLg,
-        AdminTheme.spacingLg,
+        AppTheme.spacingLg,
+        AppTheme.spacingLg,
       ),
       child: Row(
         children: [
@@ -889,28 +889,28 @@ class _ModalActions extends StatelessWidget {
               onPressed: onCancel,
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
-                  vertical: AdminTheme.spacingMd,
+                  vertical: AppTheme.spacingMd,
                 ),
                 side: BorderSide(color: colors.border),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                 ),
               ),
               child: const Text('Annuler'),
             ),
           ),
-          const SizedBox(width: AdminTheme.spacingMd),
+          const SizedBox(width: AppTheme.spacingMd),
           Expanded(
             child: ElevatedButton(
               onPressed: onSubmit,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AdminTheme.actionGreen,
-                foregroundColor: AdminTheme.actionGreenForeground,
+                backgroundColor: AppTheme.actionGreen,
+                foregroundColor: AppTheme.actionGreenForeground,
                 padding: const EdgeInsets.symmetric(
-                  vertical: AdminTheme.spacingMd,
+                  vertical: AppTheme.spacingMd,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AdminTheme.radiusLg),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                 ),
               ),
               child: isSubmitting == true
