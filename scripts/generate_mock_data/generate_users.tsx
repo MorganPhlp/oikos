@@ -1,10 +1,12 @@
-// Mot de passe par défaut
 const PASSWORD = "Password123!";
 
 const USERS_INPUT: UserInput[] = [
-  { prenom: "Lucas", nom: "Martin", community: "VIV123" },
-  { prenom: "Emma", nom: "Bernard", community: "VIV123" },
-  { prenom: "Hugo", nom: "Petit", community: "VIV123" },
+  { prenom: "Samy", nom: "Scooby", community: "VIV123" },
+  { prenom: "Marko", nom: "Polo", community: "VIV123" },
+  { prenom: "Julie", nom: "Bernard", community: "VIV123" },
+  { prenom: "Eliott", nom: "Martin", community: "VIV123" },
+  { prenom: "Jacques", nom: "Bernard", community: "VIV123" },
+  { prenom: "Morgan", nom: "Petit", community: "VIV123" },
   { prenom: "Chloe", nom: "Robert", community: "VIV123" },
   { prenom: "Nathan", nom: "Richard", community: "VIV456" },
   { prenom: "Lea", nom: "Durand", community: "VIV456" },
@@ -16,13 +18,8 @@ const USERS_INPUT: UserInput[] = [
   { prenom: "Sarah", nom: "Garnier", community: "VIV789" },
 ];
 
-type UserInput = {
-  prenom: string;
-  nom: string;
-  community: string;
-};
+type UserInput = { prenom: string; nom: string; community: string };
 
-// Structure de l'objet final
 interface GeneratedUser {
   email: string;
   pseudo: string;
@@ -38,10 +35,7 @@ function buildPseudo(prenom: string, nom: string): string {
   return `${prenom}.${nom}`;
 }
 
-/**
- * Transforme un UserInput en objet User complet
- */
-function generateUserData(user: UserInput): GeneratedUser {
+export function generateUserData(user: UserInput): GeneratedUser {
   return {
     email: buildEmail(user.prenom, user.nom),
     pseudo: buildPseudo(user.prenom, user.nom),
@@ -51,12 +45,5 @@ function generateUserData(user: UserInput): GeneratedUser {
 }
 
 export function getGeneratedUsers(): GeneratedUser[] {
-  console.log(`🛠️ Génération de ${USERS_INPUT.length} utilisateurs...`);
-
-  const userList = USERS_INPUT.map((user) => generateUserData(user));
-
-  console.log("✨ Liste générée avec succès.");
-  return userList;
+  return USERS_INPUT.map((user) => generateUserData(user));
 }
-
-console.log(getGeneratedUsers());
