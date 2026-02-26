@@ -18,16 +18,16 @@ INSERT INTO entreprise (id, nom, description, domaine_email, logo_url) VALUES
 ON CONFLICT (id) DO NOTHING;
 
 -- 3. Communauté
-INSERT INTO communaute (code, nom, entreprise_id, description, couleurHEX) VALUES
-('VIV123', 'Viveris Boulogne', (SELECT id FROM entreprise WHERE nom = 'Viveris'), 'Service du meilleur métier', '#4CAF50')
+INSERT INTO communaute (code, nom, entreprise_id, description, couleurHEX,logo_url) VALUES
+('VIV123', 'Viveris Boulogne', (SELECT id FROM entreprise WHERE nom = 'Viveris'), 'Service du meilleur métier', '#4CAF50', 'v_viveris_rouge.png')
 ON CONFLICT (code) DO NOTHING;
 -- communaute fictive pour les tests
-INSERT INTO communaute (code, nom, entreprise_id, description, couleurHEX) VALUES
-('VIV456', 'Viveris Lille', (SELECT id FROM entreprise WHERE nom = 'Viveris'), 'Communauté pour les tests et démonstrations', '#2196F3')
+INSERT INTO communaute (code, nom, entreprise_id, description, couleurHEX, logo_url) VALUES
+('VIV456', 'Viveris Lille', (SELECT id FROM entreprise WHERE nom = 'Viveris'), 'Communauté pour les tests et démonstrations', '#2196F3', 'v_viveris_noir.png')
 ON CONFLICT (code) DO NOTHING;
 -- communaute fictive pour les tests
-INSERT INTO communaute (code, nom, entreprise_id, description, couleurHEX) VALUES
-('VIV789', 'Viveris Casablanca', (SELECT id FROM entreprise WHERE nom = 'Viveris'), 'Communauté pour les tests et démonstrations à Nantes', '#FF5722')
+INSERT INTO communaute (code, nom, entreprise_id, description, couleurHEX, logo_url) VALUES
+('VIV789', 'Viveris Casablanca', (SELECT id FROM entreprise WHERE nom = 'Viveris'), 'Communauté pour les tests et démonstrations à Nantes', '#FF5722', 'v_viveris_orange.png')
 ON CONFLICT (code) DO NOTHING;
 
 
@@ -83,3 +83,8 @@ ON CONFLICT (id) DO UPDATE SET
     impact_score = EXCLUDED.impact_score;
 
 
+INSERT INTO public.limite_actions_freq (frequence,nombre) VALUES
+('quotidienne', 5),
+('hebdomadaire', 8),
+('mensuelle', 8),
+('bonus', 1)

@@ -213,4 +213,3 @@ export async function addFakeBilan(userId: string) {
   }
 }
 
-addFakeBilan("04971e49-2ced-4dc7-bcba-03afc3055771");

@@ -35,10 +35,10 @@ CREATE TABLE IF NOT EXISTS public.actions_en_cours (
 );
 
 CREATE TABLE IF NOT EXISTS public.utilisateur_habitudes (
-    utilisateur_id uuid PRIMARY KEY REFERENCES public.utilisateur(id) ON DELETE CASCADE,
+    utilisateur_id uuid REFERENCES public.utilisateur(id) ON DELETE CASCADE,
     action_id uuid NOT NULL REFERENCES public.actions(id) ON DELETE CASCADE,
     date_ajout timestamptz NOT NULL DEFAULT now(),
-    UNIQUE(utilisateur_id, action_id)
+    PRIMARY KEY (utilisateur_id, action_id)
 );
 
 CREATE TABLE IF NOT EXISTS public.limite_actions_freq(

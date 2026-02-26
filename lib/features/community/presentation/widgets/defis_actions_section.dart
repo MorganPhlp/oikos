@@ -88,7 +88,7 @@ class DefisActionsSection extends StatelessWidget {
                 title: "Actions communautaires",
                 subtitle: "Lance-toi dans un défi collectif",
                 icon: Icons.emoji_events,
-                color: Colors.orange,
+                color: theme.colorScheme.tertiary,
                 onTap: onCommunityActionsTap,
               ),
             ],

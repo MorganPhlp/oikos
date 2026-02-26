@@ -22,6 +22,14 @@ class PromoteToHabitudeOverlay extends StatefulWidget {
 
 class _PromoteToHabitudeOverlayState extends State<PromoteToHabitudeOverlay> {
   final CardSwiperController _controller = CardSwiperController();
+  late List<UserActiveActionEntity> _localActions;
+  bool _isClosing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _localActions = List.from(widget.promotableActions);
+  }
 
   @override
   void dispose() {
@@ -41,14 +49,22 @@ class _PromoteToHabitudeOverlayState extends State<PromoteToHabitudeOverlay> {
     final userId = _getUserId(context);
 
     return BlocListener<ActionsBloc, ActionsState>(
-      listener: (context, state) {
-        if (state is ActionsLoaded) {
-          context.read<HabitudeCubit>().loadHabitudes(userId);
-          final remaining = state.mesActions
+      listenWhen: (previous, current) {
+        if (current is ActionsLoaded) {
+          final remaining = current.mesActions
               .where((a) => a.isPromotable())
               .toList();
-          if (remaining.isEmpty) Navigator.of(context).pop();
+          return remaining.isEmpty && !_isClosing;
         }
+        return false;
+      },
+      listener: (context, state) {
+        _isClosing = true;
+        context.read<HabitudeCubit>().loadHabitudes(userId);
+        final navigator = Navigator.of(context);
+        Future.delayed(const Duration(milliseconds: 200), () {
+          if (mounted) navigator.pop();
+        });
       },
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -66,7 +82,7 @@ class _PromoteToHabitudeOverlayState extends State<PromoteToHabitudeOverlay> {
     return Positioned.fill(
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-        child: Container(color: colorScheme.scrim.withValues(alpha: 0.7)),
+        child: Container(color: colorScheme.scrim.withValues(alpha: 0.3)),
       ),
     );
   }
@@ -121,7 +137,7 @@ class _PromoteToHabitudeOverlayState extends State<PromoteToHabitudeOverlay> {
             "Bravo pour ton assiduité !",
             textAlign: TextAlign.center,
             style: theme.textTheme.headlineSmall?.copyWith(
-              color: theme.colorScheme.onSurface,
+              color: theme.colorScheme.onTertiary,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -130,7 +146,7 @@ class _PromoteToHabitudeOverlayState extends State<PromoteToHabitudeOverlay> {
             "Et si on transformait cette action en véritable habitude ?",
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+              color: theme.colorScheme.onTertiary.withValues(alpha: 0.8),
             ),
           ),
         ],
@@ -154,34 +170,44 @@ class _PromoteToHabitudeOverlayState extends State<PromoteToHabitudeOverlay> {
             child: CardSwiper(
               isLoop: false,
               controller: _controller,
-              cardsCount: widget.promotableActions.length,
-              numberOfCardsDisplayed: widget.promotableActions.length > 1
-                  ? 2
-                  : 1,
+              cardsCount: _localActions.length,
+              numberOfCardsDisplayed: _localActions.length > 1 ? 2 : 1,
               backCardOffset: const Offset(0, 30),
               scale: 0.9,
               padding: const EdgeInsets.only(bottom: 45),
               onSwipe: (prev, curr, direction) {
-                final actionId = widget.promotableActions[prev].action.id;
+                final actionId = _localActions[prev].action.id;
+                final bloc = context.read<ActionsBloc>();
+
                 if (direction == CardSwiperDirection.right) {
-                  context.read<ActionsBloc>().add(
+                  bloc.add(
                     PromoteActionToHabitudeEvent(
                       actionId: actionId,
                       userId: userId,
                     ),
                   );
                 } else {
-                  context.read<ActionsBloc>().add(
+                  bloc.add(
                     RemoveFromMyActionsEvent(
                       userId: userId,
                       actionId: actionId,
                     ),
                   );
                 }
+
+                if (curr == null) {
+                  _isClosing = true;
+                  final navigator = Navigator.of(context);
+                  Future.delayed(const Duration(milliseconds: 300), () {
+                    if (mounted) navigator.pop();
+                  });
+                }
                 return true;
               },
-              cardBuilder: (context, index, x, y) =>
-                  ActionCardToPromote(action: widget.promotableActions[index]),
+              cardBuilder: (context, index, x, y) => ActionCardToPromote(
+                key: ValueKey(_localActions[index].action.id),
+                action: _localActions[index],
+              ),
             ),
           ),
           Positioned(bottom: 10, child: _buildActionButtons(colorScheme)),

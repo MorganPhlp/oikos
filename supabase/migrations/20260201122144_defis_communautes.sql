@@ -1,7 +1,7 @@
 CREATE TYPE defi_statut AS ENUM ('VOTE_LANCEMENT', 'ACTIF', 'TERMINE');
 -- Table principale des défis
 CREATE TABLE IF NOT EXISTS defi (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     titre_personnalise TEXT,
     createur_id UUID REFERENCES utilisateur(id) ON DELETE SET NULL,
     communaute_demandeur_code TEXT REFERENCES communaute(code) ON DELETE SET NULL,
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS defi (
 
 -- Table des votes de lancement (avec choix Oui/Non)
 CREATE TABLE IF NOT EXISTS votes_lancement_defi (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     defi_id UUID REFERENCES defi(id) ON DELETE CASCADE,
     user_id UUID REFERENCES utilisateur(id) ON DELETE CASCADE,
     est_favorable BOOLEAN NOT NULL DEFAULT TRUE, -- TRUE = OUI, FALSE = NON

@@ -113,8 +113,9 @@ class ActionRemoteDataSourceImpl implements ActionRemoteDataSource {
         'action_id': actionId,
       });
     } on PostgrestException catch (e) {
-      if (e.code == '23505')
+      if (e.code == '23505') {
         throw const ServerException('Habitude déjà ajoutée.');
+      }
       throw ServerException(e.message);
     } catch (e) {
       throw ServerException('Erreur ajout habitude: $e');

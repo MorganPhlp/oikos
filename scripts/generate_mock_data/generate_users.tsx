@@ -4,18 +4,16 @@ const PASSWORD = "Password123!";
 const USERS_INPUT: UserInput[] = [
   { prenom: "Lucas", nom: "Martin", community: "VIV123" },
   { prenom: "Emma", nom: "Bernard", community: "VIV123" },
-  { prenom: "Hugo", nom: "Petit", community: "VIV456" },
+  { prenom: "Hugo", nom: "Petit", community: "VIV123" },
   { prenom: "Chloe", nom: "Robert", community: "VIV123" },
   { prenom: "Nathan", nom: "Richard", community: "VIV456" },
-  { prenom: "Lea", nom: "Durand", community: "VIV123" },
-  { prenom: "Enzo", nom: "Moreau", community: "VIV123" },
-  { prenom: "Manon", nom: "Simon", community: "VIV789" },
-  { prenom: "Louis", nom: "Laurent", community: "VIV123" },
-  { prenom: "Camille", nom: "Lefebvre", community: "VIV123" },
-  { prenom: "Mathis", nom: "Garcia", community: "VIV456" },
-  { prenom: "Sarah", nom: "Garnier", community: "VIV123" },
-  { prenom: "Maxime", nom: "Dupuis", community: "VIV123" },
-  { prenom: "Julie", nom: "Lemoine", community: "VIV789" },
+  { prenom: "Lea", nom: "Durand", community: "VIV456" },
+  { prenom: "Enzo", nom: "Moreau", community: "VIV456" },
+  { prenom: "Manon", nom: "Simon", community: "VIV456" },
+  { prenom: "Louis", nom: "Laurent", community: "VIV789" },
+  { prenom: "Camille", nom: "Lefebvre", community: "VIV789" },
+  { prenom: "Mathis", nom: "Garcia", community: "VIV789" },
+  { prenom: "Sarah", nom: "Garnier", community: "VIV789" },
 ];
 
 type UserInput = {

@@ -21,6 +21,7 @@ class MyActionsPage extends StatefulWidget {
 class _MyActionsPageState extends State<MyActionsPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  bool _isPromoteDialogOpen = false;
 
   @override
   void initState() {
@@ -42,12 +43,14 @@ class _MyActionsPageState extends State<MyActionsPage>
       AppUserLoggedIn(user: var u) => u.id,
       _ => '',
     };
+    final HabitudeCubit habitudeCubit = context.read<HabitudeCubit>();
     return MultiBlocListener(
       listeners: [
         BlocListener<ActionsBloc, ActionsState>(
           listenWhen: (previous, current) =>
               current is ActionsLoaded &&
-              current.mesActions.where((a) => a.isCompleted()).isNotEmpty,
+              current.mesActions.where((a) => a.isCompleted()).isNotEmpty &&
+              !_isPromoteDialogOpen,
           listener: (context, state) async {
             if (state is ActionsLoaded) {
               final promotableActions = state.mesActions
@@ -55,8 +58,8 @@ class _MyActionsPageState extends State<MyActionsPage>
                   .toList();
               final actionBloc = context.read<ActionsBloc>();
               final habitudeCubit = context.read<HabitudeCubit>();
-
               if (promotableActions.isNotEmpty) {
+                _isPromoteDialogOpen = true;
                 await showDialog(
                   context: context,
                   builder: (context) => MultiBlocProvider(
@@ -69,6 +72,8 @@ class _MyActionsPageState extends State<MyActionsPage>
                     ),
                   ),
                 );
+                _isPromoteDialogOpen = false;
+                habitudeCubit.loadHabitudes(userId);
               }
             }
           },

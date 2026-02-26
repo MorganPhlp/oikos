@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
 CREATE TABLE IF NOT EXISTS categorie_empreinte (
     nom VARCHAR(255) PRIMARY KEY,
     icone VARCHAR(255) NOT NULL,

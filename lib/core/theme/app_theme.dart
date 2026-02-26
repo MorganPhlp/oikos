@@ -156,6 +156,7 @@ class AppTheme {
         onSurface: AppColors.darkForeground,
         outline: AppColors.darkBorder,
         tertiary: AppColors.orange,
+        onTertiary: AppColors.lightBackground,
         tertiaryContainer: Color(0xFF3E2723),
       ),
 
