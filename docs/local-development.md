@@ -60,6 +60,8 @@ node scripts/serve-web.mjs
 
 Le dernier script sert `build/web` sur localhost:3000 avec repli des routes vers `index.html`. Un hébergeur Web devra assurer le même repli pour `/admin/*`, `/reset-password`, etc.
 
+Sur une machine de 16 Go avec Docker et un IDE ouverts, lancer les builds Web et Android successivement. Gradle est limité à 2 Go de heap et deux workers ; un build release Android a pris environ 23 minutes sur la machine de validation. Un log momentanément silencieux ne suffit pas à conclure que le build est bloqué.
+
 ## Environnements hébergés
 
 Créer une configuration à partir de `config/example.json`, avec URL HTTPS, clé **anon/publishable** et URL de retour propres à staging/production. Ajouter les URLs exactes à la liste autorisée de Supabase Auth, configurer SMTP et vérifier confirmation/récupération de compte. Les exemples locaux ne sont pas des paramètres de production.

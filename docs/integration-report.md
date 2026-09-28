@@ -6,6 +6,8 @@
 
 La branche `codex/integration-production-readiness` part de la branche admin et fusionne master sans réécriture d’historique. Les principaux conflits concernaient l’utilisateur, la session, Auth, le routeur, l’injection, le thème, les modules bilan/dashboard et les migrations. La consolidation sauvegardée, explicitement autorisée, a conservé des copies des fichiers touchés dans `build/integration-backup` (ignoré par Git). Aucun push ni changement sur une base hébergée.
 
+La fusion est enregistrée dans `6b37bc3`, avec parents `a5a18be` et `24a61fe`. Les deux branches sont vérifiées comme ancêtres du résultat. Seule la suppression préexistante de `.claude/settings.local.json` reste hors commit.
+
 Les parcours membres les plus récents viennent de master ; les pages administrateur sont intégrées à leur routeur et à leur session commune. Le schéma distant complet de la branche admin est conservé dans `docs/legacy/admin_remote_schema.sql` comme référence, sans être rejoué comme une migration concurrente.
 
 ## 2. Fonctionnalités préservées
@@ -95,15 +97,17 @@ Les appels Dart ci-dessous sont exécutés par le serveur MCP Dart (équivalents
 | `supabase db lint --local --level warning` | Aucune erreur de schéma |
 | `flutter build web --release --no-pub --dart-define-from-file=config/local.json` | Premier build réussi |
 | `flutter build web --release --no-pub --no-wasm-dry-run --dart-define-from-file=config/local.json` | Build final JavaScript réussi, 335 secondes ; essai exploratoire WASM désactivé |
-| `flutter build apk --release --no-pub --dart-define-from-file=config/local.android.json` | Build avec moteur Publicodes corrigé réussi : 104,9 Mo, 1385 secondes ; génération finale après correction des choix multiples en cours |
+| `flutter build apk --release --no-pub --dart-define-from-file=config/local.android.json` | Build final réussi : APK non signé de 104,9 Mo, 1330 secondes |
 
 Recette navigateur : connexion admin, données de la vue globale, communautés et membres, utilisateurs et profil ; déconnexion ; connexion Alice en largeur 390 px, accueil, catalogue, détail, ajout et validation d’action. La seconde validation du jour est désactivée. Le passage au mode clair puis le retour au système ont été vérifiés dans le profil admin à 1280 px. Captures locales dans `build/manual-action-validation.png` et `build/manual-admin-light.png`. La base finale a été réinitialisée après les tests : 5 comptes fictifs, 2 entreprises, 3 communautés, 32 questions et 4 bilans. La CI est configurée dans `.github/workflows/quality.yml` ; aucune exécution distante n’est revendiquée.
 
-Échecs rencontrés puis corrigés : migrations historiques non rejouables, résolution de rôle depuis le mauvais payload Auth, diagnostics Dart, politique de lecture des participations, fixture du test bilan sans score initial et mémoire JVM insuffisante. Les tests finaux Flutter/API/SQL ne présentent aucun échec.
+Échecs rencontrés puis corrigés : migrations historiques non rejouables, résolution de rôle depuis le mauvais payload Auth, diagnostics Dart, politique de lecture des participations, fixture du test bilan sans score initial, moteur Web renvoyant zéro et mémoire JVM insuffisante. Les tests finaux Flutter/moteur/API/SQL ne présentent aucun échec. L’exécution Node via `node --test` a été refusée par le sandbox Windows (`spawn EPERM`) ; l’exécution directe du même fichier `node scripts/publicodes.test.mjs` passe ses quatre tests.
 
 Le rechargement de `/admin/profil` conserve également la page après restauration de session (vérifié dans le navigateur). Pour une prévisualisation d’un nouveau build release, le service worker Flutter peut nécessiter un second rechargement après activation de sa nouvelle version ; les tests de rendu ont aussi utilisé une origine locale vierge. Le développement avec `flutter run` évite ce cache de release.
 
 Recette du calcul : le compte nouveau membre a répondu aux questions obligatoires, ignoré les questions voiture/avion inapplicables, choisi ses catégories et un objectif. Le résultat réel affiche **5,2 tonnes CO₂e/an**, sa répartition par catégorie et un équivalent ; aucune erreur console. La lecture SQL confirme 5172,68 kg CO₂e, `complet=true` et la présence du détail. La reprise depuis le profil restaure les réponses et retrouve le même résultat. Capture : `build/manual-bilan-calculated.png`. Le défaut initial à zéro a été identifié pendant cette recette et corrigé avant livraison.
+
+Le dernier reset confirme 5 comptes, 2 entreprises, 3 communautés, 32 questions et 4 bilans de seed. La clé publique du build Web accède encore au catalogue après reset (HTTP 200). Les logs locaux sont dans `build/web-final.log`, `build/android-final.log`, `build/publicodes-tests.log`, `build/database-tests.log` et `build/local-final.log` ; ils sont ignorés par Git.
 
 ## 9. Dette et limites restantes
 
