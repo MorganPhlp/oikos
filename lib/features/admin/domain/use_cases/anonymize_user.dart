@@ -1,5 +1,5 @@
 import 'package:fpdart/fpdart.dart';
-import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:oikos/core/common/domain/interfaces/utilisateurs_rep.dart';
 import 'package:oikos/core/error/failures.dart';
 
@@ -8,7 +8,7 @@ class AnonymizeUser {
 
   AnonymizeUser(this.userRepository);
 
-  Future<Either<Failure, Utilisateurs>> call(Utilisateurs user) async {
+  Future<Either<Failure, UserEntity>> call(UserEntity user) async {
     return await userRepository.anonymizeUser(user);
   }
 }

@@ -14,8 +14,7 @@ class LogosImpl extends LogosRep {
       // 1. Lister tous les fichiers dans le bucket 'logos'
       final List<FileObject> objects = await supabase.storage
           .from('logos')
-          .list(path: companyName.toLowerCase()); 
-      
+          .list(path: companyName.toLowerCase());
 
       // 2. Retourner les chemins relatifs (ex: viveris/logo.png)
       final List<String> urls = objects
@@ -35,6 +34,7 @@ class LogosImpl extends LogosRep {
       return left(Failure("Impossible de charger les logos"));
     }
   }
+
   @override
   Future<Either<Failure, List<String>>> getAvatars() async {
     try {
@@ -42,7 +42,6 @@ class LogosImpl extends LogosRep {
       final List<FileObject> objects = await supabase.storage
           .from('avatars')
           .list();
-      
 
       // 2. Retourner les chemins relatifs (ex: avatar1.png)
       final List<String> urls = objects

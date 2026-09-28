@@ -18,7 +18,7 @@ class FormHeader extends StatelessWidget {
     final colors = AdminColors.of(context);
     return Container(
       padding: const EdgeInsets.all(AppTheme.spacingMd),
-      
+
       child: Row(
         children: [
           const SizedBox(width: AppTheme.spacingSm),
@@ -61,7 +61,7 @@ class FormTextField extends StatelessWidget {
     this.textCapitalization = TextCapitalization.none,
     this.onChanged,
     this.success,
-    this.inputFormatter
+    this.inputFormatter,
   });
 
   @override
@@ -86,7 +86,8 @@ class FormTextField extends StatelessWidget {
           maxLength: maxLength,
           textCapitalization: textCapitalization,
           inputFormatters: [
-            inputFormatter ?? FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+            inputFormatter ??
+                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
             TextInputFormatter.withFunction((oldValue, newValue) {
               return newValue.copyWith(text: newValue.text.toUpperCase());
             }),
@@ -130,7 +131,11 @@ class FormTextField extends StatelessWidget {
     );
   }
 
-  OutlineInputBorder _buildBorder(bool hasError, bool isFocused, Color borderColor) {
+  OutlineInputBorder _buildBorder(
+    bool hasError,
+    bool isFocused,
+    Color borderColor,
+  ) {
     return OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppTheme.radiusLg),
       borderSide: BorderSide(
@@ -272,17 +277,11 @@ class ReadOnlyField extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                value,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
+              Text(value, style: const TextStyle(fontWeight: FontWeight.w600)),
               if (subtitle != null)
                 Text(
                   subtitle!,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: colors.mutedForeground,
-                  ),
+                  style: TextStyle(fontSize: 13, color: colors.mutedForeground),
                 ),
             ],
           ),
@@ -406,7 +405,8 @@ class LogoPickerSection extends StatelessWidget {
           ),
         ),
         child: ClipOval(
-          child: Image.network(StorageUtils.getNetworkUrl('avatars', url),
+          child: Image.network(
+            StorageUtils.getNetworkUrl('avatars', url),
             fit: BoxFit.cover,
             errorBuilder: (_, _, _) => Container(
               color: colors.pageBackground,
@@ -452,10 +452,7 @@ class WarningBox extends StatelessWidget {
           Expanded(
             child: Text(
               message,
-              style: TextStyle(
-                fontSize: 13,
-                color: AppTheme.warningForeground,
-              ),
+              style: TextStyle(fontSize: 13, color: AppTheme.warningForeground),
             ),
           ),
         ],

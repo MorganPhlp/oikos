@@ -1,7 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:oikos/core/error/failures.dart';
 import 'package:oikos/features/admin/domain/interfaces/community_rep.dart';
-import 'package:oikos/features/admin/data/models/models.dart';
+import 'package:oikos/features/admin/domain/models/models.dart';
 
 class CreateCommunity {
   final CommunityRep rep;
@@ -10,16 +10,11 @@ class CreateCommunity {
   Future<Either<Failure, void>> call(Community community) async {
     final codeExistResult = await rep.checkExistCode(community.code);
 
-    return codeExistResult.fold(
-      (failure) => left(failure),
-      (codeExist) async {
-        if (codeExist) {
-          return left(Failure("Le code est déjà existant"));
-        }
-        return await rep.createCommunity(
-          community
-        );
-      },
-    );
+    return codeExistResult.fold((failure) => left(failure), (codeExist) async {
+      if (codeExist) {
+        return left(Failure("Le code est déjà existant"));
+      }
+      return await rep.createCommunity(community);
+    });
   }
 }

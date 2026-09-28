@@ -1,6 +1,7 @@
+import 'package:oikos/core/common/presentation/extensions/asset_urls.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/features/admin/presentation/bloc/users_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/users_event.dart';
@@ -9,7 +10,7 @@ import 'package:oikos/features/admin/presentation/widget/users_page/user_status_
 /// Affiche les détails complets d'un utilisateur dans un bottom sheet.
 void showUserDetailModal(
   BuildContext context,
-  Utilisateurs user,
+  UserEntity user,
   String? communityName,
 ) {
   showModalBottomSheet(
@@ -19,10 +20,7 @@ void showUserDetailModal(
     backgroundColor: Colors.transparent,
     builder: (_) => BlocProvider.value(
       value: context.read<UsersBloc>(),
-      child: _UserDetailSheet(
-        user: user,
-        communityName: communityName,
-      ),
+      child: _UserDetailSheet(user: user, communityName: communityName),
     ),
   );
 }
@@ -32,13 +30,10 @@ void showUserDetailModal(
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _UserDetailSheet extends StatelessWidget {
-  final Utilisateurs user;
+  final UserEntity user;
   final String? communityName;
 
-  const _UserDetailSheet({
-    required this.user,
-    required this.communityName,
-  });
+  const _UserDetailSheet({required this.user, required this.communityName});
 
   @override
   Widget build(BuildContext context) {
@@ -182,7 +177,7 @@ class _UserDetailSheet extends StatelessWidget {
             colors: colors,
           ),
         ),
-        const SizedBox(width: AppTheme.spacingMd)
+        const SizedBox(width: AppTheme.spacingMd),
       ],
     );
   }

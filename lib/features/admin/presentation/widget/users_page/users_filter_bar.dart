@@ -41,8 +41,8 @@ class UsersFilterSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasActiveFilters = state.searchQuery.isNotEmpty ||
-        state.selectedCommunityCode != null;
+    final hasActiveFilters =
+        state.searchQuery.isNotEmpty || state.selectedCommunityCode != null;
 
     return Wrap(
       spacing: AppTheme.spacingSm,
@@ -55,21 +55,16 @@ class UsersFilterSummary extends StatelessWidget {
           icon: Icons.sort_by_alpha_rounded,
         ),
         if (state.selectedCommunityCode != null)
-          _FilterChip(
-            label: 'Communauté filtrée',
-            icon: Icons.group_rounded,
-          ),
+          _FilterChip(label: 'Communauté filtrée', icon: Icons.group_rounded),
         if (hasActiveFilters)
           TextButton.icon(
             style: TextButton.styleFrom(
               foregroundColor: AppTheme.errorForeground,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             icon: const Icon(Icons.clear_rounded, size: 14),
-            label: const Text('Réinitialiser',
-                style: TextStyle(fontSize: 12)),
+            label: const Text('Réinitialiser', style: TextStyle(fontSize: 12)),
             onPressed: () {
               context.read<UsersBloc>()
                 ..add(UsersSearchChanged(query: ''))
@@ -163,21 +158,23 @@ class _UsersFilterSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppTheme.spacingLg),
-          Text('Filtres & Tri',
-              style: Theme.of(context).textTheme.headlineSmall),
+          Text(
+            'Filtres & Tri',
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
           const SizedBox(height: AppTheme.spacingLg),
-          Text('Recherche',
-              style: Theme.of(context).textTheme.labelMedium),
+          Text('Recherche', style: Theme.of(context).textTheme.labelMedium),
           const SizedBox(height: AppTheme.spacingSm),
           _SearchField(state: state),
           const SizedBox(height: AppTheme.spacingLg),
-          Text('Communauté',
-              style: Theme.of(context).textTheme.labelMedium),
+          Text('Communauté', style: Theme.of(context).textTheme.labelMedium),
           const SizedBox(height: AppTheme.spacingSm),
           _CommunityDropdown(state: state),
           const SizedBox(height: AppTheme.spacingLg),
-          Text('Tri par pseudo',
-              style: Theme.of(context).textTheme.labelMedium),
+          Text(
+            'Tri par pseudo',
+            style: Theme.of(context).textTheme.labelMedium,
+          ),
           const SizedBox(height: AppTheme.spacingSm),
           _SortButtons(state: state),
           const SizedBox(height: AppTheme.spacingLg),
@@ -188,7 +185,10 @@ class _UsersFilterSheet extends StatelessWidget {
                 backgroundColor: AppTheme.actionGreen,
               ),
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Appliquer',style:TextStyle(color: Colors.white)),
+              child: const Text(
+                'Appliquer',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ),
           const SizedBox(height: AppTheme.spacingMd),
@@ -242,9 +242,7 @@ class _SearchFieldState extends State<_SearchField> {
                 icon: const Icon(Icons.clear_rounded, size: 16),
                 onPressed: () {
                   _controller.clear();
-                  context
-                      .read<UsersBloc>()
-                      .add(UsersSearchChanged(query: ''));
+                  context.read<UsersBloc>().add(UsersSearchChanged(query: ''));
                 },
               )
             : null,
@@ -289,9 +287,9 @@ class _CommunityDropdown extends StatelessWidget {
           style: Theme.of(context).textTheme.bodyMedium,
           hint: Text(
             'Toutes les communautés',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: colors.mutedForeground,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: colors.mutedForeground),
           ),
           items: [
             DropdownMenuItem<String?>(
@@ -304,14 +302,16 @@ class _CommunityDropdown extends StatelessWidget {
             ...state.data.communities.map(
               (c) => DropdownMenuItem<String?>(
                 value: c.code,
-                child: Text(c.name,
-                    style: Theme.of(context).textTheme.bodyMedium),
+                child: Text(
+                  c.name,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
               ),
             ),
           ],
-          onChanged: (code) => context
-              .read<UsersBloc>()
-              .add(UsersCommunityFilterChanged(communityCode: code)),
+          onChanged: (code) => context.read<UsersBloc>().add(
+            UsersCommunityFilterChanged(communityCode: code),
+          ),
         ),
       ),
     );
@@ -343,19 +343,17 @@ class _SortToggle extends StatelessWidget {
           ),
         ),
         icon: Icon(
-          isAsc
-              ? Icons.arrow_upward_rounded
-              : Icons.arrow_downward_rounded,
+          isAsc ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
           size: 16,
         ),
         label: Text(isAsc ? 'A → Z' : 'Z → A'),
         onPressed: () => context.read<UsersBloc>().add(
-              UsersSortOrderChanged(
-                sortOrder: isAsc
-                    ? UsersSortOrder.pseudoDesc
-                    : UsersSortOrder.pseudoAsc,
-              ),
-            ),
+          UsersSortOrderChanged(
+            sortOrder: isAsc
+                ? UsersSortOrder.pseudoDesc
+                : UsersSortOrder.pseudoAsc,
+          ),
+        ),
       ),
     );
   }
@@ -375,8 +373,8 @@ class _SortButtons extends StatelessWidget {
             label: 'A → Z',
             isSelected: state.sortOrder == UsersSortOrder.pseudoAsc,
             onTap: () => context.read<UsersBloc>().add(
-                  UsersSortOrderChanged(sortOrder: UsersSortOrder.pseudoAsc),
-                ),
+              UsersSortOrderChanged(sortOrder: UsersSortOrder.pseudoAsc),
+            ),
           ),
         ),
         const SizedBox(width: AppTheme.spacingSm),
@@ -385,8 +383,8 @@ class _SortButtons extends StatelessWidget {
             label: 'Z → A',
             isSelected: state.sortOrder == UsersSortOrder.pseudoDesc,
             onTap: () => context.read<UsersBloc>().add(
-                  UsersSortOrderChanged(sortOrder: UsersSortOrder.pseudoDesc),
-                ),
+              UsersSortOrderChanged(sortOrder: UsersSortOrder.pseudoDesc),
+            ),
           ),
         ),
       ],
@@ -425,10 +423,10 @@ class _SortButton extends StatelessWidget {
           label,
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: isSelected
-                    ? AppTheme.actionGreen
-                    : AdminColors.of(context).mutedForeground,
-              ),
+            color: isSelected
+                ? AppTheme.actionGreen
+                : AdminColors.of(context).mutedForeground,
+          ),
         ),
       ),
     );

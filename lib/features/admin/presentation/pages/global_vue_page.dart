@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:oikos/core/theme/app_theme.dart';
-import 'package:oikos/features/admin/data/models/models.dart';
+import 'package:oikos/features/admin/domain/models/models.dart';
 import 'package:oikos/features/admin/presentation/bloc/carbon_stats_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/carbon_stats_event.dart';
 import 'package:oikos/features/admin/presentation/bloc/carbon_stats_state.dart';
@@ -11,7 +11,7 @@ import 'package:oikos/features/admin/presentation/widget/global_vue_page/global_
 import 'package:oikos/features/admin/presentation/widget/global_vue_page/carbon_evolution_chart.dart';
 
 class GlobalVuePage extends StatefulWidget {
-  final Utilisateurs user;
+  final UserEntity user;
   final Company company;
   const GlobalVuePage({super.key, required this.user, required this.company});
 

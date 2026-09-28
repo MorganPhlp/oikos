@@ -13,8 +13,8 @@ class AppSizes {
     final fontSize = Breakpoints.isMobile(w)
         ? 16.0
         : Breakpoints.isTablet(w)
-            ? 18.0
-            : 20.0;
+        ? 18.0
+        : 20.0;
     return TextStyle(fontSize: fontSize);
   }
 
@@ -25,8 +25,8 @@ class AppSizes {
     final fontSize = Breakpoints.isMobile(w)
         ? 12.0
         : Breakpoints.isTablet(w)
-            ? 13.0
-            : 14.0;
+        ? 13.0
+        : 14.0;
     return TextStyle(fontSize: fontSize);
   }
 
@@ -34,6 +34,10 @@ class AppSizes {
   /// mobile: 20px — tablet: 22px — desktop: 24px
   static double iconSize(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
-    return Breakpoints.isMobile(w) ? 20.0 : Breakpoints.isTablet(w) ? 22.0 : 24.0;
+    return Breakpoints.isMobile(w)
+        ? 20.0
+        : Breakpoints.isTablet(w)
+        ? 22.0
+        : 24.0;
   }
 }

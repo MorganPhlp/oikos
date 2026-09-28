@@ -4,9 +4,5 @@ void showSnackBar(BuildContext context, String content) {
   // Hide any existing SnackBar and show a new one
   ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()
-    ..showSnackBar(
-      SnackBar(
-        content: Text(content),
-      ),
-    );
+    ..showSnackBar(SnackBar(content: Text(content)));
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:oikos/features/admin/data/models/models.dart';
+import 'package:oikos/features/admin/domain/models/models.dart';
 import 'package:oikos/features/admin/domain/entities/kpi_stats.dart';
 import 'global_insights_card.dart';
 
@@ -38,10 +38,10 @@ class GlobalInsightsKPIs extends StatelessWidget {
       cards: [
         // CO₂ Total Économisé
         KPICard(
-          title: 'Taux de Rétention',
+          title: 'Rétention (non mesurée)',
           value: retentionRateKPI != null
               ? retentionRateKPI.j7.toStringAsFixed(1)
-              : '0',
+              : '—',
           unit: '%',
           icon: Icons.refresh,
           color: KPIColor.green,
@@ -51,31 +51,25 @@ class GlobalInsightsKPIs extends StatelessWidget {
               label: 'J7',
               value: retentionRateKPI != null
                   ? retentionRateKPI.j7.toStringAsFixed(1)
-                  : '0',
+                  : '—',
               unit: '%',
-              target: retentionRateKPI != null
-                  ? retentionRateKPI.j7Objective.toStringAsFixed(1)
-                  : '0',
             ),
             KPISubMetric(
               label: 'J30',
               value: retentionRateKPI != null
                   ? retentionRateKPI.j30.toStringAsFixed(1)
-                  : '0',
+                  : '—',
               unit: '%',
-              target: retentionRateKPI != null
-                  ? retentionRateKPI.j30Objective.toStringAsFixed(1)
-                  : '0',
             ),
           ],
         ),
 
-        // Utilisateurs Actifs
+        // UserEntity Actifs
         KPICard(
-          title: 'Taux d\'Usage Hebdomadaire (WAU)',
+          title: 'Taux d\'Usage Quotidien',
           value: dailyUseRateKPI != null
               ? dailyUseRateKPI.dailyUseRate.toStringAsFixed(1)
-              : '0',
+              : '—',
           unit: '%',
           icon: Icons.people,
           color: KPIColor.blue,
@@ -87,7 +81,7 @@ class GlobalInsightsKPIs extends StatelessWidget {
           title: 'Actions Réalisées',
           value: challengesAcceptedKPI != null
               ? numberFormat.format(challengesAcceptedKPI.nbChallenges)
-              : '0',
+              : '—',
           icon: Icons.flag,
           color: KPIColor.purple,
           isLoading: isLoading,
@@ -106,13 +100,8 @@ class GlobalInsightsKPIs extends StatelessWidget {
                   ? carbonFootPrintCompletionRateKPI
                         .carbonFootPrintMinimalCompletionRate
                         .toStringAsFixed(1)
-                  : '0',
+                  : '—',
               unit: '%',
-              target: carbonFootPrintCompletionRateKPI != null
-                  ? carbonFootPrintCompletionRateKPI
-                        .carbonFootPrintMinimalCompletionRateObjective
-                        .toStringAsFixed(1)
-                  : '0',
             ),
             KPISubMetric(
               label: 'Detailled',
@@ -120,13 +109,8 @@ class GlobalInsightsKPIs extends StatelessWidget {
                   ? carbonFootPrintCompletionRateKPI
                         .carbonFootPrintDetailledCompletionRate
                         .toStringAsFixed(1)
-                  : '0',
+                  : '—',
               unit: '%',
-              target: carbonFootPrintCompletionRateKPI != null
-                  ? carbonFootPrintCompletionRateKPI
-                        .carbonFootPrintDetailledCompletionRateObjective
-                        .toStringAsFixed(1)
-                  : '0',
             ),
           ],
         ),

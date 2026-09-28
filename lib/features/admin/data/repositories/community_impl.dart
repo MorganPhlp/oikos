@@ -1,7 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:oikos/core/error/failures.dart';
 import 'package:oikos/core/logger.dart';
-import 'package:oikos/features/admin/data/models/models.dart';
+import 'package:oikos/features/admin/domain/models/models.dart';
 import 'package:oikos/features/admin/domain/interfaces/community_rep.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -37,7 +37,10 @@ class CommunityImpl extends CommunityRep {
     String companyId,
   ) async {
     try {
-      final response = await supabase.from('vue_communaute').select();
+      final response = await supabase
+          .from('vue_communaute')
+          .select()
+          .eq('entreprise_id', companyId);
 
       final communities = response
           .map((json) => Community.fromJson(json))
@@ -97,7 +100,13 @@ class CommunityImpl extends CommunityRep {
       return right(null);
     } on PostgrestException catch (e) {
       logger.e("Erreur Repository", error: e);
-      return left(Failure("Erreur supabase : ${e.message}"));
+      return left(
+        Failure(
+          e.code == '23503'
+              ? "Cette communauté possède un historique de défis. Sa suppression est impossible."
+              : "Impossible de supprimer la communauté.",
+        ),
+      );
     } catch (e) {
       logger.e("Erreur Repository", error: e);
       return left(Failure("Une erreur inattendue est survenue"));

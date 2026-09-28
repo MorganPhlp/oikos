@@ -15,7 +15,7 @@ class AuthValidators {
   }
 
   static String? passwordErrorText(String? password) {
-    if(password == null || password.isEmpty) {
+    if (password == null || password.isEmpty) {
       return 'Veuillez entrer un mot de passe.';
     }
     if (password.length < 8) {

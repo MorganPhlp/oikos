@@ -10,7 +10,7 @@ final class AuthInitial extends AuthState {}
 final class AuthLoading extends AuthState {}
 
 final class AuthSuccess extends AuthState {
-  final Utilisateurs user;
+  final UserEntity user;
   const AuthSuccess(this.user);
 }
 
@@ -34,4 +34,11 @@ final class AuthEmailPasswordVerified extends AuthState {}
 
 final class AuthPseudoVerified extends AuthState {}
 
-final class AuthPasswordUpdated extends AuthState {}
+final class AuthPasswordResetSent extends AuthState {}
+
+final class AuthCredentialsUpdated extends AuthState {
+  final String message;
+  const AuthCredentialsUpdated(this.message);
+}
+
+final class AuthRecoveryRequired extends AuthState {}

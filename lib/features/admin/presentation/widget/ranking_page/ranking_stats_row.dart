@@ -23,24 +23,28 @@ class RankingStatsRow extends StatelessWidget {
     if (isMobile) {
       return Column(
         children: cards
-            .map((c) => Padding(
-                  padding: const EdgeInsets.only(bottom: AppTheme.spacingMd),
-                  child: c,
-                ))
+            .map(
+              (c) => Padding(
+                padding: const EdgeInsets.only(bottom: AppTheme.spacingMd),
+                child: c,
+              ),
+            )
             .toList(),
       );
     }
 
     return Row(
       children: cards
-          .map((c) => Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppTheme.spacingXs,
-                  ),
-                  child: c,
+          .map(
+            (c) => Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppTheme.spacingXs,
                 ),
-              ))
+                child: c,
+              ),
+            ),
+          )
           .toList(),
     );
   }
@@ -53,7 +57,7 @@ class RankingStatsRow extends StatelessWidget {
     final avgScore = communities.isEmpty
         ? 0.0
         : communities.fold<double>(0, (s, c) => s + (c.avgScore ?? 0)) /
-            communities.length;
+              communities.length;
 
     return [
       _StatCard(
@@ -80,16 +84,18 @@ class RankingStatsRow extends StatelessWidget {
     ];
   }
 
-  // ── Utilisateurs ───────────────────────────────────────────────────────────
+  // ── UserEntity ───────────────────────────────────────────────────────────
 
   List<Widget> _userCards(BuildContext context) {
     final users = state.sortedUsers;
     final totalXp = users.fold<int>(0, (s, u) => s + u.impactScoreXp);
     final validScores = users
-        .map((u) => RankingBloc.getLatestCarbonScore(
-              u.id,
-              state.data.carbonFootPrints,
-            ))
+        .map(
+          (u) => RankingBloc.getLatestCarbonScore(
+            u.id,
+            state.data.carbonFootPrints,
+          ),
+        )
         .where((s) => s != double.infinity)
         .toList();
     final avgCo2 = validScores.isEmpty
@@ -173,9 +179,9 @@ class _StatCard extends StatelessWidget {
                 Text(
                   value,
                   style: Theme.of(ctx).textTheme.headlineSmall?.copyWith(
-                        color: iconColor,
-                        fontWeight: FontWeight.w700,
-                      ),
+                    color: iconColor,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ],
             ),

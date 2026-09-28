@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/features/admin/data/models/aggregates/ranking_data.dart';
-import 'package:oikos/features/admin/data/models/core/carbon_foot_print.dart';
+import 'package:oikos/features/admin/domain/models/aggregates/ranking_data.dart';
+import 'package:oikos/features/admin/domain/models/core/carbon_foot_print.dart';
 import 'package:oikos/features/admin/domain/use_cases/get_rankings.dart';
 import 'package:oikos/features/admin/presentation/bloc/ranking_event.dart';
 import 'package:oikos/features/admin/presentation/bloc/ranking_state.dart';
@@ -121,15 +121,15 @@ class RankingBloc extends Bloc<RankingEvent, RankingState> {
       selectedCommunityCode: selectedCommunityCode,
       sortedCommunities: switch (communitySortBy) {
         CommunitySortBy.avgScore => data.sortedCommunitiesByAvgScore(),
-        CommunitySortBy.plantXp  => data.sortedCommunitiesByPlantXp(),
+        CommunitySortBy.plantXp => data.sortedCommunitiesByPlantXp(),
       },
       sortedUsers: switch (userSortBy) {
         UserSortBy.impactScoreXp => data.sortedUsersByImpactScore(
-            communityCode: selectedCommunityCode,
-          ),
+          communityCode: selectedCommunityCode,
+        ),
         UserSortBy.carbonScore => data.sortedUsersByCarbonScore(
-            communityCode: selectedCommunityCode,
-          ),
+          communityCode: selectedCommunityCode,
+        ),
       },
     );
   }

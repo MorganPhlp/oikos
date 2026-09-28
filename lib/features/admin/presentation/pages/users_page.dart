@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/core/theme/breakpoints.dart';
 import 'package:oikos/core/utils/show_snackbar.dart';
-import 'package:oikos/features/admin/data/models/core/company.dart';
+import 'package:oikos/features/admin/domain/models/core/company.dart';
 import 'package:oikos/features/admin/presentation/bloc/users_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/users_event.dart';
 import 'package:oikos/features/admin/presentation/bloc/users_state.dart';
@@ -13,7 +13,7 @@ import 'package:oikos/features/admin/presentation/widget/users_page/users_deskto
 import 'package:oikos/features/admin/presentation/widget/users_page/users_filter_bar.dart';
 
 class UsersPage extends StatefulWidget {
-  final Utilisateurs user;
+  final UserEntity user;
   final Company company;
 
   const UsersPage({super.key, required this.user, required this.company});
@@ -228,14 +228,10 @@ class _UsersContent extends StatelessWidget {
               .where((c) => c.code == user.codeCommunaute)
               .firstOrNull
               ?.name;
-         
 
           return Padding(
             padding: const EdgeInsets.only(bottom: AppTheme.spacingSm),
-            child: UserMobileCard(
-              user: user,
-              communityName: communityName,
-            ),
+            child: UserMobileCard(user: user, communityName: communityName),
           );
         }).toList(),
       );

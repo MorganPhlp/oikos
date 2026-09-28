@@ -1,5 +1,5 @@
-import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
-import 'package:oikos/features/admin/data/models/models.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
+import 'package:oikos/features/admin/domain/models/models.dart';
 
 import 'package:oikos/features/admin/presentation/pages/community_management_page.dart';
 
@@ -13,7 +13,7 @@ abstract class CommunityEvent {}
 class NavigateToMobileViewEvent extends CommunityEvent {
   final MobileView view;
   final Community? community;
-  final Utilisateurs? user;
+  final UserEntity? user;
 
   NavigateToMobileViewEvent({required this.view, this.community, this.user});
 }
@@ -37,7 +37,7 @@ class UpdateCommunityCodeEvent extends CommunityEvent {
 }
 
 class UpdateUserEvent extends CommunityEvent {
-  final Utilisateurs user;
+  final UserEntity user;
 
   UpdateUserEvent({required this.user});
 }
@@ -72,7 +72,7 @@ class RemoveUserFromCommunityEvent extends CommunityEvent {
 
 /// Sélectionne un utilisateur pour une action (changement de communauté, etc.)
 class SelectUserEvent extends CommunityEvent {
-  final Utilisateurs user;
+  final UserEntity user;
 
   SelectUserEvent({required this.user});
 }

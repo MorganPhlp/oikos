@@ -1,9 +1,10 @@
+import 'package:oikos/core/common/presentation/extensions/asset_urls.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/core/utils/utils.dart';
-import 'package:oikos/features/admin/data/models/models.dart';
+import 'package:oikos/features/admin/domain/models/models.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_event.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_state.dart';
@@ -17,7 +18,7 @@ import 'card_widgets.dart';
 /// Écran principal mobile affichant la liste des communautés
 class MobileCommunityList extends StatelessWidget {
   final List<Community> communities;
-  final List<Utilisateurs> users;
+  final List<UserEntity> users;
   final VoidCallback onCreateCommunity;
   final Function(Community) onViewMembers;
   final Function(Community) onEditCode;
@@ -137,10 +138,10 @@ class MobileCommunityList extends StatelessWidget {
 /// Écran mobile affichant les membres d'une communauté
 class MobileMembersList extends StatelessWidget {
   final Community community;
-  final List<Utilisateurs> users;
+  final List<UserEntity> users;
   final VoidCallback onBack;
-  final Function(Utilisateurs) onChangeUserCommunity;
-  final Function(Utilisateurs) onRemoveUserFromCommunity;
+  final Function(UserEntity) onChangeUserCommunity;
+  final Function(UserEntity) onRemoveUserFromCommunity;
 
   const MobileMembersList({
     super.key,
@@ -296,8 +297,9 @@ class _MobileCreateCommunityState extends State<MobileCreateCommunity> {
 
   String? _validateCode(String code) {
     if (code.isEmpty) return 'Le code est requis';
-    if (code.length != 6)
+    if (code.length != 6) {
       return 'Le code doit contenir exactement 6 caractères';
+    }
     return null;
   }
 
@@ -382,9 +384,7 @@ class _MobileCreateCommunityState extends State<MobileCreateCommunity> {
                       const SizedBox(height: AppTheme.spacingMd),
                       Text(
                         errorMessage,
-                        style: const TextStyle(
-                          color: AppTheme.errorForeground,
-                        ),
+                        style: const TextStyle(color: AppTheme.errorForeground),
                       ),
                     ],
                   ],

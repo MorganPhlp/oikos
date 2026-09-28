@@ -1,0 +1,18 @@
+abstract class SimulationRepository {
+  /// Initialise le moteur de simulation (charge le JS et les règles)
+  Future<void> init();
+
+  /// Clears the previous questionnaire, including after an account change.
+  void resetSituation();
+
+  /// Met à jour la situation avec de nouvelles réponses
+  void updateSituation(Map<String, dynamic> reponses);
+
+  /// Vérifie si une question est pertinente pour la suite
+  Future<bool> isQuestionApplicable(String questionSlug);
+
+  Map<String, dynamic> getAccumulatedSituation();
+  Future<double> getScore({String objective = "bilan"});
+
+  Future<Map<String, double>> computeScoresByCategory();
+}

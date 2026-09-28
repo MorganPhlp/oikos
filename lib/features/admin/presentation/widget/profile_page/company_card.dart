@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/common/cubits/app_user/app_user_cubit.dart';
+import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
 import 'package:oikos/core/theme/app_theme.dart';
-import 'package:oikos/features/admin/data/models/models.dart';
+import 'package:oikos/features/admin/domain/models/models.dart';
 import 'package:oikos/features/admin/presentation/bloc/profile_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/profile_event.dart';
 import 'package:oikos/features/admin/presentation/bloc/profile_state.dart';
@@ -27,8 +27,7 @@ class _CompanyCardState extends State<CompanyCard> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.company.name);
-    _domainController =
-        TextEditingController(text: widget.company.domainEmail);
+    _domainController = TextEditingController(text: widget.company.domainEmail);
   }
 
   @override
@@ -77,9 +76,7 @@ class _CompanyCardState extends State<CompanyCard> {
         if (state is! ProfileLoaded) return;
         if (state.companyStatus == SectionStatus.success) {
           showProfileSnackBar(context, "Informations entreprise mises à jour");
-          context
-              .read<AppUserCubit>()
-              .updateUser(state.user, company: state.company);
+          context.read<AppUserCubit>().updateUser(state.user);
           context.read<ProfileBloc>().add(
             ProfileResetStatus(section: ProfileSection.company),
           );

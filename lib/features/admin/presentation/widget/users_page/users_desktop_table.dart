@@ -1,14 +1,15 @@
+import 'package:oikos/core/common/presentation/extensions/asset_urls.dart';
 import 'package:flutter/material.dart';
-import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:oikos/core/theme/app_theme.dart';
-import 'package:oikos/features/admin/data/models/core/community.dart';
+import 'package:oikos/features/admin/domain/models/core/community.dart';
 
 import 'package:oikos/features/admin/presentation/widget/users_page/user_detail_modal.dart';
 import 'package:oikos/features/admin/presentation/widget/users_page/user_status_badge.dart';
 
 /// Tableau desktop affichant la liste des utilisateurs avec colonnes triables.
 class UsersDesktopTable extends StatelessWidget {
-  final List<Utilisateurs> users;
+  final List<UserEntity> users;
   final List<Community> communities;
 
   const UsersDesktopTable({
@@ -19,8 +20,6 @@ class UsersDesktopTable extends StatelessWidget {
 
   String? _communityName(String code) =>
       communities.where((c) => c.code == code).firstOrNull?.name;
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +121,7 @@ class _HeaderCell extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _TableRow extends StatefulWidget {
-  final Utilisateurs user;
+  final UserEntity user;
   final String? communityName;
   final AdminColors colors;
 
@@ -147,11 +146,8 @@ class _TableRowState extends State<_TableRow> {
       onExit: (_) => setState(() => _hovered = false),
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
-        onTap: () => showUserDetailModal(
-          context,
-          widget.user,
-          widget.communityName,
-        ),
+        onTap: () =>
+            showUserDetailModal(context, widget.user, widget.communityName),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
           color: _hovered ? colors.accent : Colors.transparent,

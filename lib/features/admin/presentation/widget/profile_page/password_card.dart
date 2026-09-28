@@ -62,8 +62,7 @@ class _PasswordCardState extends State<PasswordCard> {
         } else if (state.passwordStatus == SectionStatus.failure) {
           showProfileSnackBar(
             context,
-            state.passwordError ??
-                'Erreur lors du changement de mot de passe',
+            state.passwordError ?? 'Erreur lors du changement de mot de passe',
             isError: true,
           );
           context.read<ProfileBloc>().add(

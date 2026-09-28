@@ -1,5 +1,6 @@
+import 'package:oikos/core/common/presentation/extensions/asset_urls.dart';
 import 'package:flutter/material.dart';
-import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/features/admin/presentation/widget/users_page/user_detail_modal.dart';
 import 'package:oikos/features/admin/presentation/widget/users_page/user_status_badge.dart';
@@ -7,7 +8,7 @@ import 'package:oikos/features/admin/presentation/widget/users_page/user_status_
 /// Carte mobile affichant les informations essentielles d'un utilisateur.
 /// Ouvre le détail complet au tap.
 class UserMobileCard extends StatelessWidget {
-  final Utilisateurs user;
+  final UserEntity user;
   final String? communityName;
 
   const UserMobileCard({
@@ -20,8 +21,7 @@ class UserMobileCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = AdminColors.of(context);
     return InkWell(
-      onTap: () =>
-          showUserDetailModal(context, user, communityName),
+      onTap: () => showUserDetailModal(context, user, communityName),
       borderRadius: BorderRadius.circular(AppTheme.radiusXl),
       child: Container(
         decoration: colors.cardDecoration,

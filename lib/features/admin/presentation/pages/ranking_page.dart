@@ -1,9 +1,10 @@
+import 'package:oikos/core/common/presentation/extensions/asset_urls.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/core/theme/breakpoints.dart';
-import 'package:oikos/features/admin/data/models/models.dart';
+import 'package:oikos/features/admin/domain/models/models.dart';
 import 'package:oikos/features/admin/presentation/bloc/ranking_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/ranking_event.dart';
 import 'package:oikos/features/admin/presentation/bloc/ranking_state.dart';
@@ -12,7 +13,7 @@ import 'package:oikos/features/admin/presentation/widget/ranking_page/ranking_it
 import 'package:oikos/features/admin/presentation/widget/ranking_page/ranking_stats_row.dart';
 
 class RankingPage extends StatefulWidget {
-  final Utilisateurs user;
+  final UserEntity user;
   final Company company;
 
   const RankingPage({super.key, required this.user, required this.company});
@@ -213,8 +214,8 @@ class _RankingContent extends StatelessWidget {
         final metricDisplay = isInactive
             ? '—'
             : sortBy == CommunitySortBy.avgScore
-                ? '${rawValue.toStringAsFixed(1)} kg CO₂'
-                : '${c.plantXp ?? 0} XP';
+            ? '${rawValue.toStringAsFixed(1)} kg CO₂'
+            : '${c.plantXp ?? 0} XP';
 
         return Padding(
           padding: const EdgeInsets.only(bottom: AppTheme.spacingMd),
@@ -302,8 +303,8 @@ class _RankingContent extends StatelessWidget {
         final metricDisplay = isInactive
             ? '—'
             : sortBy == UserSortBy.impactScoreXp
-                ? '${u.impactScoreXp} XP'
-                : '${rawValue.toStringAsFixed(1)} kg CO₂';
+            ? '${u.impactScoreXp} XP'
+            : '${rawValue.toStringAsFixed(1)} kg CO₂';
 
         return Padding(
           padding: const EdgeInsets.only(bottom: AppTheme.spacingMd),

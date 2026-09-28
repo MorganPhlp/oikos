@@ -1,10 +1,11 @@
+import 'package:oikos/core/common/presentation/extensions/asset_urls.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/core/utils/utils.dart';
-import 'package:oikos/features/admin/data/models/models.dart';
+import 'package:oikos/features/admin/domain/models/models.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_event.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_state.dart';
@@ -77,9 +78,7 @@ class _LogoPickerModalState extends State<LogoPickerModal> {
                   child: Row(
                     children: [
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(
-                          AppTheme.radiusXxl,
-                        ),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusXxl),
                         child: Image.network(
                           community.avatarNetworkUrl,
                           width: 48,
@@ -284,8 +283,9 @@ class _CreateCommunityModalState extends State<CreateCommunityModal> {
 
   String? _validateCode(String code) {
     if (code.isEmpty) return 'Le code est requis';
-    if (code.length != 6)
+    if (code.length != 6) {
       return 'Le code doit contenir exactement 6 caractères';
+    }
     return null;
   }
 
@@ -670,7 +670,7 @@ class MembersListModal extends StatelessWidget {
 
   Widget _buildMembersList(
     BuildContext context,
-    List<Utilisateurs> users,
+    List<UserEntity> users,
     Community community,
   ) {
     return ListView.separated(
@@ -695,7 +695,7 @@ class MembersListModal extends StatelessWidget {
     );
   }
 
-  void _showChangeModal(BuildContext context, Utilisateurs user) {
+  void _showChangeModal(BuildContext context, UserEntity user) {
     final bloc = context.read<CommunityBloc>();
     bloc.add(SelectUserEvent(user: user));
     showDialog(

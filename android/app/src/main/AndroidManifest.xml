@@ -2,13 +2,13 @@
     <!-- Permissions -->
     <uses-permission android:name="android.permission.INTERNET" /> <!-- Flutter needs this permission to access the internet -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/> <!-- Allows applications to access information about networks -->
-
+    <uses-permission android:name="android.permission.CAMERA"/> <!-- Allows access to camera -->
     <!-- Application Declaration -->
     <application
         android:label="oikos"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="false">
 
         <!-- Main Activity Declaration -->
         <activity
@@ -33,6 +33,12 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="io.supabase.oikos" android:host="login-callback"/>
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.

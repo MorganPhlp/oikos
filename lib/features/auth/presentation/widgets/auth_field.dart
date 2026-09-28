@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:oikos/core/theme/app_colors.dart';
+// Plus besoin d'importer app_colors.dart ici, on passe par le Theme
 
 class AuthField extends StatelessWidget {
   final String hintText;
-  final IconData ? prefixIcon;
+  final IconData? prefixIcon;
   final TextEditingController controller;
   final bool isPassword;
   final String? Function(String?)? validator;
@@ -28,23 +28,33 @@ class AuthField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // On récupère la couleur active du thème (Light ou Dark)
+    final primaryColor = Theme.of(context).colorScheme.primary;
+
     return TextFormField(
       controller: controller,
       obscureText: isObscured,
       validator: validator,
-      // style: const TextStyle(color: AppColors.lightTextPrimary),
+      inputFormatters: inputFormatters,
+      maxLength: maxLength > 0 ? maxLength : null,
       decoration: InputDecoration(
         hintText: hintText,
-        prefixIcon: Icon(prefixIcon, color: AppColors.lightIconPrimary),
+        counterText: "", // Cache le compteur
+        // L'icône prend la couleur du thème
+        prefixIcon: prefixIcon != null
+            ? Icon(prefixIcon, color: primaryColor)
+            : null,
         suffixIcon: isPassword
-          ? IconButton(
-            icon: Icon(
-              isObscured ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-              color: AppColors.lightIconPrimary,
-            ),
-            onPressed: onToggleVisibility,
-          )
-          : null,
+            ? IconButton(
+                icon: Icon(
+                  isObscured
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                  color: primaryColor,
+                ),
+                onPressed: onToggleVisibility,
+              )
+            : null,
       ),
     );
   }

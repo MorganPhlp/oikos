@@ -9,7 +9,7 @@ class Breakpoints {
   // Helpers pour vérifier le type d'écran
   static bool isMobile(double width) => width < mobile;
   static bool isTablet(double width) => width >= mobile && width < tablet;
-  static bool isDesktop(double width) => width >= tablet ;
+  static bool isDesktop(double width) => width >= tablet;
 
   // Obtenir le type d'écran
   static ScreenType getScreenType(double width) {
@@ -24,15 +24,12 @@ enum ScreenType { mobile, tablet, desktop }
 /// Extension pour faciliter l'accès aux dimensions responsives
 extension ResponsiveExtension on double {
   /// Retourne une valeur selon la largeur d'écran
-  T responsive<T>({
-    required T mobile,
-    T? tablet,
-    T? desktop,
-  }) {
+  T responsive<T>({required T mobile, T? tablet, T? desktop}) {
     if (this >= Breakpoints.desktop) return desktop ?? tablet ?? mobile;
-    if (this >= Breakpoints.tablet) return tablet ?? mobile; // Corrigé : n'utilise plus desktop en fallback
+    if (this >= Breakpoints.tablet) {
+      return tablet ?? mobile; // Corrigé : n'utilise plus desktop en fallback
+    }
     if (this >= Breakpoints.mobile) return tablet ?? mobile;
     return mobile;
   }
 }
-

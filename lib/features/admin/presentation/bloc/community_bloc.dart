@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/features/admin/data/models/models.dart';
+import 'package:oikos/features/admin/domain/models/models.dart';
 import 'package:oikos/features/admin/domain/use_cases/create_community.dart';
 import 'package:oikos/features/admin/domain/use_cases/delete_community.dart';
 import 'package:oikos/features/admin/domain/use_cases/get_logos.dart';
@@ -529,10 +529,7 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
         result.fold(
           (failure) => emit(currentState.copyWith(isLoadingLogos: false)),
           (logos) => emit(
-            currentState.copyWith(
-              availableLogos: logos,
-              isLoadingLogos: false,
-            ),
+            currentState.copyWith(availableLogos: logos, isLoadingLogos: false),
           ),
         );
       }
@@ -572,8 +569,8 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
               communities: updatedCommunities,
             );
 
-            final updatedSelected = currentState.selectedCommunity?.code ==
-                    event.communityCode
+            final updatedSelected =
+                currentState.selectedCommunity?.code == event.communityCode
                 ? currentState.selectedCommunity!.copyWith(
                     logoUrl: event.logoUrl,
                   )

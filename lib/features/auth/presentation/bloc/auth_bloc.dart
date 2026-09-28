@@ -1,21 +1,27 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/common/cubits/app_user/app_user_cubit.dart';
-import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
-import 'package:oikos/features/admin/domain/use_cases/get_company_info.dart';
+import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
 import 'package:oikos/features/auth/domain/usecases/current_user.dart';
+import 'package:oikos/features/auth/domain/usecases/delete_account.dart';
+import 'package:oikos/features/auth/domain/usecases/reset_password.dart';
+import 'package:oikos/features/auth/domain/usecases/update_credentials.dart';
+import 'package:oikos/features/auth/domain/usecases/update_user.dart';
 import 'package:oikos/features/auth/domain/usecases/user_signin.dart';
+import 'package:oikos/features/auth/domain/usecases/user_signout.dart';
 import 'package:oikos/features/auth/domain/usecases/user_signup.dart';
 import 'package:oikos/features/auth/domain/usecases/validate_email_password.dart';
 import 'package:oikos/features/auth/domain/usecases/validate_pseudo.dart';
 
-import '../../../../core/common/domain/usecase/usecase.dart';
+import '../../../../core/usecase/usecase.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
+  late final StreamSubscription<SessionChange> _sessionSubscription;
   final UserSignup _userSignup;
   final UserSignin _userSignin;
   final CurrentUser _currentUser;
@@ -23,7 +29,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository _authRepository;
   final ValidateEmailPassword _validateEmailPassword;
   final ValidatePseudo _validatePseudo;
-  final GetCompanyInfo _getCompanyInfo;
+  final UserSignOut _userSignOut;
+  final ResetPassword _resetPassword;
+  final UpdateUser _updateUser;
+  final DeleteAccount _deleteAccount;
+  final UpdateCredentials _updateCredentials;
 
   AuthBloc({
     required UserSignup userSignup,
@@ -33,7 +43,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required AuthRepository authRepository,
     required ValidateEmailPassword validateEmailPassword,
     required ValidatePseudo validatePseudo,
-    required GetCompanyInfo getCompanyInfo,
+    required UserSignOut userSignOut,
+    required ResetPassword resetPassword,
+    required UpdateUser updateUser,
+    required DeleteAccount deleteAccount,
+    required UpdateCredentials updateCredentials,
   }) : _userSignin = userSignin,
        _userSignup = userSignup,
        _currentUser = currentUser,
@@ -41,9 +55,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
        _authRepository = authRepository,
        _validateEmailPassword = validateEmailPassword,
        _validatePseudo = validatePseudo,
-       _getCompanyInfo = getCompanyInfo,
+       _userSignOut = userSignOut,
+       _resetPassword = resetPassword,
+       _updateUser = updateUser,
+       _deleteAccount = deleteAccount,
+       _updateCredentials = updateCredentials,
        super(AuthInitial()) {
-    // Suppression du handler global qui causait les bugs de chargement et d'erreurs
+    on<AuthSessionChanged>((event, emit) async {
+      if (event.change == SessionChange.signedOut) {
+        await _appUserCubit.updateUser(null);
+        emit(AuthInitial());
+      } else if (event.change == SessionChange.passwordRecovery) {
+        emit(AuthRecoveryRequired());
+      } else {
+        add(AuthIsUserLoggedIn());
+      }
+    });
+    _sessionSubscription = _authRepository.sessionChanges.listen((change) {
+      if (!isClosed) add(AuthSessionChanged(change));
+    }, onError: (Object error, StackTrace stack) => addError(error, stack));
+    on<AuthResetState>((event, emit) => emit(AuthInitial()));
     on<AuthSignUp>(_onAuthSignUp);
     on<AuthSignIn>(_onAuthSignIn);
     on<AuthIsUserLoggedIn>(_onAuthIsUserLoggedIn);
@@ -51,21 +82,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthLoadCompanyInfo>(_onAuthLoadCompanyInfo);
     on<AuthValidateEmailPassword>(_onAuthValidateEmailPassword);
     on<AuthValidatePseudo>(_onAuthValidatePseudo);
-    on<AuthLogout>(_onAuthLogout);
-    on<AuthUpdatePasswordRequested>(_onAuthChangePassword);
-  }
-
-  void _onAuthChangePassword(
-    AuthUpdatePasswordRequested event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(AuthLoading());
-    final res = await _authRepository.updatePassword(event.newPassword);
-
-    res.fold(
-      (failure) => emit(AuthFailure(failure.message)),
-      (_) => emit(AuthPasswordUpdated()),
-    );
+    on<AuthSignOut>(_onAuthSignOut);
+    on<AuthResetPassword>(_onAuthResetPassword);
+    on<AuthUpdateUser>(_onAuthUpdateUser);
+    on<AuthDeleteAccount>(_onAuthDeleteAccount);
+    on<AuthUpdateCredentials>(_onAuthUpdateCredentials);
   }
 
   void _onAuthIsUserLoggedIn(
@@ -77,7 +98,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     await res.fold(
       (failure) async => emit(AuthFailure(failure.message)),
-      (user) async => await _emitAuthSuccess(user, emit),
+      (user) => _emitAuthSuccess(user, emit),
     );
   }
 
@@ -94,8 +115,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     await res.fold(
       (failure) async => emit(AuthFailure(failure.message)),
-      (user) async => await _emitAuthSuccess(user, emit),
+      (user) => _emitAuthSuccess(user, emit),
     );
+  }
+
+  void _onAuthSignOut(AuthSignOut event, Emitter<AuthState> emit) async {
+    final res = await _userSignOut(NoParams());
+    res.fold((l) => emit(AuthFailure(l.message)), (r) {
+      //on vide le Cubit Utilisateur
+      // Le Router va détecter le changement et rediriger vers '/'
+      _appUserCubit.updateUser(null);
+      emit(AuthInitial());
+    });
   }
 
   void _onAuthSignIn(AuthSignIn event, Emitter<AuthState> emit) async {
@@ -106,7 +137,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     await res.fold(
       (failure) async => emit(AuthFailure(failure.message)),
-      (user) async => await _emitAuthSuccess(user, emit),
+      (user) => _emitAuthSuccess(user, emit),
     );
   }
 
@@ -172,28 +203,89 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  void _onAuthLogout(AuthLogout event, Emitter<AuthState> emit) async {
-    final res = await _authRepository.signOut();
+  void _onAuthResetPassword(
+    AuthResetPassword event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+    final res = await _resetPassword(event.email);
+
+    res.fold(
+      (failure) => emit(AuthFailure(failure.message)),
+      (_) => emit(AuthPasswordResetSent()),
+    );
+  }
+
+  void _onAuthUpdateUser(AuthUpdateUser event, Emitter<AuthState> emit) async {
+    emit(AuthLoading());
+    final res = await _updateUser(
+      UpdateUserParams(
+        pseudo: event.pseudo,
+        avatar: event.avatar,
+        isActive: event.isActive,
+      ),
+    );
+
+    await res.fold(
+      (failure) async => emit(AuthFailure(failure.message)),
+      (user) => _emitAuthSuccess(user, emit),
+    );
+  }
+
+  void _onAuthDeleteAccount(
+    AuthDeleteAccount event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+    final res = await _deleteAccount(NoParams());
+
     res.fold((failure) => emit(AuthFailure(failure.message)), (_) {
+      // On vide le Cubit Utilisateur comme lors d'une déconnexion normale
+      // Le Router va détecter le changement et rediriger vers '/'
       _appUserCubit.updateUser(null);
       emit(AuthInitial());
     });
   }
 
-  Future<void> _emitAuthSuccess(
-    Utilisateurs user,
+  void _onAuthUpdateCredentials(
+    AuthUpdateCredentials event,
     Emitter<AuthState> emit,
   ) async {
-    if (user.entrepriseId.isNotEmpty) {
-      final companyRes = await _getCompanyInfo(user.entrepriseId);
-      companyRes.fold(
-        (_) => _appUserCubit.updateUser(user),
-        (company) => _appUserCubit.updateUser(user, company: company),
-      );
-    } else {
-      _appUserCubit.updateUser(user);
-    }
+    emit(AuthLoading());
+    final res = await _updateCredentials(
+      UpdateCredentialsParams(email: event.email, password: event.password),
+    );
 
-    emit(AuthSuccess(user));
+    res.fold((failure) => emit(AuthFailure(failure.message)), (_) {
+      String message = 'Credentials updated successfully.';
+      if (event.email != null) {
+        message =
+            'A confirmation email has been sent to ${event.email}. Please verify to complete the update.';
+      }
+      emit(AuthCredentialsUpdated(message));
+
+      emit(AuthInitial());
+    });
+  }
+
+  Future<void> _emitAuthSuccess(
+    UserEntity user,
+    Emitter<AuthState> emit,
+  ) async {
+    await _appUserCubit.updateUser(user);
+    if (emit.isDone) return;
+    if (_appUserCubit.state is AppUserLoggedIn) {
+      emit(AuthSuccess(user));
+    } else {
+      emit(
+        const AuthFailure('Profil indisponible ou compte désactivé. Réessaie.'),
+      );
+    }
+  }
+
+  @override
+  Future<void> close() async {
+    await _sessionSubscription.cancel();
+    return super.close();
   }
 }

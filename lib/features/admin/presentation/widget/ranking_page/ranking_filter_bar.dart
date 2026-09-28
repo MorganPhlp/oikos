@@ -20,7 +20,7 @@ class RankingFilterBar extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ── Toggle Communautés / Utilisateurs ────────────────────────────
+        // ── Toggle Communautés / UserEntity ────────────────────────────
         Row(
           children: [
             _TypeButton(
@@ -28,9 +28,8 @@ class RankingFilterBar extends StatelessWidget {
               icon: Icons.group_rounded,
               selected: state.rankingType == RankingType.communities,
               onTap: () => context.read<RankingBloc>().add(
-                    RankingTypeChanged(
-                        rankingType: RankingType.communities),
-                  ),
+                RankingTypeChanged(rankingType: RankingType.communities),
+              ),
             ),
             const SizedBox(width: AppTheme.spacingSm),
             _TypeButton(
@@ -38,8 +37,8 @@ class RankingFilterBar extends StatelessWidget {
               icon: Icons.person_rounded,
               selected: state.rankingType == RankingType.users,
               onTap: () => context.read<RankingBloc>().add(
-                    RankingTypeChanged(rankingType: RankingType.users),
-                  ),
+                RankingTypeChanged(rankingType: RankingType.users),
+              ),
             ),
           ],
         ),
@@ -64,9 +63,7 @@ class RankingFilterBar extends StatelessWidget {
             ],
             onChanged: (v) {
               if (v == null) return;
-              context
-                  .read<RankingBloc>()
-                  .add(CommunitySortChanged(sortBy: v));
+              context.read<RankingBloc>().add(CommunitySortChanged(sortBy: v));
             },
           )
         else
@@ -89,9 +86,7 @@ class RankingFilterBar extends StatelessWidget {
                   ],
                   onChanged: (v) {
                     if (v == null) return;
-                    context
-                        .read<RankingBloc>()
-                        .add(UserSortChanged(sortBy: v));
+                    context.read<RankingBloc>().add(UserSortChanged(sortBy: v));
                   },
                 ),
               ),
@@ -115,10 +110,10 @@ class RankingFilterBar extends StatelessWidget {
                   ],
                   onChanged: (v) {
                     context.read<RankingBloc>().add(
-                          CommunityFilterChanged(
-                            communityCode: v == 'all' ? null : v,
-                          ),
-                        );
+                      CommunityFilterChanged(
+                        communityCode: v == 'all' ? null : v,
+                      ),
+                    );
                   },
                 ),
               ),
@@ -128,10 +123,7 @@ class RankingFilterBar extends StatelessWidget {
         const SizedBox(height: AppTheme.spacingSm),
 
         // ── Texte résumé ─────────────────────────────────────────────────
-        Text(
-          _summaryText(state),
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
+        Text(_summaryText(state), style: Theme.of(context).textTheme.bodySmall),
       ],
     );
   }
@@ -140,8 +132,9 @@ class RankingFilterBar extends StatelessWidget {
     final sortLabel = s.rankingType == RankingType.communities
         ? _communitySortLabel(s.communitySortBy)
         : _userSortLabel(s.userSortBy);
-    final type =
-        s.rankingType == RankingType.communities ? 'communautés' : 'utilisateurs';
+    final type = s.rankingType == RankingType.communities
+        ? 'communautés'
+        : 'utilisateurs';
     return 'Les $type sont classé(e)s par $sortLabel';
   }
 }
@@ -166,7 +159,7 @@ class RankingFilterSummary extends StatelessWidget {
           label: 'Type',
           value: state.rankingType == RankingType.communities
               ? 'Communautés'
-              : 'Utilisateurs',
+              : 'UserEntity',
           color: AppTheme.actionGreenLight,
           textColor: AppTheme.actionGreen,
         ),
@@ -184,7 +177,8 @@ class RankingFilterSummary extends StatelessWidget {
           const SizedBox(height: AppTheme.spacingXs),
           _SummaryRow(
             label: 'Communauté',
-            value: state.data.communities
+            value:
+                state.data.communities
                     .where((c) => c.code == state.selectedCommunityCode)
                     .firstOrNull
                     ?.name ??
@@ -230,8 +224,7 @@ class _FilterSheet extends StatelessWidget {
         ),
       ),
       padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom +
-            AppTheme.spacingLg,
+        bottom: MediaQuery.of(context).viewInsets.bottom + AppTheme.spacingLg,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -251,8 +244,7 @@ class _FilterSheet extends StatelessWidget {
 
           // Titre + fermeture
           Padding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: AppTheme.spacingLg),
+            padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingLg),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -276,21 +268,23 @@ class _FilterSheet extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // ── Type ────────────────────────────────────────────────
-                Text('Type de classement',
-                    style: Theme.of(context).textTheme.labelMedium),
+                Text(
+                  'Type de classement',
+                  style: Theme.of(context).textTheme.labelMedium,
+                ),
                 const SizedBox(height: AppTheme.spacingMd),
                 Row(
                   children: [
                     _MobileTypeCard(
                       label: 'Communautés',
                       icon: Icons.group_rounded,
-                      selected:
-                          state.rankingType == RankingType.communities,
+                      selected: state.rankingType == RankingType.communities,
                       onTap: () {
                         context.read<RankingBloc>().add(
-                              RankingTypeChanged(
-                                  rankingType: RankingType.communities),
-                            );
+                          RankingTypeChanged(
+                            rankingType: RankingType.communities,
+                          ),
+                        );
                         Navigator.of(context).pop();
                       },
                     ),
@@ -301,9 +295,8 @@ class _FilterSheet extends StatelessWidget {
                       selected: state.rankingType == RankingType.users,
                       onTap: () {
                         context.read<RankingBloc>().add(
-                              RankingTypeChanged(
-                                  rankingType: RankingType.users),
-                            );
+                          RankingTypeChanged(rankingType: RankingType.users),
+                        );
                         Navigator.of(context).pop();
                       },
                     ),
@@ -313,8 +306,10 @@ class _FilterSheet extends StatelessWidget {
                 const SizedBox(height: AppTheme.spacingLg),
 
                 // ── Tri ─────────────────────────────────────────────────
-                Text('Trier par',
-                    style: Theme.of(context).textTheme.labelMedium),
+                Text(
+                  'Trier par',
+                  style: Theme.of(context).textTheme.labelMedium,
+                ),
                 const SizedBox(height: AppTheme.spacingSm),
                 if (state.rankingType == RankingType.communities)
                   _SortDropdown<CommunitySortBy>(
@@ -331,9 +326,9 @@ class _FilterSheet extends StatelessWidget {
                     ],
                     onChanged: (v) {
                       if (v == null) return;
-                      context
-                          .read<RankingBloc>()
-                          .add(CommunitySortChanged(sortBy: v));
+                      context.read<RankingBloc>().add(
+                        CommunitySortChanged(sortBy: v),
+                      );
                     },
                   )
                 else ...[
@@ -351,14 +346,16 @@ class _FilterSheet extends StatelessWidget {
                     ],
                     onChanged: (v) {
                       if (v == null) return;
-                      context
-                          .read<RankingBloc>()
-                          .add(UserSortChanged(sortBy: v));
+                      context.read<RankingBloc>().add(
+                        UserSortChanged(sortBy: v),
+                      );
                     },
                   ),
                   const SizedBox(height: AppTheme.spacingMd),
-                  Text('Filtrer par communauté',
-                      style: Theme.of(context).textTheme.labelMedium),
+                  Text(
+                    'Filtrer par communauté',
+                    style: Theme.of(context).textTheme.labelMedium,
+                  ),
                   const SizedBox(height: AppTheme.spacingSm),
                   _SortDropdown<String>(
                     value: state.selectedCommunityCode ?? 'all',
@@ -370,17 +367,16 @@ class _FilterSheet extends StatelessWidget {
                       ...state.data.communities.map(
                         (c) => DropdownMenuItem(
                           value: c.code,
-                          child: Text(c.name,
-                              overflow: TextOverflow.ellipsis),
+                          child: Text(c.name, overflow: TextOverflow.ellipsis),
                         ),
                       ),
                     ],
                     onChanged: (v) {
                       context.read<RankingBloc>().add(
-                            CommunityFilterChanged(
-                              communityCode: v == 'all' ? null : v,
-                            ),
-                          );
+                        CommunityFilterChanged(
+                          communityCode: v == 'all' ? null : v,
+                        ),
+                      );
                     },
                   ),
                 ],
@@ -394,10 +390,10 @@ class _FilterSheet extends StatelessWidget {
                     style: FilledButton.styleFrom(
                       backgroundColor: AppTheme.actionGreen,
                       padding: const EdgeInsets.symmetric(
-                          vertical: AppTheme.spacingMd),
+                        vertical: AppTheme.spacingMd,
+                      ),
                       shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(AppTheme.radiusMd),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                       ),
                     ),
                     onPressed: () => Navigator.of(context).pop(),
@@ -456,10 +452,10 @@ class _TypeButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FilledButton.icon(
       style: FilledButton.styleFrom(
-        backgroundColor:
-            selected ? AppTheme.actionGreen : AppTheme.actionGreenLight,
-        foregroundColor:
-            selected ? Colors.white : AppTheme.actionGreen,
+        backgroundColor: selected
+            ? AppTheme.actionGreen
+            : AppTheme.actionGreenLight,
+        foregroundColor: selected ? Colors.white : AppTheme.actionGreen,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppTheme.radiusMd),
         ),
@@ -521,10 +517,10 @@ class _MobileTypeCard extends StatelessWidget {
               Text(
                 label,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: selected
-                          ? AppTheme.actionGreen
-                          : AdminColors.of(context).foreground,
-                    ),
+                  color: selected
+                      ? AppTheme.actionGreen
+                      : AdminColors.of(context).foreground,
+                ),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -564,9 +560,9 @@ class _SortDropdown<T> extends StatelessWidget {
               if (icon != null) const SizedBox(width: 4),
               Text(
                 label!,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: colors.mutedForeground,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.labelSmall?.copyWith(color: colors.mutedForeground),
               ),
             ],
           ),
@@ -580,9 +576,7 @@ class _SortDropdown<T> extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppTheme.radiusMd),
             border: Border.all(color: colors.border),
           ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppTheme.spacingMd,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingMd),
           child: DropdownButton<T>(
             value: value,
             items: items,
@@ -616,14 +610,14 @@ class _SummaryRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text('$label : ',
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(fontWeight: FontWeight.w500)),
+        Text(
+          '$label : ',
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500),
+        ),
         Container(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
             color: color,
             borderRadius: BorderRadius.circular(AppTheme.radiusXxl),
@@ -631,9 +625,9 @@ class _SummaryRow extends StatelessWidget {
           child: Text(
             value,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: textColor,
-                  fontWeight: FontWeight.w500,
-                ),
+              color: textColor,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
       ],

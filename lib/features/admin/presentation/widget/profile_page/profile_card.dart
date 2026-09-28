@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/common/cubits/app_user/app_user_cubit.dart';
-import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
+import 'package:oikos/core/common/presentation/cubits/app_user/app_user_cubit.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/features/admin/presentation/bloc/profile_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/profile_event.dart';
@@ -10,7 +10,7 @@ import 'package:oikos/features/admin/presentation/widget/profile_page/avatar_pic
 import 'package:oikos/features/admin/presentation/widget/profile_page/shared_widgets.dart';
 
 class ProfileCard extends StatefulWidget {
-  final Utilisateurs user;
+  final UserEntity user;
 
   const ProfileCard({super.key, required this.user});
 
@@ -74,10 +74,7 @@ class _ProfileCardState extends State<ProfileCard> {
         if (state is! ProfileLoaded) return;
         if (state.profileStatus == SectionStatus.success) {
           showProfileSnackBar(context, 'Profil mis à jour avec succès');
-          context.read<AppUserCubit>().updateUser(
-            state.user,
-            company: state.company,
-          );
+          context.read<AppUserCubit>().updateUser(state.user);
           context.read<ProfileBloc>().add(
             ProfileResetStatus(section: ProfileSection.profile),
           );

@@ -181,7 +181,9 @@ class RankingItemCard extends StatelessWidget {
                 Wrap(
                   spacing: AppTheme.spacingMd,
                   runSpacing: AppTheme.spacingXs,
-                  children: details.map((d) => _ChipWidget(chip: d,rank: rank,)).toList(),
+                  children: details
+                      .map((d) => _ChipWidget(chip: d, rank: rank))
+                      .toList(),
                 ),
 
                 const SizedBox(height: AppTheme.spacingMd),
@@ -196,9 +198,8 @@ class RankingItemCard extends StatelessWidget {
                         Text(
                           metricLabel,
                           style: rank <= 3
-                              ? Theme.of(context).textTheme.labelSmall?.copyWith(
-                                  color: Colors.black,
-                                )
+                              ? Theme.of(context).textTheme.labelSmall
+                                    ?.copyWith(color: Colors.black)
                               : Theme.of(context).textTheme.labelSmall,
                         ),
                         Text(
@@ -297,7 +298,7 @@ class _RankIcon extends StatelessWidget {
 class _ChipWidget extends StatelessWidget {
   final RankChip chip;
   final int rank;
-  const _ChipWidget({required this.chip, required this.rank });
+  const _ChipWidget({required this.chip, required this.rank});
 
   @override
   Widget build(BuildContext context) {
@@ -310,11 +311,14 @@ class _ChipWidget extends StatelessWidget {
           color: AdminColors.of(context).mutedForeground,
         ),
         const SizedBox(width: 3),
-        Text(chip.label, style: rank <= 3
-            ? Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.black,
-              )
-            : Theme.of(context).textTheme.bodySmall)
+        Text(
+          chip.label,
+          style: rank <= 3
+              ? Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: Colors.black)
+              : Theme.of(context).textTheme.bodySmall,
+        ),
       ],
     );
   }

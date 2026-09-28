@@ -1,1 +1,5162 @@
-(()=>{"use strict";var e=Object.defineProperty,n=class extends Error{name;info;constructor(e,n,i,a){super(t(e,n,i,a)),this.name=e,this.info=i}},t=(e,n,t,i)=>{const a=/error/i.test(e);return`\n[ ${{SyntaxError:"Erreur syntaxique",EvaluationError:"Erreur d'évaluation",SituationError:"Erreur lors de la mise à jour de la situation",UnknownRule:"Règle inconnue",PrivateRule:"Règle privée"}[e]??e} ]`+(t&&"dottedName"in t&&t.dottedName?.length?`\n➡️  Dans la règle "${t.dottedName}"`:"")+`\n${a?"✖️":"⚠️"}  ${n}`+(i?"\n"+(a?"    ":"ℹ️  ")+i.message:"")},i=class extends n{constructor(e){super("InternalError",`\nErreur interne du moteur.\n\nCette erreur est le signe d'un bug dans publicodes. Pour nous aider à le résoudre, vous pouvez copier ce texte dans un nouveau ticket : https://github.com/betagouv/mon-entreprise/issues/new.\n\npayload:\n${JSON.stringify(e,null,2)}\n`,e)}},a=class extends i{constructor(e){super({type:"UNREACHABLE_CODE",value:e})}};function r(e,n,i,a){e.warn[i]&&e.logger.warn(t("Avertissement",n,{dottedName:e.evaluatedRule??e.dottedName},a))}function o(e,n){e.warn.experimentalRules&&e.logger.warn(t("Avertissement","Cette règle est tagguée comme experimentale. \n\nCela veut dire qu'elle peut être modifiée, renommée, ou supprimée sans qu'il n'y ait de changement de version majeure dans l'API.\n",{dottedName:n}))}function s(e,n,t){e.has(n)?e.get(n).add(t):e.set(n,new Set([t]))}var l=e=>{const n={};for(const t in e)n[t]=e[t];return n};function u(e,n=!0){return function t(i){const a=e(i,t);return!1===a?i:void 0===a?d(t,i):n?a:d(t,a)}}function c(e){function n(i){switch(e(i,n)){case"continue":return void d(t,i);case"stop":return}}const t=e=>(n(e),e);return n}var d=(e,n)=>{switch((n=p(e,n)).nodeKind){case"rule":return m(e,n);case"reference":case"constant":return n;case"arrondi":return V(e,n);case"simplifier unité":case"variable manquante":case"est non applicable":case"est non défini":case"logarithme":return h(e,n);case"barème":case"taux progressif":case"grille":return b(e,n);case"durée":return x(e,n);case"résoudre référence circulaire":return y(e,n);case"inversion":return N(e,n);case"operation":return g(e,n);case"une possibilité":return I(e,n);case"contexte":return E(e,n);case"unité":return R(e,n);case"variations":return S(e,n);case"replacementRule":return f(e,n);case"texte":return w(e,n);case"condition":return $(e,n);default:throw new a(n)}},p=(e,n)=>{if(!("sourceMap"in n)||!n.sourceMap||!n.sourceMap.args)return n;const t=n.sourceMap,i={};for(const n in t.args){const a=t.args[n];i[n]=Array.isArray(a)?a.map(n=>e(n)):e(a)}return{...n,sourceMap:{...t,args:i}}},m=(e,n)=>{const t=l(n);t.suggestions={};for(const i in n.suggestions)t.suggestions[i]=e(n.suggestions[i]);return t.possibilities&&(t.possibilities=e(t.possibilities)),t.replacements=n.replacements.map(e),t.explanation={ruleDisabledByItsParent:n.explanation.ruleDisabledByItsParent,nullableParent:n.explanation.nullableParent?e(n.explanation.nullableParent):void 0,parents:n.explanation.parents.map(e),valeur:e(n.explanation.valeur)},t},f=(e,n)=>({...n,definitionRule:e(n.definitionRule),replacedReference:e(n.replacedReference),whiteListedNames:n.whiteListedNames.map(e),blackListedNames:n.blackListedNames.map(e)}),h=(e,n)=>{const t=l(n);return t.explanation=e(n.explanation),t};function v(e,n){return n.map(n=>({...n,...n.plafond&&{plafond:e(n.plafond)},..."montant"in n&&{montant:e(n.montant)},..."taux"in n&&{taux:e(n.taux)}}))}var b=(e,n)=>{const t=l(n);return t.explanation={assiette:e(n.explanation.assiette),multiplicateur:e(n.explanation.multiplicateur),tranches:v(e,n.explanation.tranches)},t},g=(e,n)=>{const t=l(n);return t.explanation=[e(n.explanation[0]),e(n.explanation[1])],t},x=(e,n)=>{const t=l(n);return t.explanation={depuis:e(n.explanation.depuis),"jusqu'à":e(n.explanation["jusqu'à"])},t},N=(e,n)=>{const t=l(n);return t.explanation={...n.explanation,inversionCandidates:n.explanation.inversionCandidates.map(e)},t},V=(e,n)=>{const t=l(n);return t.explanation={valeur:e(n.explanation.valeur),arrondi:e(n.explanation.arrondi)},t},y=(e,n)=>{const t=l(n);return t.explanation={...n.explanation,valeur:e(n.explanation.valeur)},t},w=(e,n)=>{const t=l(n);return t.explanation=n.explanation.map(n=>"string"==typeof n?n:e(n)),t},E=(e,n)=>{const t=l(n);return t.explanation={...t.explanation,contexte:n.explanation.contexte.map(([n,t])=>[e(n),e(t)]),valeur:e(n.explanation.valeur)},t},R=(e,n)=>{const t=l(n);return t.explanation=e(n.explanation),t},S=(e,n)=>{const t=l(n);return t.explanation=n.explanation.map(({condition:n,consequence:t})=>({condition:e(n),consequence:t&&e(t)})),t},$=(e,n)=>{const t=l(n);return t.explanation={si:e(n.explanation.si),alors:e(n.explanation.alors),sinon:e(n.explanation.sinon)},t},I=(e,n)=>{const t=l(n);return t.explanation=n.explanation.map(n=>{const t=e(n);return t.notApplicable=e(n.notApplicable),t}),t},k={constant:e=>e};function A(e,t){if(k??={},k[e])throw new n("EvaluationError",`Multiple evaluation functions registered for the nodeKind [4m${e}`,{dottedName:""});k[e]=t}var _={isNullable:void 0,type:void 0};function j(e,n,t){function i(e){if(!e||"object"!=typeof e)return _;if(t.has(e))return t.get(e);t.set(e,_);const a=function(e){switch(e.nodeKind){case"barème":case"durée":case"grille":case"taux progressif":case"inversion":case"résoudre référence circulaire":return{isNullable:!1,type:"number"};case"est non défini":case"est non applicable":return{isNullable:!1,type:"boolean"};case"constant":return{isNullable:e.isNullable??null===e.nodeValue,type:e.type};case"operation":return{isNullable:["<","<=",">",">=","/","*"].includes(e.operationKind)?i(e.explanation[0]).isNullable||i(e.explanation[1]).isNullable:"-"===e.operationKind&&i(e.explanation[0]).isNullable,type:["<","<=",">",">=","=","!=","et","ou"].includes(e.operationKind)?"boolean":"number"};case"replacementRule":return{isNullable:!1,type:void 0};case"texte":return{isNullable:!1,type:"string"};case"arrondi":return{type:"number",isNullable:i(e.explanation.valeur).isNullable};case"logarithme":case"unité":case"simplifier unité":return{type:"number",isNullable:i(e.explanation).isNullable};case"contexte":return i(e.explanation.valeur);case"une possibilité":return"reference"===e.type?{isNullable:e.explanation.every(e=>i(e).isNullable),type:"string"}:{isNullable:!1,type:e.type};case"rule":{const n=i(e.explanation.valeur);if(e.possibilities){const t=i(e.possibilities);return{isNullable:n.isNullable||t.isNullable,type:t.type}}if(void 0!==n.type)return n;let t="nombre"===e.rawNode.type?"number":"texte"===e.rawNode.type?"string":"date"===e.rawNode.type?"date":"booléen"===e.rawNode.type?"boolean":void 0;return!t&&e.rawNode.question&&(t="boolean"),{isNullable:n.isNullable,type:t}}case"variable manquante":return i(e.explanation);case"condition":return{isNullable:[e.explanation.si,e.explanation.alors,e.explanation.sinon].some(e=>i(e).isNullable),type:i(e.explanation.alors).type??i(e.explanation.sinon).type};case"variations":{const n=e.explanation.map(({consequence:e})=>i(e));return{isNullable:n.some(e=>e.isNullable),type:n.map(e=>e.type).find(e=>void 0!==e)}}case"reference":return i(n[e.dottedName])}}(e);return t.set(e,a),a}return e.forEach(e=>{const t=n[e];i(t),t.explanation.parents.forEach(i)}),t}var O=e=>"missingVariables"in e?e.missingVariables:{},K=(e={})=>Object.fromEntries(Object.entries(e).map(([e,n])=>[e,n+1])),L=(e={},n={})=>Object.fromEntries([...Object.keys(e),...Object.keys(n)].map(t=>[t,(e[t]??0)+(n[t]??0)])),T=e=>e.map(O).reduce(L,{}),D=e=>({nodeValue:e,type:typeof e,isDefault:!0,nodeKind:"constant"}),M={nodeKind:"constant",nodeValue:null,missingVariables:{},type:void 0,isNullable:!0},P={nodeKind:"constant",nodeValue:void 0,missingVariables:{},type:void 0,isNullable:!1},C={...P,type:"number"};function U(e,t,i){let a,r;function o(o,s){a??=kt(i,Ft({dottedName:"INLINE_MECANISM"})),r??={};for(const e in t)"par défaut"in t[e]&&(r[e]=kt(t[e]["par défaut"],Ft({})));1===Object.keys(t).length&&"valeur"in t&&(o={valeur:o});const l={};for(const e in o)l[e]=kt(o[e],s);const c=u(i=>{if("reference"!==i.nodeKind||!(i.name in t))return;const a=i.name;if(a in l)return l[a];if(a in r)return r[a];throw new n("SyntaxError",`Il manque la clé '${a} dans le mécanisme ${e}`,{dottedName:a})})(a);return c.sourceMap={mecanismName:e,args:l},c}return o.nom=e,Object.assign(o,"name",{value:`parse${F(e)}Inline`})}function q(e,n,t){function i(i,a){1===Object.keys(n).length&&"valeur"in n&&(i={valeur:i});const r={};for(const e in i){const n=i[e];r[e]=Array.isArray(n)?n.map(e=>kt(e,a)):kt(n,a)}const o=kt(t(r),a);return o.sourceMap={mecanismName:e,args:r},o}return i.nom=e,Object.assign(i,"name",{value:`parse${F(e)}Inline`})}function F(e){return e.replace(/(?:^\w|[A-Z]|\b\w)/g,e=>e.toUpperCase()).replace(/\s+/g,"")}var z=U("abattement",{abattement:{},valeur:{}},{"-":["valeur","abattement"],plancher:0}),B=U("applicable si",{"applicable si":{},valeur:{}},{condition:{si:"applicable si != non",alors:"valeur",sinon:M}});function J(e,n=e=>e){if(e.includes("/ "))throw new Error(`L'unité "${e}" ne doit pas contenir d'espace après "/"`);const[t,...i]=e.split("/"),a=e=>function(e){const n=Y(e);return Object.entries(n).flatMap(([e,n])=>Array(n).fill(e))}(e.trim().split(".").filter(Boolean).map(e=>n(e)));return{numerators:a(t),denominators:i.flatMap(e=>a(e))}}var W=/(\d+)(?!.*[A-Za-z])/g;function Y(e){const n={};return e.forEach(e=>{const t=e.match(W);if(null!=t){const i=t[0],a=e.split(i)[0];n[a]=(n[a]??0)+ +i}else n[e]=(n[e]??0)+1}),n}var Z=(e,n,t=e=>e)=>function(e){const n=Y(e);return Object.entries(n).map(([e,n])=>n>1?`${e}${n}`:e)}(e.map(e=>t(e,n))).join(".");function G(e,n=2,t=e=>e){if(null===e||"object"!=typeof e)return"string"==typeof e?t(e,n):e;const i=ne(e),{numerators:a=[],denominators:r=[]}=i,o=a.length>0,s=r.length>0;return o||s?o&&!s?Z(a,n,t):!o&&s?`/${Z(r,1,t)}`:`${Z(a,2,t)}/${Z(r,1,t)}`:""}var H={numerators:[],denominators:[]},Q=(e,t)=>{if("/"===e){if(2!==t.length)throw new n("InternalError","Infer units of a division with units.length !== 2)",{});return Q("*",[t[0]||H,{numerators:(t[1]||H).denominators,denominators:(t[1]||H).numerators}])}const i=t.filter(Boolean);return i.length<=1?i[0]:"*"===e?ne({numerators:i.flatMap(e=>e?.numerators??[]),denominators:i.flatMap(e=>e?.denominators??[])}):"-"===e||"+"===e?t.find(e=>e):void 0},X=(e,n)=>Array.isArray(e)&&Array.isArray(n)?e.length===n.length&&e.every((t,i)=>e[i]===n[i]):e===n,ee=(e,n=X)=>t=>{const i=t.findIndex(t=>n(t,e));return t.filter((e,n)=>n!==i)},ne=(e,n=X)=>[...e.numerators,...e.denominators].reduce(({numerators:e,denominators:t},i)=>e.find(e=>n(i,e))&&t.find(e=>n(i,e))?{numerators:ee(i,n)(e),denominators:ee(i,n)(t)}:{numerators:e,denominators:t},e),te={"mois/an":12,"jour/an":365,"jour/mois":365/12,"trimestre/an":4,"mois/trimestre":3,"jour/trimestre":91.25,"€/k€":1e3,"g/kg":1e3,"mg/g":1e3,"mg/kg":10**6,"m/km":1e3,"cm/m":100,"mm/cm":10,"mm/m":1e3,"cm/km":10**5,"mm/km":10**6};function ie(e,n){return te[`${n}/${e}`]||te[`${e}/${n}`]&&1/te[`${e}/${n}`]}function ae(e,n){let t=100**(n.filter(e=>"%"===e).length-e.filter(e=>"%"===e).length);return[t]=e.reduce(([e,n],t)=>{const i=n.findIndex(e=>!!ie(t,e));return[e*(ie(t,n[i])||1),[...n.slice(0,i+1),...n.slice(i+1)]]},[t,n]),t}var re={"kW.h":"kWh","mn/h":"noeud"};function oe(e,t,i){const a=G(e),r=G(t);if(!function(e,n){return!(!e||!n||e!==n&&e!==re[n]&&n!==re[e])}(a,r)&&!function(e,n){if(null==e||null==n)return!0;const[t,i,a,r]=[e.numerators,e.denominators,n.numerators,n.denominators].map(e=>e.reduce((e,n)=>{const t=le.findIndex(e=>e.has(n)),i=-1===t?n:""+t;return{...e,[i]:1+(e[i]??0)}},{})),o=[t,i,a,r].map(Object.keys).flat();return(s=o,[...new Set(s)]).every(e=>(t[e]||0)-(i[e]||0)===(a[e]||0)-(r[e]||0)||"%"===e);var s}(e,t))throw new n("EngineError",`Impossible de convertir l'unité '${a}' en '${r}'`,{});if(!i)return i;if(void 0===e)return i;const[o,s]=pe(e||H),[l,u]=pe(t||H);return ce(i*s/u*ae(o.numerators,l.numerators)*ae(l.denominators,o.denominators))}var se,le=(se=te,Object.keys(se).reduce((e,t)=>{const[i,a]=t.split("/"),r=e.findIndex(e=>e.has(i)),o=e.findIndex(e=>e.has(a));if(r>-1&&o>-1&&r!==o)throw new n("EngineError",`Invalid ratio ${t}`,{});return-1===r&&-1===o?e.push(new Set([i,a])):r>-1?e[r].add(a):o>-1&&e[o].add(i),e},[]));function ue(e,n){return e===n||le.some(t=>t.has(e)&&t.has(n))}function ce(e){return+e.toFixed(16)}function de(e){const{numerators:n,denominators:t}=ne(e,ue);return n.length&&n.every(e=>"%"===e)?{numerators:["%"],denominators:t}:me({numerators:n,denominators:t})}function pe(e,n=1){const t=ae(e.numerators,e.denominators);return[ne(me(e),ue),n?ce(n*t):n]}var me=e=>({numerators:e.numerators.filter(e=>"%"!==e),denominators:e.denominators.filter(e=>"%"!==e)});function fe(e,n){return Math.round((e+Number.EPSILON)*10**n)/10**n}function he(e,n){return{explanation:{valeur:kt(e.valeur,n),arrondi:kt(e.arrondi,n)},nodeKind:he.nom}}function ve(e){return e.unit?be(de(e.unit),e):e}function be(e,n){return{...n,nodeValue:n.unit&&"number"==typeof n.nodeValue?oe(n.unit,e,n.nodeValue):n.nodeValue,unit:e}}function ge(e,n,t){if(void 0===t.nodeValue||null===t.nodeValue)return!0;switch(n.type){case"number":return n.explanation.some(e=>"unit"in e?be(e.unit,t).nodeValue===e.nodeValue:e.nodeValue===t.nodeValue);case"string":return n.explanation.some(e=>e.publicodesValue===`'${t.nodeValue}'`);case"reference":return e.evaluateNode(n).explanation.some(e=>e.publicodesValue===`'${t.nodeValue}'`&&!0!==e.notApplicable.nodeValue)}}he.nom="arrondi",A(he.nom,function(e){const t=ve(this.evaluateNode(e.explanation.valeur)),i=t.nodeValue;let a=e.explanation.arrondi;if(!1!==i&&(a=this.evaluateNode(a),"number"==typeof a.nodeValue&&!G(a.unit)?.match(/décimales?/)))throw new n("EvaluationError",`L'unité ${G(a.unit)} de l'arrondi est inconnu. Vous devez utiliser l'unité “décimales”`,{dottedName:this.cache._meta.evaluationRuleStack[0]});return{...e,nodeValue:"number"==typeof t.nodeValue&&"nodeValue"in a?"number"==typeof a.nodeValue?fe(t.nodeValue,a.nodeValue):!0===a.nodeValue?fe(t.nodeValue,0):void 0===a.nodeValue?void 0:t.nodeValue:t.nodeValue,explanation:{valeur:t,arrondi:a},missingVariables:T([t,a]),unit:t.unit}}),A("logarithme",function(e){const t=ve(this.evaluateNode(e.explanation));let i;if(null===t.nodeValue||void 0===t.nodeValue)i=t.nodeValue;else{if("number"!=typeof t.nodeValue)throw new n("EvaluationError",`Impossible de calculer le logarithme de ${t.nodeValue}`,{dottedName:this.cache._meta.evaluationRuleStack[0]});i=Math.log(t.nodeValue)}return{...e,nodeValue:i,missingVariables:t.missingVariables,explanation:t}});var xe=({style:e,maximumFractionDigits:n=2,minimumFractionDigits:t=0,language:i})=>a=>{const r="currency"===e&&n>=2&&0===t&&!Number.isInteger(a)?2:t;return Intl.NumberFormat(i,{style:e,currency:"EUR",maximumFractionDigits:n,minimumFractionDigits:r}).format(a)},Ne={fr:{true:"oui",false:"non"},en:{true:"yes",false:"no"}};function Ve(e,n){return{explanation:kt(e,n),nodeKind:"est non applicable"}}Ve.nom="est non applicable";var ye=e=>({nodeKind:"est non applicable",explanation:e});A("est non applicable",function(e){const n=e.explanation;if(!1===this.context.nodesTypes.get(n)?.isNullable&&"rule"!==n.nodeKind&&"reference"!==n.nodeKind)return{...e,nodeValue:!1,missingVariables:{}};if(this.cache.nodes.has(n)&&void 0!==this.cache.nodes.get(n))return{...e,nodeValue:null===this.cache.nodes.get(n)?.nodeValue,missingVariables:this.cache.nodes.get(n)?.missingVariables??{}};switch(n.nodeKind){case"rule":{const{ruleDisabledByItsParent:t,parentMissingVariables:i}=Xe(this,n);if(t)return{...e,nodeValue:!0,missingVariables:i};const a=this.evaluateNode(ye(n.explanation.valeur)),r=L(i,a.missingVariables);return!1===a.nodeValue&&this.context.nodesTypes.get(this.context.parsedRules[`${n.dottedName} . $SITUATION`])?.isNullable&&!Object.keys(a.missingVariables).length&&(r[n.dottedName]=1),{...e,nodeValue:a.nodeValue,missingVariables:r}}case"reference":return{...this.evaluateNode(ye(this.context.parsedRules[n.dottedName])),...e};case"condition":return{...this.evaluateNode({...n,explanation:{si:n.explanation.si,alors:ye(n.explanation.alors),sinon:ye(n.explanation.sinon)}}),...e}}const t=this.evaluateNode(n);return{...e,nodeValue:void 0===t.nodeValue?void 0:null===t.nodeValue,missingVariables:t.missingVariables}});var we={nodeKind:"constant",type:"boolean",nodeValue:!1};function Ee(e,n){return null!=e&&Object.prototype.hasOwnProperty.call(e,n)}function Re(e){return function(){return e}}A("une possibilité",function(e){const n=l(e);if("reference"!==e.type)return n.missingVariables={},n.nodeValue=void 0,n;const t=e.explanation.map(e=>{const n=this.evaluateNode(e.notApplicable);return{...e,notApplicable:n,missingVariables:n.missingVariables}});n.explanation=t,n.missingVariables=T(t.map(e=>e.notApplicable));const i=t.filter(e=>!0!==e.notApplicable.nodeValue);return 0===i.length?(n.nodeValue=null,n):1===i.length?(n.nodeValue=i[0].nodeValue,n):(n.nodeValue=void 0,n)}),((n,t)=>{for(var i in t)e(n,i,{get:t[i],enumerable:!0})})({},{contextNameToDottedName:()=>Pe,cyclicDependencies:()=>je,decodeRuleName:()=>Me,disambiguateReference:()=>We,disambiguateReferenceNode:()=>Ge,encodeRuleName:()=>De,findCommonAncestor:()=>Fe,getChildrenRules:()=>qe,isAccessible:()=>ze,isExperimental:()=>Be,nameLeaf:()=>Te,ruleParent:()=>Ce,ruleParents:()=>Ue,ruleWithDedicatedDocumentationPage:()=>Ye,updateReferencesMapsFromReferenceNode:()=>Ze});var Se=(e,n)=>{e[n]?e[n]++:e[n]=1},$e=(e,n)=>{--e[n]||delete e[n]},Ie=(e,n,t,i)=>{let a=""+n,r=""+t;if(!e&&a>r){const e=a;a=r,r=e}return a+""+r+""+(void 0===i?"\0":i)},ke=(e,n)=>Ie(e,n.v,n.w,n.name),Ae=class{_nodeCount=0;_edgeCount=0;_isDirected;_label;_defaultNodeLabelFn;_defaultEdgeLabelFn;_nodes;_in;_preds;_out;_sucs;_edgeObjs;_edgeLabels;constructor(e={}){this._isDirected=!Ee(e,"directed")||e.directed,this._label=void 0,this._defaultNodeLabelFn=Re(void 0),this._defaultEdgeLabelFn=Re(void 0),this._nodes={},this._in={},this._preds={},this._out={},this._sucs={},this._edgeObjs={},this._edgeLabels={}}isDirected(){return this._isDirected}setGraph(e){return this._label=e,this}graph(){return this._label}nodeCount(){return this._nodeCount}nodes(){return Object.keys(this._nodes)}setNode(e,n=void 0){return Ee(this._nodes,e)?(arguments.length>1&&(this._nodes[e]=n),this):(this._nodes[e]=arguments.length>1?n:this._defaultNodeLabelFn(e),this._in[e]={},this._preds[e]={},this._out[e]={},this._sucs[e]={},++this._nodeCount,this)}setNodes(e,n){return e.forEach(e=>{void 0!==n?this.setNode(e,n):this.setNode(e)}),this}node(e){return this._nodes[e]}hasNode(e){return Ee(this._nodes,e)}successors(e){const n=this._sucs[e];if(n)return Object.keys(n)}edgeCount(){return this._edgeCount}edges(){return Object.values(this._edgeObjs)}setEdge(e,n,t=void 0,i=void 0){e=""+e,n=""+n;const a=Ie(this._isDirected,e,n,i);if(Ee(this._edgeLabels,a))return void 0!==t&&(this._edgeLabels[a]=t),this;this.setNode(e),this.setNode(n),this._edgeLabels[a]=void 0!==t?t:this._defaultEdgeLabelFn(e,n,i);const r=((e,n,t,i)=>{let a=""+n,r=""+t;if(!e&&a>r){const e=a;a=r,r=e}const o={v:a,w:r};return i&&(o.name=i),o})(this._isDirected,e,n,i);return e=r.v,n=r.w,Object.freeze(r),this._edgeObjs[a]=r,Se(this._preds[n],e),Se(this._sucs[e],n),this._in[n][a]=r,this._out[e][a]=r,this._edgeCount++,this}edge(e,n,t){const i=1===arguments.length?ke(this._isDirected,arguments[0]):Ie(this._isDirected,e,n,t);return this._edgeLabels[i]}hasEdge(e,n,t){const i=1===arguments.length?ke(this._isDirected,arguments[0]):Ie(this._isDirected,e,n,t);return Ee(this._edgeLabels,i)}removeEdge(e,n,t){const i=1===arguments.length?ke(this._isDirected,arguments[0]):Ie(this._isDirected,e,n,t),a=this._edgeObjs[i];return a&&(e=a.v,n=a.w,delete this._edgeLabels[i],delete this._edgeObjs[i],$e(this._preds[n],e),$e(this._sucs[e],n),delete this._in[n][i],delete this._out[e][i],this._edgeCount--),this}outEdges(e,n=void 0){const t=this._out[e];if(t){const e=Object.values(t);return void 0===n?e:e.filter(function(e){return e.w===n})}}};function _e(e){let n=0;const t=[],i={},a=[];function r(o){const s=i[o]={onStack:!0,lowlink:n,index:n++};if(t.push(o),e.successors(o).forEach(function(e){Object.prototype.hasOwnProperty.call(i,e)?i[e].onStack&&(s.lowlink=Math.min(s.lowlink,i[e].index)):(r(e),s.lowlink=Math.min(s.lowlink,i[e].lowlink))}),s.lowlink===s.index){const e=[];let n;do{n=t.pop(),i[n].onStack=!1,e.push(n)}while(o!==n);a.push(e)}}return e.nodes().forEach(function(e){Object.prototype.hasOwnProperty.call(i,e)||r(e)}),a}function je(e){const{referencesMaps:n}=Bt(e),t=function(e){const n=new Ae;return[...e.entries()].forEach(([e,t])=>{t.forEach(t=>{n.setEdge(e,t)})}),n}(n.referencesIn);var i;const a=_e(i=t).filter(function(e){return e.length>1||1===e.length&&i.hasEdge(e[0],e[0])}).map(e=>e.reverse()),r=a.map(e=>function(e,n){function*t(e){let t=e;for(;;)yield n[t++%n.length]}const i=[];for(let a=0;a<n.length;a++){const n=[];let r;for(const i of t(a))if(void 0===r)n.push(i),r=i;else if(e.get(r)?.has(i)){if(n.includes(i)){n.splice(0,n.lastIndexOf(i));break}n.push(i),r=i}i.push(n)}return i.reduce((e,n)=>n.length>e.length?e:n)}(n.referencesIn,e)),o=a.map((e,n)=>function(e,n,t){const i=new Set;return n.forEach(a=>{e.outEdges(a).filter(({w:e})=>n.includes(e)).forEach(({v:e,w:n})=>{i.add(`"${e}" -> "${n}"`+(Oe(t,e,n)?" [color=red]":""))})}),`digraph Cycle {\n\t${[...i].join(";\n\t")};\n}`}(t,e,r[n]));return[r,o]}var Oe=(e,n,t)=>{for(let i=0;i<e.length+1;i++)if(n===e[i]&&t===e[(i+1)%e.length])return!0;return!1},Ke=e=>e.split(" . "),Le=e=>e.join(" . "),Te=e=>Ke(e).slice(-1)?.[0],De=e=>e?.replace(/\s\.\s/g,"/").replace(/-/g,"‑").replace(/\s/g,"-"),Me=e=>e.replace(/\//g," . ").replace(/-/g," ").replace(/\u2011/g,"-"),Pe=e=>e.endsWith("$SITUATION")?Ce(e):e,Ce=e=>Le(Ke(e).slice(0,-1));function Ue(e){return Ke(e).slice(0,-1).map((e,n,t)=>Le(t.slice(0,n+1))).reverse()}var qe=(e,n)=>Object.keys(e).filter(e=>e.startsWith(n)&&Ke(e).length===Ke(n).length+1);function Fe(e,n){const t=Ke(e),i=Ke(n),a=t.findIndex((e,n)=>i[n]!==e);return-1===a?e:Le(t.slice(0,a))}function ze(e,t,i){if(!(i in e))throw new n("InternalError",`La règle "${i}" n'existe pas`,{dottedName:i});const a=Fe(t,i),r=[i,...Ue(i),""];return r.slice(0,Math.max(r.indexOf(a)-1,0)).every(n=>!(n in e)||!1===e[n].private)}function Be(e,t){if(!(t in e))throw new n("InternalError",`La règle "${t}" n'existe pas`,{dottedName:t});return[t,...Ue(t)].some(n=>n in e&&"oui"===e[n].rawNode?.experimental)}function Je(e,n){return e?e+" . "+n:n}function We(e,t="",i){const a=Ue(t);if(a.push(t),i.startsWith("^ . ")){const e=i.match(/^(\^ \. )+/)[0].length/4;i=i.replace(/^(\^ \. )+/,""),a.splice(-e)}const r=a.pop();a.unshift(r),a.push("");const o=a.find(n=>{const a=Je(n,i);return a in e&&a!==t&&ze(e,t,a)});if(void 0!==o)return Je(o,i);if(t.endsWith(i))return t;const s=a.map(e=>Je(e,i));if(s.every(n=>!(n in e)))throw new n("SyntaxError",`La référence "${i}" est introuvable.\nVérifiez que l'orthographe et l'espace de nom sont corrects`,{dottedName:Pe(t)});throw new n("SyntaxError",`La règle "${s.find(n=>n in e)}" n'est pas accessible depuis "${t}".\n\tCela vient du fait qu'elle est privée ou qu'un de ses parent est privé`,{dottedName:Pe(t)})}function Ye(e){return!0!==e.virtualRule&&"groupe"!==e.type&&"texte"!==e.type&&"paragraphe"!==e.type&&"notification"!==e.type}function Ze(e,n,t){"reference"===e.nodeKind&&(s(n.referencesIn,t??e.contextDottedName,e.dottedName),s(n.rulesThatUse,e.dottedName,t??e.contextDottedName))}function Ge(e,n){if("reference"===e.nodeKind)return e.dottedName||(e.dottedName=We(n,e.contextDottedName,e.name),e.title=n[e.dottedName].title,e.acronym=n[e.dottedName].rawNode.acronyme),e}function He(e,t,i){const a="oui"===t.privé||e.startsWith("[privé] ");e=e.replace(/^\[privé\] /,"");const o=[i.dottedName,e].filter(Boolean).join(" . "),s=Te(o),u=function(e){return e&&e[0].toUpperCase()+e.slice(1)}(t.titre??s);if(i.parsedRules[o])throw new n("EvaluationError",`La référence '${o}' a déjà été définie`,{dottedName:o});const c=i.dottedName;i.dottedName=o,i.parsedRules[o]=void 0;const d={};d.avec=Object.assign({},t.avec);const p=function(e,t,i){let a,o=!1;if(e.valeur&&e.valeur["une possibilité"]&&(o=e.valeur["une possibilité"],r(t,"La clé 'une possibilité' à l'intérieur de la clé 'valeur' est dépréciée, veuillez la déplacer\nau niveau supérieur.","deprecatedSyntax"),delete e.valeur["une possibilité"]),e.formule?.["une possibilité"]&&(o=e.formule["une possibilité"],r(t,"La clé 'une possibilité' à l'intérieur de la clé 'formule' est dépréciée, veuillez la déplacer au niveau supérieur.","deprecatedSyntax"),delete e.formule["une possibilité"]),"une possibilité"in e){if(!e["une possibilité"])throw new n("SyntaxError","La clé 'une possibilité' ne peut pas être vide",t);o=e["une possibilité"]}if(!o)return null;if("possibilités"in o&&(o["choix obligatoire"]?(r(t,"Les clés 'choix obligatoire' et 'possibilités' à l'intérieur de 'une possibilité' sont dépréciées. \n\nDéplacez les possibilités directement à la racine de 'une possibilité' ."+("non"===o["choix obligatoire"]?`Pour ajouter un choix « aucun », « non applicable » ou « autre » à la liste des possibilité, créer explicitement une règle dédiée. Par exemple : \n\n\`une possibilité: [${o.possibilités.join(", ")}, aucun]\`\n`:""),"deprecatedSyntax"),a=o["choix obligatoire"]):r(t,"La clé 'possibilités' à l'intérieur de 'une possibilité' est dépréciée. \n\nDéplacez les possibilités directement à la racine de 'une possibilité'\n","deprecatedSyntax"),o=o["possibilités"]),!o)return null;if(!o.length)throw new n("SyntaxError","La clé 'une possibilité' doit être un tableau contenant au moins un élément",t);const s=function(e,t,i){let a;const r=e.map(e=>{const r=function(e,t,i){if("object"==typeof e){if(1!==Object.keys(e).length)throw new n("SyntaxError","Il ne peut y avoir qu'une seule définition de règle par possibilité.",{dottedName:i.dottedName});const[a,r]=Object.entries(e)[0];if(a in t)throw new n("SyntaxError",`La règle "${a}" est déjà définie`,{dottedName:i.dottedName});t[a]=r,e=a}const a=kt(e,i);if("constant"!==a.nodeKind&&"reference"!==a.nodeKind)throw new n("SyntaxError",`"${e}" n'est pas une constante ou une référence.\nLes choix possibles doivent être des constantes ou des références.`,i);if("reference"===a.nodeKind)return{...a,type:"reference",notApplicable:i.flag?.filterNotApplicablePossibilities?Ve(l(a),i):we,nodeValue:a.name,publicodesValue:`'${a.name}'`};if("string"!==a.type&&"number"!==a.type)throw new n("SyntaxError","Les choix possibles doivent être des nombres ou des chaînes de caractères.",i);return{...a,type:a.type,notApplicable:we,publicodesValue:"string"===a.type?`'${a.nodeValue}'`:a.rawNode,nodeValue:a.nodeValue,..."unit"in a&&{unit:a.unit}}}(e,t,i);if(a??=r,r.type!==a.type)throw new n("SyntaxError",`Les possibilités doivent être toutes du même type.\n${a.publicodesValue} et ${r.publicodesValue} ne sont pas du même type.`,i);if("number"===a.type&&"number"===r.type&&a.unit){try{oe(r.unit,a.unit,0)}catch(e){throw new n("SyntaxError",`Les possibilités doivent être toutes dans la même classe d'unité.\n\n\t\t\t\t\t${G(r.unit)} n'est pas convertible en ${G(a.unit)}.`,i)}a=r}return r});return a??=r[0],{nodeKind:"une possibilité",..."unit"in a?{unit:a.unit}:{},type:a.type,explanation:r}}(o,i,t);let u;if(a&&(s["choix obligatoire"]=a),u="number"===s.type?s.explanation.map(e=>oe(e.unit,s.unit,e.nodeValue)):s.explanation.map(e=>e.publicodesValue),new Set(u).size!==u.length){const e=u.map((e,n,t)=>t.indexOf(e)!==n?s.explanation[n].publicodesValue:null).filter(Boolean);throw new n("SyntaxError",`Il ne doit pas y avoir de doublons parmi les possibilités.\nLes valeurs suivantes sont en double : ${e.join(", ")}.`,t)}return s}(t,i,d.avec);for(const e in t)Kt.includes(e)&&(d[e]??=t[e]);if("formule"in t&&(d.valeur=t.formule),!a&&!o.endsWith("$SITUATION")){d["dans la situation"]=`${o} . $SITUATION`;const e=l(P);e.isNullable="oui"===t["possiblement non applicable"],d.avec["[privé] $SITUATION"]={valeur:e},null!=d["par défaut"]&&(d["par défaut"]={valeur:d["par défaut"],"variable manquante":o})}const m={valeur:kt(d,i),parents:i.flag.automaticNamespaceDisabling?Ue(o).map(e=>({dottedName:e,nodeKind:"reference",contextDottedName:i.dottedName})):[]},f={};if(t.suggestions)for(const e in t.suggestions)f[e]=kt(t.suggestions[e],i);return i.parsedRules[o]={dottedName:o,replacements:[...Mt(t["rend non applicable"],i),...Dt(t.remplace,i)],title:u,private:a,suggestions:f,nodeKind:"rule",possibilities:p,explanation:m,rawNode:t,virtualRule:a},i.dottedName=c,i.parsedRules[o]}function Qe(e,t){for(const i in e){let a=e[i];if("string"!=typeof a&&"number"!=typeof a||(a={valeur:`${a}`}),"object"!=typeof a)throw new n("SyntaxError",`Rule ${i} is incorrectly written. Please give it a proper value.\n ${a}`,{dottedName:i});He(i,null===a?{}:l(a),t)}}function Xe(e,n){if(n.dottedName.endsWith("$SITUATION"))return{ruleDisabledByItsParent:!1,parentMissingVariables:{}};const t=e.context.nodesTypes,i=n.explanation.parents.find(e=>t.get(e)?.isNullable||"boolean"===t.get(e)?.type);if(!i)return{ruleDisabledByItsParent:!1,parentMissingVariables:{}};if(!e.cache._meta.parentRuleStack.includes(n.dottedName)){e.cache._meta.parentRuleStack.unshift(n.dottedName);let a=D(!1);if(t.get(i)?.isNullable&&(a=e.evaluateNode({nodeKind:"est non applicable",explanation:i})),!0!==a.nodeValue&&"boolean"===t.get(i)?.type&&(a=e.evaluateNode({nodeKind:"operation",operator:"=",operationKind:"=",explanation:[i,D(!1)]})),e.cache._meta.parentRuleStack.shift(),!0===a.nodeValue)return{ruleDisabledByItsParent:!0,parentMissingVariables:a.missingVariables??{},nullableParent:i}}let a={};if("boolean"===t.get(i)?.type){const n=e.evaluateNode(i);return a=n.missingVariables??{},{ruleDisabledByItsParent:!1===n.nodeValue,parentMissingVariables:a,nullableParent:i}}return{ruleDisabledByItsParent:!1,parentMissingVariables:a,nullableParent:i}}function en(e,n){return Qe(e.avec,n),kt(e.valeur,n)}A("rule",function(e){e.dottedName.endsWith("$SITUATION")||e.dottedName.includes("$INTERNAL")||(this.context.evaluatedRule=e.dottedName);const{ruleDisabledByItsParent:t,nullableParent:i,parentMissingVariables:a}=Xe(this,e),o={...e.explanation,nullableParent:i,ruleDisabledByItsParent:t};if(t)return{...e,nodeValue:null,missingVariables:a,explanation:o};if(this.cache._meta.evaluationRuleStack.filter(n=>n===e.dottedName).length>1){const t=this.cache._meta.evaluationRuleStack.indexOf(e.dottedName),i=[...this.cache._meta.evaluationRuleStack.slice(0,t+1).reverse(),e.dottedName],s=`\nUn cycle a été détecté lors de l'évaluation de cette règle:\n${i.join(i.length>5?"\n → ":" → ")}\n\nCela vient probablement d'une erreur dans votre modèle.\n\nSi le cycle est voulu, vous pouvez indiquer au moteur de résoudre la référence circulaire en trouvant le point fixe de la fonction. Pour cela, ajoutez l'attribut suivant niveau de la règle :\n\n\t${e.dottedName}:\n\t\trésoudre la référence circulaire: oui"\n\t\t...\n`;if(!this.cache._meta.parentRuleStack.length||this.cache._meta.parentRuleStack.some(n=>!n.startsWith(e.dottedName))){if(this.context.strict.noCycleRuntime)throw new n("EvaluationError",s,{dottedName:e.dottedName});r(this.context,s,"cyclicReferences")}return{...e,nodeValue:void 0,missingVariables:a,explanation:o}}this.cache._meta.evaluationRuleStack.unshift(e.dottedName);const s=e.possibilities&&this.evaluateNode(e.possibilities);if(void 0!==s?.nodeValue)return{...e,...s.unit?{unit:s.unit}:{},nodeValue:s.nodeValue,missingVariables:L(s.missingVariables,a),possibilities:s};const l=this.evaluateNode(e.explanation.valeur);if(this.cache._meta.evaluationRuleStack.shift(),l.missingVariables??={},function(e,n,t){!0!==n.private&&ze(e.context.parsedRules,"",n.dottedName)&&(void 0!==t.nodeValue||Object.keys(t.missingVariables).length||(t.missingVariables[n.dottedName]=1))}(this,e,l),s&&this.context.strict.checkPossibleValues&&!ge(this,s,l))throw new n("EvaluationError",`La valeur "${l.nodeValue}" de la règle ${e.dottedName} n'est pas une des possibilités attendues`,{dottedName:e.dottedName});const u=s?.unit??l.unit,c=L(L(s?.missingVariables??{},l.missingVariables),a);return{...l,...u?{unit:u}:{},missingVariables:c,...e,possibilities:s,explanation:{parents:e.explanation.parents,valeur:l,nullableParent:i,ruleDisabledByItsParent:t}}}),en.nom="avec";var nn=(e,t)=>e.map((i,a)=>{if(!i.plafond&&a>e.length)throw new n("SyntaxError",`La tranche n°${a} du barème n'a pas de plafond précisé. Seule la dernière tranche peut ne pas être plafonnée`,{dottedName:""});return{...i,...void 0!==i.taux?{taux:kt(i.taux,t)}:{},...void 0!==i.montant?{montant:kt(i.montant,t)}:{},plafond:"plafond"in i?kt(i.plafond,t):{nodeValue:1/0,nodeKind:"constant",type:"number",isNullable:!1}}});function tn({multiplicateur:e,assiette:t,parsedTranches:i}){return i.reduce(([i,a],o,s)=>{if(a)return[[...i,{...o,isAfterActive:!0}],a];const l=this.evaluateNode(o.plafond),u=i[s-1]?i[s-1].plafond:{nodeValue:0};let c=void 0===l.nodeValue||void 0===e.nodeValue?void 0:l.nodeValue*e.nodeValue;try{c=c===1/0||0===c?c:oe(Q("*",[l.unit,e.unit]),t.unit,c)}catch(e){if(!(e instanceof Error))throw e;r(this.context,`L'unité du plafond de la tranche n°${s+1}  n'est pas compatible avec celle l'assiette`,"unitConversion",e)}const d=i[s-1]?i[s-1].plafondValue:0,p=void 0===d||void 0===t.nodeValue?void 0:d>t.nodeValue,m=[l,t,e,u];if(m.some(e=>void 0===e.nodeValue))return[[...i,{...o,plafond:l,plafondValue:c,plancherValue:d,nodeValue:void 0,isActive:void 0,isAfterActive:p,missingVariables:T(m)}],!1];if(i[s-1]&&d&&c<=d)throw new n("EvaluationError",`Le plafond de la tranche n°${s+1} a une valeur inférieure à celui de la tranche précédente`,{dottedName:this.cache._meta.evaluationRuleStack[0]});const f={...o,plafond:l,plancherValue:d,plafondValue:c,isAfterActive:p,isActive:t.nodeValue>=d&&t.nodeValue<c};return[[...i,f],f.isActive]},[[],!1])[0]}function an(e,n){return{explanation:{si:kt(e.si,n),alors:kt(e.alors,n),sinon:kt(e.sinon,n)},nodeKind:"condition"}}function rn(e,n){const t=kt(e.valeur,n),i=Object.keys(e.contexte).map(t=>[kt(t,n),kt(e.contexte[t],n)]).sort(([e],[n])=>e.name.localeCompare(n.name));return{explanation:{valeur:t,contexte:i,subEngineId:function(e){let n=0;for(let t=0,i=e.length;t<i;t++)n=(n<<5)-n+e.charCodeAt(t),n|=0;return n}(JSON.stringify(i))},nodeKind:rn.nom}}function on(e){let[n,t,i]=e.split("/");return i||([n,t,i]=["01",n,t]),ln(+i,+t,+n)}A("barème",function(e){const t=this.evaluateNode.bind(this),i=this.evaluateNode(e.explanation.assiette),a=this.evaluateNode(e.explanation.multiplicateur);if(0===a.nodeValue)throw new n("EvaluationError","Le multiplicateur ne peut pas être nul",{dottedName:this.cache._meta.evaluationRuleStack[0]});let r=e.explanation.tranches,o=i.nodeValue;return[0,void 0,null].includes(i.nodeValue)||(r=function(e,n,t){return e.map(e=>{if(e.isAfterActive)return{...e,nodeValue:0};const i=t(e.taux),a=T([i,e]);return[n.nodeValue,i.nodeValue,e.plafondValue,e.plancherValue].some(e=>void 0===e)?{...e,taux:i,nodeValue:void 0,missingVariables:a}:{...e,taux:i,..."unit"in n&&{unit:n.unit},nodeValue:(Math.min(n.nodeValue,e.plafondValue)-e.plancherValue)*oe(i.unit,J(""),i.nodeValue),missingVariables:a}})}(tn.call(this,{parsedTranches:e.explanation.tranches,assiette:i,multiplicateur:a}),i,t),o=r.reduce((e,{nodeValue:n})=>null==n?void 0:e+n,0)),{...e,nodeValue:o,missingVariables:T([i,a,...r]),explanation:{assiette:i,multiplicateur:a,tranches:r},unit:i.unit}}),an.nom="condition",A("condition",function(e){let t;const i=this.evaluateNode(e.explanation.si);let a=e.explanation.alors,r=e.explanation.sinon;if("unit"in i)throw new n("EvaluationError","La condition doit être de type booléen",{dottedName:this.cache._meta.evaluationRuleStack[0]});if(!0===i.nodeValue)a=this.evaluateNode(e.explanation.alors),a.isActive=!0,t=a;else if(!1===i.nodeValue)r=this.evaluateNode(e.explanation.sinon),t=r;else if(null===i.nodeValue)t=i;else{if(void 0!==i.nodeValue)throw new n("EvaluationError","La condition doit être de type booléen",{dottedName:this.cache._meta.evaluationRuleStack[0]});r=this.evaluateNode(e.explanation.sinon),a=this.evaluateNode(e.explanation.alors),t={...i,missingVariables:T([r,a])}}const o=t.unit??a.unit;return{nodeValue:t.nodeValue,missingVariables:L(K(i.missingVariables),t.missingVariables),...null!=o?{unit:o}:{},...e,explanation:{si:i,alors:a,sinon:r}}}),rn.nom="contexte",A("contexte",function(e){const t=[],i=Object.fromEntries(e.explanation.contexte.filter(([e,n])=>{const i=this.evaluateNode(e),a=this.evaluateNode(n);return void 0===a.nodeValue&&t.push(e.dottedName),i.nodeValue!==a.nodeValue||G(i.unit)!==G(a.unit)}).map(([e,n])=>[e.dottedName,n]));if(this.cache._meta.currentContexteSituation===JSON.stringify(i))return{...M,...e};let a;this.context.subEngines.has(e.explanation.subEngineId)?a=this.context.subEngines.get(e.explanation.subEngineId):(a=this.shallowCopy(),a.context.warn.experimentalRules=!1,a.context.subEngineId=e.explanation.subEngineId,this.context.subEngines.set(e.explanation.subEngineId,a),Object.keys(i).length&&(a.setSituation(i,{keepPreviousSituation:!0}),Object.entries(i).forEach(([e,t])=>{const i=this.cache.nodes.get(t);if(!i)throw new n("InternalError","The situation should have already been evaluated",{dottedName:this.context.dottedName});const r=a.context.parsedRules[e+" . $SITUATION"];if(!r?.explanation.valeur)throw new n("InternalError","The origin rule should be defined",{dottedName:this.context.dottedName});a.cache.nodes.set(r.explanation.valeur,i)}))),a.cache._meta.currentContexteSituation=JSON.stringify(i);const r=a.evaluateNode(e.explanation.valeur),o=e.explanation.contexte.map(([e])=>e.dottedName),s=o.filter(e=>t.includes(e)),l=Object.fromEntries(Object.entries(r.missingVariables).filter(([e])=>!o.includes(e)||s.includes(e)));return{...e,nodeValue:r.nodeValue,explanation:{...e.explanation,valeur:r},missingVariables:l,..."unit"in r&&{unit:r.unit}}});var sn=e=>+e<10?`0${e}`:""+e;function ln(e,t,i){const a=new Date(+e,+t-1,+i);if(!+a||a.getDate()!==+i)throw new n("SyntaxError",`La date ${i}/${t}/${e} n'est pas valide`,{dottedName:""});return`${sn(i)}/${sn(t)}/${sn(e)}`}function un(e){const[n,t,i]=on(e).split("/"),a=new Date(+i,+t-1,+n);return a.setMinutes(a.getMinutes()-a.getTimezoneOffset()),a}function cn(e){return+e.slice(-4)}function dn(e){const[,n,t]=e.split("/");return`01/${(3*Math.floor((Number.parseInt(n,10)-1)/3)+1).toString().padStart(2,"0")}/${t}`}function pn(e,n){return(un(n).getTime()-un(e).getTime())/864e5}function mn(e,n){const[t,i,a]=e.split("/").map(e=>+e),[r,o,s]=n.split("/").map(e=>+e);return o-i+12*(s-a)-(t-1)/new Date(a,i,0).getDate()+r/new Date(s,o,0).getDate()}function fn(e,n){const t=pn(e,n),i=e=>e>=new Date(e.getFullYear(),2,1),a=un(e),r=un(n),o=a.getFullYear()+(i(a)?1:0),s=r.getFullYear()+(i(a)?0:-1);return(t-Array.from({length:s-o+1},(e,n)=>o+n).filter(e=>e%4==0&&e%100!=0||e%400==0).length)/365}var hn,vn=D(ln((hn=new Date).getFullYear(),hn.getMonth()+1,hn.getDate()));A("durée",function(e){const n=this.evaluateNode(e.explanation.depuis),t=this.evaluateNode(e.explanation["jusqu'à"]),i=n.nodeValue,a=t.nodeValue;let r;if(null===i||null===a)r=null;else if(void 0===i||void 0===a)r=void 0;else switch(e.unit.numerators[0]){case"jour":r=pn(i,a);break;case"mois":r=mn(i,a);break;case"an":r=fn(i,a);break;case"trimestre":r=mn(i,a)/3;break;case"trimestre civil":r=function(e,n){return Math.floor(mn(dn(e),dn(n))/3)+1}(i,a);break;case"année civile":r=function(e,n){const t="01/"+cn(e),i="01/"+cn(n);return Math.floor(fn(t,i))+1}(i,a)}return"number"==typeof r&&(r=Math.max(0,r)),{...e,missingVariables:T([n,t]),nodeValue:r,explanation:{depuis:n,"jusqu'à":t}}});var bn=["mois","jour","an","trimestre","trimestre civil","année civile"];function gn(e,n){return{explanation:kt(e,n),nodeKind:"est non défini"}}gn.nom="est non défini";var xn=U("est défini",{valeur:{}},{"=":[{"est non défini":"valeur"},"non"]}),Nn=U("est applicable",{valeur:{}},{"=":[{"est non applicable":"valeur"},"non"]});function Vn(e,n,t,i=0,a=100,r=0){let o,s,l,u,c,d,p=n,m=t,f=p,h=e(p),v=e(m),b=h;for(;a-- >0;){if(l=m-p,Math.abs(b)<Math.abs(v)&&(p=m,m=f,f=p,h=v,v=b,b=h),o=1e-15*Math.abs(m)+i/2,s=(f-m)/2,Math.abs(s)<=o||0===v)return m;if(Math.abs(l)>=o&&Math.abs(h)>Math.abs(v)){let e,n;const t=f-m;p===f?(e=v/h,u=t*e,c=1-e):(c=h/b,e=v/b,n=v/h,u=n*(t*c*(c-e)-(m-p)*(e-1)),c=(c-1)*(e-1)*(n-1)),u>0?c=-c:u=-u,u<.75*t*c-Math.abs(o*c)/2&&u<Math.abs(l*c/2)&&(s=u/c)}if(Math.abs(s)<o&&(s=s>0?o:-o),p=m,h=v,m+=s,v=e(m),(v>0&&b>0||v<0&&b<0)&&(f=p,b=h),Math.abs(v)<i)return m;Math.abs(v)<r&&(d=m)}return d}A("est non défini",function(e){const n=this.evaluateNode(e.explanation);let t=!1;return void 0===n.nodeValue&&(t=!0),{...e,nodeValue:t,missingVariables:n.missingVariables,explanation:n}}),A("grille",function(e){const t=this.evaluateNode.bind(this),i=this.evaluateNode(e.explanation.assiette),a=this.evaluateNode(e.explanation.multiplicateur);if(0===a.nodeValue)throw new n("EvaluationError","Le multiplicateur ne peut pas être nul",{dottedName:this.cache._meta.evaluationRuleStack[0]});const r=tn.call(this,{parsedTranches:e.explanation.tranches,assiette:i,multiplicateur:a}).map(e=>{if(!1===e.isActive)return e;const n=t(e.montant);return{...e,montant:n,nodeValue:n.nodeValue,unit:n.unit,missingVariables:T([n,e])}});let o;const s=r.find(e=>e.isActive);o=s?[s]:!1===r[r.length-1].isAfterActive?[{nodeValue:!1}]:r.filter(e=>void 0===e.isActive);const l=!!o[0]&&(void 0===o[0].isActive?void 0:o[0].nodeValue);return{...e,nodeValue:l,missingVariables:T([i,a,...o]),explanation:{...e.explanation,assiette:i,multiplicateur:a,tranches:r},unit:o[0]?.unit??void 0}}),A("inversion",function(e){const n=this.shallowCopy();if(n.context.warn.experimentalRules=!1,this.cache._meta.evaluationRuleStack.slice(1).includes(e.explanation.ruleToInverse))return{...C,...e};n.cache._meta.parentRuleStack=[...this.cache._meta.parentRuleStack],n.cache._meta.evaluationRuleStack=[...this.cache._meta.evaluationRuleStack];const t=e.explanation.inversionCandidates.find(e=>{if(this.cache._meta.evaluationRuleStack.includes(e.dottedName))return!1;const t=n.evaluateNode(n.context.parsedRules[`${e.dottedName} . $SITUATION`]);return"number"==typeof t.nodeValue&&!(e.dottedName in t.missingVariables)});if(void 0===t)return{...e,nodeValue:void 0,missingVariables:{...Object.fromEntries(e.explanation.inversionCandidates.map(e=>[e.dottedName,1])),[e.explanation.ruleToInverse]:1}};const i=n.evaluateNode(t);let a,r=0;n.setSituation({[t.dottedName]:C},{keepPreviousSituation:!0}),n.cache.traversedVariablesStack=this.cache.traversedVariablesStack?[]:void 0;const o=o=>(r++,n.setSituation({[e.explanation.ruleToInverse]:{nodeValue:o,nodeKind:"constant",type:"number",unit:i.unit}},{keepPreviousSituation:!0}),n.cache.traversedVariablesStack=this.cache.traversedVariablesStack?[]:void 0,a=n.evaluateNode(t),a),s=i.nodeValue;let l;const u=s,c=o(u).nodeValue,d=void 0!==c?u*s*(c>s?.9:1.2)/c:2e3,p=o(d).nodeValue,m=this.context.inversionMaxIterations??10;if(void 0===c&&void 0===p||(l=Vn(e=>(e===u?c:e===d?p:o(e).nodeValue)-s,void 0!==p&&p<s&&(p>c||c>s)?d:void 0!==c&&c<s&&(c>p||p>s)?u:e.explanation.min,void 0!==p&&p>s&&(p<c||c<s)?d:void 0!==c&&c>s&&(c<p||p<s)?u:e.explanation.max,e.explanation.errorTolerance,m,1),l&&(l<e.explanation.min||l>e.explanation.max)&&(l=void 0)),null==l&&(this.cache.inversionFail=!0),this.cache.traversedVariablesStack){const e=this.cache.traversedVariablesStack[0];e&&(a.traversedVariables??[]).forEach(n=>e.add(n))}return{...e,nodeValue:l,unit:i.unit,explanation:{...e.explanation,inversionGoal:t,numberOfIteration:r,inversionFail:this.cache.inversionFail},missingVariables:a.missingVariables}});var yn=q("le maximum de",{valeur:{type:"liste"}},({valeur:e})=>e.reduce((e,n)=>({condition:{si:{"est non applicable":"$INTERNAL valeur"},alors:"$INTERNAL acc",sinon:{condition:{si:{ou:[{"est non applicable":"$INTERNAL acc"},{">":["$INTERNAL valeur","$INTERNAL acc"]}]},alors:"$INTERNAL valeur",sinon:"$INTERNAL acc"}}},avec:{"[privé] $INTERNAL valeur":{valeur:n},"[privé] $INTERNAL acc":{valeur:e}}}),M)),wn=q("le minimum de",{valeur:{type:"liste"}},({valeur:e})=>e.reduce((e,n)=>({condition:{si:{"est non applicable":"$INTERNAL valeur"},alors:"$INTERNAL acc",sinon:{condition:{si:{ou:[{"est non applicable":"$INTERNAL acc"},{"<":["$INTERNAL valeur","$INTERNAL acc"]}]},alors:"$INTERNAL valeur",sinon:"$INTERNAL acc"}}},avec:{"[privé] $INTERNAL valeur":{valeur:n},"[privé] $INTERNAL acc":{valeur:e}}}),M));function En(e){return e.reverse().reduce((e,n)=>({"+":[n,e]}),M)}var Rn=q("somme",{valeur:{type:"liste"}},({valeur:e})=>En([...e])),Sn=q("moyenne",{valeur:{type:"liste"}},({valeur:e})=>{const n=[...e];return{"/":[En(n),En(n.map($n))]}});function $n(e){return{"applicable si":{"est applicable":e},valeur:1}}var In=U("non applicable si",{"non applicable si":{},valeur:{}},{condition:{si:"non applicable si = non",alors:"valeur",sinon:M}}),kn={"*":[(e,n)=>e*n,"×"],"/":[(e,n)=>e/n,"∕"],"//":[(e,n)=>(e-e%n)/n,"//"],"**":[(e,n)=>e**n,"**"],"+":[(e,n)=>e+n],"-":[(e,n)=>e-n,"−"],"<":[(e,n)=>e<n],"<=":[(e,n)=>e<=n,"≤"],">":[(e,n)=>e>n],">=":[(e,n)=>e>=n,"≥"],"=":[(e,n)=>(e??!1)===(n??!1)],"!=":[(e,n)=>(e??!1)!==(n??!1),"≠"],et:[(e,n)=>(e??!1)&&(n??!1)],ou:[(e,n)=>(e??!1)||(n??!1)]},An=(e,n)=>(t,i)=>{const a=t.map(e=>kt(e,i));return{...t,nodeKind:"operation",operationKind:e,operator:n||e,explanation:a}};A("operation",function(e){let t=this.evaluateNode(e.explanation[0]),i={...e,missingVariables:{}};if(null===t.nodeValue&&["<",">","<=",">=","/","*","//","-","et"].includes(e.operationKind)||0===t.nodeValue&&["/","*"].includes(e.operationKind)||!1===t.nodeValue&&"et"===e.operationKind||!0===t.nodeValue&&"ou"===e.operationKind)return{...i,nodeValue:"et"!==e.operationKind&&t.nodeValue,missingVariables:t.missingVariables};let a=this.evaluateNode(e.explanation[1]);if(i.explanation=[t,a],"/"===e.operationKind&&0===a.nodeValue)throw new n("EvaluationError","Division by zero",{dottedName:this.cache._meta.evaluationRuleStack[0]});if(null===a.nodeValue&&["<",">","<=",">=","/","*","//","et"].includes(e.operationKind)||0===a.nodeValue&&["*"].includes(e.operationKind)||!1===a.nodeValue&&"et"===e.operationKind||!0===a.nodeValue&&"ou"===e.operationKind)return{...i,nodeValue:"et"!==e.operationKind&&a.nodeValue,missingVariables:a.missingVariables};i.missingVariables=T([t,a]),void 0!==t.nodeValue&&void 0!==a.nodeValue||(i={...i,nodeValue:void 0});const o=["+","-"].includes(e.operationKind)&&"%"===G(a.unit)&&"%"!==G(t.unit);if(!("nodeValue"in i)&&!["/","*","//"].includes(e.operationKind)&&!o)try{t.unit&&"unit"in a?a=be(t.unit,a):a.unit&&(t=be(a.unit,t))}catch(n){if(!(n instanceof Error))throw n;r(this.context,`Dans l'expression '${e.operationKind}', la partie gauche (unité: ${G(t.unit)}) n'est pas compatible avec la partie droite (unité: ${G(a.unit)})`,"unitConversion",n)}const s=kn[e.operationKind][0],l=t.nodeValue,u=a.nodeValue;if(i.nodeValue="nodeValue"in i?i.nodeValue:["<",">","<=",">=","*","/","//"].includes(e.operationKind)&&null===a.nodeValue?null:[l,u].every(e=>"string"==typeof e&&e.match?.(/^[\d]{2}\/[\d]{2}\/[\d]{4}$/))?s(un(l).getTime(),un(u).getTime()):s(l,u),"*"===e.operationKind&&Q("*",[t.unit,a.unit])?.numerators.includes("%")){const e=Q("*",[t.unit,a.unit]),n=i.nodeValue;return{...i,nodeValue:"number"==typeof n?n/100:n,unit:Q("*",[e,{numerators:[],denominators:["%"]}])}}if(o){const n=Q("*",[t.unit,a.unit]);return{...i,nodeValue:"number"==typeof t.nodeValue&&"number"==typeof a.nodeValue?t.nodeValue*(1+a.nodeValue/100*("-"===e.operationKind?-1:1)):i.nodeValue,unit:Q("*",[n,{numerators:[],denominators:["%"]}])}}return"*"===e.operationKind||"/"===e.operationKind||"//"===e.operationKind||"-"===e.operationKind||"+"===e.operationKind?{...i,unit:Q(e.operationKind,[t.unit,a.unit])}:i});var _n=Object.fromEntries(Object.entries(kn).map(([e,[,n]])=>[e,An(e,n)])),jn=U("par défaut",{"par défaut":{},valeur:{}},{condition:{si:{"est non défini":"valeur"},alors:"par défaut",sinon:"valeur"}}),On=U("plafond",{plafond:{},valeur:{}},{condition:{si:{et:["plafond != non","valeur > plafond"]},alors:"plafond",sinon:"valeur"}}),Kn=U("plancher",{plancher:{},valeur:{}},{condition:{si:{et:["plancher != non","valeur < plancher"]},alors:"plancher",sinon:"valeur"}}),Ln=q("produit",{valeur:{type:"liste"}},({valeur:e})=>{return{valeur:(n=[...e],n.reduce((e,n)=>({"*":[n,e]}),D(1))),"simplifier l'unité":"oui"};var n});function Tn(e,n){return{explanation:{ruleToSolve:n.dottedName,valeur:kt(e.valeur,n)},nodeKind:"résoudre référence circulaire"}}function Dn(e,n){return{explanation:kt(e.valeur,n),nodeKind:"simplifier unité"}}Tn.nom="résoudre la référence circulaire",A("résoudre référence circulaire",function(e){if(this.cache._meta.evaluationRuleStack.slice(1).includes(e.explanation.ruleToSolve))return{...C,...e};let n=0;const t=this.shallowCopy();t.context.warn.experimentalRules=!1,t.cache._meta.parentRuleStack=[...this.cache._meta.parentRuleStack],t.cache._meta.evaluationRuleStack=[...this.cache._meta.evaluationRuleStack];const i=this.context.inversionMaxIterations??25,a=i=>(n++,t.setSituation({[e.explanation.ruleToSolve]:{...C,nodeValue:i}},{keepPreviousSituation:!0}),t.evaluateNode(e.explanation.valeur)),r=Symbol("inversion failed");let o=r,s=a(1);const l=s.nodeValue,u=s.unit;return void 0!==l&&(o=Vn(e=>1===e?l-1:(s=a(e),s.nodeValue-e),-1e6,1e8,.5,i,2)),o===r&&(o=void 0,this.cache.inversionFail=!0),void 0!==o&&(s=a(o)),{...e,unit:u,nodeValue:o,explanation:{...e.explanation,valeur:s,numberOfIterations:n},missingVariables:s.missingVariables}}),Dn.nom="simplifier l'unité",A("simplifier unité",function(e){const n=this.evaluateNode(e.explanation),t=n.nodeValue,i={...n,...e,explanation:n};if(null==t)return i;if(!n.unit)return{...i,unit:n.unit};const a=de(n.unit);return{...i,nodeValue:"number"==typeof t?oe(n.unit,a,t):t,unit:a}});var Mn=U("dans la situation",{valeur:{},"dans la situation":{}},{condition:{si:{"est non défini":"dans la situation"},alors:"valeur",sinon:"dans la situation"}});A("taux progressif",function(e){const t=this.evaluateNode.bind(this),i=this.evaluateNode(e.explanation.assiette),a=this.evaluateNode(e.explanation.multiplicateur);if(0===a.nodeValue)throw new n("EvaluationError","Division by zero",{dottedName:""});const r=tn.call(this,{parsedTranches:e.explanation.tranches,assiette:i,multiplicateur:a}),o={...e,explanation:{tranches:r,assiette:i,multiplicateur:a},unit:J("%")},s=r[r.length-1];if(r.every(({isActive:e})=>!1===e)||s.isActive&&s.plafond.nodeValue===1/0){const e=be(J("%"),t(s.taux)),{nodeValue:n,missingVariables:i}=e;return s.taux=e,s.nodeValue=n,s.missingVariables=i,{...o,nodeValue:n,missingVariables:i}}if(r.every(({isActive:e})=>!0!==e)||"number"!=typeof i.nodeValue)return{...o,nodeValue:void 0,missingVariables:T(r)};const l=r.findIndex(({isActive:e})=>!0===e),u=r[l];u.taux=be(J("%"),t(u.taux));const c=r[l-1];c&&(c.taux=be(J("%"),t(c.taux)),c.isActive=!0);const d=c?c.taux:u.taux,p=[d,u.taux];if(p.some(e=>void 0===e.nodeValue))return u.nodeValue=void 0,{...o,nodeValue:void 0,missingVariables:T(p)};const m=d.nodeValue,f=u.taux.nodeValue,h=u.plancherValue,v=(f-m)/(u.plafondValue-h),b=m+(i.nodeValue-h)*v;return u.nodeValue=b,{...o,nodeValue:b,missingVariables:{}}});var Pn="texte";function Cn(e,n){const t=[];let i=0;for(const{0:a,index:r}of e.matchAll(/{{(.|\n)*?}}/g)){const o=kt(a.slice(2,-2).trim(),n);t.push(e.substring(i,r),o),i=(r??0)+a.length}return t.push(e.slice(i)),{nodeKind:Pn,explanation:t}}Cn.nom=Pn,A(Pn,function(e){const n=e.explanation.map(e=>"string"==typeof e?e:this.evaluateNode(e));return{...e,explanation:n,missingVariables:T(n.filter(e=>"string"!=typeof e)),nodeValue:n.map(e=>"string"==typeof e?e:function(e,{language:n="fr",displayedUnit:t,formatUnit:i,precision:a=2}={}){let r="number"==typeof e||null==e?e:e.nodeValue;if("number"==typeof r&&Number.isNaN(r))return"Erreur dans le calcul du nombre";if(void 0===r)return"Pas encore défini";if(null===r)return"Non applicable";if("string"==typeof r)return r.replace("\\n","\n");if("boolean"==typeof r)return Ne[n][r];if("number"==typeof r){let o="number"!=typeof e&&void 0!==e&&"unit"in e?e.unit:void 0;if(o){const e=de(o);r=oe(o,e,r),o=e}return function({maximumFractionDigits:e,minimumFractionDigits:n,language:t,formatUnit:i,unit:a,nodeValue:r}){if("number"!=typeof r)return r;const o=a?G(a,r,i):void 0;switch(o){case"€":return xe({style:"currency",maximumFractionDigits:e,minimumFractionDigits:n,language:t})(r);case"%":return xe({style:"percent",maximumFractionDigits:e,language:t})(r/100);default:return xe({style:"decimal",minimumFractionDigits:n,maximumFractionDigits:e,language:t})(r)+("string"==typeof o?` ${o}`:"")}}({minimumFractionDigits:0,maximumFractionDigits:a,language:n,formatUnit:i,nodeValue:r,unit:t??o}).trim()}}(e)).join("")}});var Un=q("toutes ces conditions",{valeur:{type:"liste"}},({valeur:e})=>e.reduce((e,n)=>({et:[e,n]}),"oui")),qn=q("une de ces conditions",{valeur:{type:"liste"}},({valeur:e})=>e.reduce((e,n)=>({ou:[e,n]}),"non"));function Fn(e,n){return{explanation:kt(e.valeur,n),unit:J(e.unité,n.getUnitKey),nodeKind:Fn.nom}}function zn(e,n){return{missingVariable:e["variable manquante"],nodeKind:zn.nom,explanation:kt(e.valeur,n)}}Fn.nom="unité",A(Fn.nom,function(e){const n=this.evaluateNode(e.explanation);let t=n.nodeValue;if(null!==t&&"unit"in e)try{t=oe(n.unit,e.unit,n.nodeValue)}catch(e){if(!(e instanceof Error))throw e;r(this.context,"Erreur lors de la conversion d'unité explicite","unitConversion",e)}return{...e,nodeValue:t,explanation:n,missingVariables:n.missingVariables}}),zn.nom="variable manquante",A(zn.nom,function(e){const n=this.evaluateNode(e.explanation),t=Object.values(n.missingVariables??{}).reduce((e,n)=>e>n?e:n,0);return{...e,nodeValue:n.nodeValue,unit:n.unit,explanation:n,missingVariables:L(n.missingVariables,{[e.missingVariable]:t+1})}}),A("variations",function(e){const[n,t,i]=e.explanation.reduce(([e,n,t,i],{condition:a,consequence:o},s)=>{if(!0===i)return[e,[...n,{condition:a,consequence:o}],t,i];const l=this.evaluateNode(a),u=void 0===i?i:!i&&(void 0===l.nodeValue?void 0:!1!==l.nodeValue&&null!==l.nodeValue);if(!1===u||null===u)return[e,[...n,{condition:l,consequence:o}],t,i];let c;if(!1!==l.nodeValue&&null!==l.nodeValue&&(c=this.evaluateNode(o),t))try{c=be(t,c)}catch(e){if(!(e instanceof Error))throw e;r(this.context,`L'unité de la branche n° ${s+1} du mécanisme 'variations' n'est pas compatible avec celle d'une branche précédente`,"unitConversion",e)}return[u&&c?.nodeValue,[...n,{condition:l,consequence:c??o}],t||c?.unit,i||u]},[null,[],void 0,!1]);return{...e,nodeValue:n,...void 0!==i&&{unit:i},explanation:t,missingVariables:t.reduce((e,{condition:n,consequence:t})=>L(e,L(K(n.missingVariables),"nodeValue"in n&&!1!==n.nodeValue&&null!==n.nodeValue?t.missingVariables:{})),{})}});var Bn=class extends Error{details;constructor(e){super(Wn(e)),this.details=e}},Jn=class extends n{constructor(e){super("SyntaxError",Wn(e),e)}};function Wn({expression:e,position:n,expected:t,found:i,customMessage:a}){return`L'expression suivante n'est pas valide :\n   \n   ${e}\n   ${" ".repeat(n)+"^"}\n   ${a??`${t} est attendu, ${i?`mais "${i}" a été trouvé`:"hors l’expression se termine prématurément"}`}\n`}function Yn(e,n,t,i){throw new Bn({expression:e.strExpression,position:e.current,expected:n,found:t,customMessage:i})}function Zn(e,n){return ot(e)&&Yn(e,`'${n}'`,""),e.strExpression[e.current++]}function Gn(e,n,t,i){const a=e.strExpression.slice(e.current).match(n);return a||Yn(e,t??n.source,tt(e,5),i),e.current+=a[0].length,{parser:e,value:a[0]}}function Hn(e){let n=Qn(e);for(;!ot(n)&&at(n,$t);){const e=rt(n,$t),t=Qn(e.parser);t.tree=ut(e.value,n.tree,t.tree),n=t}return n}function Qn(e){let n=Xn(e);for(;!ot(n)&&at(n,St);){const e=rt(n,St),t=Xn(e.parser);t.tree=ut(e.value,n.tree,t.tree),n=t}return n}function Xn(e){let n=et(e);for(;!ot(n)&&at(n,Rt);){const e=rt(n,Rt),t=et(e.parser);t.tree=ut(e.value,n.tree,t.tree),n=t}return n}function et(e){let n=nt(e);for(;!ot(n)&&at(n,Et);){const e=rt(n,Et),t=et(e.parser);t.tree=ut(e.value,n.tree,t.tree),n=t}return n}function nt(e){if("("===tt(e)){Zn(e,"("),Gn(e,dt);const n=Hn(e);return Gn(n,dt),function(e){const n=tt(e);")"!==n&&Yn(e,"')'",n),Zn(e,")")}(n),n}if("-"===tt(e)){Zn(e,"-"),Gn(e,dt);const n=nt(e);return n.tree=function(e){return{"-":[{constant:{type:"number",nodeValue:0}},e]}}(n.tree),n}if(at(e,ht)){const t=Gn(e,ht,"Une date");return{...t.parser,tree:(n=t.value,{constant:{type:"date",nodeValue:on(n)}})}}if(tt(e).match(ft)){const n=Gn(e,ft,"Un nombre");if(at(n.parser,yt)){const e=Gn(n.parser,yt,"Une unité");return{...e.parser,tree:{constant:{type:"number",nodeValue:parseFloat(n.value),rawUnit:e.value.trim()}}}}return{...n.parser,tree:st(parseFloat(n.value))}}if(it(e,"'")||it(e,'"')){const n=Gn(e,mt,"Une chaîne de caractères");return{...n.parser,tree:{constant:{type:"string",nodeValue:n.value.slice(1,-1)}}}}if(tt(e).match(pt)||"^"===tt(e)){const n=Gn(e,Nt,"Un nom de règle");return{...n.parser,tree:"oui"===n.value||"non"===n.value?lt(n.value):{variable:n.value}}}var n;Yn(e,"Une constante, une référence ou une expression entre parenthèses",tt(e))}function tt(e,n){return n?e.strExpression.slice(e.current,e.current+n):e.strExpression[e.current]}function it(e,n){return e.strExpression.slice(e.current,e.current+n.length)===n}function at(e,n){return null!=e.strExpression.slice(e.current).match(n)}function rt(e,n){const t=e.strExpression.slice(e.current).match(n);if(!t)throw new Error(`Expected '${n.source}' but got ${tt(e)}`);return e.current+=t[0].length,{parser:e,value:t[1]}}function ot(e){return e.current>=e.strExpression.length}function st(e){return{constant:{type:"number",nodeValue:e}}}function lt(e){return{constant:{type:"boolean",nodeValue:"oui"===e}}}function ut(e,n,t){return{[e]:[n,t]}}var ct=/[\t\u0020\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]/,dt=new RegExp(`^${ct.source}*`),pt=/[a-zA-Z\u00C0-\u017F$]/,mt=/'.*'|".*"/,ft=/\d+(\.\d+)?/,ht=/^(?:(?:0?[1-9]|[12][0-9]|3[01])\/)?(?:0?[1-9]|1[012])\/\d{4}/,vt=new RegExp(`(${pt.source}|${/[',°€$%²_'"'«»]/.source}|${/\d/.source})`),bt=new RegExp(`(${vt.source}|\\-|\\+|')`),gt=e=>new RegExp(`(${e.source}${bt.source}*)(${ct.source}${vt.source}${bt.source}*)*`),xt=gt(pt),Nt=new RegExp(`^(${xt.source}|\\^)( \\. ${xt.source})*`),Vt=gt(new RegExp(`(${/[°%\p{Sc}€$]/u.source}|${pt.source})`)),yt=new RegExp(`${dt.source}(\\/)?${Vt.source}(${ct.source}*(\\.|\\/)${Vt.source})*`),wt=e=>new RegExp(`^${ct.source}+(${e.join("|")})${ct.source}+`),Et=wt(["\\*\\*"]),Rt=wt(["\\*","\\/","\\/\\/"]),St=wt(["-","\\+"]),$t=wt([">","<",">=","<=","=","!="]),It=/(\+|-|\*|\/|\*\*|>|<|>=|<=|=|!=)/;function kt(e,t){if(null==e)throw new n("SyntaxError","\n\tUne des valeurs de la formule est vide.\n\tVérifiez que tous les champs à droite des deux points sont remplis",{dottedName:t.dottedName});if("boolean"==typeof e)throw new n("SyntaxError","\nLes valeurs booléennes true / false ne sont acceptées.\nUtilisez leur contrepartie française : 'oui' / 'non'",{dottedName:t.dottedName});const i="object"==typeof e?e:function(e,n="<expression>"){if("number"==typeof e)return st(e);const t=(e+"").replace(/\s*\n\s*/g," ").trim();try{const e=Hn({strExpression:t,current:0,tree:null});return ot(e)||(at(e,It)&&Yn(e,"un opérateur entouré d’espaces",tt(e),'Les opérateurs doivent être entourés d’espaces ("2 + 2" et non "2+2")'),Yn(e,"La fin d’expression",tt(e))),e.tree}catch(e){if(e instanceof Bn)throw new Jn({...e.details,dottedName:n});throw e}}(e,t.dottedName);return"nodeKind"in i?i:{...jt(i,t),rawNode:e}}function At(e,t){if(Array.isArray(e))throw new n("SyntaxError",`\nIl manque le nom du mécanisme pour le tableau : [${e.map(e=>`'${e}'`).join(", ")}]\nLes mécanisme possibles sont : 'somme', 'le maximum de', 'le minimum de', 'toutes ces conditions', 'une de ces conditions'.\n\t\t`,{dottedName:t.dottedName});const i=Object.keys(e);if(i.length>1)throw new n("SyntaxError",`\nLes mécanismes suivants se situent au même niveau : ${i.map(e=>`'${e}'`).join(", ")}\nCela vient probablement d'une erreur dans l'indentation\n\t`,{dottedName:t.dottedName});if(0===i.length)return{nodeKind:"constant",nodeValue:void 0};const a=i[0],r=e[a],o=Ot[a];if(!o)throw new n("SyntaxError",`Le mécanisme "${a}" est inconnu.\n\nVérifiez qu'il n'y ait pas d'erreur dans l'orthographe du nom.`,{dottedName:t.dottedName});try{return o(r,t)}catch(e){if(e instanceof n||!(e instanceof Error))throw e;throw new n("SyntaxError",a?`➡️ Dans le mécanisme ${a}\n${e.message}`:e.message,{dottedName:t.dottedName})}}A("reference",function(e){if(!e.dottedName)throw new i(e);const n=this.evaluateNode(this.context.parsedRules[e.dottedName]);return delete n.sourceMap,{...n,...e}});var _t=[rn,zn,en,B,In,he,Fn,Dn,Kn,On,jn,Mn,Tn,z];function jt(e,n){const t=_t.find(n=>n.nom in e);if(!t)return At(e,n);const{[t.nom]:i,...a}=e;return At({[t.nom]:{valeur:a,[t.nom]:i}},n)}var Ot={..._n,..._t.reduce((e,n)=>({[n.nom]:n,...e}),{}),logarithme:function(e,n){return{explanation:kt(e,n),nodeKind:"logarithme"}},"inversion numérique":(e,t)=>{let i="object"==typeof e&&"avec"in e?e.avec:e;const a="object"==typeof e&&"min"in e?e.min:-1e6,r="object"==typeof e&&"max"in e?e.max:1e8,o="object"==typeof e&&"tolérance d'erreur"in e?e["tolérance d'erreur"]:.1;if(null===e)throw new n("SyntaxError","Il manque les règles avec laquelle effectuer le calcul d'inversion dans le mécanisme `inversion numérique`",{dottedName:t.dottedName});return Array.isArray(i)||(i=[i]),{explanation:{ruleToInverse:t.dottedName,inversionCandidates:i.map(e=>({...kt(e,t)})),min:a,max:r,errorTolerance:o},nodeKind:"inversion"}},"le maximum de":yn,"le minimum de":wn,"taux progressif":function(e,n){return{explanation:{assiette:kt(e.assiette,n),multiplicateur:e.multiplicateur?kt(e.multiplicateur,n):D(1),tranches:nn(e.tranches,n)},nodeKind:"taux progressif"}},"toutes ces conditions":Un,"est non défini":gn,"est non applicable":Ve,"est applicable":Nn,"est défini":xn,"une de ces conditions":qn,condition:an,barème:function(e,n){return{explanation:{assiette:kt(e.assiette,n),multiplicateur:e.multiplicateur?kt(e.multiplicateur,n):D(1),tranches:nn(e.tranches,n)},nodeKind:"barème"}},durée:(e,t)=>{const i={depuis:kt(e.depuis??vn,t),"jusqu'à":kt(e["jusqu'à"]??vn,t)},a=e.unité?J(e.unité):J("jour");if(a.denominators.length>0||a.numerators.length>1||!bn.includes(a.numerators[0]))throw new n("SyntaxError",`Seules les unités suivantes sont acceptées pour une durée : ${bn.join(", ")}.\n\tL'unité fournie est: ${a.numerators[0]}`,{dottedName:t.dottedName});return{explanation:i,unit:a,nodeKind:"durée"}},grille:function(e,n){return{explanation:{assiette:kt(e.assiette,n),multiplicateur:e.multiplicateur?kt(e.multiplicateur,n):D(1),tranches:nn(e.tranches,n)},nodeKind:"grille"}},multiplication:Ln,produit:Ln,somme:Rn,moyenne:Sn,[Cn.nom]:Cn,valeur:kt,variable:function(e,t){if(!t.dottedName)throw new n("InternalError","Une référence ne peut pas exister en dehors d'une règle (`context.dottedName` est vide)",{dottedName:e});if(!e)throw new n("SyntaxError","Une référence ne peut pas être vide",{dottedName:t.dottedName});return{nodeKind:"reference",name:e,contextDottedName:t.dottedName}},variations:function(e,n){return{explanation:e.map(({si:e,alors:t,sinon:i})=>void 0!==i?{consequence:kt(i,n),condition:D(!0)}:{consequence:kt(t,n),condition:kt(e,n)}),nodeKind:"variations"}},constant:(e,n)=>Object.assign(e,{fullPrecision:!0,isNullable:null==e.nodeValue,missingVariables:{},nodeKind:"constant",dottedName:n.dottedName,..."number"===e.type&&e.rawUnit?{unit:J(e.rawUnit,n.getUnitKey)}:{}})},Kt=Object.keys(Ot),Lt=(Kt.filter(e=>!_t.find(({nom:n})=>n===e)),0),Tt={};function Dt(e,t){return e?(Array.isArray(e)?e:[e]).map(e=>{"string"==typeof e&&(e={"références à":e});const i=kt(e["références à"],t),[a,r]=[e.dans??[],e["sauf dans"]??[]].map(e=>Array.isArray(e)?e:[e]).map(e=>e.map(e=>kt(e,t)));if(null!=e.priorité&&("number"!=typeof e.priorité||e.priorité<0))throw new n("SyntaxError","La priorité du remplacement doit être un nombre positif",t);return{nodeKind:"replacementRule",rawNode:e,priority:e.priorité,definitionRule:kt(t.dottedName,t),replacedReference:i,replaceByNonApplicable:!1,whiteListedNames:a,blackListedNames:r,remplacementRuleId:Lt++}}):[]}function Mt(e,n){const t=Dt(e,n);return t.forEach(e=>e.replaceByNonApplicable=!0),t}function Pt(e,n){return u((t,a)=>{if("replacementRule"===t.nodeKind||"inversion"===t.nodeKind||"une possibilité"===t.nodeKind)return!1;if("contexte"===t.nodeKind)return{...t,explanation:{...t.explanation,valeur:a(t.explanation.valeur),contexte:t.explanation.contexte.map(([e,n])=>[e,a(n)])}};if("reference"===t.nodeKind){if(!t.dottedName)throw new i(t);const a=function(e,n){const t=n.filter(({definitionRule:n})=>n.dottedName!==e.contextDottedName).filter(({whiteListedNames:n})=>!n.length||n.some(n=>e.contextDottedName.startsWith(n.dottedName))).filter(({blackListedNames:n})=>!n.length||n.every(n=>!e.contextDottedName.startsWith(n.dottedName))).reverse().sort((e,n)=>{const t=(n.priority??0)-(e.priority??0);return 0!==t?t:n.definitionRule.dottedName.localeCompare(e.definitionRule.dottedName)});if(!t.length)return e;const i=t.map(e=>e.remplacementRuleId).join("-");if(Tt[i])return Tt[i];const a={nodeKind:"variations",explanation:[...t.map(({definitionRule:e,replaceByNonApplicable:n})=>n?{condition:e,consequence:M}:{condition:Ct(e),consequence:e}),{condition:Ut,consequence:e}]};return a.sourceMap={mecanismName:"replacement",args:{applicableReplacements:t,originalNode:e}},Tt[i]=a,Tt[i]}(t,e[t.dottedName]??[]);return c(e=>(Ze(e,n,t.contextDottedName),"continue"))(a),a}})}function Ct(e){return{nodeKind:"condition",explanation:{si:{nodeKind:"est non applicable",explanation:e},alors:qt,sinon:Ut}}}var Ut=D(!0),qt=D(!1);function Ft(e){return{evaluatedRule:void 0,dottedName:"",logger:console,getUnitKey:e=>e,parsedRules:{},referencesMaps:{referencesIn:new Map,rulesThatUse:new Map},nodesTypes:new WeakMap,rulesReplacements:{},subEngines:new Map,subEngineId:void 0,...e,flag:{filterNotApplicablePossibilities:!1,automaticNamespaceDisabling:!0,...e.flag},strict:{situation:!0,noOrphanRule:!0,noCycleRuntime:!1,checkPossibleValues:!1,...e.strict},warn:{cyclicReferences:!0,experimentalRules:!0,unitConversion:!0,deprecatedSyntax:!0,situationIssues:!0,...e.warn}}}function zt(e){return Object.assign({},e,{parsedRules:l(e.parsedRules),referencesMaps:{referencesIn:new Map(e.referencesMaps.referencesIn),rulesThatUse:new Map(e.referencesMaps.rulesThatUse)},subEngines:new Map,warn:l(e.warn),strict:l(e.strict),flag:l(e.flag)})}function Bt(e,t=Ft({})){if("string"==typeof e)throw new n("EngineError","Publicodes does not parse yaml rule sets itself anymore. Please provide a parsed js object. E.g. the `eemeli/yaml` package.",{});const a=l(e),r=Ft(t),o=r.parsedRules;r.parsedRules={},Qe(a,r);let s={};for(const e in o)s[e]=o[e];for(const e in r.parsedRules)s[e]=r.parsedRules[e];const[c,d]=function(e,t,i,a){const r=u(n=>Ge(n,e)),o=u(n=>{const t=Ge(n,e);return t&&Ze(t,i),t}),s=function(e,n){const t={};for(const i in n)t[i]=e(n[i]);return t}(t=>{if("replacementRule"===t.nodeKind)return r(t);if("rule"===t.nodeKind){const i=t.explanation.parents.find(n=>!(n.dottedName in e));if(!a&&i)throw new n("SyntaxError",`La règle parente "${i.dottedName}" n'existe pas`,{dottedName:t.dottedName})}return o(t)},t);return[s,i]}(s,r.parsedRules,r.referencesMaps,!r.strict.noOrphanRule);let p;return[s,p]=function({newRules:e,previousReplacements:n,parsedRules:t,referencesMaps:a}){const r=function(e){const n={};for(const t in e){const a=e[t];for(const e of a.replacements){if(!e.replacedReference.dottedName)throw new i(e);const t=e.replacedReference.dottedName;n[t]=[...n[t]??[],e]}}return n}(e),o=new Set([]);for(const e in r){const n=a.rulesThatUse.get(e)??[];for(const e of n)o.add(e)}const s=new Set(Object.keys(e).filter(e=>[...a.referencesIn.get(e)??new Set].some(e=>(n[e]??[]).length))),l=(u=n,c=r,Object.entries(c).reduce((e,[n,t])=>({...e,[n]:[...e[n]??[],...t]}),u));var u,c;if(!s.size&&!o.size)return[t,l];const d=Pt(n,a),p=Pt(r,a);return s.forEach(e=>{t[e]=d(t[e])}),o.forEach(e=>{t[e]=p(t[e])}),[t,l]}({parsedRules:s,newRules:c,referencesMaps:d,previousReplacements:r.rulesReplacements}),{parsedRules:s,nodesTypes:j(Object.keys(c),s,r.nodesTypes),referencesMaps:d,rulesReplacements:p}}var Jt=()=>({_meta:{evaluationRuleStack:[],parentRuleStack:[]},traversedVariablesStack:void 0,nodes:new Map}),Wt=class e{baseContext;context;publicParsedRules;publicSituation;cache=Jt();constructor(e={},n={}){const t=n.strict,i=n.warn,a={dottedName:"",...n,flag:{filterNotApplicablePossibilities:n.flag?.filterNotApplicablePossibilities??!1,automaticNamespaceDisabling:n.flag?.automaticNamespaceDisabling??!0},strict:"boolean"==typeof t?{situation:t,noOrphanRule:!0!==n.allowOrphanRules&&t,checkPossibleValues:t,noCycleRuntime:t}:"object"==typeof t?t:{},warn:"boolean"==typeof i?{cyclicReferences:i,experimentalRules:i,unitConversion:i}:"object"==typeof i?i:{}};this.baseContext=Ft({...a,...Bt(e,a)}),this.context=zt(this.baseContext),this.publicParsedRules={};for(const e in this.baseContext.parsedRules){const n=this.baseContext.parsedRules[e];!n.private&&ze(this.baseContext.parsedRules,"",e)&&(this.publicParsedRules[e]=n)}this.publicSituation={}}resetCache(){this.cache=Jt(),this.context.subEngines=new Map}setSituation(e={},n={}){this.resetCache();const t=n.keepPreviousSituation??!1,i=n.strict||this.baseContext.strict.situation;let a=Object.entries(e).filter(([e,n])=>{const t=this.checkSituationRule(e,n);if(!t)return!0;if(i||this.baseContext.strict.checkPossibleValues)throw t;return r(this.context,t.message,"situationIssues"),!1});const s=this.context;if(t||(this.context=zt(this.baseContext),this.publicSituation={}),i){const e=this.parseSituationRules(a);if(e)throw this.context=s,e}else a=a.filter(e=>{const n=this.parseSituationRules([e]);return n&&r(this.context,n.message,"situationIssues"),!n});return this.publicSituation=Object.assign(this.publicSituation,Object.fromEntries(a)),this.context.warn.experimentalRules&&Object.keys(this.publicSituation).forEach(e=>{Be(this.context.parsedRules,e)&&o(this.context,e),this.checkExperimentalRule(this.context.parsedRules[`${e} . $SITUATION`])}),this}inversionFail(){return!!this.cache.inversionFail}getRule(e){if(!(e in this.baseContext.parsedRules))throw new n("UnknownRule",`La règle '${e}' n'existe pas`,{dottedName:e});if(!(e in this.publicParsedRules))throw new n("PrivateRule",`La règle ${e} est une règle privée.`,{dottedName:e});return this.publicParsedRules[e]}getParsedRules(){return this.publicParsedRules}getSituation(){return this.publicSituation}getPossibilitiesFor(e,{filterNotApplicable:t=!1}={}){if(!this.context.flag?.filterNotApplicablePossibilities&&t)throw new n("EngineError","You must enable `flag.filterNotApplicablePossibilities` in engine instantiation to use the filterNotApplicable option",{});const i=this.getRule(e);return i.possibilities?t?this.evaluateNode(i.possibilities).explanation.filter(e=>!0!==e.notApplicable?.nodeValue):i.possibilities.explanation:null}evaluate(e){const n=this.cache.nodes.get(e);if(n)return n;this.context=Object.assign(this.context,Bt({"[privé] $EVALUATION":e&&"object"==typeof e&&"nodeKind"in e?{valeur:e}:e},this.context)),this.checkExperimentalRule(this.context.parsedRules.$EVALUATION),this.cache._meta=Jt()._meta;const t=this.evaluateNode(this.context.parsedRules.$EVALUATION.explanation.valeur);return this.cache.nodes.set(e,t),t}evaluateNode(e){const t=this.cache.nodes.get(e);let i=!1;if(this.cache.traversedVariablesStack&&(i=function(e,n){return!!e&&(0===e.length||"rule"===n.nodeKind)}(this.cache.traversedVariablesStack,e),function(e,n,t,i,a){void 0!==e&&(void 0===t?(a&&e.unshift(new Set),"reference"===n.nodeKind&&n.dottedName&&n.dottedName in i&&e[0].add(n.dottedName)):t.traversedVariables?.forEach(n=>e[0]?.add(n)))}(this.cache.traversedVariablesStack,e,t,this.publicParsedRules,i)),void 0!==t)return t;if(!k[e.nodeKind])throw new n("EvaluationError",`Unknown "nodeKind": ${e.nodeKind}`,{dottedName:""});const a=k[e.nodeKind].call(this,e);return this.cache.traversedVariablesStack&&function(e,n,t){void 0!==e&&t&&(n.traversedVariables=Array.from(e.shift()??[]),e.length>0&&n.traversedVariables.forEach(n=>{e[0].add(n)}))}(this.cache.traversedVariablesStack,a,i),this.cache.nodes.set(e,a),a}shallowCopy(){const n=new e;return n.baseContext=zt(this.baseContext),n.context=zt(this.context),n.publicParsedRules=this.publicParsedRules,n.publicSituation=l(this.publicSituation),n.cache={...Jt(),nodes:new Map(this.cache.nodes)},n}checkExperimentalRule=c(e=>("reference"===e.nodeKind&&Be(this.context.parsedRules,e.dottedName)&&o(this.baseContext,e.dottedName),"continue"));checkSituationRule(e,t){if(!(e in this.baseContext.parsedRules))return new n("SituationError",`'${e}' n'existe pas dans la base de règle.`,{dottedName:e});const i=this.baseContext.parsedRules[e];if(i.private)return new n("SituationError",`La règle ${e} est une règle privée.`,{dottedName:e});if(i.possibilities&&!ge(this,i.possibilities,this.evaluate(t))){const i=`La valeur "${this.evaluate(t).nodeValue}" ne fait pas partie des possibilités applicables listées pour cette règle.`;return new n("SituationError",i,{dottedName:e})}return!1}parseSituationRules(e){const t=Object.fromEntries(e.map(([e,n])=>[`[privé] ${e} . $SITUATION`,n&&"object"==typeof n&&"nodeKind"in n?{valeur:n}:n]));try{const e=Bt(t,this.context);return this.context=Object.assign(this.context,e),!1}catch(e){let t,i="";if(!(e instanceof Error))throw e;return i=e.message,"dottedName"in e&&(t=e.dottedName),new n("SituationError",i,{dottedName:t??""})}}};let Yt=null;globalThis.initEngine=e=>{try{console.log("JS: Initialisation du moteur...");const n=JSON.parse(e);return Yt=new Wt(n,{logger:{log:e=>{},warn:e=>{},error:e=>console.error(e)}}),JSON.stringify({status:"success"})}catch(e){return JSON.stringify({status:"error",message:e.message})}},globalThis.updateSituation=e=>{if(!Yt)return JSON.stringify({status:"error",message:"Engine not initialized"});try{const n=JSON.parse(e),t={};return Object.keys(n).forEach(e=>{null!==n[e]&&void 0!==n[e]&&(t[e]=n[e])}),Yt.setSituation(t),JSON.stringify({status:"updated"})}catch(e){return JSON.stringify({status:"error",message:e.message})}},globalThis.checkApplicability=e=>{if(!Yt)return"[]";try{const n=Yt.evaluate(e);return JSON.stringify(Object.keys(n.missingVariables||{}))}catch(e){return console.error("JS Error checkApplicability: "+e.message),"[]"}},globalThis.getBilan=e=>{if(!Yt)return"0";try{const n=Yt.evaluate(e);return JSON.stringify(n.nodeValue)}catch(e){return"0"}}})();
+// Generated by scripts/build-publicodes.mjs; Publicodes (MIT).
+/*
+MIT License
+
+Copyright (c) 2018-2021 beta.gouv.fr
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+(function () {
+const module = { exports: {} };
+"use strict";
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+// src/index.ts
+var index_exports = {};
+__export(index_exports, {
+  PublicodesError: () => PublicodesError,
+  capitalise0: () => capitalise0,
+  default: () => index_default,
+  formatValue: () => formatValue,
+  isPublicodesError: () => isPublicodesError,
+  parseExpression: () => parseExpression,
+  parsePublicodes: () => parsePublicodes,
+  parseUnit: () => parseUnit,
+  reduceAST: () => reduceAST,
+  serializeEvaluation: () => serializeEvaluation,
+  serializeUnit: () => serializeUnit,
+  simplifyNodeUnit: () => simplifyNodeUnit,
+  transformAST: () => makeASTTransformer,
+  traverseASTNode: () => traverseASTNode,
+  utils: () => ruleUtils_exports
+});
+module.exports = __toCommonJS(index_exports);
+
+// src/error.ts
+var isPublicodesError = (error, name) => error instanceof PublicodesError && (name === void 0 ? true : error.name === name);
+var PublicodesError = class extends Error {
+  name;
+  info;
+  constructor(name, message, info, originalError) {
+    super(buildMessage(name, message, info, originalError));
+    this.name = name;
+    this.info = info;
+  }
+};
+var buildMessage = (name, message, info, originalError) => {
+  const types = {
+    SyntaxError: "Erreur syntaxique",
+    EvaluationError: "Erreur d'\xE9valuation",
+    SituationError: "Erreur lors de la mise \xE0 jour de la situation",
+    UnknownRule: "R\xE8gle inconnue",
+    PrivateRule: "R\xE8gle priv\xE9e"
+  };
+  const isError = /error/i.test(name);
+  return `
+[ ${types[name] ?? name} ]` + (info && "dottedName" in info && info.dottedName?.length ? `
+\u27A1\uFE0F  Dans la r\xE8gle "${info.dottedName}"` : "") + `
+${isError ? "\u2716\uFE0F" : "\u26A0\uFE0F"}  ${message}` + (originalError ? "\n" + (isError ? "    " : "\u2139\uFE0F  ") + originalError.message : "");
+};
+var PublicodesInternalError = class extends PublicodesError {
+  constructor(payload) {
+    super(
+      "InternalError",
+      `
+Erreur interne du moteur.
+
+Cette erreur est le signe d'un bug dans publicodes. Pour nous aider \xE0 le r\xE9soudre, vous pouvez copier ce texte dans un nouveau ticket : https://github.com/betagouv/mon-entreprise/issues/new.
+
+payload:
+${JSON.stringify(payload, null, 2)}
+`,
+      payload
+    );
+  }
+};
+var UnreachableCaseError = class extends PublicodesInternalError {
+  constructor(value) {
+    super({
+      type: "UNREACHABLE_CODE",
+      value
+    });
+  }
+};
+function warning(context, message, type, originalError) {
+  if (!context.warn[type]) {
+    return;
+  }
+  context.logger.warn(
+    buildMessage(
+      "Avertissement",
+      message,
+      {
+        dottedName: context.evaluatedRule ?? context.dottedName
+      },
+      originalError
+    )
+  );
+}
+function experimentalRuleWarning(context, dottedName) {
+  if (!context.warn.experimentalRules) {
+    return;
+  }
+  context.logger.warn(
+    buildMessage(
+      "Avertissement",
+      "Cette r\xE8gle est taggu\xE9e comme experimentale. \n\nCela veut dire qu'elle peut \xEAtre modifi\xE9e, renomm\xE9e, ou supprim\xE9e sans qu'il n'y ait de changement de version majeure dans l'API.\n",
+      { dottedName }
+    )
+  );
+}
+
+// src/utils.ts
+function addToMapSet(map, key, value) {
+  if (map.has(key)) {
+    map.get(key).add(value);
+    return;
+  }
+  map.set(key, /* @__PURE__ */ new Set([value]));
+}
+function mergeWithArray(obj1, obj2) {
+  return Object.entries(obj2).reduce(
+    (obj, [key, value]) => ({
+      ...obj,
+      [key]: [...obj[key] ?? [], ...value]
+    }),
+    obj1
+  );
+}
+var weakCopyObj = (obj) => {
+  const copy = {};
+  for (const key in obj) {
+    copy[key] = obj[key];
+  }
+  return copy;
+};
+
+// src/AST/index.ts
+function makeASTTransformer(fn, stopOnUpdate = true) {
+  function transform(node) {
+    const updatedNode = fn(node, transform);
+    if (updatedNode === false) {
+      return node;
+    }
+    if (updatedNode === void 0) {
+      return traverseASTNode(transform, node);
+    }
+    return stopOnUpdate ? updatedNode : traverseASTNode(transform, updatedNode);
+  }
+  return transform;
+}
+function makeASTVisitor(fn) {
+  function visit(node) {
+    switch (fn(node, visit)) {
+      case "continue":
+        traverseASTNode(transformizedVisit, node);
+        return;
+      case "stop":
+        return;
+    }
+  }
+  const transformizedVisit = (node) => {
+    visit(node);
+    return node;
+  };
+  return visit;
+}
+function reduceAST(fn, start, node) {
+  function traverseFn(acc, node2) {
+    const result = fn(acc, node2, traverseFn.bind(null, start));
+    if (result === void 0) {
+      return getChildrenNodes(node2).reduce(traverseFn, acc);
+    }
+    return result;
+  }
+  return traverseFn(start, node);
+}
+function getChildrenNodes(node) {
+  const nodes = [];
+  traverseASTNode((node2) => {
+    nodes.push(node2);
+    return node2;
+  }, node);
+  return nodes;
+}
+function traverseParsedRules(fn, parsedRules) {
+  const ret = {};
+  for (const name in parsedRules) {
+    ret[name] = fn(parsedRules[name]);
+  }
+  return ret;
+}
+var traverseASTNode = (fn, node) => {
+  node = traverseSourceMap(fn, node);
+  switch (node.nodeKind) {
+    case "rule":
+      return traverseRuleNode(fn, node);
+    case "reference":
+    case "constant":
+      return node;
+    case "arrondi":
+      return traverseArrondiNode(fn, node);
+    case "simplifier unit\xE9":
+    case "variable manquante":
+    case "est non applicable":
+    case "est non d\xE9fini":
+    case "logarithme":
+      return traverseUnaryOperationNode(fn, node);
+    case "bar\xE8me":
+    case "taux progressif":
+    case "grille":
+      return traverseNodeWithTranches(fn, node);
+    case "dur\xE9e":
+      return traverseDur\u00E9eNode(fn, node);
+    case "r\xE9soudre r\xE9f\xE9rence circulaire":
+      return traverseR\u00E9soudreR\u00E9f\u00E9renceCirculaireNode(fn, node);
+    case "inversion":
+      return traverseInversionNode(fn, node);
+    case "operation":
+      return traverseOperationNode(fn, node);
+    case "une possibilit\xE9":
+      return traverseUnePossibilit\u00E9Node(fn, node);
+    case "contexte":
+      return traverseContexteNode(fn, node);
+    case "unit\xE9":
+      return traverseUnit\u00E9Node(fn, node);
+    case "variations":
+      return traverseVariationNode(fn, node);
+    case "replacementRule":
+      return traverseReplacementNode(fn, node);
+    case "texte":
+      return traverseTextNode(fn, node);
+    case "condition":
+      return traverseConditionNode(fn, node);
+    default:
+      throw new UnreachableCaseError(node);
+  }
+};
+var traverseSourceMap = (fn, node) => {
+  if (!("sourceMap" in node) || !node.sourceMap || !node.sourceMap.args) {
+    return node;
+  }
+  const sourceMap = node.sourceMap;
+  const args = {};
+  for (const key in sourceMap.args) {
+    const value = sourceMap.args[key];
+    args[key] = Array.isArray(value) ? value.map((v) => fn(v)) : fn(value);
+  }
+  return {
+    ...node,
+    sourceMap: {
+      ...sourceMap,
+      args
+    }
+  };
+};
+var traverseRuleNode = (fn, node) => {
+  const copy = weakCopyObj(node);
+  copy.suggestions = {};
+  for (const key in node.suggestions) {
+    copy.suggestions[key] = fn(node.suggestions[key]);
+  }
+  if (copy.possibilities) {
+    copy.possibilities = fn(copy.possibilities);
+  }
+  copy.replacements = node.replacements.map(fn);
+  copy.explanation = {
+    ruleDisabledByItsParent: node.explanation.ruleDisabledByItsParent,
+    nullableParent: node.explanation.nullableParent ? fn(node.explanation.nullableParent) : void 0,
+    parents: node.explanation.parents.map(fn),
+    valeur: fn(node.explanation.valeur)
+  };
+  return copy;
+};
+var traverseReplacementNode = (fn, node) => ({
+  ...node,
+  definitionRule: fn(node.definitionRule),
+  replacedReference: fn(node.replacedReference),
+  whiteListedNames: node.whiteListedNames.map(fn),
+  blackListedNames: node.blackListedNames.map(fn)
+});
+var traverseUnaryOperationNode = (fn, node) => {
+  const copy = weakCopyObj(node);
+  copy.explanation = fn(node.explanation);
+  return copy;
+};
+function traverseTranche(fn, tranches) {
+  return tranches.map((tranche) => ({
+    ...tranche,
+    ...tranche.plafond && { plafond: fn(tranche.plafond) },
+    ..."montant" in tranche && { montant: fn(tranche.montant) },
+    ..."taux" in tranche && { taux: fn(tranche.taux) }
+  }));
+}
+var traverseNodeWithTranches = (fn, node) => {
+  const copy = weakCopyObj(node);
+  copy.explanation = {
+    assiette: fn(node.explanation.assiette),
+    multiplicateur: fn(node.explanation.multiplicateur),
+    tranches: traverseTranche(fn, node.explanation.tranches)
+  };
+  return copy;
+};
+var traverseOperationNode = (fn, node) => {
+  const copy = weakCopyObj(node);
+  copy.explanation = [fn(node.explanation[0]), fn(node.explanation[1])];
+  return copy;
+};
+var traverseDur\u00E9eNode = (fn, node) => {
+  const copy = weakCopyObj(node);
+  copy.explanation = {
+    depuis: fn(node.explanation.depuis),
+    "jusqu'\xE0": fn(node.explanation["jusqu'\xE0"])
+  };
+  return copy;
+};
+var traverseInversionNode = (fn, node) => {
+  const copy = weakCopyObj(node);
+  copy.explanation = {
+    ...node.explanation,
+    inversionCandidates: node.explanation.inversionCandidates.map(fn)
+    // TODO
+  };
+  return copy;
+};
+var traverseArrondiNode = (fn, node) => {
+  const copy = weakCopyObj(node);
+  copy.explanation = {
+    valeur: fn(node.explanation.valeur),
+    arrondi: fn(node.explanation.arrondi)
+  };
+  return copy;
+};
+var traverseR\u00E9soudreR\u00E9f\u00E9renceCirculaireNode = (fn, node) => {
+  const copy = weakCopyObj(node);
+  copy.explanation = {
+    ...node.explanation,
+    valeur: fn(node.explanation.valeur)
+  };
+  return copy;
+};
+var traverseTextNode = (fn, node) => {
+  const copy = weakCopyObj(node);
+  copy.explanation = node.explanation.map(
+    (element) => typeof element === "string" ? element : fn(element)
+  );
+  return copy;
+};
+var traverseContexteNode = (fn, node) => {
+  const copy = weakCopyObj(node);
+  copy.explanation = {
+    ...copy.explanation,
+    contexte: node.explanation.contexte.map(([name, value]) => [
+      fn(name),
+      fn(value)
+    ]),
+    valeur: fn(node.explanation.valeur)
+  };
+  return copy;
+};
+var traverseUnit\u00E9Node = (fn, node) => {
+  const copy = weakCopyObj(node);
+  copy.explanation = fn(node.explanation);
+  return copy;
+};
+var traverseVariationNode = (fn, node) => {
+  const copy = weakCopyObj(node);
+  copy.explanation = node.explanation.map(({ condition, consequence }) => ({
+    condition: fn(condition),
+    consequence: consequence && fn(consequence)
+  }));
+  return copy;
+};
+var traverseConditionNode = (fn, node) => {
+  const copy = weakCopyObj(node);
+  copy.explanation = {
+    si: fn(node.explanation.si),
+    alors: fn(node.explanation.alors),
+    sinon: fn(node.explanation.sinon)
+  };
+  return copy;
+};
+var traverseUnePossibilit\u00E9Node = (fn, node) => {
+  const copy = weakCopyObj(node);
+  copy.explanation = node.explanation.map((node2) => {
+    const copy2 = fn(node2);
+    copy2.notApplicable = fn(node2.notApplicable);
+    return copy2;
+  });
+  return copy;
+};
+
+// src/evaluationFunctions.ts
+var evaluationFunctions = {
+  constant: (node) => node
+};
+function registerEvaluationFunction(nodeKind, evaluationFunction) {
+  evaluationFunctions ??= {};
+  if (evaluationFunctions[nodeKind]) {
+    throw new PublicodesError(
+      "EvaluationError",
+      `Multiple evaluation functions registered for the nodeKind \x1B[4m${nodeKind}`,
+      { dottedName: "" }
+    );
+  }
+  evaluationFunctions[nodeKind] = evaluationFunction;
+}
+
+// src/inferNodeType.ts
+var UNDEFINED_TYPE = {
+  isNullable: void 0,
+  type: void 0
+};
+function inferNodesTypes(newRulesNames, parsedRules, nodesTypes) {
+  function inferNodeUnitAndCache(node) {
+    if (!node || typeof node !== "object") {
+      return UNDEFINED_TYPE;
+    }
+    if (nodesTypes.has(node)) {
+      return nodesTypes.get(node);
+    }
+    nodesTypes.set(node, UNDEFINED_TYPE);
+    const type = inferNodeType(node);
+    nodesTypes.set(node, type);
+    return type;
+  }
+  function inferNodeType(node) {
+    switch (node.nodeKind) {
+      case "bar\xE8me":
+      case "dur\xE9e":
+      case "grille":
+      case "taux progressif":
+      case "inversion":
+      case "r\xE9soudre r\xE9f\xE9rence circulaire":
+        return { isNullable: false, type: "number" };
+      case "est non d\xE9fini":
+      case "est non applicable":
+        return { isNullable: false, type: "boolean" };
+      case "constant":
+        return {
+          isNullable: node.isNullable ?? node.nodeValue === null,
+          type: node.type
+        };
+      case "operation":
+        return {
+          isNullable: ["<", "<=", ">", ">=", "/", "*"].includes(node.operationKind) ? inferNodeUnitAndCache(node.explanation[0]).isNullable || inferNodeUnitAndCache(node.explanation[1]).isNullable : node.operationKind === "-" ? inferNodeUnitAndCache(node.explanation[0]).isNullable : false,
+          type: ["<", "<=", ">", ">=", "=", "!=", "et", "ou"].includes(
+            node.operationKind
+          ) ? "boolean" : "number"
+        };
+      case "replacementRule":
+        return { isNullable: false, type: void 0 };
+      case "texte":
+        return { isNullable: false, type: "string" };
+      case "arrondi":
+        return {
+          type: "number",
+          isNullable: inferNodeUnitAndCache(node.explanation.valeur).isNullable
+        };
+      case "logarithme":
+        return {
+          type: "number",
+          isNullable: inferNodeUnitAndCache(node.explanation).isNullable
+        };
+      case "contexte":
+        return inferNodeUnitAndCache(node.explanation.valeur);
+      case "une possibilit\xE9":
+        return node.type === "reference" ? {
+          isNullable: node.explanation.every(
+            (n) => inferNodeUnitAndCache(n).isNullable
+          ),
+          type: "string"
+        } : {
+          isNullable: false,
+          type: node.type
+        };
+      case "rule":
+        {
+          const typeInfo = inferNodeUnitAndCache(node.explanation.valeur);
+          if (node.possibilities) {
+            const possibilityTypeInfo = inferNodeUnitAndCache(
+              node.possibilities
+            );
+            return {
+              isNullable: typeInfo.isNullable || possibilityTypeInfo.isNullable,
+              type: possibilityTypeInfo.type
+            };
+          }
+          if (typeInfo.type !== void 0) {
+            return typeInfo;
+          }
+          let type = node.rawNode.type === "nombre" ? "number" : node.rawNode.type === "texte" ? "string" : node.rawNode.type === "date" ? "date" : node.rawNode.type === "bool\xE9en" ? "boolean" : void 0;
+          if (!type && node.rawNode.question) {
+            type = "boolean";
+          }
+          return { isNullable: typeInfo.isNullable, type };
+        }
+        break;
+      case "unit\xE9":
+      case "simplifier unit\xE9":
+        return {
+          type: "number",
+          isNullable: inferNodeUnitAndCache(node.explanation).isNullable
+        };
+      case "variable manquante":
+        return inferNodeUnitAndCache(node.explanation);
+      case "condition":
+        return {
+          isNullable: [
+            node.explanation.si,
+            node.explanation.alors,
+            node.explanation.sinon
+          ].some((n) => inferNodeUnitAndCache(n).isNullable),
+          type: inferNodeUnitAndCache(node.explanation.alors).type ?? inferNodeUnitAndCache(node.explanation.sinon).type
+        };
+      case "variations": {
+        const consequencesTypes = node.explanation.map(
+          ({ consequence }) => inferNodeUnitAndCache(consequence)
+        );
+        return {
+          isNullable: consequencesTypes.some(
+            (consequence) => consequence.isNullable
+          ),
+          type: consequencesTypes.map((c) => c.type).find((type) => type !== void 0)
+        };
+      }
+      case "reference":
+        return inferNodeUnitAndCache(parsedRules[node.dottedName]);
+    }
+  }
+  newRulesNames.forEach((name) => {
+    const rule = parsedRules[name];
+    inferNodeUnitAndCache(rule);
+    rule.explanation.parents.forEach(inferNodeUnitAndCache);
+  });
+  return nodesTypes;
+}
+
+// src/evaluationUtils.ts
+var collectNodeMissing = (node) => "missingVariables" in node ? node.missingVariables : {};
+var bonus = (missings = {}) => Object.fromEntries(
+  Object.entries(missings).map(([key, value]) => [key, value + 1])
+);
+var mergeMissing = (left = {}, right = {}) => Object.fromEntries(
+  [...Object.keys(left), ...Object.keys(right)].map((key) => [
+    key,
+    (left[key] ?? 0) + (right[key] ?? 0)
+  ])
+);
+var mergeAllMissing = (missings) => missings.map(collectNodeMissing).reduce(mergeMissing, {});
+var defaultNode = (nodeValue) => ({
+  nodeValue,
+  type: typeof nodeValue,
+  isDefault: true,
+  nodeKind: "constant"
+});
+var notApplicableNode = {
+  nodeKind: "constant",
+  nodeValue: null,
+  missingVariables: {},
+  type: void 0,
+  isNullable: true
+};
+var undefinedNode = {
+  nodeKind: "constant",
+  nodeValue: void 0,
+  missingVariables: {},
+  type: void 0,
+  isNullable: false
+};
+var undefinedNumberNode = {
+  ...undefinedNode,
+  type: "number"
+};
+
+// src/mecanisms/inlineMecanism.ts
+function createParseInlinedMecanism(name, args, body) {
+  let parsedBody;
+  let parsedDefaultArgs;
+  function parseInlineMecanism(providedArgs, context) {
+    parsedBody ??= parse(body, createContext({ dottedName: "INLINE_MECANISM" }));
+    parsedDefaultArgs ??= {};
+    for (const name2 in args) {
+      if ("par d\xE9faut" in args[name2]) {
+        parsedDefaultArgs[name2] = parse(
+          args[name2]["par d\xE9faut"],
+          createContext({})
+        );
+      }
+    }
+    if (Object.keys(args).length === 1 && "valeur" in args) {
+      providedArgs = {
+        valeur: providedArgs
+      };
+    }
+    const parsedProvidedArgs = {};
+    for (const name2 in providedArgs) {
+      parsedProvidedArgs[name2] = parse(providedArgs[name2], context);
+    }
+    const parsedInlineMecanism = makeASTTransformer((node) => {
+      if (node.nodeKind !== "reference" || !(node.name in args)) {
+        return;
+      }
+      const argName = node.name;
+      if (argName in parsedProvidedArgs) {
+        return parsedProvidedArgs[argName];
+      }
+      if (argName in parsedDefaultArgs) {
+        return parsedDefaultArgs[argName];
+      }
+      throw new PublicodesError(
+        "SyntaxError",
+        `Il manque la cl\xE9 '${argName} dans le m\xE9canisme ${name}`,
+        { dottedName: argName }
+      );
+    })(parsedBody);
+    parsedInlineMecanism.sourceMap = {
+      mecanismName: name,
+      args: parsedProvidedArgs
+    };
+    return parsedInlineMecanism;
+  }
+  parseInlineMecanism.nom = name;
+  return Object.assign(parseInlineMecanism, "name", {
+    value: `parse${toCamelCase(name)}Inline`
+  });
+}
+function createParseInlinedMecanismWithArray(name, args, body) {
+  function parseInlineMecanism(providedArgs, context) {
+    if (Object.keys(args).length === 1 && "valeur" in args) {
+      providedArgs = {
+        valeur: providedArgs
+      };
+    }
+    const parsedProvidedArgs = {};
+    for (const name2 in providedArgs) {
+      const value = providedArgs[name2];
+      parsedProvidedArgs[name2] = Array.isArray(value) ? value.map((v) => parse(v, context)) : parse(value, context);
+    }
+    const parsedInlineMecanism = parse(body(parsedProvidedArgs), context);
+    parsedInlineMecanism.sourceMap = {
+      mecanismName: name,
+      args: parsedProvidedArgs
+    };
+    return parsedInlineMecanism;
+  }
+  parseInlineMecanism.nom = name;
+  return Object.assign(parseInlineMecanism, "name", {
+    value: `parse${toCamelCase(name)}Inline`
+  });
+}
+function toCamelCase(str) {
+  return str.replace(/(?:^\w|[A-Z]|\b\w)/g, (ltr) => ltr.toUpperCase()).replace(/\s+/g, "");
+}
+
+// src/mecanisms/abattement.ts
+var abattement_default = createParseInlinedMecanism(
+  "abattement",
+  {
+    abattement: {},
+    valeur: {}
+  },
+  {
+    "-": ["valeur", "abattement"],
+    plancher: 0
+  }
+);
+
+// src/mecanisms/applicable.ts
+var applicable_default = createParseInlinedMecanism(
+  "applicable si",
+  {
+    "applicable si": {},
+    valeur: {}
+  },
+  {
+    condition: {
+      si: "applicable si != non",
+      alors: "valeur",
+      sinon: notApplicableNode
+    }
+  }
+);
+
+// src/units.ts
+function parseUnit(string2, getUnitKey = (x) => x) {
+  if (string2.includes("/ ")) {
+    throw new Error(
+      `L'unit\xE9 "${string2}" ne doit pas contenir d'espace apr\xE8s "/"`
+    );
+  }
+  const [a, ...b] = string2.split("/");
+  const splitUnit = (string3) => decomposePower(
+    string3.trim().split(".").filter(Boolean).map((unit2) => getUnitKey(unit2))
+  );
+  const result = {
+    numerators: splitUnit(a),
+    denominators: b.flatMap((u) => splitUnit(u))
+  };
+  return result;
+}
+var lastNumberFromString = /(\d+)(?!.*[A-Za-z])/g;
+function getUnitCounts(baseUnits) {
+  const countUnits = {};
+  baseUnits.forEach((e) => {
+    const powerMatch = e.match(lastNumberFromString);
+    if (powerMatch != null) {
+      const power = powerMatch[0];
+      const primaryUnit = e.split(power)[0];
+      countUnits[primaryUnit] = (countUnits[primaryUnit] ?? 0) + +power;
+    } else {
+      countUnits[e] = (countUnits[e] ?? 0) + 1;
+    }
+  });
+  return countUnits;
+}
+function decomposePower(baseUnits) {
+  const unitCounts = getUnitCounts(baseUnits);
+  return Object.entries(unitCounts).flatMap(
+    ([primaryUnit, power]) => Array(power).fill(primaryUnit)
+  );
+}
+function combinePower(baseUnit) {
+  const unitCounts = getUnitCounts(baseUnit);
+  return Object.entries(unitCounts).map(
+    ([primaryUnit, power]) => power > 1 ? `${primaryUnit}${power}` : primaryUnit
+  );
+}
+var printUnits = (units, count, formatUnit2 = (x) => x) => {
+  return combinePower(units.map((unit2) => formatUnit2(unit2, count))).join(".");
+};
+var plural = 2;
+function serializeUnit(rawUnit, count = plural, formatUnit2 = (x) => x) {
+  if (rawUnit === null || typeof rawUnit !== "object") {
+    return typeof rawUnit === "string" ? formatUnit2(rawUnit, count) : rawUnit;
+  }
+  const unit2 = simplify(rawUnit);
+  const { numerators = [], denominators = [] } = unit2;
+  const n = numerators.length > 0;
+  const d = denominators.length > 0;
+  const string2 = !n && !d ? "" : n && !d ? printUnits(numerators, count, formatUnit2) : !n && d ? `/${printUnits(denominators, 1, formatUnit2)}` : `${printUnits(numerators, plural, formatUnit2)}/${printUnits(
+    denominators,
+    1,
+    formatUnit2
+  )}`;
+  return string2;
+}
+var noUnit = { numerators: [], denominators: [] };
+var inferUnit = (operator, rawUnits) => {
+  if (operator === "/") {
+    if (rawUnits.length !== 2) {
+      throw new PublicodesError(
+        "InternalError",
+        "Infer units of a division with units.length !== 2)",
+        {}
+      );
+    }
+    return inferUnit("*", [
+      rawUnits[0] || noUnit,
+      {
+        numerators: (rawUnits[1] || noUnit).denominators,
+        denominators: (rawUnits[1] || noUnit).numerators
+      }
+    ]);
+  }
+  const units = rawUnits.filter(Boolean);
+  if (units.length <= 1) {
+    return units[0];
+  }
+  if (operator === "*")
+    return simplify({
+      numerators: units.flatMap((u) => u?.numerators ?? []),
+      denominators: units.flatMap((u) => u?.denominators ?? [])
+    });
+  if (operator === "-" || operator === "+") {
+    return rawUnits.find((u) => u);
+  }
+  return void 0;
+};
+var equals = (a, b) => {
+  if (Array.isArray(a) && Array.isArray(b)) {
+    return a.length === b.length && a.every((_, i) => a[i] === b[i]);
+  } else {
+    return a === b;
+  }
+};
+var removeOnce = (element, eqFn = equals) => (list) => {
+  const index = list.findIndex((e) => eqFn(e, element));
+  return list.filter((_, i) => i !== index);
+};
+var simplify = (unit2, eqFn = equals) => {
+  const simplifiedUnit = [...unit2.numerators, ...unit2.denominators].reduce(
+    ({ numerators, denominators }, next) => numerators.find((u) => eqFn(next, u)) && denominators.find((u) => eqFn(next, u)) ? {
+      numerators: removeOnce(next, eqFn)(numerators),
+      denominators: removeOnce(next, eqFn)(denominators)
+    } : { numerators, denominators },
+    unit2
+  );
+  return simplifiedUnit;
+};
+var convertTable = {
+  "mois/an": 12,
+  "jour/an": 365,
+  "jour/mois": 365 / 12,
+  "trimestre/an": 4,
+  "mois/trimestre": 3,
+  "jour/trimestre": 365 / 12 * 3,
+  "\u20AC/k\u20AC": 10 ** 3,
+  "g/kg": 10 ** 3,
+  "mg/g": 10 ** 3,
+  "mg/kg": 10 ** 6,
+  "m/km": 10 ** 3,
+  "cm/m": 10 ** 2,
+  "mm/cm": 10 ** 1,
+  "mm/m": 10 ** 3,
+  "cm/km": 10 ** 5,
+  "mm/km": 10 ** 6
+};
+function singleUnitConversionFactor(from, to) {
+  return convertTable[`${to}/${from}`] || convertTable[`${from}/${to}`] && 1 / convertTable[`${from}/${to}`];
+}
+function unitsConversionFactor(from, to) {
+  let factor = 100 ** // Factor is mutliplied or divided 100 for each '%' in units
+  (to.filter((unit2) => unit2 === "%").length - from.filter((unit2) => unit2 === "%").length);
+  [factor] = from.reduce(
+    ([value, toUnits], fromUnit) => {
+      const index = toUnits.findIndex(
+        (toUnit) => !!singleUnitConversionFactor(fromUnit, toUnit)
+      );
+      const factor2 = singleUnitConversionFactor(fromUnit, toUnits[index]) || 1;
+      return [
+        value * factor2,
+        [...toUnits.slice(0, index + 1), ...toUnits.slice(index + 1)]
+      ];
+    },
+    [factor, to]
+  );
+  return factor;
+}
+var equivalentTable = {
+  "kW.h": "kWh",
+  "mn/h": "noeud"
+};
+function areEquivalentSerializedUnit(serializedFrom, serializedTo) {
+  if (!serializedFrom || !serializedTo) return false;
+  return serializedFrom === serializedTo || serializedFrom === equivalentTable[serializedTo] || serializedTo === equivalentTable[serializedFrom];
+}
+function convertUnit(from, to, value) {
+  const serializedFrom = serializeUnit(from);
+  const serializedTo = serializeUnit(to);
+  if (!areEquivalentSerializedUnit(serializedFrom, serializedTo) && !areUnitConvertible(from, to)) {
+    throw new PublicodesError(
+      "EngineError",
+      `Impossible de convertir l'unit\xE9 '${serializedFrom}' en '${serializedTo}'`,
+      {}
+    );
+  }
+  if (!value) {
+    return value;
+  }
+  if (from === void 0) {
+    return value;
+  }
+  const [fromSimplified, factorTo] = simplifyUnitWithValue(from || noUnit);
+  const [toSimplified, factorFrom] = simplifyUnitWithValue(to || noUnit);
+  return round(
+    value * factorTo / factorFrom * unitsConversionFactor(
+      fromSimplified.numerators,
+      toSimplified.numerators
+    ) * unitsConversionFactor(
+      toSimplified.denominators,
+      fromSimplified.denominators
+    )
+  );
+}
+var convertibleUnitClasses = unitClasses(convertTable);
+function unitClasses(convertTable2) {
+  return Object.keys(convertTable2).reduce(
+    (classes, ratio) => {
+      const [a, b] = ratio.split("/");
+      const ia = classes.findIndex((units) => units.has(a));
+      const ib = classes.findIndex((units) => units.has(b));
+      if (ia > -1 && ib > -1 && ia !== ib) {
+        throw new PublicodesError("EngineError", `Invalid ratio ${ratio}`, {});
+      } else if (ia === -1 && ib === -1) {
+        classes.push(/* @__PURE__ */ new Set([a, b]));
+      } else if (ia > -1) {
+        classes[ia].add(b);
+      } else if (ib > -1) {
+        classes[ib].add(a);
+      }
+      return classes;
+    },
+    []
+  );
+}
+function areSameClass(a, b) {
+  return a === b || convertibleUnitClasses.some(
+    (unitsClass) => unitsClass.has(a) && unitsClass.has(b)
+  );
+}
+function round(value) {
+  return +value.toFixed(16);
+}
+function simplifyUnit(unit2) {
+  const { numerators, denominators } = simplify(unit2, areSameClass);
+  if (numerators.length && numerators.every((symb) => symb === "%")) {
+    return { numerators: ["%"], denominators };
+  }
+  return removePercentages({ numerators, denominators });
+}
+function simplifyUnitWithValue(unit2, value = 1) {
+  const factor = unitsConversionFactor(unit2.numerators, unit2.denominators);
+  return [
+    simplify(removePercentages(unit2), areSameClass),
+    value ? round(value * factor) : value
+  ];
+}
+var removePercentages = (unit2) => ({
+  numerators: unit2.numerators.filter((e) => e !== "%"),
+  denominators: unit2.denominators.filter((e) => e !== "%")
+});
+function areUnitConvertible(a, b) {
+  if (a == null || b == null) {
+    return true;
+  }
+  const countByUnitClass = (units) => units.reduce((counters, unit2) => {
+    const classIndex = convertibleUnitClasses.findIndex(
+      (unitClass) => unitClass.has(unit2)
+    );
+    const key = classIndex === -1 ? unit2 : "" + classIndex;
+    return { ...counters, [key]: 1 + (counters[key] ?? 0) };
+  }, {});
+  const [numA, denomA, numB, denomB] = [
+    a.numerators,
+    a.denominators,
+    b.numerators,
+    b.denominators
+  ].map(countByUnitClass);
+  const uniq = (arr) => [...new Set(arr)];
+  const unitClasses2 = [numA, denomA, numB, denomB].map(Object.keys).flat();
+  return uniq(unitClasses2).every(
+    (unitClass) => (numA[unitClass] || 0) - (denomA[unitClass] || 0) === (numB[unitClass] || 0) - (denomB[unitClass] || 0) || unitClass === "%"
+  );
+}
+
+// src/mecanisms/arrondi.ts
+function roundWithPrecision(n, fractionDigits) {
+  return Math.round((n + Number.EPSILON) * 10 ** fractionDigits) / 10 ** fractionDigits;
+}
+var evaluate = function(node) {
+  const valeur = simplifyNodeUnit(this.evaluateNode(node.explanation.valeur));
+  const nodeValue = valeur.nodeValue;
+  let arrondi = node.explanation.arrondi;
+  if (nodeValue !== false) {
+    arrondi = this.evaluateNode(arrondi);
+    if (typeof arrondi.nodeValue === "number" && !serializeUnit(arrondi.unit)?.match(/décimales?/)) {
+      throw new PublicodesError(
+        "EvaluationError",
+        `L'unit\xE9 ${serializeUnit(
+          arrondi.unit
+        )} de l'arrondi est inconnu. Vous devez utiliser l'unit\xE9 \u201Cd\xE9cimales\u201D`,
+        { dottedName: this.cache._meta.evaluationRuleStack[0] }
+      );
+    }
+  }
+  return {
+    ...node,
+    nodeValue: typeof valeur.nodeValue !== "number" || !("nodeValue" in arrondi) ? valeur.nodeValue : typeof arrondi.nodeValue === "number" ? roundWithPrecision(valeur.nodeValue, arrondi.nodeValue) : arrondi.nodeValue === true ? roundWithPrecision(valeur.nodeValue, 0) : arrondi.nodeValue === void 0 ? void 0 : valeur.nodeValue,
+    explanation: { valeur, arrondi },
+    missingVariables: mergeAllMissing([valeur, arrondi]),
+    unit: valeur.unit
+  };
+};
+function parseArrondi(v, context) {
+  const explanation = {
+    valeur: parse(v.valeur, context),
+    arrondi: parse(v.arrondi, context)
+  };
+  return {
+    explanation,
+    nodeKind: parseArrondi.nom
+  };
+}
+parseArrondi.nom = "arrondi";
+registerEvaluationFunction(parseArrondi.nom, evaluate);
+
+// src/mecanisms/logarithme.ts
+function parseLogarithm(v, context) {
+  const explanation = parse(v, context);
+  return {
+    explanation,
+    nodeKind: "logarithme"
+  };
+}
+var evaluate2 = function(node) {
+  const value = simplifyNodeUnit(this.evaluateNode(node.explanation));
+  let y;
+  if (value.nodeValue === null || value.nodeValue === void 0) {
+    y = value.nodeValue;
+  } else if (typeof value.nodeValue === "number") {
+    y = Math.log(value.nodeValue);
+  } else {
+    throw new PublicodesError(
+      "EvaluationError",
+      `Impossible de calculer le logarithme de ${value.nodeValue}`,
+      {
+        dottedName: this.cache._meta.evaluationRuleStack[0]
+      }
+    );
+  }
+  return {
+    ...node,
+    nodeValue: y,
+    missingVariables: value.missingVariables,
+    explanation: value
+  };
+};
+registerEvaluationFunction("logarithme", evaluate2);
+
+// src/nodeUnits.ts
+function simplifyNodeUnit(node) {
+  if (!node.unit) {
+    return node;
+  }
+  const unit2 = simplifyUnit(node.unit);
+  return convertNodeToUnit(unit2, node);
+}
+function convertNodeToUnit(to, node) {
+  return {
+    ...node,
+    nodeValue: node.unit && typeof node.nodeValue === "number" ? convertUnit(node.unit, to, node.nodeValue) : node.nodeValue,
+    unit: to
+  };
+}
+
+// src/engine/isAValidOption.ts
+function isAValidOption(engine, possibilities, value) {
+  if (value.nodeValue === void 0 || value.nodeValue === null) {
+    return true;
+  }
+  switch (possibilities.type) {
+    case "number":
+      return possibilities.explanation.some((possibility) => {
+        if ("unit" in possibility) {
+          return convertNodeToUnit(possibility.unit, value).nodeValue === possibility.nodeValue;
+        }
+        return possibility.nodeValue === value.nodeValue;
+      });
+    case "string":
+      return possibilities.explanation.some(
+        (n) => n.publicodesValue === `'${value.nodeValue}'`
+      );
+    case "reference": {
+      const evaluatedPossibilit\u00E9s = engine.evaluateNode(possibilities);
+      return evaluatedPossibilit\u00E9s.explanation.some(
+        (n) => n.publicodesValue === `'${value.nodeValue}'` && n.notApplicable.nodeValue !== true
+      );
+    }
+  }
+}
+
+// src/format.ts
+var numberFormatter = ({
+  style,
+  maximumFractionDigits = 2,
+  minimumFractionDigits = 0,
+  language
+}) => (value) => {
+  const adaptedMinimumFractionDigits = style === "currency" && maximumFractionDigits >= 2 && minimumFractionDigits === 0 && !Number.isInteger(value) ? 2 : minimumFractionDigits;
+  return Intl.NumberFormat(language, {
+    style,
+    currency: "EUR",
+    maximumFractionDigits,
+    minimumFractionDigits: adaptedMinimumFractionDigits
+  }).format(value);
+};
+function formatNumber({
+  maximumFractionDigits,
+  minimumFractionDigits,
+  language,
+  formatUnit: formatUnit2,
+  unit: unit2,
+  nodeValue
+}) {
+  if (typeof nodeValue !== "number") {
+    return nodeValue;
+  }
+  const serializedUnit = unit2 ? serializeUnit(unit2, nodeValue, formatUnit2) : void 0;
+  switch (serializedUnit) {
+    case "\u20AC":
+      return numberFormatter({
+        style: "currency",
+        maximumFractionDigits,
+        minimumFractionDigits,
+        language
+      })(nodeValue);
+    case "%":
+      return numberFormatter({
+        style: "percent",
+        maximumFractionDigits,
+        language
+      })(nodeValue / 100);
+    default:
+      return numberFormatter({
+        style: "decimal",
+        minimumFractionDigits,
+        maximumFractionDigits,
+        language
+      })(nodeValue) + (typeof serializedUnit === "string" ? `\xA0${serializedUnit}` : "");
+  }
+}
+function capitalise0(name) {
+  return name && name[0].toUpperCase() + name.slice(1);
+}
+var booleanTranslations = {
+  fr: { true: "oui", false: "non" },
+  en: { true: "yes", false: "no" }
+};
+function formatValue(value, {
+  language = "fr",
+  displayedUnit,
+  formatUnit: formatUnit2,
+  precision = 2
+} = {}) {
+  let nodeValue = typeof value === "number" || typeof value === "undefined" || value === null ? value : value.nodeValue;
+  if (typeof nodeValue === "number" && Number.isNaN(nodeValue)) {
+    return "Erreur dans le calcul du nombre";
+  }
+  if (nodeValue === void 0) {
+    return "Pas encore d\xE9fini";
+  }
+  if (nodeValue === null) {
+    return "Non applicable";
+  }
+  if (typeof nodeValue === "string") {
+    return nodeValue.replace("\\n", "\n");
+  }
+  if (typeof nodeValue === "boolean")
+    return booleanTranslations[language][nodeValue];
+  if (typeof nodeValue === "number") {
+    let unit2 = typeof value === "number" || typeof value === "undefined" || !("unit" in value) ? void 0 : value.unit;
+    if (unit2) {
+      const simplifiedUnit = simplifyUnit(unit2);
+      nodeValue = convertUnit(unit2, simplifiedUnit, nodeValue);
+      unit2 = simplifiedUnit;
+    }
+    return formatNumber({
+      minimumFractionDigits: 0,
+      maximumFractionDigits: precision,
+      language,
+      formatUnit: formatUnit2,
+      nodeValue,
+      unit: displayedUnit ?? unit2
+    }).trim();
+  }
+  return void 0;
+}
+
+// src/mecanisms/est-non-applicable.ts
+function parseEstNonApplicable(v, context) {
+  const explanation = parse(v, context);
+  return {
+    explanation,
+    nodeKind: "est non applicable"
+  };
+}
+parseEstNonApplicable.nom = "est non applicable";
+var isNotApplicable = (node) => {
+  return {
+    nodeKind: "est non applicable",
+    explanation: node
+  };
+};
+var evaluateIsNotApplicable = function(node) {
+  const valeur = node.explanation;
+  if (this.context.nodesTypes.get(valeur)?.isNullable === false && valeur.nodeKind !== "rule" && valeur.nodeKind !== "reference") {
+    return { ...node, nodeValue: false, missingVariables: {} };
+  }
+  if (this.cache.nodes.has(valeur) && this.cache.nodes.get(valeur) !== void 0) {
+    return {
+      ...node,
+      nodeValue: this.cache.nodes.get(valeur)?.nodeValue === null,
+      missingVariables: this.cache.nodes.get(valeur)?.missingVariables ?? {}
+    };
+  }
+  switch (valeur.nodeKind) {
+    case "rule": {
+      const { ruleDisabledByItsParent, parentMissingVariables } = evaluateDisablingParent(this, valeur);
+      if (ruleDisabledByItsParent) {
+        return {
+          ...node,
+          nodeValue: true,
+          missingVariables: parentMissingVariables
+        };
+      }
+      const isNotApplicableEvaluation = this.evaluateNode(
+        isNotApplicable(valeur.explanation.valeur)
+      );
+      const missingVariables = mergeMissing(
+        parentMissingVariables,
+        isNotApplicableEvaluation.missingVariables
+      );
+      if (isNotApplicableEvaluation.nodeValue === false && this.context.nodesTypes.get(
+        this.context.parsedRules[`${valeur.dottedName} . $SITUATION`]
+      )?.isNullable && !Object.keys(isNotApplicableEvaluation.missingVariables).length) {
+        missingVariables[valeur.dottedName] = 1;
+      }
+      return {
+        ...node,
+        nodeValue: isNotApplicableEvaluation.nodeValue,
+        missingVariables
+      };
+    }
+    case "reference":
+      return {
+        ...this.evaluateNode(
+          isNotApplicable(this.context.parsedRules[valeur.dottedName])
+        ),
+        ...node
+      };
+    case "condition":
+      return {
+        ...this.evaluateNode({
+          ...valeur,
+          explanation: {
+            si: valeur.explanation.si,
+            alors: isNotApplicable(valeur.explanation.alors),
+            sinon: isNotApplicable(valeur.explanation.sinon)
+          }
+        }),
+        ...node
+      };
+  }
+  const evaluatedValeur = this.evaluateNode(valeur);
+  return {
+    ...node,
+    nodeValue: evaluatedValeur.nodeValue === void 0 ? void 0 : evaluatedValeur.nodeValue === null,
+    missingVariables: evaluatedValeur.missingVariables
+  };
+};
+registerEvaluationFunction("est non applicable", evaluateIsNotApplicable);
+
+// src/parsePossibilité.ts
+function parsePossibilit\u00E9(possibility, avec, context) {
+  if (typeof possibility === "object") {
+    if (Object.keys(possibility).length !== 1) {
+      throw new PublicodesError(
+        "SyntaxError",
+        `Il ne peut y avoir qu'une seule d\xE9finition de r\xE8gle par possibilit\xE9.`,
+        { dottedName: context.dottedName }
+      );
+    }
+    const [key, value] = Object.entries(possibility)[0];
+    if (key in avec) {
+      throw new PublicodesError(
+        "SyntaxError",
+        `La r\xE8gle "${key}" est d\xE9j\xE0 d\xE9finie`,
+        { dottedName: context.dottedName }
+      );
+    }
+    avec[key] = value;
+    possibility = key;
+  }
+  const node = parse(possibility, context);
+  if (node.nodeKind !== "constant" && node.nodeKind !== "reference") {
+    throw new PublicodesError(
+      "SyntaxError",
+      `"${possibility}" n'est pas une constante ou une r\xE9f\xE9rence.
+Les choix possibles doivent \xEAtre des constantes ou des r\xE9f\xE9rences.`,
+      context
+    );
+  }
+  if (node.nodeKind === "reference") {
+    return {
+      ...node,
+      type: "reference",
+      notApplicable: context.flag?.filterNotApplicablePossibilities ? parseEstNonApplicable(weakCopyObj(node), context) : falseNode,
+      nodeValue: node.name,
+      publicodesValue: `'${node.name}'`
+    };
+  }
+  if (node.type !== "string" && node.type !== "number") {
+    throw new PublicodesError(
+      "SyntaxError",
+      `Les choix possibles doivent \xEAtre des nombres ou des cha\xEEnes de caract\xE8res.`,
+      context
+    );
+  }
+  return {
+    ...node,
+    type: node.type,
+    notApplicable: falseNode,
+    publicodesValue: node.type === "string" ? `'${node.nodeValue}'` : node.rawNode,
+    nodeValue: node.nodeValue,
+    ..."unit" in node && { unit: node.unit }
+  };
+}
+var falseNode = {
+  nodeKind: "constant",
+  type: "boolean",
+  nodeValue: false
+};
+
+// src/mecanisms/unePossibilité.ts
+function parseUnePossibilit\u00E9(rawRule, context, avec) {
+  let possibilit\u00E9s = false;
+  let choixObligatoire;
+  if (rawRule.valeur && rawRule.valeur["une possibilit\xE9"]) {
+    possibilit\u00E9s = rawRule.valeur["une possibilit\xE9"];
+    warning(
+      context,
+      `La cl\xE9 'une possibilit\xE9' \xE0 l'int\xE9rieur de la cl\xE9 'valeur' est d\xE9pr\xE9ci\xE9e, veuillez la d\xE9placer
+au niveau sup\xE9rieur.`,
+      "deprecatedSyntax"
+    );
+    delete rawRule.valeur["une possibilit\xE9"];
+  }
+  if (rawRule.formule?.["une possibilit\xE9"]) {
+    possibilit\u00E9s = rawRule.formule["une possibilit\xE9"];
+    warning(
+      context,
+      `La cl\xE9 'une possibilit\xE9' \xE0 l'int\xE9rieur de la cl\xE9 'formule' est d\xE9pr\xE9ci\xE9e, veuillez la d\xE9placer au niveau sup\xE9rieur.`,
+      "deprecatedSyntax"
+    );
+    delete rawRule.formule["une possibilit\xE9"];
+  }
+  if ("une possibilit\xE9" in rawRule) {
+    if (!rawRule["une possibilit\xE9"]) {
+      throw new PublicodesError(
+        "SyntaxError",
+        `La cl\xE9 'une possibilit\xE9' ne peut pas \xEAtre vide`,
+        context
+      );
+    }
+    possibilit\u00E9s = rawRule["une possibilit\xE9"];
+  }
+  if (!possibilit\u00E9s) {
+    return null;
+  }
+  if ("possibilit\xE9s" in possibilit\u00E9s) {
+    if (possibilit\u00E9s["choix obligatoire"]) {
+      warning(
+        context,
+        `Les cl\xE9s 'choix obligatoire' et 'possibilit\xE9s' \xE0 l'int\xE9rieur de 'une possibilit\xE9' sont d\xE9pr\xE9ci\xE9es.
+
+D\xE9placez les possibilit\xE9s directement \xE0 la racine de 'une possibilit\xE9' .${possibilit\u00E9s["choix obligatoire"] === "non" ? `Pour ajouter un choix \xAB aucun \xBB, \xAB non applicable \xBB ou \xAB autre \xBB \xE0 la liste des possibilit\xE9, cr\xE9er explicitement une r\xE8gle d\xE9di\xE9e. Par exemple :
+
+\`une possibilit\xE9: [${possibilit\u00E9s.possibilit\u00E9s.join(", ")}, aucun]\`
+` : ""}`,
+        "deprecatedSyntax"
+      );
+      choixObligatoire = possibilit\u00E9s["choix obligatoire"];
+    } else {
+      warning(
+        context,
+        `La cl\xE9 'possibilit\xE9s' \xE0 l'int\xE9rieur de 'une possibilit\xE9' est d\xE9pr\xE9ci\xE9e.
+
+D\xE9placez les possibilit\xE9s directement \xE0 la racine de 'une possibilit\xE9'
+`,
+        "deprecatedSyntax"
+      );
+    }
+    possibilit\u00E9s = possibilit\u00E9s["possibilit\xE9s"];
+  }
+  if (!possibilit\u00E9s) {
+    return null;
+  }
+  if (!possibilit\u00E9s.length) {
+    throw new PublicodesError(
+      "SyntaxError",
+      `La cl\xE9 'une possibilit\xE9' doit \xEAtre un tableau contenant au moins un \xE9l\xE9ment`,
+      context
+    );
+  }
+  const node = parsePossibilit\u00E9s(possibilit\u00E9s, avec, context);
+  if (choixObligatoire) {
+    node["choix obligatoire"] = choixObligatoire;
+  }
+  let values;
+  if (node.type === "number") {
+    values = node.explanation.map(
+      (currentNode) => convertUnit(currentNode.unit, node.unit, currentNode.nodeValue)
+    );
+  } else {
+    values = node.explanation.map((n) => n.publicodesValue);
+  }
+  if (new Set(values).size !== values.length) {
+    const doublons = values.map(
+      (v, i, a) => a.indexOf(v) !== i ? node.explanation[i].publicodesValue : null
+    ).filter(Boolean);
+    throw new PublicodesError(
+      "SyntaxError",
+      `Il ne doit pas y avoir de doublons parmi les possibilit\xE9s.
+Les valeurs suivantes sont en double : ${doublons.join(", ")}.`,
+      context
+    );
+  }
+  return node;
+}
+function parsePossibilit\u00E9s(possibilities, avec, context) {
+  let referenceNode;
+  const explanation = possibilities.map((possibility) => {
+    const node = parsePossibilit\u00E9(possibility, avec, context);
+    referenceNode ??= node;
+    if (node.type !== referenceNode.type) {
+      throw new PublicodesError(
+        "SyntaxError",
+        `Les possibilit\xE9s doivent \xEAtre toutes du m\xEAme type.
+${referenceNode.publicodesValue} et ${node.publicodesValue} ne sont pas du m\xEAme type.`,
+        context
+      );
+    }
+    if (referenceNode.type === "number" && node.type === "number" && referenceNode.unit) {
+      try {
+        convertUnit(node.unit, referenceNode.unit, 0);
+      } catch (e) {
+        throw new PublicodesError(
+          "SyntaxError",
+          `Les possibilit\xE9s doivent \xEAtre toutes dans la m\xEAme classe d'unit\xE9.
+
+          ${serializeUnit(node.unit)} n'est pas convertible en ${serializeUnit(
+            referenceNode.unit
+          )}.`,
+          context
+        );
+      }
+      referenceNode = node;
+    }
+    return node;
+  });
+  referenceNode ??= explanation[0];
+  return {
+    nodeKind: "une possibilit\xE9",
+    ..."unit" in referenceNode ? { unit: referenceNode.unit } : {},
+    type: referenceNode.type,
+    explanation
+  };
+}
+registerEvaluationFunction(
+  "une possibilit\xE9",
+  function evaluate3(node) {
+    const evalNode = weakCopyObj(node);
+    if (node.type !== "reference") {
+      evalNode.missingVariables = {};
+      evalNode.nodeValue = void 0;
+      return evalNode;
+    }
+    const explanation = node.explanation.map((n) => {
+      const notApplicable = this.evaluateNode(n.notApplicable);
+      return {
+        ...n,
+        notApplicable,
+        missingVariables: notApplicable.missingVariables
+      };
+    });
+    evalNode.explanation = explanation;
+    evalNode.missingVariables = mergeAllMissing(
+      explanation.map((n) => n.notApplicable)
+    );
+    const applicableValues = explanation.filter(
+      (n) => n.notApplicable.nodeValue !== true
+    );
+    if (applicableValues.length === 0) {
+      evalNode.nodeValue = null;
+      return evalNode;
+    }
+    if (applicableValues.length === 1) {
+      evalNode.nodeValue = applicableValues[0].nodeValue;
+      return evalNode;
+    }
+    evalNode.nodeValue = void 0;
+    return evalNode;
+  }
+);
+
+// src/ruleUtils.ts
+var ruleUtils_exports = {};
+__export(ruleUtils_exports, {
+  contextNameToDottedName: () => contextNameToDottedName,
+  cyclicDependencies: () => cyclicDependencies,
+  decodeRuleName: () => decodeRuleName,
+  disambiguateReference: () => disambiguateReference,
+  disambiguateReferenceNode: () => disambiguateReferenceNode,
+  encodeRuleName: () => encodeRuleName,
+  findCommonAncestor: () => findCommonAncestor,
+  getChildrenRules: () => getChildrenRules,
+  isAccessible: () => isAccessible,
+  isExperimental: () => isExperimental,
+  nameLeaf: () => nameLeaf,
+  ruleParent: () => ruleParent,
+  ruleParents: () => ruleParents,
+  ruleWithDedicatedDocumentationPage: () => ruleWithDedicatedDocumentationPage,
+  updateReferencesMapsFromReferenceNode: () => updateReferencesMapsFromReferenceNode
+});
+
+// src/AST/findCycles.ts
+function has(obj, key) {
+  return obj != null && Object.prototype.hasOwnProperty.call(obj, key);
+}
+function constant(value) {
+  return function() {
+    return value;
+  };
+}
+var DEFAULT_EDGE_NAME = "\0";
+var EDGE_KEY_DELIM = "";
+var incrementOrInitEntry = (map, k) => {
+  if (map[k]) {
+    map[k]++;
+  } else {
+    map[k] = 1;
+  }
+};
+var decrementOrRemoveEntry = (map, k) => {
+  if (!--map[k]) {
+    delete map[k];
+  }
+};
+var edgeArgsToId = (isDirected, v_, w_, name) => {
+  let v = "" + v_;
+  let w = "" + w_;
+  if (!isDirected && v > w) {
+    const tmp = v;
+    v = w;
+    w = tmp;
+  }
+  return v + EDGE_KEY_DELIM + w + EDGE_KEY_DELIM + (name === void 0 ? DEFAULT_EDGE_NAME : name);
+};
+var edgeArgsToObj = (isDirected, v_, w_, name) => {
+  let v = "" + v_;
+  let w = "" + w_;
+  if (!isDirected && v > w) {
+    const tmp = v;
+    v = w;
+    w = tmp;
+  }
+  const edgeObj = { v, w };
+  if (name) {
+    edgeObj.name = name;
+  }
+  return edgeObj;
+};
+var edgeObjToId = (isDirected, edgeObj) => {
+  return edgeArgsToId(isDirected, edgeObj.v, edgeObj.w, edgeObj.name);
+};
+var Graph = class {
+  _nodeCount = 0;
+  _edgeCount = 0;
+  _isDirected;
+  _label;
+  _defaultNodeLabelFn;
+  _defaultEdgeLabelFn;
+  _nodes;
+  _in;
+  _preds;
+  _out;
+  _sucs;
+  _edgeObjs;
+  _edgeLabels;
+  constructor(opts = {}) {
+    this._isDirected = has(opts, "directed") ? opts.directed : true;
+    this._label = void 0;
+    this._defaultNodeLabelFn = constant(void 0);
+    this._defaultEdgeLabelFn = constant(void 0);
+    this._nodes = {};
+    this._in = {};
+    this._preds = {};
+    this._out = {};
+    this._sucs = {};
+    this._edgeObjs = {};
+    this._edgeLabels = {};
+  }
+  /* === Graph functions ========= */
+  isDirected() {
+    return this._isDirected;
+  }
+  setGraph(label) {
+    this._label = label;
+    return this;
+  }
+  graph() {
+    return this._label;
+  }
+  /* === Node functions ========== */
+  nodeCount() {
+    return this._nodeCount;
+  }
+  nodes() {
+    return Object.keys(this._nodes);
+  }
+  setNode(v, value = void 0) {
+    if (has(this._nodes, v)) {
+      if (arguments.length > 1) {
+        this._nodes[v] = value;
+      }
+      return this;
+    }
+    this._nodes[v] = arguments.length > 1 ? value : this._defaultNodeLabelFn(v);
+    this._in[v] = {};
+    this._preds[v] = {};
+    this._out[v] = {};
+    this._sucs[v] = {};
+    ++this._nodeCount;
+    return this;
+  }
+  setNodes(vs, value) {
+    vs.forEach((v) => {
+      if (value !== void 0) {
+        this.setNode(v, value);
+      } else {
+        this.setNode(v);
+      }
+    });
+    return this;
+  }
+  node(v) {
+    return this._nodes[v];
+  }
+  hasNode(v) {
+    return has(this._nodes, v);
+  }
+  successors(v) {
+    const sucsV = this._sucs[v];
+    if (sucsV) {
+      return Object.keys(sucsV);
+    }
+  }
+  /* === Edge functions ========== */
+  edgeCount() {
+    return this._edgeCount;
+  }
+  edges() {
+    return Object.values(this._edgeObjs);
+  }
+  setEdge(v, w, value = void 0, name = void 0) {
+    v = "" + v;
+    w = "" + w;
+    const e = edgeArgsToId(this._isDirected, v, w, name);
+    if (has(this._edgeLabels, e)) {
+      if (value !== void 0) {
+        this._edgeLabels[e] = value;
+      }
+      return this;
+    }
+    this.setNode(v);
+    this.setNode(w);
+    this._edgeLabels[e] = value !== void 0 ? value : this._defaultEdgeLabelFn(v, w, name);
+    const edgeObj = edgeArgsToObj(this._isDirected, v, w, name);
+    v = edgeObj.v;
+    w = edgeObj.w;
+    Object.freeze(edgeObj);
+    this._edgeObjs[e] = edgeObj;
+    incrementOrInitEntry(this._preds[w], v);
+    incrementOrInitEntry(this._sucs[v], w);
+    this._in[w][e] = edgeObj;
+    this._out[v][e] = edgeObj;
+    this._edgeCount++;
+    return this;
+  }
+  edge(v, w, name) {
+    const e = arguments.length === 1 ? edgeObjToId(this._isDirected, arguments[0]) : edgeArgsToId(this._isDirected, v, w, name);
+    return this._edgeLabels[e];
+  }
+  hasEdge(v, w, name) {
+    const e = arguments.length === 1 ? edgeObjToId(this._isDirected, arguments[0]) : edgeArgsToId(this._isDirected, v, w, name);
+    return has(this._edgeLabels, e);
+  }
+  removeEdge(v, w, name) {
+    const e = arguments.length === 1 ? edgeObjToId(this._isDirected, arguments[0]) : edgeArgsToId(this._isDirected, v, w, name);
+    const edge = this._edgeObjs[e];
+    if (edge) {
+      v = edge.v;
+      w = edge.w;
+      delete this._edgeLabels[e];
+      delete this._edgeObjs[e];
+      decrementOrRemoveEntry(this._preds[w], v);
+      decrementOrRemoveEntry(this._sucs[v], w);
+      delete this._in[w][e];
+      delete this._out[v][e];
+      this._edgeCount--;
+    }
+    return this;
+  }
+  outEdges(v, w = void 0) {
+    const outV = this._out[v];
+    if (outV) {
+      const edges = Object.values(outV);
+      if (w === void 0) {
+        return edges;
+      }
+      return edges.filter(function(edge) {
+        return edge.w === w;
+      });
+    }
+  }
+};
+function tarjan(graph) {
+  let index = 0;
+  const stack = [];
+  const visited = {};
+  const results = [];
+  function dfs(v) {
+    const entry = visited[v] = {
+      onStack: true,
+      lowlink: index,
+      index: index++
+    };
+    stack.push(v);
+    graph.successors(v).forEach(function(w) {
+      if (!Object.prototype.hasOwnProperty.call(visited, w)) {
+        dfs(w);
+        entry.lowlink = Math.min(entry.lowlink, visited[w].lowlink);
+      } else if (visited[w].onStack) {
+        entry.lowlink = Math.min(entry.lowlink, visited[w].index);
+      }
+    });
+    if (entry.lowlink === entry.index) {
+      const cmpt = [];
+      let w;
+      do {
+        w = stack.pop();
+        visited[w].onStack = false;
+        cmpt.push(w);
+      } while (v !== w);
+      results.push(cmpt);
+    }
+  }
+  graph.nodes().forEach(function(v) {
+    if (!Object.prototype.hasOwnProperty.call(visited, v)) {
+      dfs(v);
+    }
+  });
+  return results;
+}
+function findCycles(graph) {
+  return tarjan(graph).filter(function(cmpt) {
+    return cmpt.length > 1 || cmpt.length === 1 && graph.hasEdge(cmpt[0], cmpt[0]);
+  });
+}
+
+// src/AST/graph.ts
+function buildDependenciesGraph(rulesDeps) {
+  const g = new Graph();
+  [...rulesDeps.entries()].forEach(([ruleDottedName, dependencies]) => {
+    dependencies.forEach((depDottedName) => {
+      g.setEdge(ruleDottedName, depDottedName);
+    });
+  });
+  return g;
+}
+function squashCycle(rulesDependenciesObject, cycle) {
+  function* loopFrom(i) {
+    let j = i;
+    while (true) {
+      yield cycle[j++ % cycle.length];
+    }
+  }
+  const smallCycleStartingAt = [];
+  for (let i = 0; i < cycle.length; i++) {
+    const smallCycle = [];
+    let previousVertex = void 0;
+    for (const vertex of loopFrom(i)) {
+      if (previousVertex === void 0) {
+        smallCycle.push(vertex);
+        previousVertex = vertex;
+      } else if (rulesDependenciesObject.get(previousVertex)?.has(vertex)) {
+        if (smallCycle.includes(vertex)) {
+          smallCycle.splice(0, smallCycle.lastIndexOf(vertex));
+          break;
+        }
+        smallCycle.push(vertex);
+        previousVertex = vertex;
+      }
+    }
+    smallCycleStartingAt.push(smallCycle);
+  }
+  const smallest = smallCycleStartingAt.reduce(
+    (minCycle, someCycle) => someCycle.length > minCycle.length ? minCycle : someCycle
+  );
+  return smallest;
+}
+function cyclicDependencies(rawRules) {
+  const { referencesMaps } = parsePublicodes(rawRules);
+  const dependenciesGraph = buildDependenciesGraph(referencesMaps.referencesIn);
+  const cycles = findCycles(dependenciesGraph);
+  const reversedCycles = cycles.map((c) => c.reverse());
+  const smallCycles = reversedCycles.map(
+    (cycle) => squashCycle(referencesMaps.referencesIn, cycle)
+  );
+  const printableStronglyConnectedComponents = reversedCycles.map(
+    (c, i) => printInDotFormat(dependenciesGraph, c, smallCycles[i])
+  );
+  return [smallCycles, printableStronglyConnectedComponents];
+}
+var edgeIsInCycle = (cycle, v, w) => {
+  for (let i = 0; i < cycle.length + 1; i++) {
+    if (v === cycle[i] && w === cycle[(i + 1) % cycle.length]) return true;
+  }
+  return false;
+};
+function printInDotFormat(dependenciesGraph, cycle, subCycleToHighlight) {
+  const edgesSet = /* @__PURE__ */ new Set();
+  cycle.forEach((vertex) => {
+    dependenciesGraph.outEdges(vertex).filter(({ w }) => cycle.includes(w)).forEach(({ v, w }) => {
+      edgesSet.add(
+        `"${v}" -> "${w}"` + (edgeIsInCycle(subCycleToHighlight, v, w) ? " [color=red]" : "")
+      );
+    });
+  });
+  return `digraph Cycle {
+  ${[...edgesSet].join(";\n	")};
+}`;
+}
+
+// src/ruleUtils.ts
+var splitName = (str) => str.split(" . ");
+var joinName = (strs) => strs.join(" . ");
+var nameLeaf = (dottedName) => splitName(dottedName).slice(-1)?.[0];
+var encodeRuleName = (dottedName) => dottedName?.replace(/\s\.\s/g, "/").replace(/-/g, "\u2011").replace(/\s/g, "-");
+var decodeRuleName = (dottedName) => dottedName.replace(/\//g, " . ").replace(/-/g, " ").replace(/\u2011/g, "-");
+var contextNameToDottedName = (contextName) => contextName.endsWith("$SITUATION") ? ruleParent(contextName) : contextName;
+var ruleParent = (dottedName) => joinName(splitName(dottedName).slice(0, -1));
+function ruleParents(dottedName) {
+  return splitName(dottedName).slice(0, -1).map((_, i, arr) => joinName(arr.slice(0, i + 1))).reverse();
+}
+var getChildrenRules = (parsedRules, dottedName) => {
+  const childrenRules = Object.keys(parsedRules).filter(
+    (ruleDottedName) => ruleDottedName.startsWith(dottedName) && splitName(ruleDottedName).length === splitName(dottedName).length + 1
+  );
+  return childrenRules;
+};
+function findCommonAncestor(dottedName1, dottedName2) {
+  const splitDottedName1 = splitName(dottedName1);
+  const splitDottedName2 = splitName(dottedName2);
+  const index = splitDottedName1.findIndex(
+    (value, i) => splitDottedName2[i] !== value
+  );
+  return index === -1 ? dottedName1 : joinName(splitDottedName1.slice(0, index));
+}
+function isAccessible(rules, contextName, name) {
+  if (!(name in rules)) {
+    throw new PublicodesError(
+      "InternalError",
+      `La r\xE8gle "${name}" n'existe pas`,
+      { dottedName: name }
+    );
+  }
+  const commonAncestor = findCommonAncestor(contextName, name);
+  const parents = [name, ...ruleParents(name), ""];
+  const rulesToCheckForPrivacy = parents.slice(
+    0,
+    Math.max(parents.indexOf(commonAncestor) - 1, 0)
+  );
+  return rulesToCheckForPrivacy.every(
+    (dottedName) => !(dottedName in rules) || rules[dottedName].private === false
+  );
+}
+function isExperimental(rules, name) {
+  if (!(name in rules)) {
+    throw new PublicodesError(
+      "InternalError",
+      `La r\xE8gle "${name}" n'existe pas`,
+      { dottedName: name }
+    );
+  }
+  const parents = [name, ...ruleParents(name)];
+  return parents.some(
+    (dottedName) => dottedName in rules && rules[dottedName].rawNode?.experimental === "oui"
+  );
+}
+function dottedNameFromContext(context, partialName) {
+  return context ? context + " . " + partialName : partialName;
+}
+function disambiguateReference(rules, referencedFrom = "", partialName) {
+  const possibleContexts = ruleParents(referencedFrom);
+  possibleContexts.push(referencedFrom);
+  if (partialName.startsWith("^ . ")) {
+    const numberParent = partialName.match(/^(\^ \. )+/)[0].length / 4;
+    partialName = partialName.replace(/^(\^ \. )+/, "");
+    possibleContexts.splice(-numberParent);
+  }
+  const rootContext = possibleContexts.pop();
+  possibleContexts.unshift(rootContext);
+  possibleContexts.push("");
+  const context = possibleContexts.find((context2) => {
+    const dottedName = dottedNameFromContext(context2, partialName);
+    if (!(dottedName in rules)) {
+      return false;
+    }
+    if (dottedName === referencedFrom) {
+      return false;
+    }
+    return isAccessible(rules, referencedFrom, dottedName);
+  });
+  if (context !== void 0) {
+    return dottedNameFromContext(context, partialName);
+  }
+  if (referencedFrom.endsWith(partialName)) {
+    return referencedFrom;
+  }
+  const possibleDottedName = possibleContexts.map(
+    (c) => dottedNameFromContext(c, partialName)
+  );
+  if (possibleDottedName.every((dottedName) => !(dottedName in rules))) {
+    throw new PublicodesError(
+      "SyntaxError",
+      `La r\xE9f\xE9rence "${partialName}" est introuvable.
+V\xE9rifiez que l'orthographe et l'espace de nom sont corrects`,
+      { dottedName: contextNameToDottedName(referencedFrom) }
+    );
+  }
+  throw new PublicodesError(
+    "SyntaxError",
+    `La r\xE8gle "${possibleDottedName.find(
+      (dottedName) => dottedName in rules
+    )}" n'est pas accessible depuis "${referencedFrom}".
+  Cela vient du fait qu'elle est priv\xE9e ou qu'un de ses parent est priv\xE9`,
+    { dottedName: contextNameToDottedName(referencedFrom) }
+  );
+}
+function ruleWithDedicatedDocumentationPage(rule) {
+  return rule.virtualRule !== true && rule.type !== "groupe" && rule.type !== "texte" && rule.type !== "paragraphe" && rule.type !== "notification";
+}
+function updateReferencesMapsFromReferenceNode(node, referencesMaps, ruleDottedName) {
+  if (node.nodeKind === "reference") {
+    addToMapSet(
+      referencesMaps.referencesIn,
+      ruleDottedName ?? node.contextDottedName,
+      node.dottedName
+    );
+    addToMapSet(
+      referencesMaps.rulesThatUse,
+      node.dottedName,
+      ruleDottedName ?? node.contextDottedName
+    );
+  }
+}
+function disambiguateReferenceNode(node, parsedRules) {
+  if (node.nodeKind !== "reference") {
+    return;
+  }
+  if (node.dottedName) {
+    return node;
+  }
+  node.dottedName = disambiguateReference(
+    parsedRules,
+    node.contextDottedName,
+    node.name
+  );
+  node.title = parsedRules[node.dottedName].title;
+  node.acronym = parsedRules[node.dottedName].rawNode.acronyme;
+  return node;
+}
+
+// src/rule.ts
+function parseRule(nom, rawRule, context) {
+  const privateRule = rawRule.priv\u00E9 === "oui" || nom.startsWith("[priv\xE9] ");
+  nom = nom.replace(/^\[privé\] /, "");
+  const dottedName = [context.dottedName, nom].filter(Boolean).join(" . ");
+  const name = nameLeaf(dottedName);
+  const title = capitalise0(rawRule["titre"] ?? name);
+  if (context.parsedRules[dottedName]) {
+    throw new PublicodesError(
+      "EvaluationError",
+      `La r\xE9f\xE9rence '${dottedName}' a d\xE9j\xE0 \xE9t\xE9 d\xE9finie`,
+      { dottedName }
+    );
+  }
+  const currentDottedNameContext = context.dottedName;
+  context.dottedName = dottedName;
+  context.parsedRules[dottedName] = void 0;
+  const ruleValue = {};
+  ruleValue.avec = Object.assign({}, rawRule.avec);
+  const possibilities = parseUnePossibilit\u00E9(
+    rawRule,
+    context,
+    ruleValue.avec
+  );
+  for (const key in rawRule) {
+    if (mecanismKeys.includes(key)) {
+      ruleValue[key] ??= rawRule[key];
+    }
+  }
+  if ("formule" in rawRule) {
+    ruleValue.valeur = rawRule.formule;
+  }
+  if (!privateRule && !dottedName.endsWith("$SITUATION")) {
+    ruleValue["dans la situation"] = `${dottedName} . $SITUATION`;
+    const situationValue = weakCopyObj(undefinedNode);
+    situationValue.isNullable = rawRule["possiblement non applicable"] === "oui";
+    ruleValue["avec"]["[priv\xE9] $SITUATION"] = {
+      valeur: situationValue
+    };
+    if (ruleValue["par d\xE9faut"] != null) {
+      ruleValue["par d\xE9faut"] = {
+        valeur: ruleValue["par d\xE9faut"],
+        "variable manquante": dottedName
+      };
+    }
+  }
+  const explanation = {
+    valeur: parse(ruleValue, context),
+    /*
+        We include a list of references to the parents to implement the branch
+        desactivation feature. When evaluating a rule we only need to know the
+        first nullable parent, but this is something that we can't determine at
+        this stage :
+        - we need to run remplacements (which works on references in the ASTs
+          which is why we insert these “virtual” references)
+        - we need to infer unit of the rules
+
+        An alternative implementation would be possible that would colocate the
+        code related to branch desactivation (ie find the first nullable parent
+        statically after rules parsing)
+
+        Note this option can be disabled by setting the `automaticNamespaceDisabling` flag to false.
+        */
+    parents: context.flag.automaticNamespaceDisabling ? ruleParents(dottedName).map(
+      (parent) => ({
+        dottedName: parent,
+        nodeKind: "reference",
+        contextDottedName: context.dottedName
+      })
+    ) : []
+  };
+  const suggestions = {};
+  if (rawRule.suggestions) {
+    for (const name2 in rawRule.suggestions) {
+      suggestions[name2] = parse(rawRule.suggestions[name2], context);
+    }
+  }
+  context.parsedRules[dottedName] = {
+    dottedName,
+    replacements: [
+      ...parseRendNonApplicable(rawRule["rend non applicable"], context),
+      ...parseReplacements(rawRule.remplace, context)
+    ],
+    title,
+    private: privateRule,
+    suggestions,
+    nodeKind: "rule",
+    possibilities,
+    explanation,
+    rawNode: rawRule,
+    virtualRule: privateRule
+  };
+  context.dottedName = currentDottedNameContext;
+  return context.parsedRules[dottedName];
+}
+function parseRules(rules, context) {
+  for (const dottedName in rules) {
+    let rule = rules[dottedName];
+    if (typeof rule === "string" || typeof rule === "number") {
+      rule = { valeur: `${rule}` };
+    }
+    if (typeof rule !== "object") {
+      throw new PublicodesError(
+        "SyntaxError",
+        `Rule ${dottedName} is incorrectly written. Please give it a proper value.
+ ${rule}`,
+        { dottedName }
+      );
+    }
+    const copy = rule === null ? {} : weakCopyObj(rule);
+    parseRule(dottedName, copy, context);
+  }
+}
+registerEvaluationFunction("rule", function evaluate4(node) {
+  if (!node.dottedName.endsWith("$SITUATION") && !node.dottedName.includes("$INTERNAL")) {
+    this.context.evaluatedRule = node.dottedName;
+  }
+  const { ruleDisabledByItsParent, nullableParent, parentMissingVariables } = evaluateDisablingParent(this, node);
+  const explanation = {
+    ...node.explanation,
+    nullableParent,
+    ruleDisabledByItsParent
+  };
+  if (ruleDisabledByItsParent) {
+    return {
+      ...node,
+      nodeValue: null,
+      missingVariables: parentMissingVariables,
+      explanation
+    };
+  }
+  if (this.cache._meta.evaluationRuleStack.filter(
+    (dottedName) => dottedName === node.dottedName
+  ).length > 1) {
+    const cycleIndex = this.cache._meta.evaluationRuleStack.indexOf(
+      node.dottedName
+    );
+    const cycle = [
+      ...this.cache._meta.evaluationRuleStack.slice(0, cycleIndex + 1).reverse(),
+      node.dottedName
+    ];
+    const message = `
+Un cycle a \xE9t\xE9 d\xE9tect\xE9 lors de l'\xE9valuation de cette r\xE8gle:
+${cycle.join(cycle.length > 5 ? "\n \u2192 " : " \u2192 ")}
+
+Cela vient probablement d'une erreur dans votre mod\xE8le.
+
+Si le cycle est voulu, vous pouvez indiquer au moteur de r\xE9soudre la r\xE9f\xE9rence circulaire en trouvant le point fixe de la fonction. Pour cela, ajoutez l'attribut suivant niveau de la r\xE8gle :
+
+  ${node.dottedName}:
+    r\xE9soudre la r\xE9f\xE9rence circulaire: oui"
+    ...
+`;
+    if (!this.cache._meta.parentRuleStack.length || this.cache._meta.parentRuleStack.some(
+      (dottedName) => !dottedName.startsWith(node.dottedName)
+    )) {
+      if (this.context.strict.noCycleRuntime) {
+        throw new PublicodesError("EvaluationError", message, {
+          dottedName: node.dottedName
+        });
+      }
+      warning(this.context, message, "cyclicReferences");
+    }
+    return {
+      ...node,
+      nodeValue: void 0,
+      missingVariables: parentMissingVariables,
+      explanation
+    };
+  }
+  this.cache._meta.evaluationRuleStack.unshift(node.dottedName);
+  const possibilities = node.possibilities && this.evaluateNode(node.possibilities);
+  if (possibilities?.nodeValue !== void 0) {
+    return {
+      ...node,
+      ...possibilities.unit ? { unit: possibilities.unit } : {},
+      nodeValue: possibilities.nodeValue,
+      missingVariables: mergeMissing(
+        possibilities.missingVariables,
+        parentMissingVariables
+      ),
+      possibilities
+    };
+  }
+  const valeurEvaluation = this.evaluateNode(node.explanation.valeur);
+  this.cache._meta.evaluationRuleStack.shift();
+  valeurEvaluation.missingVariables ??= {};
+  updateRuleMissingVariables(this, node, valeurEvaluation);
+  if (possibilities && this.context.strict.checkPossibleValues && !isAValidOption(this, possibilities, valeurEvaluation)) {
+    throw new PublicodesError(
+      "EvaluationError",
+      `La valeur "${valeurEvaluation.nodeValue}" de la r\xE8gle ${node.dottedName} n'est pas une des possibilit\xE9s attendues`,
+      {
+        dottedName: node.dottedName
+      }
+    );
+  }
+  const unit2 = possibilities?.unit ?? valeurEvaluation.unit;
+  const missingVariables = mergeMissing(
+    mergeMissing(
+      possibilities?.missingVariables ?? {},
+      valeurEvaluation.missingVariables
+    ),
+    parentMissingVariables
+  );
+  return {
+    ...valeurEvaluation,
+    ...unit2 ? { unit: unit2 } : {},
+    missingVariables,
+    ...node,
+    possibilities,
+    explanation: {
+      parents: node.explanation.parents,
+      valeur: valeurEvaluation,
+      nullableParent,
+      ruleDisabledByItsParent
+    }
+  };
+});
+function updateRuleMissingVariables(engine, node, valeurEvaluation) {
+  if (node.private === true || !isAccessible(engine.context.parsedRules, "", node.dottedName)) {
+    return;
+  }
+  if (valeurEvaluation.nodeValue === void 0 && !Object.keys(valeurEvaluation.missingVariables).length) {
+    valeurEvaluation.missingVariables[node.dottedName] = 1;
+  }
+  return;
+}
+function evaluateDisablingParent(engine, node) {
+  if (node.dottedName.endsWith("$SITUATION")) {
+    return { ruleDisabledByItsParent: false, parentMissingVariables: {} };
+  }
+  const nodesTypes = engine.context.nodesTypes;
+  const nullableParent = node.explanation.parents.find(
+    (ref) => nodesTypes.get(ref)?.isNullable || nodesTypes.get(ref)?.type === "boolean"
+  );
+  if (!nullableParent) {
+    return { ruleDisabledByItsParent: false, parentMissingVariables: {} };
+  }
+  if (
+    // TODO: remove this condition and the associated "parentRuleStack", cycles
+    // should be detected and avoided at parse time.
+    !engine.cache._meta.parentRuleStack.includes(node.dottedName)
+  ) {
+    engine.cache._meta.parentRuleStack.unshift(node.dottedName);
+    let parentIsNotApplicable = defaultNode(false);
+    if (nodesTypes.get(nullableParent)?.isNullable) {
+      parentIsNotApplicable = engine.evaluateNode({
+        nodeKind: "est non applicable",
+        explanation: nullableParent
+      });
+    }
+    if (parentIsNotApplicable.nodeValue !== true && nodesTypes.get(nullableParent)?.type === "boolean") {
+      parentIsNotApplicable = engine.evaluateNode({
+        nodeKind: "operation",
+        operator: "=",
+        operationKind: "=",
+        explanation: [nullableParent, defaultNode(false)]
+      });
+    }
+    engine.cache._meta.parentRuleStack.shift();
+    if (parentIsNotApplicable.nodeValue === true) {
+      return {
+        ruleDisabledByItsParent: true,
+        parentMissingVariables: parentIsNotApplicable.missingVariables ?? {},
+        nullableParent
+      };
+    }
+  }
+  let parentMissingVariables = {};
+  if (nodesTypes.get(nullableParent)?.type === "boolean") {
+    const parentEvaluation = engine.evaluateNode(nullableParent);
+    parentMissingVariables = parentEvaluation.missingVariables ?? {};
+    return {
+      ruleDisabledByItsParent: parentEvaluation.nodeValue === false,
+      parentMissingVariables,
+      nullableParent
+    };
+  }
+  return {
+    ruleDisabledByItsParent: false,
+    parentMissingVariables,
+    nullableParent
+  };
+}
+
+// src/mecanisms/avec.ts
+function parseAvec(v, context) {
+  parseRules(v.avec, context);
+  const valeur = parse(v.valeur, context);
+  return valeur;
+}
+parseAvec.nom = "avec";
+
+// src/mecanisms/trancheUtils.ts
+var parseTranches = (tranches, context) => {
+  return tranches.map((node, i) => {
+    if (!node.plafond && i > tranches.length) {
+      throw new PublicodesError(
+        "SyntaxError",
+        `La tranche n\xB0${i} du bar\xE8me n'a pas de plafond pr\xE9cis\xE9. Seule la derni\xE8re tranche peut ne pas \xEAtre plafonn\xE9e`,
+        { dottedName: "" }
+      );
+    }
+    return {
+      ...node,
+      ...node.taux !== void 0 ? { taux: parse(node.taux, context) } : {},
+      ...node.montant !== void 0 ? { montant: parse(node.montant, context) } : {},
+      plafond: "plafond" in node ? parse(node.plafond, context) : {
+        nodeValue: Infinity,
+        nodeKind: "constant",
+        type: "number",
+        isNullable: false
+      }
+    };
+  });
+};
+function evaluatePlafondUntilActiveTranche({ multiplicateur, assiette, parsedTranches }) {
+  return parsedTranches.reduce(
+    ([tranches, activeTrancheFound], parsedTranche, i) => {
+      if (activeTrancheFound) {
+        return [
+          [...tranches, { ...parsedTranche, isAfterActive: true }],
+          activeTrancheFound
+        ];
+      }
+      const plafond = this.evaluateNode(parsedTranche.plafond);
+      const plancher = tranches[i - 1] ? tranches[i - 1].plafond : { nodeValue: 0 };
+      let plafondValue = plafond.nodeValue === void 0 || multiplicateur.nodeValue === void 0 ? void 0 : plafond.nodeValue * multiplicateur.nodeValue;
+      try {
+        plafondValue = plafondValue === Infinity || plafondValue === 0 ? plafondValue : convertUnit(
+          inferUnit("*", [plafond.unit, multiplicateur.unit]),
+          assiette.unit,
+          plafondValue
+        );
+      } catch (e) {
+        if (!(e instanceof Error)) {
+          throw e;
+        }
+        warning(
+          this.context,
+          `L'unit\xE9 du plafond de la tranche n\xB0${i + 1}  n'est pas compatible avec celle l'assiette`,
+          "unitConversion",
+          e
+        );
+      }
+      const plancherValue = tranches[i - 1] ? tranches[i - 1].plafondValue : 0;
+      const isAfterActive = plancherValue === void 0 || assiette.nodeValue === void 0 ? void 0 : plancherValue > assiette.nodeValue;
+      const calculationValues = [plafond, assiette, multiplicateur, plancher];
+      if (calculationValues.some((node) => node.nodeValue === void 0)) {
+        return [
+          [
+            ...tranches,
+            {
+              ...parsedTranche,
+              plafond,
+              plafondValue,
+              plancherValue,
+              nodeValue: void 0,
+              isActive: void 0,
+              isAfterActive,
+              missingVariables: mergeAllMissing(calculationValues)
+            }
+          ],
+          false
+        ];
+      }
+      if (!!tranches[i - 1] && !!plancherValue && plafondValue <= plancherValue) {
+        throw new PublicodesError(
+          "EvaluationError",
+          `Le plafond de la tranche n\xB0${i + 1} a une valeur inf\xE9rieure \xE0 celui de la tranche pr\xE9c\xE9dente`,
+          { dottedName: this.cache._meta.evaluationRuleStack[0] }
+        );
+      }
+      const tranche = {
+        ...parsedTranche,
+        plafond,
+        plancherValue,
+        plafondValue,
+        isAfterActive,
+        isActive: assiette.nodeValue >= plancherValue && assiette.nodeValue < plafondValue
+      };
+      return [[...tranches, tranche], tranche.isActive];
+    },
+    [[], false]
+  )[0];
+}
+
+// src/mecanisms/bareme.ts
+function parseBar\u00E8me(v, context) {
+  const explanation = {
+    assiette: parse(v.assiette, context),
+    multiplicateur: v.multiplicateur ? parse(v.multiplicateur, context) : defaultNode(1),
+    tranches: parseTranches(v.tranches, context)
+  };
+  return {
+    explanation,
+    nodeKind: "bar\xE8me"
+  };
+}
+function evaluateBar\u00E8me(tranches, assiette, evaluate17) {
+  return tranches.map((tranche) => {
+    if (tranche.isAfterActive) {
+      return { ...tranche, nodeValue: 0 };
+    }
+    const taux = evaluate17(tranche.taux);
+    const missingVariables = mergeAllMissing([taux, tranche]);
+    if ([
+      assiette.nodeValue,
+      taux.nodeValue,
+      tranche.plafondValue,
+      tranche.plancherValue
+    ].some((value) => value === void 0)) {
+      return {
+        ...tranche,
+        taux,
+        nodeValue: void 0,
+        missingVariables
+      };
+    }
+    return {
+      ...tranche,
+      taux,
+      ..."unit" in assiette && { unit: assiette.unit },
+      nodeValue: (Math.min(assiette.nodeValue, tranche.plafondValue) - tranche.plancherValue) * convertUnit(taux.unit, parseUnit(""), taux.nodeValue),
+      missingVariables
+    };
+  });
+}
+var evaluate5 = function(node) {
+  const evaluate17 = this.evaluateNode.bind(this);
+  const assiette = this.evaluateNode(
+    node.explanation.assiette
+  );
+  const multiplicateur = this.evaluateNode(node.explanation.multiplicateur);
+  if (multiplicateur.nodeValue === 0) {
+    throw new PublicodesError(
+      "EvaluationError",
+      `Le multiplicateur ne peut pas \xEAtre nul`,
+      { dottedName: this.cache._meta.evaluationRuleStack[0] }
+    );
+  }
+  let tranches = node.explanation.tranches;
+  let nodeValue = assiette.nodeValue;
+  if (![0, void 0, null].includes(assiette.nodeValue)) {
+    tranches = evaluateBar\u00E8me(
+      evaluatePlafondUntilActiveTranche.call(this, {
+        parsedTranches: node.explanation.tranches,
+        assiette,
+        multiplicateur
+      }),
+      assiette,
+      evaluate17
+    );
+    nodeValue = tranches.reduce(
+      (value, { nodeValue: nodeValue2 }) => nodeValue2 == void 0 ? void 0 : value + nodeValue2,
+      0
+    );
+  }
+  return {
+    ...node,
+    nodeValue,
+    missingVariables: mergeAllMissing([assiette, multiplicateur, ...tranches]),
+    explanation: {
+      assiette,
+      multiplicateur,
+      tranches
+    },
+    unit: assiette.unit
+  };
+};
+registerEvaluationFunction("bar\xE8me", evaluate5);
+
+// src/mecanisms/condition.ts
+var evaluate6 = function(node) {
+  let evaluation;
+  const condition = this.evaluateNode(node.explanation.si);
+  let alors = node.explanation.alors;
+  let sinon = node.explanation.sinon;
+  if ("unit" in condition) {
+    throw new PublicodesError(
+      "EvaluationError",
+      "La condition doit \xEAtre de type bool\xE9en",
+      { dottedName: this.cache._meta.evaluationRuleStack[0] }
+    );
+  }
+  if (condition.nodeValue === true) {
+    alors = this.evaluateNode(node.explanation.alors);
+    alors.isActive = true;
+    evaluation = alors;
+  } else if (condition.nodeValue === false) {
+    sinon = this.evaluateNode(node.explanation.sinon);
+    evaluation = sinon;
+  } else if (condition.nodeValue === null) {
+    evaluation = condition;
+  } else if (condition.nodeValue === void 0) {
+    sinon = this.evaluateNode(node.explanation.sinon);
+    alors = this.evaluateNode(node.explanation.alors);
+    evaluation = {
+      ...condition,
+      missingVariables: mergeAllMissing([sinon, alors])
+    };
+  } else {
+    throw new PublicodesError(
+      "EvaluationError",
+      "La condition doit \xEAtre de type bool\xE9en",
+      { dottedName: this.cache._meta.evaluationRuleStack[0] }
+    );
+  }
+  const unit2 = evaluation.unit ?? alors.unit;
+  return {
+    nodeValue: evaluation.nodeValue,
+    missingVariables: mergeMissing(
+      bonus(condition.missingVariables),
+      evaluation.missingVariables
+    ),
+    ...unit2 != void 0 ? { unit: unit2 } : {},
+    ...node,
+    explanation: { si: condition, alors, sinon }
+  };
+};
+function parseCondition(v, context) {
+  const explanation = {
+    si: parse(v.si, context),
+    alors: parse(v.alors, context),
+    sinon: parse(v.sinon, context)
+  };
+  return {
+    explanation,
+    nodeKind: "condition"
+  };
+}
+parseCondition.nom = "condition";
+registerEvaluationFunction("condition", evaluate6);
+
+// src/mecanisms/contexte.ts
+function parseMecanismContexte(v, context) {
+  const node = parse(v.valeur, context);
+  const contexte = Object.keys(v.contexte).map((dottedName) => [
+    parse(dottedName, context),
+    parse(v.contexte[dottedName], context)
+  ]).sort(([a], [b]) => a.name.localeCompare(b.name));
+  const contextHash = simpleHash(JSON.stringify(contexte));
+  return {
+    explanation: {
+      valeur: node,
+      contexte,
+      subEngineId: contextHash
+    },
+    nodeKind: parseMecanismContexte.nom
+  };
+}
+parseMecanismContexte.nom = "contexte";
+var evaluateContexte = function(node) {
+  const undefinedContextRules = [];
+  const amendedSituation = Object.fromEntries(
+    node.explanation.contexte.filter(([originRule, replacement]) => {
+      const originRuleEvaluation = this.evaluateNode(originRule);
+      const replacementEvaluation = this.evaluateNode(replacement);
+      if (replacementEvaluation.nodeValue === void 0) {
+        undefinedContextRules.push(originRule.dottedName);
+      }
+      return originRuleEvaluation.nodeValue !== replacementEvaluation.nodeValue || serializeUnit(originRuleEvaluation.unit) !== serializeUnit(replacementEvaluation.unit);
+    }).map(
+      ([originRule, replacement]) => [originRule.dottedName, replacement]
+    )
+  );
+  if (this.cache._meta.currentContexteSituation === JSON.stringify(amendedSituation)) {
+    return {
+      ...notApplicableNode,
+      ...node
+    };
+  }
+  let engine;
+  if (this.context.subEngines.has(node.explanation.subEngineId)) {
+    engine = this.context.subEngines.get(node.explanation.subEngineId);
+  } else {
+    engine = this.shallowCopy();
+    engine.context.warn.experimentalRules = false;
+    engine.context.subEngineId = node.explanation.subEngineId;
+    this.context.subEngines.set(node.explanation.subEngineId, engine);
+    if (Object.keys(amendedSituation).length) {
+      engine.setSituation(amendedSituation, {
+        keepPreviousSituation: true
+      });
+      Object.entries(amendedSituation).forEach(([originDottedName, value]) => {
+        const evaluation = this.cache.nodes.get(value);
+        if (!evaluation) {
+          throw new PublicodesError(
+            "InternalError",
+            "The situation should have already been evaluated",
+            {
+              dottedName: this.context.dottedName
+            }
+          );
+        }
+        const originRule = engine.context.parsedRules[originDottedName + " . $SITUATION"];
+        if (!originRule?.explanation.valeur) {
+          throw new PublicodesError(
+            "InternalError",
+            "The origin rule should be defined",
+            {
+              dottedName: this.context.dottedName
+            }
+          );
+        }
+        engine.cache.nodes.set(originRule.explanation.valeur, evaluation);
+      });
+    }
+  }
+  engine.cache._meta.currentContexteSituation = JSON.stringify(amendedSituation);
+  const evaluatedNode = engine.evaluateNode(node.explanation.valeur);
+  const contextRules = node.explanation.contexte.map(
+    ([originRule]) => {
+      return originRule.dottedName;
+    }
+  );
+  const contextRulesToKeep = contextRules.filter(
+    (rule) => undefinedContextRules.includes(rule)
+  );
+  const evaluatedMissingVariables = Object.fromEntries(
+    Object.entries(evaluatedNode.missingVariables).filter(
+      ([missingVariable]) => !contextRules.includes(missingVariable) || contextRulesToKeep.includes(missingVariable)
+    )
+  );
+  return {
+    ...node,
+    nodeValue: evaluatedNode.nodeValue,
+    explanation: {
+      ...node.explanation,
+      valeur: evaluatedNode
+    },
+    missingVariables: evaluatedMissingVariables,
+    ..."unit" in evaluatedNode && { unit: evaluatedNode.unit }
+  };
+};
+registerEvaluationFunction("contexte", evaluateContexte);
+function simpleHash(str) {
+  let hash = 0;
+  for (let i = 0, len = str.length; i < len; i++) {
+    const chr = str.charCodeAt(i);
+    hash = (hash << 5) - hash + chr;
+    hash |= 0;
+  }
+  return hash;
+}
+
+// src/date.ts
+function normalizeDateString(dateString) {
+  let [day, month, year] = dateString.split("/");
+  if (!year) {
+    ;
+    [day, month, year] = ["01", day, month];
+  }
+  return normalizeDate(+year, +month, +day);
+}
+var pad = (n) => +n < 10 ? `0${n}` : "" + n;
+function normalizeDate(year, month, day) {
+  const date2 = new Date(+year, +month - 1, +day);
+  if (!+date2 || date2.getDate() !== +day) {
+    throw new PublicodesError(
+      "SyntaxError",
+      `La date ${day}/${month}/${year} n'est pas valide`,
+      { dottedName: "" }
+    );
+  }
+  return `${pad(day)}/${pad(month)}/${pad(year)}`;
+}
+function convertToDate(value) {
+  const [day, month, year] = normalizeDateString(value).split("/");
+  const result = new Date(+year, +month - 1, +day);
+  result.setMinutes(result.getMinutes() - result.getTimezoneOffset());
+  return result;
+}
+function convertToString(date2) {
+  return normalizeDate(date2.getFullYear(), date2.getMonth() + 1, date2.getDate());
+}
+function getYear(date2) {
+  return +date2.slice(-4);
+}
+function getTrimestreCivil(date2) {
+  const [, month, year] = date2.split("/");
+  const trimester = Math.floor((Number.parseInt(month, 10) - 1) / 3);
+  const startingMonth = 3 * trimester + 1;
+  return `01/${startingMonth.toString().padStart(2, "0")}/${year}`;
+}
+function getDifferenceInDays(from, to) {
+  const millisecondsPerDay = 1e3 * 60 * 60 * 24;
+  return (convertToDate(to).getTime() - convertToDate(from).getTime()) / millisecondsPerDay;
+}
+function getDifferenceInMonths(from, to) {
+  const [dayFrom, monthFrom, yearFrom] = from.split("/").map((x) => +x);
+  const [dayTo, monthTo, yearTo] = to.split("/").map((x) => +x);
+  const numberOfFullMonth = monthTo - monthFrom + 12 * (yearTo - yearFrom);
+  const numDayMonthFrom = new Date(yearFrom, monthFrom, 0).getDate();
+  const numDayMonthTo = new Date(yearTo, monthTo, 0).getDate();
+  const prorataMonthFrom = (dayFrom - 1) / numDayMonthFrom;
+  const prorataMonthTo = dayTo / numDayMonthTo;
+  return numberOfFullMonth - prorataMonthFrom + prorataMonthTo;
+}
+function getDifferenceInYears(from, to) {
+  const differenceInDays = getDifferenceInDays(from, to);
+  const isLeapYear = (year) => year % 4 === 0 && year % 100 !== 0 || year % 400 === 0;
+  const after1stMarch = (date2) => date2 >= new Date(date2.getFullYear(), 2, 1);
+  const fromDate = convertToDate(from);
+  const toDate = convertToDate(to);
+  const fromYear = fromDate.getFullYear() + (after1stMarch(fromDate) ? 1 : 0);
+  const toYear = toDate.getFullYear() + (after1stMarch(fromDate) ? 0 : -1);
+  const leapYearsCount = Array.from(
+    { length: toYear - fromYear + 1 },
+    (_, i) => fromYear + i
+  ).filter(isLeapYear).length;
+  return (differenceInDays - leapYearsCount) / 365;
+}
+function getDifferenceInTrimestreCivils(from, to) {
+  return Math.floor(
+    getDifferenceInMonths(getTrimestreCivil(from), getTrimestreCivil(to)) / 3
+  ) + 1;
+}
+function getDifferenceInYearsCivil(from, to) {
+  const fromYear = "01/" + getYear(from);
+  const toYear = "01/" + getYear(to);
+  return Math.floor(getDifferenceInYears(fromYear, toYear)) + 1;
+}
+
+// src/mecanisms/duree.ts
+var evaluate7 = function(node) {
+  const fromNode = this.evaluateNode(node.explanation.depuis);
+  const toNode = this.evaluateNode(node.explanation["jusqu'\xE0"]);
+  const from = fromNode.nodeValue;
+  const to = toNode.nodeValue;
+  let nodeValue;
+  if (from === null || to === null) {
+    nodeValue = null;
+  } else if (from === void 0 || to === void 0) {
+    nodeValue = void 0;
+  } else {
+    switch (node.unit.numerators[0]) {
+      case "jour":
+        nodeValue = getDifferenceInDays(from, to);
+        break;
+      case "mois":
+        nodeValue = getDifferenceInMonths(from, to);
+        break;
+      case "an":
+        nodeValue = getDifferenceInYears(from, to);
+        break;
+      case "trimestre":
+        nodeValue = getDifferenceInMonths(from, to) / 3;
+        break;
+      case "trimestre civil":
+        nodeValue = getDifferenceInTrimestreCivils(from, to);
+        break;
+      case "ann\xE9e civile":
+        nodeValue = getDifferenceInYearsCivil(from, to);
+        break;
+    }
+  }
+  if (typeof nodeValue === "number") {
+    nodeValue = Math.max(0, nodeValue);
+  }
+  return {
+    ...node,
+    missingVariables: mergeAllMissing([fromNode, toNode]),
+    nodeValue,
+    explanation: {
+      depuis: fromNode,
+      "jusqu'\xE0": toNode
+    }
+  };
+};
+var today = defaultNode(convertToString(/* @__PURE__ */ new Date()));
+var duree_default = (v, context) => {
+  const explanation = {
+    depuis: parse(v.depuis ?? today, context),
+    "jusqu'\xE0": parse(v["jusqu'\xE0"] ?? today, context)
+  };
+  const unit2 = v.unit\u00E9 ? parseUnit(v.unit\u00E9) : parseUnit("jour");
+  if (unit2.denominators.length > 0 || unit2.numerators.length > 1 || !possibleUnit.includes(unit2.numerators[0])) {
+    throw new PublicodesError(
+      "SyntaxError",
+      `Seules les unit\xE9s suivantes sont accept\xE9es pour une dur\xE9e : ${possibleUnit.join(
+        ", "
+      )}.
+  L'unit\xE9 fournie est: ${unit2.numerators[0]}`,
+      {
+        dottedName: context.dottedName
+      }
+    );
+  }
+  return {
+    explanation,
+    unit: unit2,
+    nodeKind: "dur\xE9e"
+  };
+};
+registerEvaluationFunction("dur\xE9e", evaluate7);
+var possibleUnit = [
+  "mois",
+  "jour",
+  "an",
+  "trimestre",
+  "trimestre civil",
+  "ann\xE9e civile"
+];
+
+// src/mecanisms/est.ts
+function parseEstNonD\u00E9fini(v, context) {
+  const explanation = parse(v, context);
+  return {
+    explanation,
+    nodeKind: "est non d\xE9fini"
+  };
+}
+parseEstNonD\u00E9fini.nom = "est non d\xE9fini";
+var parseEstD\u00E9fini = createParseInlinedMecanism(
+  "est d\xE9fini",
+  {
+    valeur: {}
+  },
+  {
+    "=": [{ "est non d\xE9fini": "valeur" }, "non"]
+  }
+);
+var parseEstApplicable = createParseInlinedMecanism(
+  "est applicable",
+  {
+    valeur: {}
+  },
+  {
+    "=": [{ "est non applicable": "valeur" }, "non"]
+  }
+);
+var evaluate8 = function(node) {
+  const valeur = this.evaluateNode(node.explanation);
+  let nodeValue = false;
+  if (valeur.nodeValue === void 0) {
+    nodeValue = true;
+  }
+  return {
+    ...node,
+    nodeValue,
+    missingVariables: valeur.missingVariables,
+    explanation: valeur
+  };
+};
+registerEvaluationFunction("est non d\xE9fini", evaluate8);
+
+// src/mecanisms/grille.ts
+function parseGrille(v, context) {
+  const explanation = {
+    assiette: parse(v.assiette, context),
+    multiplicateur: v.multiplicateur ? parse(v.multiplicateur, context) : defaultNode(1),
+    tranches: parseTranches(v.tranches, context)
+  };
+  return {
+    explanation,
+    nodeKind: "grille"
+  };
+}
+var evaluate9 = function(node) {
+  const evaluate17 = this.evaluateNode.bind(this);
+  const assiette = this.evaluateNode(node.explanation.assiette);
+  const multiplicateur = this.evaluateNode(node.explanation.multiplicateur);
+  if (multiplicateur.nodeValue === 0) {
+    throw new PublicodesError(
+      "EvaluationError",
+      `Le multiplicateur ne peut pas \xEAtre nul`,
+      {
+        dottedName: this.cache._meta.evaluationRuleStack[0]
+      }
+    );
+  }
+  const tranches = evaluatePlafondUntilActiveTranche.call(this, {
+    parsedTranches: node.explanation.tranches,
+    assiette,
+    multiplicateur
+  }).map((tranche) => {
+    if (tranche.isActive === false) {
+      return tranche;
+    }
+    const montant = evaluate17(tranche.montant);
+    return {
+      ...tranche,
+      montant,
+      nodeValue: montant.nodeValue,
+      unit: montant.unit,
+      missingVariables: mergeAllMissing([montant, tranche])
+    };
+  });
+  let activeTranches;
+  const activeTranche = tranches.find((tranche) => tranche.isActive);
+  if (activeTranche) {
+    activeTranches = [activeTranche];
+  } else if (tranches[tranches.length - 1].isAfterActive === false) {
+    activeTranches = [{ nodeValue: false }];
+  } else {
+    activeTranches = tranches.filter(
+      (tranche) => tranche.isActive === void 0
+    );
+  }
+  const nodeValue = !activeTranches[0] ? false : activeTranches[0].isActive === void 0 ? void 0 : activeTranches[0].nodeValue;
+  return {
+    ...node,
+    nodeValue,
+    missingVariables: mergeAllMissing([
+      assiette,
+      multiplicateur,
+      ...activeTranches
+    ]),
+    explanation: {
+      ...node.explanation,
+      assiette,
+      multiplicateur,
+      tranches
+    },
+    unit: activeTranches[0]?.unit ?? void 0
+  };
+};
+registerEvaluationFunction("grille", evaluate9);
+
+// src/uniroot.ts
+function uniroot(func, lowerLimit, upperLimit, errorTol = 0, maxIter = 100, acceptableErrorTol = 0) {
+  let a = lowerLimit, b = upperLimit, c = a, fa = func(a), fb = func(b), fc = fa, actualTolerance, newStep, prevStep, p, q, fallback = void 0;
+  while (maxIter-- > 0) {
+    prevStep = b - a;
+    if (Math.abs(fc) < Math.abs(fb)) {
+      ;
+      a = b, b = c, c = a;
+      fa = fb, fb = fc, fc = fa;
+    }
+    actualTolerance = 1e-15 * Math.abs(b) + errorTol / 2;
+    newStep = (c - b) / 2;
+    if (Math.abs(newStep) <= actualTolerance || fb === 0) {
+      return b;
+    }
+    if (Math.abs(prevStep) >= actualTolerance && Math.abs(fa) > Math.abs(fb)) {
+      let t1, t2;
+      const cb = c - b;
+      if (a === c) {
+        t1 = fb / fa;
+        p = cb * t1;
+        q = 1 - t1;
+      } else {
+        ;
+        q = fa / fc, t1 = fb / fc, t2 = fb / fa;
+        p = t2 * (cb * q * (q - t1) - (b - a) * (t1 - 1));
+        q = (q - 1) * (t1 - 1) * (t2 - 1);
+      }
+      if (p > 0) {
+        q = -q;
+      } else {
+        p = -p;
+      }
+      if (p < 0.75 * cb * q - Math.abs(actualTolerance * q) / 2 && p < Math.abs(prevStep * q / 2)) {
+        newStep = p / q;
+      }
+    }
+    if (Math.abs(newStep) < actualTolerance) {
+      newStep = newStep > 0 ? actualTolerance : -actualTolerance;
+    }
+    ;
+    a = b, fa = fb;
+    b += newStep, fb = func(b);
+    if (fb > 0 && fc > 0 || fb < 0 && fc < 0) {
+      ;
+      c = a, fc = fa;
+    }
+    if (Math.abs(fb) < errorTol) {
+      return b;
+    }
+    if (Math.abs(fb) < acceptableErrorTol) {
+      fallback = b;
+    }
+  }
+  return fallback;
+}
+
+// src/mecanisms/inversion.ts
+var evaluateInversion = function(node) {
+  const inversionEngine = this.shallowCopy();
+  inversionEngine.context.warn.experimentalRules = false;
+  if (this.cache._meta.evaluationRuleStack.slice(1).includes(node.explanation.ruleToInverse)) {
+    return {
+      ...undefinedNumberNode,
+      ...node
+    };
+  }
+  inversionEngine.cache._meta.parentRuleStack = [
+    ...this.cache._meta.parentRuleStack
+  ];
+  inversionEngine.cache._meta.evaluationRuleStack = [
+    ...this.cache._meta.evaluationRuleStack
+  ];
+  const inversionGoal = node.explanation.inversionCandidates.find(
+    (candidate) => {
+      if (this.cache._meta.evaluationRuleStack.includes(candidate.dottedName)) {
+        return false;
+      }
+      const evaluation = inversionEngine.evaluateNode(
+        inversionEngine.context.parsedRules[`${candidate.dottedName} . $SITUATION`]
+      );
+      return typeof evaluation.nodeValue === "number" && !(candidate.dottedName in evaluation.missingVariables);
+    }
+  );
+  if (inversionGoal === void 0) {
+    return {
+      ...node,
+      nodeValue: void 0,
+      missingVariables: {
+        ...Object.fromEntries(
+          node.explanation.inversionCandidates.map((candidate) => [
+            candidate.dottedName,
+            1
+          ])
+        ),
+        [node.explanation.ruleToInverse]: 1
+      }
+    };
+  }
+  const evaluatedInversionGoal = inversionEngine.evaluateNode(inversionGoal);
+  let numberOfIteration = 0;
+  inversionEngine.setSituation(
+    {
+      [inversionGoal.dottedName]: undefinedNumberNode
+    },
+    { keepPreviousSituation: true }
+  );
+  inversionEngine.cache.traversedVariablesStack = this.cache.traversedVariablesStack ? [] : void 0;
+  let lastEvaluation;
+  const evaluateWithValue = (n) => {
+    numberOfIteration++;
+    inversionEngine.setSituation(
+      {
+        [node.explanation.ruleToInverse]: {
+          nodeValue: n,
+          nodeKind: "constant",
+          type: "number",
+          unit: evaluatedInversionGoal.unit
+        }
+      },
+      { keepPreviousSituation: true }
+    );
+    inversionEngine.cache.traversedVariablesStack = this.cache.traversedVariablesStack ? [] : void 0;
+    lastEvaluation = inversionEngine.evaluateNode(inversionGoal);
+    return lastEvaluation;
+  };
+  const goal = evaluatedInversionGoal.nodeValue;
+  let nodeValue = void 0;
+  const x1 = goal;
+  const y1Node = evaluateWithValue(x1);
+  const y1 = y1Node.nodeValue;
+  const coeff = y1 > goal ? 0.9 : 1.2;
+  const x2 = y1 !== void 0 ? x1 * goal * coeff / y1 : 2e3;
+  const y2Node = evaluateWithValue(x2);
+  const y2 = y2Node.nodeValue;
+  const maxIterations = this.context.inversionMaxIterations ?? 10;
+  if (y1 !== void 0 || y2 !== void 0) {
+    const test = (x) => {
+      const y = x === x1 ? y1 : x === x2 ? y2 : evaluateWithValue(x).nodeValue;
+      return y - goal;
+    };
+    const nearestBelowGoal = y2 !== void 0 && y2 < goal && (y2 > y1 || y1 > goal) ? x2 : y1 !== void 0 && y1 < goal && (y1 > y2 || y2 > goal) ? x1 : node.explanation.min;
+    const nearestAboveGoal = y2 !== void 0 && y2 > goal && (y2 < y1 || y1 < goal) ? x2 : y1 !== void 0 && y1 > goal && (y1 < y2 || y2 < goal) ? x1 : node.explanation.max;
+    const errorTolerance = node.explanation.errorTolerance;
+    nodeValue = uniroot(
+      test,
+      nearestBelowGoal,
+      nearestAboveGoal,
+      errorTolerance,
+      maxIterations,
+      1
+    );
+    if (nodeValue && (nodeValue < node.explanation.min || nodeValue > node.explanation.max)) {
+      nodeValue = void 0;
+    }
+  }
+  if (nodeValue == void 0) {
+    this.cache.inversionFail = true;
+  }
+  if (this.cache.traversedVariablesStack) {
+    const traversedVariablesStack = this.cache.traversedVariablesStack[0];
+    if (traversedVariablesStack) {
+      ;
+      (lastEvaluation.traversedVariables ?? []).forEach(
+        (v) => traversedVariablesStack.add(v)
+      );
+    }
+  }
+  return {
+    ...node,
+    nodeValue,
+    unit: evaluatedInversionGoal.unit,
+    explanation: {
+      ...node.explanation,
+      inversionGoal,
+      numberOfIteration,
+      inversionFail: this.cache.inversionFail
+    },
+    missingVariables: lastEvaluation.missingVariables
+  };
+};
+var mecanismInversion = (v, context) => {
+  let avec = typeof v === "object" && "avec" in v ? v.avec : v;
+  const min = typeof v === "object" && "min" in v ? v.min : -1e6;
+  const max = typeof v === "object" && "max" in v ? v.max : 1e8;
+  const errorTolerance = typeof v === "object" && "tol\xE9rance d'erreur" in v ? v["tol\xE9rance d'erreur"] : 0.1;
+  if (v === null) {
+    throw new PublicodesError(
+      "SyntaxError",
+      "Il manque les r\xE8gles avec laquelle effectuer le calcul d'inversion dans le m\xE9canisme `inversion num\xE9rique`",
+      { dottedName: context.dottedName }
+    );
+  }
+  if (!Array.isArray(avec)) {
+    avec = [avec];
+  }
+  return {
+    explanation: {
+      ruleToInverse: context.dottedName,
+      inversionCandidates: avec.map((node) => ({
+        ...parse(node, context)
+      })),
+      min,
+      max,
+      errorTolerance
+    },
+    nodeKind: "inversion"
+  };
+};
+registerEvaluationFunction("inversion", evaluateInversion);
+
+// src/mecanisms/max-min.ts
+var parseMaximumDe = createParseInlinedMecanismWithArray(
+  "le maximum de",
+  {
+    valeur: { type: "liste" }
+  },
+  ({ valeur }) => valeur.reduce(
+    (acc, value) => ({
+      condition: {
+        si: {
+          "est non applicable": "$INTERNAL valeur"
+        },
+        alors: "$INTERNAL acc",
+        sinon: {
+          condition: {
+            si: {
+              ou: [
+                { "est non applicable": "$INTERNAL acc" },
+                { ">": ["$INTERNAL valeur", "$INTERNAL acc"] }
+              ]
+            },
+            alors: "$INTERNAL valeur",
+            sinon: "$INTERNAL acc"
+          }
+        }
+      },
+      avec: {
+        "[priv\xE9] $INTERNAL valeur": { valeur: value },
+        "[priv\xE9] $INTERNAL acc": { valeur: acc }
+      }
+    }),
+    notApplicableNode
+  )
+);
+var parseMinimumDe = createParseInlinedMecanismWithArray(
+  "le minimum de",
+  {
+    valeur: { type: "liste" }
+  },
+  ({ valeur }) => valeur.reduce(
+    (acc, value) => ({
+      condition: {
+        si: {
+          "est non applicable": "$INTERNAL valeur"
+        },
+        alors: "$INTERNAL acc",
+        sinon: {
+          condition: {
+            si: {
+              ou: [
+                { "est non applicable": "$INTERNAL acc" },
+                { "<": ["$INTERNAL valeur", "$INTERNAL acc"] }
+              ]
+            },
+            alors: "$INTERNAL valeur",
+            sinon: "$INTERNAL acc"
+          }
+        }
+      },
+      avec: {
+        "[priv\xE9] $INTERNAL valeur": { valeur: value },
+        "[priv\xE9] $INTERNAL acc": { valeur: acc }
+      }
+    }),
+    notApplicableNode
+  )
+);
+
+// src/mecanisms/somme.ts
+function reduceToSumNodes(valeurs) {
+  return valeurs.reverse().reduce((acc, value) => ({ "+": [value, acc] }), notApplicableNode);
+}
+var somme_default = createParseInlinedMecanismWithArray(
+  "somme",
+  {
+    valeur: { type: "liste" }
+  },
+  ({ valeur }) => reduceToSumNodes([...valeur])
+);
+
+// src/mecanisms/moyenne.ts
+var moyenne_default = createParseInlinedMecanismWithArray(
+  "moyenne",
+  {
+    valeur: { type: "liste" }
+  },
+  ({ valeur }) => {
+    const valeurs = [...valeur];
+    return {
+      "/": [
+        reduceToSumNodes(valeurs),
+        reduceToSumNodes(valeurs.map(oneIfApplicable))
+      ]
+    };
+  }
+);
+function oneIfApplicable(exp) {
+  return {
+    "applicable si": { "est applicable": exp },
+    valeur: 1
+  };
+}
+
+// src/mecanisms/non-applicable.ts
+var non_applicable_default = createParseInlinedMecanism(
+  "non applicable si",
+  {
+    "non applicable si": {},
+    valeur: {}
+  },
+  {
+    condition: {
+      si: "non applicable si = non",
+      alors: "valeur",
+      sinon: notApplicableNode
+    }
+  }
+);
+
+// src/mecanisms/operation.ts
+var knownOperations = {
+  "*": [(a, b) => a * b, "\xD7"],
+  "/": [(a, b) => a / b, "\u2215"],
+  "//": [(a, b) => (a - a % b) / b, "//"],
+  "**": [(a, b) => a ** b, "**"],
+  "+": [(a, b) => a + b],
+  "-": [(a, b) => a - b, "\u2212"],
+  "<": [(a, b) => a < b],
+  "<=": [(a, b) => a <= b, "\u2264"],
+  ">": [(a, b) => a > b],
+  ">=": [(a, b) => a >= b, "\u2265"],
+  "=": [(a, b) => (a ?? false) === (b ?? false)],
+  "!=": [(a, b) => (a ?? false) !== (b ?? false), "\u2260"],
+  et: [(a, b) => (a ?? false) && (b ?? false)],
+  ou: [(a, b) => (a ?? false) || (b ?? false)]
+};
+var parseOperation = (k, symbol2) => (v, context) => {
+  const explanation = v.map((node) => parse(node, context));
+  return {
+    ...v,
+    nodeKind: "operation",
+    operationKind: k,
+    operator: symbol2 || k,
+    explanation
+  };
+};
+var evaluate10 = function(node) {
+  let node1 = this.evaluateNode(node.explanation[0]);
+  let evaluatedNode = {
+    ...node,
+    missingVariables: {}
+  };
+  if (node1.nodeValue === null && ["<", ">", "<=", ">=", "/", "*", "//", "-", "et"].includes(
+    node.operationKind
+  ) || node1.nodeValue === 0 && ["/", "*"].includes(node.operationKind) || node1.nodeValue === false && node.operationKind === "et" || node1.nodeValue === true && node.operationKind === "ou") {
+    return {
+      ...evaluatedNode,
+      nodeValue: node.operationKind === "et" ? false : node1.nodeValue,
+      missingVariables: node1.missingVariables
+    };
+  }
+  let node2 = this.evaluateNode(node.explanation[1]);
+  evaluatedNode.explanation = [node1, node2];
+  if (node.operationKind === "/" && node2.nodeValue === 0) {
+    throw new PublicodesError("EvaluationError", `Division by zero`, {
+      dottedName: this.cache._meta.evaluationRuleStack[0]
+    });
+  }
+  if (node2.nodeValue === null && ["<", ">", "<=", ">=", "/", "*", "//", "et"].includes(
+    node.operationKind
+  ) || node2.nodeValue === 0 && ["*"].includes(node.operationKind) || node2.nodeValue === false && node.operationKind === "et" || node2.nodeValue === true && node.operationKind === "ou") {
+    return {
+      ...evaluatedNode,
+      nodeValue: node.operationKind === "et" ? false : node2.nodeValue,
+      missingVariables: node2.missingVariables
+    };
+  }
+  evaluatedNode.missingVariables = mergeAllMissing([node1, node2]);
+  if (node1.nodeValue === void 0 || node2.nodeValue === void 0) {
+    evaluatedNode = {
+      ...evaluatedNode,
+      nodeValue: void 0
+    };
+  }
+  const isAdditionOrSubstractionWithPercentage = ["+", "-"].includes(node.operationKind) && serializeUnit(node2.unit) === "%" && serializeUnit(node1.unit) !== "%";
+  if (!("nodeValue" in evaluatedNode) && !["/", "*", "//"].includes(node.operationKind) && !isAdditionOrSubstractionWithPercentage) {
+    try {
+      if (node1.unit && "unit" in node2) {
+        node2 = convertNodeToUnit(node1.unit, node2);
+      } else if (node2.unit) {
+        node1 = convertNodeToUnit(node2.unit, node1);
+      }
+    } catch (e) {
+      if (!(e instanceof Error)) {
+        throw e;
+      }
+      warning(
+        this.context,
+        `Dans l'expression '${node.operationKind}', la partie gauche (unit\xE9: ${serializeUnit(
+          node1.unit
+        )}) n'est pas compatible avec la partie droite (unit\xE9: ${serializeUnit(
+          node2.unit
+        )})`,
+        "unitConversion",
+        e
+      );
+    }
+  }
+  const operatorFunction = knownOperations[node.operationKind][0];
+  const a = node1.nodeValue;
+  const b = node2.nodeValue;
+  evaluatedNode.nodeValue = "nodeValue" in evaluatedNode ? evaluatedNode.nodeValue : ["<", ">", "<=", ">=", "*", "/", "//"].includes(node.operationKind) && node2.nodeValue === null ? null : [a, b].every(
+    (value) => typeof value === "string" && value.match?.(/^[\d]{2}\/[\d]{2}\/[\d]{4}$/)
+  ) ? (
+    // We convert the date objects to timestamps to support comparison with the "===" operator:
+    // new Date('2020-01-01') !== new Date('2020-01-01')
+    operatorFunction(
+      convertToDate(a).getTime(),
+      convertToDate(b).getTime()
+    )
+  ) : operatorFunction(a, b);
+  if (node.operationKind === "*" && inferUnit("*", [node1.unit, node2.unit])?.numerators.includes("%")) {
+    const unit2 = inferUnit("*", [node1.unit, node2.unit]);
+    const nodeValue = evaluatedNode.nodeValue;
+    return {
+      ...evaluatedNode,
+      nodeValue: typeof nodeValue === "number" ? nodeValue / 100 : nodeValue,
+      unit: inferUnit("*", [unit2, { numerators: [], denominators: ["%"] }])
+    };
+  }
+  if (isAdditionOrSubstractionWithPercentage) {
+    const unit2 = inferUnit("*", [node1.unit, node2.unit]);
+    return {
+      ...evaluatedNode,
+      nodeValue: typeof node1.nodeValue === "number" && typeof node2.nodeValue === "number" ? node1.nodeValue * (1 + node2.nodeValue / 100 * (node.operationKind === "-" ? -1 : 1)) : evaluatedNode.nodeValue,
+      unit: inferUnit("*", [unit2, { numerators: [], denominators: ["%"] }])
+    };
+  }
+  if (node.operationKind === "*" || node.operationKind === "/" || node.operationKind === "//" || node.operationKind === "-" || node.operationKind === "+") {
+    return {
+      ...evaluatedNode,
+      unit: inferUnit(node.operationKind, [node1.unit, node2.unit])
+    };
+  }
+  return evaluatedNode;
+};
+registerEvaluationFunction("operation", evaluate10);
+var operationDispatch = Object.fromEntries(
+  Object.entries(knownOperations).map(([k, [, symbol2]]) => [
+    k,
+    parseOperation(k, symbol2)
+  ])
+);
+var operation_default = operationDispatch;
+
+// src/mecanisms/parDefaut.ts
+var parDefaut_default = createParseInlinedMecanism(
+  "par d\xE9faut",
+  {
+    "par d\xE9faut": {},
+    valeur: {}
+  },
+  {
+    condition: {
+      si: { "est non d\xE9fini": "valeur" },
+      alors: "par d\xE9faut",
+      sinon: "valeur"
+    }
+  }
+);
+
+// src/mecanisms/plafond.ts
+var plafond_default = createParseInlinedMecanism(
+  "plafond",
+  {
+    plafond: {},
+    valeur: {}
+  },
+  {
+    condition: {
+      si: { et: ["plafond != non", "valeur > plafond"] },
+      alors: "plafond",
+      sinon: "valeur"
+    }
+  }
+);
+
+// src/mecanisms/plancher.ts
+var plancher_default = createParseInlinedMecanism(
+  "plancher",
+  {
+    plancher: {},
+    valeur: {}
+  },
+  {
+    condition: {
+      si: { et: ["plancher != non", "valeur < plancher"] },
+      alors: "plancher",
+      sinon: "valeur"
+    }
+  }
+);
+
+// src/mecanisms/product.ts
+function reduceToProduitNodes(valeurs) {
+  return valeurs.reduce((acc, value) => ({ "*": [value, acc] }), defaultNode(1));
+}
+var product_default = createParseInlinedMecanismWithArray(
+  "produit",
+  {
+    valeur: { type: "liste" }
+  },
+  ({ valeur }) => ({
+    valeur: reduceToProduitNodes([...valeur]),
+    "simplifier l'unit\xE9": "oui"
+  })
+);
+
+// src/mecanisms/resoudre-reference-circulaire.ts
+var evaluateR\u00E9soudreR\u00E9f\u00E9renceCirculaire = function(node) {
+  if (this.cache._meta.evaluationRuleStack.slice(1).includes(node.explanation.ruleToSolve)) {
+    return {
+      ...undefinedNumberNode,
+      ...node
+    };
+  }
+  let numberOfIterations = 0;
+  const calculationEngine = this.shallowCopy();
+  calculationEngine.context.warn.experimentalRules = false;
+  calculationEngine.cache._meta.parentRuleStack = [
+    ...this.cache._meta.parentRuleStack
+  ];
+  calculationEngine.cache._meta.evaluationRuleStack = [
+    ...this.cache._meta.evaluationRuleStack
+  ];
+  const maxIterations = this.context.inversionMaxIterations ?? 25;
+  const evaluateWithValue = (n) => {
+    numberOfIterations++;
+    calculationEngine.setSituation(
+      {
+        [node.explanation.ruleToSolve]: {
+          ...undefinedNumberNode,
+          nodeValue: n
+        }
+      },
+      { keepPreviousSituation: true }
+    );
+    return calculationEngine.evaluateNode(node.explanation.valeur);
+  };
+  const inversionFailed = Symbol("inversion failed");
+  let nodeValue = inversionFailed;
+  const x0 = 1;
+  let valeur = evaluateWithValue(x0);
+  const y0 = valeur.nodeValue;
+  const unit2 = valeur.unit;
+  if (y0 !== void 0) {
+    const test = (x) => {
+      if (x === x0) {
+        return y0 - x0;
+      }
+      valeur = evaluateWithValue(x);
+      const y = valeur.nodeValue;
+      return y - x;
+    };
+    const defaultMin = -1e6;
+    const defaultMax = 1e8;
+    nodeValue = uniroot(test, defaultMin, defaultMax, 0.5, maxIterations, 2);
+  }
+  if (nodeValue === inversionFailed) {
+    nodeValue = void 0;
+    this.cache.inversionFail = true;
+  }
+  if (nodeValue !== void 0) {
+    valeur = evaluateWithValue(nodeValue);
+  }
+  return {
+    ...node,
+    unit: unit2,
+    nodeValue,
+    explanation: {
+      ...node.explanation,
+      valeur,
+      numberOfIterations
+    },
+    missingVariables: valeur.missingVariables
+  };
+};
+function parseR\u00E9soudreR\u00E9f\u00E9renceCirculaire(v, context) {
+  return {
+    explanation: {
+      ruleToSolve: context.dottedName,
+      valeur: parse(v.valeur, context)
+    },
+    nodeKind: "r\xE9soudre r\xE9f\xE9rence circulaire"
+  };
+}
+parseR\u00E9soudreR\u00E9f\u00E9renceCirculaire.nom = "r\xE9soudre la r\xE9f\xE9rence circulaire";
+registerEvaluationFunction(
+  "r\xE9soudre r\xE9f\xE9rence circulaire",
+  evaluateR\u00E9soudreR\u00E9f\u00E9renceCirculaire
+);
+
+// src/mecanisms/simplifier-unite.ts
+function parseSimplifierUnit\u00E9(v, context) {
+  const explanation = parse(v.valeur, context);
+  return {
+    explanation,
+    nodeKind: "simplifier unit\xE9"
+  };
+}
+parseSimplifierUnit\u00E9.nom = "simplifier l'unit\xE9";
+registerEvaluationFunction("simplifier unit\xE9", function evaluate11(node) {
+  const valeur = this.evaluateNode(node.explanation);
+  const nodeValue = valeur.nodeValue;
+  const defaultReturn = {
+    ...valeur,
+    ...node,
+    explanation: valeur
+  };
+  if (nodeValue == null) {
+    return defaultReturn;
+  }
+  if (!valeur.unit) {
+    return {
+      ...defaultReturn,
+      unit: valeur.unit
+    };
+  }
+  const unit2 = simplifyUnit(valeur.unit);
+  return {
+    ...defaultReturn,
+    nodeValue: typeof nodeValue === "number" ? convertUnit(valeur.unit, unit2, nodeValue) : nodeValue,
+    unit: unit2
+  };
+});
+
+// src/mecanisms/situation.ts
+var situation_default = createParseInlinedMecanism(
+  "dans la situation",
+  {
+    valeur: {},
+    "dans la situation": {}
+  },
+  {
+    condition: {
+      si: { "est non d\xE9fini": "dans la situation" },
+      alors: "valeur",
+      sinon: "dans la situation"
+    }
+  }
+);
+
+// src/mecanisms/tauxProgressif.ts
+function parseTauxProgressif(v, context) {
+  const explanation = {
+    assiette: parse(v.assiette, context),
+    multiplicateur: v.multiplicateur ? parse(v.multiplicateur, context) : defaultNode(1),
+    tranches: parseTranches(v.tranches, context)
+  };
+  return {
+    explanation,
+    nodeKind: "taux progressif"
+  };
+}
+var evaluate12 = function(node) {
+  const evaluate17 = this.evaluateNode.bind(this);
+  const assiette = this.evaluateNode(node.explanation.assiette);
+  const multiplicateur = this.evaluateNode(node.explanation.multiplicateur);
+  if (multiplicateur.nodeValue === 0) {
+    throw new PublicodesError("EvaluationError", `Division by zero`, {
+      dottedName: ""
+    });
+  }
+  const tranches = evaluatePlafondUntilActiveTranche.call(this, {
+    parsedTranches: node.explanation.tranches,
+    assiette,
+    multiplicateur
+  });
+  const evaluatedNode = {
+    ...node,
+    explanation: {
+      tranches,
+      assiette,
+      multiplicateur
+    },
+    unit: parseUnit("%")
+  };
+  const lastTranche = tranches[tranches.length - 1];
+  if (tranches.every(({ isActive }) => isActive === false) || lastTranche.isActive && lastTranche.plafond.nodeValue === Infinity) {
+    const taux = convertNodeToUnit(parseUnit("%"), evaluate17(lastTranche.taux));
+    const { nodeValue: nodeValue2, missingVariables } = taux;
+    lastTranche.taux = taux;
+    lastTranche.nodeValue = nodeValue2;
+    lastTranche.missingVariables = missingVariables;
+    return {
+      ...evaluatedNode,
+      nodeValue: nodeValue2,
+      missingVariables
+    };
+  }
+  if (tranches.every(({ isActive }) => isActive !== true) || typeof assiette.nodeValue !== "number") {
+    return {
+      ...evaluatedNode,
+      nodeValue: void 0,
+      missingVariables: mergeAllMissing(tranches)
+    };
+  }
+  const activeTrancheIndex = tranches.findIndex(
+    ({ isActive }) => isActive === true
+  );
+  const activeTranche = tranches[activeTrancheIndex];
+  activeTranche.taux = convertNodeToUnit(
+    parseUnit("%"),
+    evaluate17(activeTranche.taux)
+  );
+  const previousTranche = tranches[activeTrancheIndex - 1];
+  if (previousTranche) {
+    previousTranche.taux = convertNodeToUnit(
+      parseUnit("%"),
+      evaluate17(previousTranche.taux)
+    );
+    previousTranche.isActive = true;
+  }
+  const previousTaux = previousTranche ? previousTranche.taux : activeTranche.taux;
+  const calculationValues = [previousTaux, activeTranche.taux];
+  if (calculationValues.some((n) => n.nodeValue === void 0)) {
+    activeTranche.nodeValue = void 0;
+    return {
+      ...evaluatedNode,
+      nodeValue: void 0,
+      missingVariables: mergeAllMissing(calculationValues)
+    };
+  }
+  const lowerTaux = previousTaux.nodeValue;
+  const upperTaux = activeTranche.taux.nodeValue;
+  const plancher = activeTranche.plancherValue;
+  const plafond = activeTranche.plafondValue;
+  const coeff = (upperTaux - lowerTaux) / (plafond - plancher);
+  const nodeValue = lowerTaux + (assiette.nodeValue - plancher) * coeff;
+  activeTranche.nodeValue = nodeValue;
+  return {
+    ...evaluatedNode,
+    nodeValue,
+    missingVariables: {}
+  };
+};
+registerEvaluationFunction("taux progressif", evaluate12);
+
+// src/mecanisms/texte.ts
+var NAME = "texte";
+function parseTexte(texte, context) {
+  const explanation = [];
+  let lastIndex = 0;
+  for (const { 0: expression, index } of texte.matchAll(/{{(.|\n)*?}}/g)) {
+    const publicodeExpression = expression.slice(2, -2).trim();
+    const parsedNode = parse(publicodeExpression, context);
+    explanation.push(texte.substring(lastIndex, index), parsedNode);
+    lastIndex = (index ?? 0) + expression.length;
+  }
+  explanation.push(texte.slice(lastIndex));
+  return {
+    nodeKind: NAME,
+    explanation
+  };
+}
+parseTexte.nom = NAME;
+registerEvaluationFunction(NAME, function evaluate13(node) {
+  const explanation = node.explanation.map(
+    (element) => typeof element === "string" ? element : this.evaluateNode(element)
+  );
+  return {
+    ...node,
+    explanation,
+    missingVariables: mergeAllMissing(
+      explanation.filter((element) => typeof element !== "string")
+    ),
+    nodeValue: explanation.map(
+      (element) => typeof element === "string" ? element : formatValue(element)
+    ).join("")
+  };
+});
+
+// src/mecanisms/toutes-ces-conditions.ts
+var toutes_ces_conditions_default = createParseInlinedMecanismWithArray(
+  "toutes ces conditions",
+  {
+    valeur: { type: "liste" }
+  },
+  ({ valeur }) => valeur.reduce(
+    (acc, value) => ({ et: [acc, value] }),
+    "oui"
+  )
+);
+
+// src/mecanisms/une-de-ces-conditions.ts
+var une_de_ces_conditions_default = createParseInlinedMecanismWithArray(
+  "une de ces conditions",
+  {
+    valeur: { type: "liste" }
+  },
+  ({ valeur }) => valeur.reduce(
+    (acc, value) => ({ ou: [acc, value] }),
+    "non"
+  )
+);
+
+// src/mecanisms/unite.ts
+function parseUnit\u00E9(v, context) {
+  const explanation = parse(v.valeur, context);
+  const unit2 = parseUnit(v.unit\u00E9, context.getUnitKey);
+  return {
+    explanation,
+    unit: unit2,
+    nodeKind: parseUnit\u00E9.nom
+  };
+}
+parseUnit\u00E9.nom = "unit\xE9";
+registerEvaluationFunction(parseUnit\u00E9.nom, function evaluate14(node) {
+  const valeur = this.evaluateNode(node.explanation);
+  let nodeValue = valeur.nodeValue;
+  if (nodeValue !== null && "unit" in node) {
+    try {
+      nodeValue = convertUnit(
+        valeur.unit,
+        node.unit,
+        valeur.nodeValue
+      );
+    } catch (e) {
+      if (!(e instanceof Error)) {
+        throw e;
+      }
+      warning(
+        this.context,
+        "Erreur lors de la conversion d'unit\xE9 explicite",
+        "unitConversion",
+        e
+      );
+    }
+  }
+  return {
+    ...node,
+    nodeValue,
+    explanation: valeur,
+    missingVariables: valeur.missingVariables
+  };
+});
+
+// src/mecanisms/variablesManquantes.ts
+function parseVariableManquante(v, context) {
+  return {
+    missingVariable: v["variable manquante"],
+    nodeKind: parseVariableManquante.nom,
+    explanation: parse(v.valeur, context)
+  };
+}
+parseVariableManquante.nom = "variable manquante";
+registerEvaluationFunction(parseVariableManquante.nom, function evaluate15(node) {
+  const valeur = this.evaluateNode(node.explanation);
+  const maxMissingScore = Object.values(
+    valeur.missingVariables ?? {}
+  ).reduce((a, b) => a > b ? a : b, 0);
+  return {
+    ...node,
+    nodeValue: valeur.nodeValue,
+    unit: valeur.unit,
+    explanation: valeur,
+    missingVariables: mergeMissing(valeur.missingVariables, {
+      [node.missingVariable]: maxMissingScore + 1
+    })
+  };
+});
+
+// src/mecanisms/variations.ts
+function parseVariations(v, context) {
+  const explanation = v.map(
+    ({ si, alors, sinon }) => sinon !== void 0 ? { consequence: parse(sinon, context), condition: defaultNode(true) } : { consequence: parse(alors, context), condition: parse(si, context) }
+  );
+  return {
+    explanation,
+    nodeKind: "variations"
+  };
+}
+var evaluate16 = function(node) {
+  const [nodeValue, explanation, unit2] = node.explanation.reduce(
+    ([evaluation, explanations, unit3, previousConditions], { condition, consequence }, i) => {
+      if (previousConditions === true) {
+        return [
+          evaluation,
+          [...explanations, { condition, consequence }],
+          unit3,
+          previousConditions
+        ];
+      }
+      const evaluatedCondition = this.evaluateNode(condition);
+      const currentCondition = previousConditions === void 0 ? previousConditions : !previousConditions && (evaluatedCondition.nodeValue === void 0 ? void 0 : evaluatedCondition.nodeValue !== false && evaluatedCondition.nodeValue !== null);
+      if (currentCondition === false || currentCondition === null) {
+        return [
+          evaluation,
+          [...explanations, { condition: evaluatedCondition, consequence }],
+          unit3,
+          previousConditions
+        ];
+      }
+      let evaluatedConsequence = void 0;
+      if (evaluatedCondition.nodeValue !== false && evaluatedCondition.nodeValue !== null) {
+        evaluatedConsequence = this.evaluateNode(consequence);
+        if (unit3) {
+          try {
+            evaluatedConsequence = convertNodeToUnit(
+              unit3,
+              evaluatedConsequence
+            );
+          } catch (e) {
+            if (!(e instanceof Error)) {
+              throw e;
+            }
+            warning(
+              this.context,
+              `L'unit\xE9 de la branche n\xB0 ${i + 1} du m\xE9canisme 'variations' n'est pas compatible avec celle d'une branche pr\xE9c\xE9dente`,
+              "unitConversion",
+              e
+            );
+          }
+        }
+      }
+      return [
+        currentCondition && evaluatedConsequence?.nodeValue,
+        [
+          ...explanations,
+          {
+            condition: evaluatedCondition,
+            consequence: evaluatedConsequence ?? consequence
+          }
+        ],
+        unit3 || evaluatedConsequence?.unit,
+        previousConditions || currentCondition
+      ];
+    },
+    [null, [], void 0, false]
+  );
+  return {
+    ...node,
+    nodeValue,
+    ...unit2 !== void 0 && { unit: unit2 },
+    explanation,
+    missingVariables: explanation.reduce(
+      (values, { condition, consequence }) => mergeMissing(
+        values,
+        mergeMissing(
+          bonus(condition.missingVariables),
+          "nodeValue" in condition && condition.nodeValue !== false && condition.nodeValue !== null ? consequence.missingVariables : {}
+        )
+      ),
+      {}
+    )
+  };
+};
+registerEvaluationFunction("variations", evaluate16);
+
+// src/parseExpression.ts
+var ParserError = class extends Error {
+  details;
+  constructor(details) {
+    const message = formatParserError(details);
+    super(message);
+    this.details = details;
+  }
+};
+var SyntaxError = class extends PublicodesError {
+  constructor(details) {
+    const message = formatParserError(details);
+    super("SyntaxError", message, details);
+  }
+};
+function formatParserError({
+  expression,
+  position,
+  expected,
+  found,
+  customMessage
+}) {
+  const pointer = " ".repeat(position) + "^";
+  const defaultMessage = `${expected} est attendu, ${found ? `mais "${found}" a \xE9t\xE9 trouv\xE9` : "hors l\u2019expression se termine pr\xE9matur\xE9ment"}`;
+  return `L'expression suivante n'est pas valide :
+
+   ${expression}
+   ${pointer}
+   ${customMessage ?? defaultMessage}
+`;
+}
+function createParser(expression) {
+  return {
+    strExpression: expression,
+    current: 0,
+    tree: null
+  };
+}
+function throwParserError(parser, expected, found, customMessage) {
+  throw new ParserError({
+    expression: parser.strExpression,
+    position: parser.current,
+    expected,
+    found,
+    customMessage
+  });
+}
+function consume(parser, expected) {
+  if (isEOL(parser)) {
+    throwParserError(parser, `'${expected}'`, "");
+  }
+  return parser.strExpression[parser.current++];
+}
+function expect(parser, expected) {
+  const char = peek(parser);
+  if (char !== expected) {
+    throwParserError(parser, `'${expected}'`, char);
+  }
+  consume(parser, expected);
+}
+function expectRegExp(parser, regexp, description, errorMessage) {
+  const match = parser.strExpression.slice(parser.current).match(regexp);
+  if (!match) {
+    throwParserError(
+      parser,
+      description ?? regexp.source,
+      peek(parser, 5),
+      errorMessage
+    );
+  }
+  parser.current += match[0].length;
+  return { parser, value: match[0] };
+}
+function parseExpression(rawNode, dottedName = "<expression>") {
+  if (typeof rawNode === "number") {
+    return numberNode(rawNode);
+  }
+  const singleLineExpression = (rawNode + "").replace(/\s*\n\s*/g, " ").trim();
+  try {
+    const parser = createParser(singleLineExpression);
+    const res = parseComparison(parser);
+    if (!isEOL(res)) {
+      if (isNextRegExp(res, operators)) {
+        throwParserError(
+          res,
+          "un op\xE9rateur entour\xE9 d\u2019espaces",
+          peek(res),
+          'Les op\xE9rateurs doivent \xEAtre entour\xE9s d\u2019espaces ("2 + 2" et non "2+2")'
+        );
+      }
+      throwParserError(res, "La fin d\u2019expression", peek(res));
+    }
+    return res.tree;
+  } catch (error) {
+    if (error instanceof ParserError) {
+      throw new SyntaxError({
+        ...error.details,
+        dottedName
+      });
+    }
+    throw error;
+  }
+}
+function parseComparison(parser) {
+  let left = parseAddition(parser);
+  while (!isEOL(left) && isNextRegExp(left, comparisonOperator)) {
+    const op = expectRegExpGroup(left, comparisonOperator);
+    const right = parseAddition(op.parser);
+    right.tree = binaryNode(op.value, left.tree, right.tree);
+    left = right;
+  }
+  return left;
+}
+function parseAddition(parser) {
+  let left = parseMultiplication(parser);
+  while (!isEOL(left) && isNextRegExp(left, additionOperator)) {
+    const op = expectRegExpGroup(left, additionOperator);
+    const right = parseMultiplication(op.parser);
+    right.tree = binaryNode(op.value, left.tree, right.tree);
+    left = right;
+  }
+  return left;
+}
+function parseMultiplication(parser) {
+  let left = parseExponentiation(parser);
+  while (!isEOL(left) && isNextRegExp(left, multiplyOperator)) {
+    const op = expectRegExpGroup(left, multiplyOperator);
+    const right = parseExponentiation(op.parser);
+    right.tree = binaryNode(op.value, left.tree, right.tree);
+    left = right;
+  }
+  return left;
+}
+function parseExponentiation(parser) {
+  let left = parsePrimary(parser);
+  while (!isEOL(left) && isNextRegExp(left, exponentiationOperator)) {
+    const op = expectRegExpGroup(left, exponentiationOperator);
+    const right = parseExponentiation(op.parser);
+    right.tree = binaryNode(op.value, left.tree, right.tree);
+    left = right;
+  }
+  return left;
+}
+function parsePrimary(parser) {
+  if (peek(parser) === "(") {
+    consume(parser, "(");
+    expectRegExp(parser, spaces);
+    const expr = parseComparison(parser);
+    expectRegExp(expr, spaces);
+    expect(expr, ")");
+    return expr;
+  } else if (peek(parser) === "-") {
+    consume(parser, "-");
+    expectRegExp(parser, spaces);
+    const expr = parsePrimary(parser);
+    expr.tree = minusNode(expr.tree);
+    return expr;
+  } else if (isNextRegExp(parser, date)) {
+    const res = expectRegExp(parser, date, "Une date");
+    return {
+      ...res.parser,
+      tree: dateNode(res.value)
+    };
+  } else if (peek(parser).match(number)) {
+    const res = expectRegExp(parser, number, "Un nombre");
+    if (isNextRegExp(res.parser, unit)) {
+      const parsedUnit = expectRegExp(res.parser, unit, "Une unit\xE9");
+      return {
+        ...parsedUnit.parser,
+        tree: {
+          constant: {
+            type: "number",
+            nodeValue: parseFloat(res.value),
+            rawUnit: parsedUnit.value.trim()
+          }
+        }
+      };
+    }
+    return {
+      ...res.parser,
+      tree: numberNode(parseFloat(res.value))
+    };
+  } else if (isNext(parser, "'") || isNext(parser, '"')) {
+    const res = expectRegExp(parser, string, "Une cha\xEEne de caract\xE8res");
+    return {
+      ...res.parser,
+      tree: { constant: { type: "string", nodeValue: res.value.slice(1, -1) } }
+    };
+  } else if (peek(parser).match(letter) || peek(parser) === "^") {
+    const res = expectRegExp(parser, dotted_name, "Un nom de r\xE8gle");
+    return {
+      ...res.parser,
+      tree: res.value === "oui" || res.value === "non" ? booleanNode(res.value) : { variable: res.value }
+    };
+  }
+  throwParserError(
+    parser,
+    "Une constante, une r\xE9f\xE9rence ou une expression entre parenth\xE8ses",
+    peek(parser)
+  );
+}
+function peek(parser, n) {
+  return n ? parser.strExpression.slice(parser.current, parser.current + n) : parser.strExpression[parser.current];
+}
+function isNext(parser, toMatch) {
+  const slice = parser.strExpression.slice(
+    parser.current,
+    parser.current + toMatch.length
+  );
+  return slice === toMatch;
+}
+function isNextRegExp(parser, regexp) {
+  return parser.strExpression.slice(parser.current).match(regexp) != null;
+}
+function expectRegExpGroup(parser, regexp) {
+  const match = parser.strExpression.slice(parser.current).match(regexp);
+  if (!match) {
+    throw new Error(`Expected '${regexp.source}' but got ${peek(parser)}`);
+  }
+  parser.current += match[0].length;
+  return { parser, value: match[1] };
+}
+function isEOL(parser) {
+  return parser.current >= parser.strExpression.length;
+}
+function minusNode(expr) {
+  return { "-": [{ constant: { type: "number", nodeValue: 0 } }, expr] };
+}
+function numberNode(value) {
+  return { constant: { type: "number", nodeValue: value } };
+}
+function booleanNode(value) {
+  return { constant: { type: "boolean", nodeValue: value === "oui" } };
+}
+function binaryNode(op, left, right) {
+  return { [op]: [left, right] };
+}
+function dateNode(value) {
+  return { constant: { type: "date", nodeValue: normalizeDateString(value) } };
+}
+var space = /[\t\u0020\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]/;
+var spaces = new RegExp(`^${space.source}*`);
+var letter = /[a-zA-Z\u00C0-\u017F$]/;
+var symbol = /[',°€$%²_'"'«»]/;
+var digit = /\d/;
+var string = /'.*'|".*"/;
+var number = /\d+(\.\d+)?/;
+var date = /^(?:(?:0?[1-9]|[12][0-9]|3[01])\/)?(?:0?[1-9]|1[012])\/\d{4}/;
+var any_char = new RegExp(
+  `(${letter.source}|${symbol.source}|${digit.source})`
+);
+var any_char_or_special_char = new RegExp(`(${any_char.source}|\\-|\\+|')`);
+var phrase_starting_with = (char) => new RegExp(
+  `(${char.source}${any_char_or_special_char.source}*)(${space.source}${any_char.source}${any_char_or_special_char.source}*)*`
+);
+var rule_name = phrase_starting_with(letter);
+var dotted_name = new RegExp(
+  `^(${rule_name.source}|\\^)( \\. ${rule_name.source})*`
+);
+var unit_symbol = /[°%\p{Sc}€$]/u;
+var unit_identifier = phrase_starting_with(
+  new RegExp(`(${unit_symbol.source}|${letter.source})`)
+);
+var unit = new RegExp(
+  `${spaces.source}(\\/)?${unit_identifier.source}(${space.source}*(\\.|\\/)${unit_identifier.source})*`
+);
+var oneOfBetweenAtLeastOneSpace = (values) => new RegExp(`^${space.source}+(${values.join("|")})${space.source}+`);
+var exponentiationOperator = oneOfBetweenAtLeastOneSpace(["\\*\\*"]);
+var multiplyOperator = oneOfBetweenAtLeastOneSpace(["\\*", "\\/", "\\/\\/"]);
+var additionOperator = oneOfBetweenAtLeastOneSpace(["-", "\\+"]);
+var comparisonOperator = oneOfBetweenAtLeastOneSpace([
+  ">",
+  "<",
+  ">=",
+  "<=",
+  "=",
+  "!="
+]);
+var operators = /(\+|-|\*|\/|\*\*|>|<|>=|<=|=|!=)/;
+
+// src/parseReference.ts
+function parseReference(v, context) {
+  if (!context.dottedName) {
+    throw new PublicodesError(
+      "InternalError",
+      "Une r\xE9f\xE9rence ne peut pas exister en dehors d'une r\xE8gle (`context.dottedName` est vide)",
+      {
+        dottedName: v
+      }
+    );
+  }
+  if (!v) {
+    throw new PublicodesError(
+      "SyntaxError",
+      "Une r\xE9f\xE9rence ne peut pas \xEAtre vide",
+      {
+        dottedName: context.dottedName
+      }
+    );
+  }
+  return {
+    nodeKind: "reference",
+    name: v,
+    contextDottedName: context.dottedName
+  };
+}
+registerEvaluationFunction("reference", function evaluateReference(node) {
+  if (!node.dottedName) {
+    throw new PublicodesInternalError(node);
+  }
+  const explanation = this.evaluateNode(
+    this.context.parsedRules[node.dottedName]
+  );
+  delete explanation.sourceMap;
+  return {
+    ...explanation,
+    ...node
+  };
+});
+
+// src/parse.ts
+function parse(rawNode, context) {
+  if (rawNode == void 0) {
+    throw new PublicodesError(
+      "SyntaxError",
+      `
+  Une des valeurs de la formule est vide.
+  V\xE9rifiez que tous les champs \xE0 droite des deux points sont remplis`,
+      { dottedName: context.dottedName }
+    );
+  }
+  if (typeof rawNode === "boolean") {
+    throw new PublicodesError(
+      "SyntaxError",
+      `
+Les valeurs bool\xE9ennes true / false ne sont accept\xE9es.
+Utilisez leur contrepartie fran\xE7aise : 'oui' / 'non'`,
+      { dottedName: context.dottedName }
+    );
+  }
+  const node = typeof rawNode === "object" ? rawNode : parseExpression(rawNode, context.dottedName);
+  if ("nodeKind" in node) {
+    return node;
+  }
+  return {
+    ...parseChainedMecanisms(node, context),
+    rawNode
+  };
+}
+function parseMecanism(rawNode, context) {
+  if (Array.isArray(rawNode)) {
+    throw new PublicodesError(
+      "SyntaxError",
+      `
+Il manque le nom du m\xE9canisme pour le tableau : [${rawNode.map((x) => `'${x}'`).join(", ")}]
+Les m\xE9canisme possibles sont : 'somme', 'le maximum de', 'le minimum de', 'toutes ces conditions', 'une de ces conditions'.
+    `,
+      { dottedName: context.dottedName }
+    );
+  }
+  const keys = Object.keys(rawNode);
+  if (keys.length > 1) {
+    throw new PublicodesError(
+      "SyntaxError",
+      `
+Les m\xE9canismes suivants se situent au m\xEAme niveau : ${keys.map((x) => `'${x}'`).join(", ")}
+Cela vient probablement d'une erreur dans l'indentation
+  `,
+      { dottedName: context.dottedName }
+    );
+  }
+  if (keys.length === 0) {
+    return { nodeKind: "constant", nodeValue: void 0 };
+  }
+  const mecanismName = keys[0];
+  const values = rawNode[mecanismName];
+  const parseFn = parseFunctions[mecanismName];
+  if (!parseFn) {
+    throw new PublicodesError(
+      "SyntaxError",
+      `Le m\xE9canisme "${mecanismName}" est inconnu.
+
+V\xE9rifiez qu'il n'y ait pas d'erreur dans l'orthographe du nom.`,
+      { dottedName: context.dottedName }
+    );
+  }
+  try {
+    return parseFn(values, context);
+  } catch (e) {
+    if (e instanceof PublicodesError || !(e instanceof Error)) {
+      throw e;
+    }
+    throw new PublicodesError(
+      "SyntaxError",
+      mecanismName ? `\u27A1\uFE0F Dans le m\xE9canisme ${mecanismName}
+${e.message}` : e.message,
+      { dottedName: context.dottedName }
+    );
+  }
+}
+var chainableMecanisms = [
+  parseMecanismContexte,
+  parseVariableManquante,
+  parseAvec,
+  applicable_default,
+  non_applicable_default,
+  parseArrondi,
+  parseUnit\u00E9,
+  parseSimplifierUnit\u00E9,
+  plancher_default,
+  plafond_default,
+  parDefaut_default,
+  situation_default,
+  parseR\u00E9soudreR\u00E9f\u00E9renceCirculaire,
+  abattement_default
+];
+function parseChainedMecanisms(rawNode, context) {
+  const parseFn = chainableMecanisms.find((fn) => fn.nom in rawNode);
+  if (!parseFn) {
+    return parseMecanism(rawNode, context);
+  }
+  const { [parseFn.nom]: param, ...valeur } = rawNode;
+  return parseMecanism(
+    {
+      [parseFn.nom]: {
+        valeur,
+        [parseFn.nom]: param
+      }
+    },
+    context
+  );
+}
+var parseFunctions = {
+  ...operation_default,
+  ...chainableMecanisms.reduce((acc, fn) => ({ [fn.nom]: fn, ...acc }), {}),
+  logarithme: parseLogarithm,
+  "inversion num\xE9rique": mecanismInversion,
+  "le maximum de": parseMaximumDe,
+  "le minimum de": parseMinimumDe,
+  "taux progressif": parseTauxProgressif,
+  "toutes ces conditions": toutes_ces_conditions_default,
+  "est non d\xE9fini": parseEstNonD\u00E9fini,
+  "est non applicable": parseEstNonApplicable,
+  "est applicable": parseEstApplicable,
+  "est d\xE9fini": parseEstD\u00E9fini,
+  "une de ces conditions": une_de_ces_conditions_default,
+  condition: parseCondition,
+  bar\u00E8me: parseBar\u00E8me,
+  dur\u00E9e: duree_default,
+  grille: parseGrille,
+  multiplication: product_default,
+  produit: product_default,
+  somme: somme_default,
+  moyenne: moyenne_default,
+  [parseTexte.nom]: parseTexte,
+  valeur: parse,
+  variable: parseReference,
+  variations: parseVariations,
+  constant: (v, context) => Object.assign(v, {
+    // In the documentation we want to display constants defined in the source
+    // with their full precision. This is especially useful for percentages like
+    // APEC 0,036 %.
+    fullPrecision: true,
+    isNullable: v.nodeValue == null,
+    missingVariables: {},
+    nodeKind: "constant",
+    dottedName: context.dottedName,
+    ...v.type === "number" && v.rawUnit ? { unit: parseUnit(v.rawUnit, context.getUnitKey) } : {}
+  })
+};
+var mecanismKeys = Object.keys(parseFunctions);
+var valueMecanismKeys = mecanismKeys.filter(
+  (name) => !chainableMecanisms.find(({ nom }) => nom === name)
+);
+
+// src/parseReplacement.ts
+var remplacementRuleId = 0;
+var cache = {};
+function parseReplacements(replacements, context) {
+  if (!replacements) {
+    return [];
+  }
+  return (Array.isArray(replacements) ? replacements : [replacements]).map(
+    (replacement) => {
+      if (typeof replacement === "string") {
+        replacement = { "r\xE9f\xE9rences \xE0": replacement };
+      }
+      const replacedReference = parse(replacement["r\xE9f\xE9rences \xE0"], context);
+      const [whiteListedNames, blackListedNames] = [
+        replacement.dans ?? [],
+        replacement["sauf dans"] ?? []
+      ].map(
+        (dottedName) => Array.isArray(dottedName) ? dottedName : [dottedName]
+      ).map((refs) => refs.map((ref) => parse(ref, context)));
+      if (replacement.priorit\u00E9 != null && (typeof replacement.priorit\u00E9 !== "number" || replacement.priorit\u00E9 < 0)) {
+        throw new PublicodesError(
+          "SyntaxError",
+          "La priorit\xE9 du remplacement doit \xEAtre un nombre positif",
+          context
+        );
+      }
+      return {
+        nodeKind: "replacementRule",
+        rawNode: replacement,
+        priority: replacement.priorit\u00E9,
+        definitionRule: parse(context.dottedName, context),
+        replacedReference,
+        replaceByNonApplicable: false,
+        whiteListedNames,
+        blackListedNames,
+        remplacementRuleId: remplacementRuleId++
+      };
+    }
+  );
+}
+function parseRendNonApplicable(rules, context) {
+  const rendNonApplicableReplacements = parseReplacements(rules, context);
+  rendNonApplicableReplacements.forEach(
+    (r) => r.replaceByNonApplicable = true
+  );
+  return rendNonApplicableReplacements;
+}
+function getReplacements(parsedRules) {
+  const ret = {};
+  for (const dottedName in parsedRules) {
+    const rule = parsedRules[dottedName];
+    for (const replacement of rule.replacements) {
+      if (!replacement.replacedReference.dottedName) {
+        throw new PublicodesInternalError(replacement);
+      }
+      const key = replacement.replacedReference.dottedName;
+      ret[key] = [...ret[key] ?? [], replacement];
+    }
+  }
+  return ret;
+}
+function inlineReplacements({
+  newRules,
+  previousReplacements,
+  parsedRules,
+  referencesMaps
+}) {
+  const newReplacements = getReplacements(newRules);
+  const ruleNamesWithNewReplacements = /* @__PURE__ */ new Set([]);
+  for (const replacedReference in newReplacements) {
+    const rulesThatUse = referencesMaps.rulesThatUse.get(replacedReference) ?? [];
+    for (const value of rulesThatUse) {
+      ruleNamesWithNewReplacements.add(value);
+    }
+  }
+  const newRuleNamesWithPreviousReplacements = new Set(
+    Object.keys(newRules).filter(
+      (ruleName) => [...referencesMaps.referencesIn.get(ruleName) ?? /* @__PURE__ */ new Set()].some(
+        (reference) => (previousReplacements[reference] ?? []).length
+      )
+    )
+  );
+  const replacements = mergeWithArray(previousReplacements, newReplacements);
+  if (!newRuleNamesWithPreviousReplacements.size && !ruleNamesWithNewReplacements.size) {
+    return [parsedRules, replacements];
+  }
+  const inlinePreviousReplacement = makeReplacementInliner(
+    previousReplacements,
+    referencesMaps
+  );
+  const inlineNewReplacement = makeReplacementInliner(
+    newReplacements,
+    referencesMaps
+  );
+  newRuleNamesWithPreviousReplacements.forEach((name) => {
+    parsedRules[name] = inlinePreviousReplacement(
+      parsedRules[name]
+    );
+  });
+  ruleNamesWithNewReplacements.forEach((name) => {
+    parsedRules[name] = inlineNewReplacement(
+      parsedRules[name]
+    );
+  });
+  return [parsedRules, replacements];
+}
+function makeReplacementInliner(replacements, referencesMaps) {
+  return makeASTTransformer((node, transform) => {
+    if (node.nodeKind === "replacementRule" || node.nodeKind === "inversion" || node.nodeKind === "une possibilit\xE9") {
+      return false;
+    }
+    if (node.nodeKind === "contexte") {
+      return {
+        ...node,
+        explanation: {
+          ...node.explanation,
+          valeur: transform(node.explanation.valeur),
+          contexte: node.explanation.contexte.map(([name, value]) => [
+            name,
+            transform(value)
+          ])
+        }
+      };
+    }
+    if (node.nodeKind === "reference") {
+      if (!node.dottedName) {
+        throw new PublicodesInternalError(node);
+      }
+      const replacedReferenceNode = replace(
+        node,
+        replacements[node.dottedName] ?? []
+      );
+      makeASTVisitor((n) => {
+        updateReferencesMapsFromReferenceNode(
+          n,
+          referencesMaps,
+          node.contextDottedName
+        );
+        return "continue";
+      })(replacedReferenceNode);
+      return replacedReferenceNode;
+    }
+  });
+}
+function replace(node, replacements) {
+  const applicableReplacements = replacements.filter(
+    ({ definitionRule }) => definitionRule.dottedName !== node.contextDottedName
+  ).filter(
+    ({ whiteListedNames }) => !whiteListedNames.length || whiteListedNames.some(
+      (name) => node.contextDottedName.startsWith(name.dottedName)
+    )
+  ).filter(
+    ({ blackListedNames }) => !blackListedNames.length || blackListedNames.every(
+      (name) => !node.contextDottedName.startsWith(name.dottedName)
+    )
+  ).reverse().sort((a, b) => {
+    const result = (b.priority ?? 0) - (a.priority ?? 0);
+    if (result !== 0) {
+      return result;
+    }
+    return b.definitionRule.dottedName.localeCompare(
+      a.definitionRule.dottedName
+    );
+  });
+  if (!applicableReplacements.length) {
+    return node;
+  }
+  const applicableReplacementsCacheKey = applicableReplacements.map((n) => n.remplacementRuleId).join("-");
+  if (cache[applicableReplacementsCacheKey]) {
+    return cache[applicableReplacementsCacheKey];
+  }
+  const replacementNode = {
+    nodeKind: "variations",
+    explanation: [
+      ...applicableReplacements.map(
+        ({ definitionRule, replaceByNonApplicable }) => replaceByNonApplicable ? {
+          condition: definitionRule,
+          consequence: notApplicableNode
+        } : {
+          condition: estApplicable(definitionRule),
+          consequence: definitionRule
+        }
+      ),
+      { condition: oui, consequence: node }
+    ]
+  };
+  replacementNode.sourceMap = {
+    mecanismName: "replacement",
+    args: {
+      applicableReplacements,
+      originalNode: node
+    }
+  };
+  cache[applicableReplacementsCacheKey] = replacementNode;
+  return cache[applicableReplacementsCacheKey];
+}
+function estApplicable(node) {
+  return {
+    nodeKind: "condition",
+    explanation: {
+      si: { nodeKind: "est non applicable", explanation: node },
+      alors: non,
+      sinon: oui
+    }
+  };
+}
+var oui = defaultNode(true);
+var non = defaultNode(false);
+
+// src/parsePublicodes.ts
+function createContext(partialContext) {
+  return {
+    evaluatedRule: void 0,
+    dottedName: "",
+    logger: console,
+    getUnitKey: (x) => x,
+    parsedRules: {},
+    referencesMaps: { referencesIn: /* @__PURE__ */ new Map(), rulesThatUse: /* @__PURE__ */ new Map() },
+    nodesTypes: /* @__PURE__ */ new WeakMap(),
+    rulesReplacements: {},
+    subEngines: /* @__PURE__ */ new Map(),
+    subEngineId: void 0,
+    ...partialContext,
+    flag: {
+      filterNotApplicablePossibilities: false,
+      automaticNamespaceDisabling: true,
+      ...partialContext.flag
+    },
+    strict: {
+      situation: true,
+      noOrphanRule: true,
+      noCycleRuntime: false,
+      checkPossibleValues: false,
+      ...partialContext.strict
+    },
+    warn: {
+      cyclicReferences: true,
+      experimentalRules: true,
+      unitConversion: true,
+      deprecatedSyntax: true,
+      situationIssues: true,
+      ...partialContext.warn
+    }
+  };
+}
+function copyContext(context) {
+  return Object.assign({}, context, {
+    parsedRules: weakCopyObj(context.parsedRules),
+    referencesMaps: {
+      referencesIn: new Map(context.referencesMaps.referencesIn),
+      rulesThatUse: new Map(context.referencesMaps.rulesThatUse)
+    },
+    subEngines: /* @__PURE__ */ new Map(),
+    warn: weakCopyObj(context.warn),
+    strict: weakCopyObj(context.strict),
+    flag: weakCopyObj(context.flag)
+  });
+}
+function parsePublicodes(rawRules, partialContext = createContext({})) {
+  if (typeof rawRules === "string")
+    throw new PublicodesError(
+      "EngineError",
+      "Publicodes does not parse yaml rule sets itself anymore. Please provide a parsed js object. E.g. the `eemeli/yaml` package.",
+      {}
+    );
+  const rules = weakCopyObj(rawRules);
+  const context = createContext(partialContext);
+  const previousParsedRules = context.parsedRules;
+  context.parsedRules = {};
+  parseRules(rules, context);
+  let parsedRules = {};
+  for (const dottedName in previousParsedRules) {
+    parsedRules[dottedName] = previousParsedRules[dottedName];
+  }
+  for (const dottedName in context.parsedRules) {
+    parsedRules[dottedName] = context.parsedRules[dottedName];
+  }
+  const [newRules, referencesMaps] = disambiguateReferencesAndCollectDependencies(
+    parsedRules,
+    context.parsedRules,
+    context.referencesMaps,
+    !context.strict.noOrphanRule
+  );
+  let rulesReplacements;
+  [parsedRules, rulesReplacements] = inlineReplacements({
+    parsedRules,
+    newRules,
+    referencesMaps,
+    previousReplacements: context.rulesReplacements
+  });
+  const nodesTypes = inferNodesTypes(
+    Object.keys(newRules),
+    parsedRules,
+    context.nodesTypes
+  );
+  return {
+    parsedRules,
+    nodesTypes,
+    referencesMaps,
+    rulesReplacements
+  };
+}
+function disambiguateReferencesAndCollectDependencies(parsedRules, newRules, referencesMaps, allowOrphanRules) {
+  const disambiguateReference2 = makeASTTransformer(
+    (node) => disambiguateReferenceNode(node, parsedRules)
+  );
+  const disambiguateReferencesAndCollectDependencies2 = makeASTTransformer(
+    (node) => {
+      const n = disambiguateReferenceNode(node, parsedRules);
+      if (n) {
+        updateReferencesMapsFromReferenceNode(n, referencesMaps);
+      }
+      return n;
+    }
+  );
+  const disambiguatedRules = traverseParsedRules((node) => {
+    if (node.nodeKind === "replacementRule") {
+      return disambiguateReference2(node);
+    }
+    if (node.nodeKind === "rule") {
+      const parentUndefined = node.explanation.parents.find(
+        (n) => !(n.dottedName in parsedRules)
+      );
+      if (!allowOrphanRules && parentUndefined) {
+        throw new PublicodesError(
+          "SyntaxError",
+          `La r\xE8gle parente "${parentUndefined.dottedName}" n'existe pas`,
+          {
+            dottedName: node.dottedName
+          }
+        );
+      }
+    }
+    return disambiguateReferencesAndCollectDependencies2(node);
+  }, newRules);
+  return [
+    disambiguatedRules,
+    referencesMaps
+  ];
+}
+
+// src/traversedVariables.ts
+function computeTraversedVariableBeforeEval(traversedVariablesStack, parsedNode, cachedNode, publicParsedRules, isTraversedVariablesBoundary2) {
+  if (traversedVariablesStack === void 0) {
+    return;
+  }
+  if (cachedNode !== void 0) {
+    cachedNode.traversedVariables?.forEach(
+      (name) => traversedVariablesStack[0]?.add(name)
+    );
+    return;
+  }
+  if (isTraversedVariablesBoundary2) {
+    traversedVariablesStack.unshift(/* @__PURE__ */ new Set());
+  }
+  if (parsedNode.nodeKind === "reference" && parsedNode.dottedName && parsedNode.dottedName in publicParsedRules) {
+    traversedVariablesStack[0].add(parsedNode.dottedName);
+  }
+}
+function isTraversedVariablesBoundary(traversedVariablesStack, parsedNode) {
+  return !!traversedVariablesStack && (traversedVariablesStack.length === 0 || parsedNode.nodeKind === "rule");
+}
+function computeTraversedVariableAfterEval(traversedVariablesStack, evaluatedNode, isTraversedVariablesBoundary2) {
+  if (traversedVariablesStack === void 0) {
+    return;
+  }
+  if (isTraversedVariablesBoundary2) {
+    evaluatedNode.traversedVariables = Array.from(
+      traversedVariablesStack.shift() ?? []
+    );
+    if (traversedVariablesStack.length > 0) {
+      evaluatedNode.traversedVariables.forEach((name) => {
+        traversedVariablesStack[0].add(name);
+      });
+    }
+  }
+}
+
+// src/engine/index.ts
+var emptyCache = () => ({
+  _meta: {
+    evaluationRuleStack: [],
+    parentRuleStack: []
+  },
+  traversedVariablesStack: void 0,
+  nodes: /* @__PURE__ */ new Map()
+});
+var Engine = class _Engine {
+  /**@internal */
+  baseContext;
+  /**@internal */
+  context;
+  /**@internal */
+  publicParsedRules;
+  /**@internal */
+  publicSituation;
+  /**@internal */
+  cache = emptyCache();
+  /**
+     * Creates an evaluation engine with the publicode rules given as arguments.
+
+     * @param rules The publicodes model to use ({@link RawPublicodes} or {@link ParsedRules})
+     * @param options Configuration options
+     */
+  constructor(rules = {}, options = {}) {
+    const strict = options.strict;
+    const warn = options.warn;
+    const initialContext = {
+      dottedName: "",
+      ...options,
+      flag: {
+        filterNotApplicablePossibilities: options.flag?.filterNotApplicablePossibilities ?? false,
+        automaticNamespaceDisabling: options.flag?.automaticNamespaceDisabling ?? true
+      },
+      strict: typeof strict === "boolean" ? {
+        situation: strict,
+        noOrphanRule: options.allowOrphanRules === true ? false : strict,
+        checkPossibleValues: strict,
+        noCycleRuntime: strict
+      } : typeof strict === "object" ? strict : {},
+      warn: typeof warn === "boolean" ? {
+        cyclicReferences: warn,
+        experimentalRules: warn,
+        unitConversion: warn
+      } : typeof warn === "object" ? warn : {}
+    };
+    this.baseContext = createContext({
+      ...initialContext,
+      ...parsePublicodes(rules, initialContext)
+    });
+    this.context = copyContext(this.baseContext);
+    this.publicParsedRules = {};
+    for (const name in this.baseContext.parsedRules) {
+      const rule = this.baseContext.parsedRules[name];
+      if (!rule.private && isAccessible(this.baseContext.parsedRules, "", name)) {
+        this.publicParsedRules[name] = rule;
+      }
+    }
+    this.publicSituation = {};
+  }
+  /**
+   * Reset the engine cache. This will clear all the cached evaluations.
+   */
+  resetCache() {
+    this.cache = emptyCache();
+    this.context.subEngines = /* @__PURE__ */ new Map();
+  }
+  /**
+   * Set the situation used for the evaluation.
+   *
+   * All subsequent evaluations will use this situation.
+   * Reset the evaluation cache to avoid inconsistencies, so it is costly to call this method frequently with the same situation.
+   */
+  setSituation(situation = {}, options = {}) {
+    this.resetCache();
+    const keepPreviousSituation = options.keepPreviousSituation ?? false;
+    const strictMode = options.strict || this.baseContext.strict.situation;
+    let situationRules = Object.entries(situation).filter(
+      ([dottedName, value]) => {
+        const error = this.checkSituationRule(
+          dottedName,
+          value
+        );
+        if (!error) return true;
+        if (strictMode || this.baseContext.strict.checkPossibleValues) {
+          throw error;
+        }
+        warning(this.context, error.message, "situationIssues");
+        return false;
+      }
+    );
+    const previousContext = this.context;
+    if (!keepPreviousSituation) {
+      this.context = copyContext(this.baseContext);
+      this.publicSituation = {};
+    }
+    if (strictMode) {
+      const error = this.parseSituationRules(situationRules);
+      if (error) {
+        this.context = previousContext;
+        throw error;
+      }
+    } else {
+      situationRules = situationRules.filter((situationRule) => {
+        const error = this.parseSituationRules([situationRule]);
+        if (error) {
+          warning(this.context, error.message, "situationIssues");
+        }
+        return !error;
+      });
+    }
+    this.publicSituation = Object.assign(
+      this.publicSituation,
+      Object.fromEntries(situationRules)
+    );
+    if (this.context.warn.experimentalRules) {
+      Object.keys(this.publicSituation).forEach((nom) => {
+        if (isExperimental(this.context.parsedRules, nom)) {
+          experimentalRuleWarning(this.context, nom);
+        }
+        this.checkExperimentalRule(
+          this.context.parsedRules[`${nom} . $SITUATION`]
+        );
+      });
+    }
+    return this;
+  }
+  /**
+   *
+   * @returns true if the engine has encountered an inversion error during the last evaluation
+   */
+  inversionFail() {
+    return !!this.cache.inversionFail;
+  }
+  /**
+   * Get the rule with the given dottedName.
+   * @param dottedName
+   *
+   * @throws PublicodesError if the rule does not exist or is private
+   */
+  getRule(dottedName) {
+    if (!(dottedName in this.baseContext.parsedRules)) {
+      throw new PublicodesError(
+        "UnknownRule",
+        `La r\xE8gle '${dottedName}' n'existe pas`,
+        { dottedName }
+      );
+    }
+    if (!(dottedName in this.publicParsedRules)) {
+      throw new PublicodesError(
+        "PrivateRule",
+        `La r\xE8gle ${dottedName} est une r\xE8gle priv\xE9e.`,
+        { dottedName }
+      );
+    }
+    return this.publicParsedRules[dottedName];
+  }
+  /**
+   *
+   * @returns the parsed rules used by the engine
+   *
+   * @remarks The private rules are not included in the parsed rules
+   */
+  getParsedRules() {
+    return this.publicParsedRules;
+  }
+  /**
+   * Retrieve the current situation used for the evaluation
+   *
+   * This situation can be slightly different from the one set with
+   * {@link setSituation} if some values were filtered out because of
+   * evaluation errors.
+   *
+   * @returns {@link Situation} used by the engine
+   */
+  getSituation() {
+    return this.publicSituation;
+  }
+  /**
+   * Retrieves the list of possible values for a given rule.
+   *
+   * @param dottedName - The dotted name of the rule to get possibilities for
+   * @param options - Options object
+   * @param options.filterNotApplicable - When true, filters out possibilities that are not applicable based on the current situation. Defaults to false.
+   * @returns Array of possibility nodes if the rule has possibilities defined, null otherwise
+   *
+   * @example
+   * **Publicodes**
+   * ```yaml
+   * contrat:
+   *  une possibilité:
+   *   - "'CDI'"
+   *   - "'CDD'"
+   * ```js
+   * engine.getPossibilitiesFor('contrat')
+   *
+   * ```
+   */
+  getPossibilitiesFor(dottedName, {
+    filterNotApplicable = false
+  } = {}) {
+    if (!this.context.flag?.filterNotApplicablePossibilities && filterNotApplicable) {
+      throw new PublicodesError(
+        "EngineError",
+        "You must enable `flag.filterNotApplicablePossibilities` in engine instantiation to use the filterNotApplicable option",
+        {}
+      );
+    }
+    const rule = this.getRule(dottedName);
+    if (!rule.possibilities) {
+      return null;
+    }
+    if (filterNotApplicable) {
+      return this.evaluateNode(rule.possibilities).explanation.filter((possibility) => possibility.notApplicable?.nodeValue !== true);
+    }
+    return rule.possibilities.explanation;
+  }
+  /**
+   * Evaluate a publicodes expression.
+   *
+   * Use the current situation set by {@link setSituation}.
+   *
+   * @remarks
+   * 	To improve performance, the engine will cache the evaluation of the expression,
+   * 	and all its byproducts (intermediate evaluations).
+   * 	The cache is reset when the situation is updated with {@link setSituation}.
+   * 	You can also manually reset it with {@link resetCache}.
+   *
+   * @param value - The publicodes expression to evaluate.
+   * @returns The {@link ASTNode} of the publicodes expression decorated with evaluation results (nodeValue, unit, missingVariables, etc.)
+   *
+   */
+  evaluate(value) {
+    const cachedNode = this.cache.nodes.get(value);
+    if (cachedNode) {
+      return cachedNode;
+    }
+    this.context = Object.assign(
+      this.context,
+      parsePublicodes(
+        {
+          "[priv\xE9] $EVALUATION": value && typeof value === "object" && "nodeKind" in value ? { valeur: value } : value
+        },
+        this.context
+      )
+    );
+    this.checkExperimentalRule(this.context.parsedRules["$EVALUATION"]);
+    this.cache._meta = emptyCache()._meta;
+    const evaluation = this.evaluateNode(
+      this.context.parsedRules["$EVALUATION"].explanation.valeur
+    );
+    this.cache.nodes.set(value, evaluation);
+    return evaluation;
+  }
+  /**@internal */
+  evaluateNode(parsedNode) {
+    const cachedNode = this.cache.nodes.get(parsedNode);
+    let traversedVariableBoundary = false;
+    if (this.cache.traversedVariablesStack) {
+      traversedVariableBoundary = isTraversedVariablesBoundary(
+        this.cache.traversedVariablesStack,
+        parsedNode
+      );
+      computeTraversedVariableBeforeEval(
+        this.cache.traversedVariablesStack,
+        parsedNode,
+        cachedNode,
+        this.publicParsedRules,
+        traversedVariableBoundary
+      );
+    }
+    if (cachedNode !== void 0) {
+      return cachedNode;
+    }
+    if (!evaluationFunctions[parsedNode.nodeKind]) {
+      throw new PublicodesError(
+        "EvaluationError",
+        `Unknown "nodeKind": ${parsedNode.nodeKind}`,
+        { dottedName: "" }
+      );
+    }
+    const evaluatedNode = evaluationFunctions[parsedNode.nodeKind].call(
+      this,
+      parsedNode
+    );
+    if (this.cache.traversedVariablesStack) {
+      computeTraversedVariableAfterEval(
+        this.cache.traversedVariablesStack,
+        evaluatedNode,
+        traversedVariableBoundary
+      );
+    }
+    this.cache.nodes.set(parsedNode, evaluatedNode);
+    return evaluatedNode;
+  }
+  /**
+   * Shallow Engine instance copy. Useful to evaluate the same rules with different situations.
+   *
+   * @returns a new Engine instance with the same baseContext, context, publicParsedRules, publicSituation and cache attributes.
+   */
+  shallowCopy() {
+    const newEngine = new _Engine();
+    newEngine.baseContext = copyContext(this.baseContext);
+    newEngine.context = copyContext(this.context);
+    newEngine.publicParsedRules = this.publicParsedRules;
+    newEngine.publicSituation = weakCopyObj(this.publicSituation);
+    newEngine.cache = {
+      ...emptyCache(),
+      nodes: new Map(this.cache.nodes)
+    };
+    return newEngine;
+  }
+  checkExperimentalRule = makeASTVisitor((node) => {
+    if (node.nodeKind === "reference" && isExperimental(this.context.parsedRules, node.dottedName)) {
+      experimentalRuleWarning(this.baseContext, node.dottedName);
+    }
+    return "continue";
+  });
+  checkSituationRule(dottedName, value) {
+    if (!(dottedName in this.baseContext.parsedRules)) {
+      const errorMessage = `'${dottedName}' n'existe pas dans la base de r\xE8gle.`;
+      return new PublicodesError("SituationError", errorMessage, {
+        dottedName
+      });
+    }
+    const rule = this.baseContext.parsedRules[dottedName];
+    if (rule.private) {
+      const errorMessage = `La r\xE8gle ${dottedName} est une r\xE8gle priv\xE9e.`;
+      return new PublicodesError("SituationError", errorMessage, { dottedName });
+    }
+    if (rule.possibilities && !isAValidOption(this, rule.possibilities, this.evaluate(value))) {
+      const errorMessage = `La valeur "${this.evaluate(value).nodeValue}" ne fait pas partie des possibilit\xE9s applicables list\xE9es pour cette r\xE8gle.`;
+      return new PublicodesError("SituationError", errorMessage, {
+        dottedName
+      });
+    }
+    return false;
+  }
+  parseSituationRules(situation) {
+    const situationToParse = Object.fromEntries(
+      situation.map(([dottedName, value]) => [
+        `[priv\xE9] ${dottedName} . $SITUATION`,
+        value && typeof value === "object" && "nodeKind" in value ? { valeur: value } : value
+      ])
+    );
+    try {
+      const newContext = parsePublicodes(situationToParse, this.context);
+      this.context = Object.assign(this.context, newContext);
+      return false;
+    } catch (error) {
+      let message = "";
+      let dottedName;
+      if (!(error instanceof Error)) {
+        throw error;
+      }
+      message = error.message;
+      if ("dottedName" in error) {
+        dottedName = error.dottedName;
+      }
+      return new PublicodesError("SituationError", message, {
+        dottedName: dottedName ?? ""
+      });
+    }
+  }
+};
+
+// src/serializeEvaluation.ts
+function serializeEvaluation(node) {
+  if (typeof node.nodeValue === "number") {
+    const serializedUnit = serializeUnit(node.unit);
+    return "" + node.nodeValue + (serializedUnit ? serializedUnit.replace(/\s/g, "") : "");
+  } else if (typeof node.nodeValue === "boolean") {
+    return node.nodeValue ? "oui" : "non";
+  } else if (typeof node.nodeValue === "string") {
+    return `'${node.nodeValue}'`;
+  }
+}
+
+// src/index.ts
+var index_default = Engine;
+// Annotate the CommonJS export names for ESM import in node:
+0 && (module.exports = {
+  PublicodesError,
+  capitalise0,
+  formatValue,
+  isPublicodesError,
+  parseExpression,
+  parsePublicodes,
+  parseUnit,
+  reduceAST,
+  serializeEvaluation,
+  serializeUnit,
+  simplifyNodeUnit,
+  transformAST,
+  traverseASTNode,
+  utils
+});
+
+// Shared by the browser and the mobile JavaScript runtime.
+let engine;
+const reply = (operation) => {
+  try { return JSON.stringify({ data: operation() }); }
+  catch (error) { return JSON.stringify({ error: error.message }); }
+};
+globalThis.initEngine = (rules) => reply(() => {
+  engine = new module.exports.default(JSON.parse(rules), {
+    logger: { log() {}, warn() {}, error() {} },
+  });
+  return true;
+});
+const requireEngine = () => {
+  if (!engine) throw new Error('Publicodes has not been initialized');
+  return engine;
+};
+globalThis.updateSituation = (situation) => reply(() => {
+  const values = Object.fromEntries(Object.entries(JSON.parse(situation))
+    .filter(([, value]) => value !== null));
+  requireEngine().setSituation(values);
+  return true;
+});
+globalThis.getBilan = (objective) => reply(() => {
+  const value = requireEngine().evaluate(objective).nodeValue;
+  if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) {
+    throw new Error(`Invalid score for ${objective}`);
+  }
+  return value;
+});
+globalThis.checkApplicability = (objective) => reply(() =>
+  Object.keys(requireEngine().evaluate(objective).missingVariables || {}));
+
+})();

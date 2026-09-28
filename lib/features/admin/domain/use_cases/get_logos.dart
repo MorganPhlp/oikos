@@ -17,9 +17,6 @@ class GetLogos {
 
   Future<Either<Failure, List<String>>> getAvatars() async {
     final result = await repository.getAvatars();
-    return result.fold(
-      (failure) => left(failure),
-      (avatars) => right(avatars),
-    );
+    return result.fold((failure) => left(failure), (avatars) => right(avatars));
   }
 }

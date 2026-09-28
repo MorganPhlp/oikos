@@ -40,12 +40,28 @@ class OikosButtonTheme extends ThemeExtension<OikosButtonTheme> {
   OikosButtonTheme lerp(ThemeExtension<OikosButtonTheme>? other, double t) {
     if (other is! OikosButtonTheme) return this;
     return OikosButtonTheme(
-      primaryGradient: LinearGradient.lerp(primaryGradient, other.primaryGradient, t),
-      tertiaryGradient: LinearGradient.lerp(tertiaryGradient, other.tertiaryGradient, t),
+      primaryGradient: LinearGradient.lerp(
+        primaryGradient,
+        other.primaryGradient,
+        t,
+      ),
+      tertiaryGradient: LinearGradient.lerp(
+        tertiaryGradient,
+        other.tertiaryGradient,
+        t,
+      ),
       shadowColor: Color.lerp(shadowColor, other.shadowColor, t),
-      tertiaryShadowColor: Color.lerp(tertiaryShadowColor, other.tertiaryShadowColor, t),
+      tertiaryShadowColor: Color.lerp(
+        tertiaryShadowColor,
+        other.tertiaryShadowColor,
+        t,
+      ),
       disabledColor: Color.lerp(disabledColor, other.disabledColor, t),
-      secondaryGradient: Color.lerp(secondaryGradient, other.secondaryGradient, t),
+      secondaryGradient: Color.lerp(
+        secondaryGradient,
+        other.secondaryGradient,
+        t,
+      ),
     );
   }
 }

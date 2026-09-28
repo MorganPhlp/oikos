@@ -17,7 +17,7 @@ class ThemeCubit extends Cubit<ThemeMode> {
   void setMode(ThemeMode mode) => emit(mode);
 
   /// Cycles between light and dark.
-  /// If currently set to system, switches to light first.
+  /// If currently set to system, switches to dark first.
   void toggle() {
     emit(state == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark);
   }

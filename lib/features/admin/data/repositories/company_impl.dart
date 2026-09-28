@@ -3,7 +3,7 @@ import 'package:oikos/core/error/failures.dart';
 import 'package:oikos/features/admin/domain/interfaces/company_rep.dart';
 import 'package:oikos/core/logger.dart';
 import 'package:oikos/core/supabase_ext.dart';
-import 'package:oikos/features/admin/data/models/models.dart';
+import 'package:oikos/features/admin/domain/models/models.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CompanyImpl extends CompanyRep {
@@ -38,7 +38,12 @@ class CompanyImpl extends CompanyRep {
 
       await supabase
           .from('entreprise')
-          .update(company.toJson())
+          .update({
+            'nom': company.name,
+            'domaine_email': company.domainEmail.trim().toLowerCase(),
+            'description': company.description,
+            'logo_url': company.logoUrl,
+          })
           .eq('id', company.id);
       return right(null);
     } on PostgrestException catch (e) {

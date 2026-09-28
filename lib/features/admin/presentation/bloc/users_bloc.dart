@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fpdart/fpdart.dart';
-import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
-import 'package:oikos/features/admin/data/models/aggregates/community_data.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
+import 'package:oikos/features/admin/domain/models/aggregates/community_data.dart';
 import 'package:oikos/features/admin/domain/use_cases/anonymize_user.dart';
 import 'package:oikos/features/admin/domain/use_cases/get_community_data.dart';
 import 'package:oikos/features/admin/presentation/bloc/users_event.dart';
@@ -126,7 +125,7 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> {
 
     // 2. Filtre par communauté — les anonymisés passent toujours (leur
     //    communauté a changé lors de l'anonymisation, on ne veut pas les perdre)
-    List<Utilisateurs> filtered;
+    List<UserEntity> filtered;
     if (selectedCommunityCode != null) {
       filtered = nonSupprime
           .where(

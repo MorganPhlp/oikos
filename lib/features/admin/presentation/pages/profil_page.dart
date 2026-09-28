@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:oikos/core/common/presentation/widgets/theme_selector.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/core/theme/breakpoints.dart';
-import 'package:oikos/features/admin/data/models/models.dart';
+import 'package:oikos/features/admin/domain/models/models.dart';
 import 'package:oikos/features/admin/presentation/bloc/profile_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/profile_event.dart';
 import 'package:oikos/features/admin/presentation/bloc/profile_state.dart';
@@ -12,7 +13,7 @@ import 'package:oikos/features/admin/presentation/widget/profile_page/password_c
 import 'package:oikos/features/admin/presentation/widget/profile_page/profile_card.dart';
 
 class ProfilPage extends StatefulWidget {
-  final Utilisateurs user;
+  final UserEntity user;
   final Company company;
 
   const ProfilPage({super.key, required this.user, required this.company});
@@ -44,9 +45,14 @@ class _ProfilPageState extends State<ProfilPage> {
               padding: EdgeInsets.all(
                 isDesktop ? AppTheme.spacingLg : AppTheme.spacingMd,
               ),
-              child: isDesktop
-                  ? _DesktopLayout(state: state)
-                  : _MobileLayout(state: state),
+              child: Column(
+                children: [
+                  const ThemeSelector(),
+                  isDesktop
+                      ? _DesktopLayout(state: state)
+                      : _MobileLayout(state: state),
+                ],
+              ),
             );
           },
         );

@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/core/theme/app_size.dart';
 import 'package:oikos/core/theme/breakpoints.dart';
-import 'package:oikos/features/admin/data/models/models.dart';
+import 'package:oikos/features/admin/domain/models/models.dart';
 
 enum TimeScale { monthly, annual }
 
@@ -120,10 +120,10 @@ class _CarbonEvolutionChartState extends State<CarbonEvolutionChart> {
               ),
               const SizedBox(height: 4),
               Text(
-                'En kg CO2e',
+                'En tonnes CO₂e',
                 style: TextStyle(
                   fontSize: dim.labelFontSize,
-                  color: const Color(0xFF6B7280),
+                  color: AdminColors.of(context).mutedForeground,
                 ),
               ),
             ],
@@ -139,7 +139,7 @@ class _CarbonEvolutionChartState extends State<CarbonEvolutionChart> {
   Widget _buildScaleSelector(_ChartDimensions dim) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFF3F4F6),
+        color: AdminColors.of(context).muted,
         borderRadius: BorderRadius.circular(8),
       ),
       padding: const EdgeInsets.all(4),
@@ -171,10 +171,10 @@ class _CarbonEvolutionChartState extends State<CarbonEvolutionChart> {
     if (data.isEmpty) {
       return SizedBox(
         height: dim.chartHeight,
-        child: const Center(
+        child: Center(
           child: Text(
             'Aucune donnée disponible',
-            style: TextStyle(color: Color(0xFF6B7280)),
+            style: TextStyle(color: AdminColors.of(context).mutedForeground),
           ),
         ),
       );
@@ -250,7 +250,7 @@ class _CarbonEvolutionChartState extends State<CarbonEvolutionChart> {
                 child: Text(
                   value.toStringAsFixed(dim.isMobile ? 0 : 1),
                   style: TextStyle(
-                    color: const Color(0xFF6B7280),
+                    color: AdminColors.of(context).mutedForeground,
                     fontSize: dim.labelFontSize,
                   ),
                 ),
@@ -285,12 +285,12 @@ class _CarbonEvolutionChartState extends State<CarbonEvolutionChart> {
           horizontalInterval: interval,
           verticalInterval: 1,
           getDrawingHorizontalLine: (value) => FlLine(
-            color: const Color(0xFFE5E7EB),
+            color: AdminColors.of(context).border,
             strokeWidth: 1,
             dashArray: [5, 5],
           ),
           getDrawingVerticalLine: (value) => FlLine(
-            color: const Color(0xFFE5E7EB),
+            color: AdminColors.of(context).border,
             strokeWidth: 1,
             dashArray: [5, 5],
           ),
@@ -322,16 +322,16 @@ class _CarbonEvolutionChartState extends State<CarbonEvolutionChart> {
         ),
         borderData: FlBorderData(
           show: true,
-          border: const Border(
-            bottom: BorderSide(color: Color(0xFFE5E7EB)),
-            left: BorderSide(color: Color(0xFFE5E7EB)),
+          border: Border(
+            bottom: BorderSide(color: AdminColors.of(context).border),
+            left: BorderSide(color: AdminColors.of(context).border),
           ),
         ),
         lineTouchData: LineTouchData(
           enabled: true,
           touchTooltipData: LineTouchTooltipData(
-            getTooltipColor: (touchedSpot) => Colors.white,
-            tooltipBorder: const BorderSide(color: Color(0xFFE5E7EB)),
+            getTooltipColor: (touchedSpot) => AdminColors.of(context).card,
+            tooltipBorder: BorderSide(color: AdminColors.of(context).border),
             tooltipPadding: EdgeInsets.all(dim.isMobile ? 8 : 12),
             fitInsideHorizontally: true,
             fitInsideVertically: true,
@@ -343,7 +343,7 @@ class _CarbonEvolutionChartState extends State<CarbonEvolutionChart> {
                 return LineTooltipItem(
                   '${DateFormat.yMMMd('fr_FR').format(dataPoint.period)}\n',
                   TextStyle(
-                    color: const Color(0xFF6B7280),
+                    color: AdminColors.of(context).mutedForeground,
                     fontWeight: FontWeight.w500,
                     fontSize: dim.fontSize,
                   ),
@@ -351,7 +351,7 @@ class _CarbonEvolutionChartState extends State<CarbonEvolutionChart> {
                     TextSpan(
                       text: '${spot.y.toStringAsFixed(2)} kg CO2e',
                       style: TextStyle(
-                        color: const Color(0xFF10B981),
+                        color: AdminColors.of(context).primary,
                         fontWeight: FontWeight.bold,
                         fontSize: dim.fontSize,
                       ),
@@ -370,7 +370,7 @@ class _CarbonEvolutionChartState extends State<CarbonEvolutionChart> {
             ),
             isCurved: true,
             curveSmoothness: 0.3,
-            color: const Color(0xFF10B981),
+            color: AdminColors.of(context).primary,
             barWidth: dim.lineWidth,
             isStrokeCapRound: true,
             dotData: FlDotData(
@@ -378,7 +378,7 @@ class _CarbonEvolutionChartState extends State<CarbonEvolutionChart> {
               getDotPainter: (spot, percent, barData, index) {
                 return FlDotCirclePainter(
                   radius: dim.dotRadius,
-                  color: const Color(0xFF10B981),
+                  color: AdminColors.of(context).primary,
                   strokeWidth: 2,
                   strokeColor: Colors.white,
                 );
@@ -390,8 +390,8 @@ class _CarbonEvolutionChartState extends State<CarbonEvolutionChart> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  const Color(0xFF10B981).withValues(alpha: 0.2),
-                  const Color(0xFF10B981).withValues(alpha: 0.0),
+                  AdminColors.of(context).primary.withValues(alpha: 0.2),
+                  AdminColors.of(context).primary.withValues(alpha: 0.0),
                 ],
               ),
             ),
@@ -451,7 +451,7 @@ class _CarbonEvolutionChartState extends State<CarbonEvolutionChart> {
       child: Text(
         label,
         style: TextStyle(
-          color: const Color(0xFF6B7280),
+          color: AdminColors.of(context).mutedForeground,
           fontSize: dim.labelFontSize,
         ),
         textAlign: TextAlign.center,
@@ -466,7 +466,7 @@ class _CarbonEvolutionChartState extends State<CarbonEvolutionChart> {
           width: 24,
           height: 3,
           decoration: BoxDecoration(
-            color: const Color(0xFF10B981),
+            color: AdminColors.of(context).primary,
             borderRadius: BorderRadius.circular(2),
           ),
         ),
@@ -474,7 +474,7 @@ class _CarbonEvolutionChartState extends State<CarbonEvolutionChart> {
         Text(
           'Bilan carbone',
           style: TextStyle(
-            color: const Color(0xFF6B7280),
+            color: AdminColors.of(context).mutedForeground,
             fontSize: dim.fontSize,
           ),
         ),
@@ -486,13 +486,13 @@ class _CarbonEvolutionChartState extends State<CarbonEvolutionChart> {
               Icon(
                 Icons.swipe,
                 size: dim.fontSize + 4,
-                color: const Color(0xFF9CA3AF),
+                color: AdminColors.of(context).mutedForeground,
               ),
               const SizedBox(width: 4),
               Text(
                 'Glissez pour voir plus',
                 style: TextStyle(
-                  color: const Color(0xFF9CA3AF),
+                  color: AdminColors.of(context).mutedForeground,
                   fontSize: dim.labelFontSize,
                 ),
               ),
@@ -601,7 +601,7 @@ class _ScaleButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: isSelected ? const Color(0xFF10B981) : Colors.transparent,
+      color: isSelected ? AdminColors.of(context).primary : Colors.transparent,
       borderRadius: BorderRadius.circular(6),
       child: InkWell(
         onTap: onPressed,
@@ -651,9 +651,9 @@ class ExampleChartPage extends StatelessWidget {
     });
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F4F6),
+      backgroundColor: AdminColors.of(context).muted,
       appBar: AppBar(
-        title: const Text('Carbon Evolution'),
+        title: Text('Carbon Evolution'),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,

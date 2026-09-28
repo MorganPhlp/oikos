@@ -1,8 +1,6 @@
-
-
 import 'package:fpdart/fpdart.dart';
 import 'package:oikos/core/error/failures.dart';
-import 'package:oikos/features/admin/data/models/models.dart';
+import 'package:oikos/features/admin/domain/models/models.dart';
 import 'package:oikos/features/admin/domain/interfaces/company_rep.dart';
 
 class GetCompanyInfo {
@@ -13,6 +11,7 @@ class GetCompanyInfo {
   Future<Either<Failure, Company>> call(String companyId) {
     return repository.getCompanyData(companyId);
   }
+
   Future<Either<Failure, void>> updateCompanyInfo(Company company) {
     return repository.updateCompany(company);
   }

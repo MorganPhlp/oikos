@@ -102,7 +102,10 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       );
 
       // 2. Appel réel à Supabase via le repository
-      final result = await authRepository.updatePassword(event.newPassword);
+      final result = await authRepository.updateCredentials(
+        password: event.newPassword,
+        currentPassword: event.currentPassword,
+      );
 
       // 3. Gestion du résultat (Either de dartz)
       result.fold(

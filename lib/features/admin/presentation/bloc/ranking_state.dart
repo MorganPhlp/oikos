@@ -1,6 +1,6 @@
-import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
-import 'package:oikos/features/admin/data/models/aggregates/ranking_data.dart';
-import 'package:oikos/features/admin/data/models/core/community.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
+import 'package:oikos/features/admin/domain/models/aggregates/ranking_data.dart';
+import 'package:oikos/features/admin/domain/models/core/community.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ENUMS
@@ -47,7 +47,7 @@ class RankingLoaded extends RankingState {
 
   /// Listes pré-triées prêtes à l'affichage
   final List<Community> sortedCommunities;
-  final List<Utilisateurs> sortedUsers;
+  final List<UserEntity> sortedUsers;
 
   RankingLoaded({
     required this.data,
@@ -67,7 +67,7 @@ class RankingLoaded extends RankingState {
     bool clearCommunityFilter = false,
     String? selectedCommunityCode,
     List<Community>? sortedCommunities,
-    List<Utilisateurs>? sortedUsers,
+    List<UserEntity>? sortedUsers,
   }) {
     return RankingLoaded(
       data: data ?? this.data,

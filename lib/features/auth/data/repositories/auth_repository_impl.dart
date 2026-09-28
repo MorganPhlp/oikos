@@ -1,9 +1,9 @@
 import 'package:fpdart/fpdart.dart';
-import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
 import 'package:oikos/core/error/exceptions.dart';
 import 'package:oikos/core/error/failures.dart';
 import 'package:oikos/features/auth/domain/repository/auth_repository.dart';
-import 'package:supabase_flutter/supabase_flutter.dart' as sup;
+import 'package:oikos/core/common/domain/entities/user.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide User;
 import '../datasources/auth_remote_data_source.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -12,32 +12,37 @@ class AuthRepositoryImpl implements AuthRepository {
   const AuthRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Either<Failure, void>> updatePassword(String newPassword) async {
-    try {
-      final sup.UserAttributes attributes = sup.UserAttributes(
-        password: newPassword,
+  Stream<SessionChange> get sessionChanges => remoteDataSource
+      .client
+      .auth
+      .onAuthStateChange
+      .where(
+        (state) => [
+          AuthChangeEvent.signedIn,
+          AuthChangeEvent.signedOut,
+          AuthChangeEvent.passwordRecovery,
+        ].contains(state.event),
+      )
+      .map(
+        (state) => switch (state.event) {
+          AuthChangeEvent.signedOut => SessionChange.signedOut,
+          AuthChangeEvent.passwordRecovery => SessionChange.passwordRecovery,
+          _ => SessionChange.signedIn,
+        },
       );
 
-      await remoteDataSource.client.auth.updateUser(attributes);
-
-      return right(null);
-    } on sup.AuthException catch (e) {
-      return left(Failure(e.message));
-    } catch (e) {
-      return left(Failure("Une erreur inattendue est survenue"));
-    }
-  }
-
   @override
-  Future<Either<Failure, Utilisateurs>> currentUser() async {
+  Future<Either<Failure, UserEntity>> currentUser() async {
     try {
       final user = await remoteDataSource.getCurrentUserData();
       if (user == null) {
-        return left(Failure('Utilisateurs not logged in!'));
+        return left(Failure('User not logged in!'));
       }
       return right(user);
     } on ServerException catch (e) {
       return left(Failure(e.message));
+    } on PostgrestException {
+      return left(Failure('Impossible de contacter le service. Réessaie.'));
     }
   }
 
@@ -48,7 +53,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, Utilisateurs>> signInWithEmailPassword({
+  Future<Either<Failure, UserEntity>> signInWithEmailPassword({
     required String email,
     required String password,
   }) async {
@@ -61,7 +66,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, Utilisateurs>> signUpWithEmailPassword({
+  Future<Either<Failure, UserEntity>> signUpWithEmailPassword({
     required String email,
     required String password,
     required String pseudo,
@@ -90,11 +95,10 @@ class AuthRepositoryImpl implements AuthRepository {
       final domain = parts[1];
 
       // Requête à la base de données
-      final result = await remoteDataSource.client
-          .from('entreprise')
-          .select('nom, logo_url')
-          .eq('domaine_email', domain)
-          .maybeSingle();
+      final result = await remoteDataSource.client.rpc(
+        'lookup_company',
+        params: {'email_domain': domain},
+      );
 
       if (result == null) {
         return left(
@@ -114,10 +118,12 @@ class AuthRepositoryImpl implements AuthRepository {
       }
 
       return right((nom, logoUrl));
-    } on sup.AuthException catch (e) {
+    } on AuthException catch (e) {
       return left(Failure(e.message));
     } on ServerException catch (e) {
       return left(Failure(e.message));
+    } on PostgrestException {
+      return left(Failure('Impossible de contacter le service. Réessaie.'));
     }
   }
 
@@ -126,66 +132,131 @@ class AuthRepositoryImpl implements AuthRepository {
     required String communityCode,
   }) async {
     try {
-      final result = await remoteDataSource.client
-          .from('communaute')
-          .select('nom')
-          .eq('code', communityCode)
-          .maybeSingle();
+      final result = await remoteDataSource.client.rpc(
+        'lookup_community',
+        params: {'community_code': communityCode},
+      );
 
       if (result == null) {
         return left(Failure('Ce code communauté est invalide.'));
       }
 
       return right((result['nom'] as String));
-    } on sup.AuthException catch (e) {
+    } on AuthException catch (e) {
       return left(Failure(e.message));
     } on ServerException catch (e) {
       return left(Failure(e.message));
+    } on PostgrestException {
+      return left(Failure('Impossible de contacter le service. Réessaie.'));
     }
   }
 
   @override
   Future<Either<Failure, bool>> isPseudoUnique({required String pseudo}) async {
     try {
-      final response = await remoteDataSource.client
-          .from('utilisateur')
-          .select('pseudo')
-          .eq('pseudo', pseudo)
-          .count(sup.CountOption.exact);
-
-      final count = response.count;
-      return right(count == 0);
-    } on sup.AuthException catch (e) {
+      final available = await remoteDataSource.client.rpc(
+        'pseudo_available',
+        params: {'candidate': pseudo},
+      );
+      return right(available as bool);
+    } on AuthException catch (e) {
       return left(Failure(e.message));
     } on ServerException catch (e) {
       return left(Failure(e.message));
+    } on PostgrestException {
+      return left(Failure('Impossible de contacter le service. Réessaie.'));
+    }
+  }
+
+  // Helper method to reduce code duplication
+  Future<Either<Failure, UserEntity>> _getUser(
+    Future<UserEntity> Function() fn,
+  ) async {
+    try {
+      final user = await fn();
+      return right(user);
+    } on AuthException catch (e) {
+      return left(Failure(e.message));
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    } on PostgrestException {
+      return left(Failure('Impossible de contacter le service. Réessaie.'));
     }
   }
 
   @override
   Future<Either<Failure, void>> signOut() async {
     try {
-      await remoteDataSource.signOut();
-      return right(null);
-    } on sup.AuthException catch (e) {
-      return left(Failure(e.message));
-    } on ServerException catch (e) {
-      return left(Failure(e.message));
+      // On utilise le client accessible via la remoteDataSource
+      await remoteDataSource.client.auth.signOut();
+
+      return const Right(null);
+    } catch (e) {
+      return Left(Failure(e.toString()));
     }
   }
 
-  // Helper method to reduce code duplication
-  Future<Either<Failure, Utilisateurs>> _getUser(
-    Future<Utilisateurs> Function() fn,
-  ) async {
+  @override
+  Future<Either<Failure, void>> resetPassword({required String email}) async {
     try {
-      final user = await fn();
+      await remoteDataSource.resetPassword(email: email);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(Failure(e.message));
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
 
-      return right(user);
-    } on sup.AuthException catch (e) {
-      return left(Failure(e.message));
+  @override
+  Future<Either<Failure, UserEntity>> updateUser({
+    String? pseudo,
+    String? avatar,
+    bool? isActive,
+  }) async {
+    try {
+      final updatedUser = await remoteDataSource.updateUserData(
+        pseudo: pseudo,
+        avatar: avatar,
+        isActive: isActive,
+      );
+      return right(updatedUser);
     } on ServerException catch (e) {
       return left(Failure(e.message));
+    } on PostgrestException {
+      return left(Failure('Impossible de contacter le service. Réessaie.'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteAccount() async {
+    try {
+      await remoteDataSource.anonymizeAccount();
+      return const Right(null);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    } on PostgrestException {
+      return left(Failure('Impossible de contacter le service. Réessaie.'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> updateCredentials({
+    String? email,
+    String? password,
+    String? currentPassword,
+  }) async {
+    try {
+      await remoteDataSource.updateCredentials(
+        email: email,
+        password: password,
+        currentPassword: currentPassword,
+      );
+      return const Right(null);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    } on PostgrestException {
+      return left(Failure('Impossible de contacter le service. Réessaie.'));
     }
   }
 }

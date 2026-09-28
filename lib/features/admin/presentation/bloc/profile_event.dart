@@ -1,19 +1,19 @@
-import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
-import 'package:oikos/features/admin/data/models/models.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
+import 'package:oikos/features/admin/domain/models/models.dart';
 
 abstract class ProfileEvent {}
 
 /// Initialise le bloc avec l'utilisateur et l'entreprise courants.
 /// Dispatché dans `initState` de [ProfilPage].
 class ProfileInitEvent extends ProfileEvent {
-  final Utilisateurs user;
+  final UserEntity user;
   final Company company;
   ProfileInitEvent({required this.user, required this.company});
 }
 
 /// Sauvegarde les informations du profil (pseudo, email).
 class ProfileUpdateUser extends ProfileEvent {
-  final Utilisateurs user;
+  final UserEntity user;
   ProfileUpdateUser({required this.user});
 }
 
@@ -23,7 +23,7 @@ class ProfileUpdateCompany extends ProfileEvent {
   ProfileUpdateCompany({required this.company});
 }
 
-/// Déclenche le changement de mot de passe (mock — ne fait rien côté repo).
+/// Déclenche le changement de mot de passe avec réauthentification.
 class ProfileChangePassword extends ProfileEvent {
   final String currentPassword;
   final String newPassword;

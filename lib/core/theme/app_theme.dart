@@ -53,41 +53,41 @@ class AdminColors extends ThemeExtension<AdminColors> {
 
   static const AdminColors light = AdminColors(
     background: AppColors.lightBackground,
-    pageBackground: Color(0xFFF2F7E8),
+    pageBackground: AppColors.lightPageBackground,
     foreground: AppColors.lightForeground,
-    card: Colors.white,
+    card: AppColors.lightCard,
     cardForeground: AppColors.lightForeground,
     primary: AppColors.lightPrimary,
     primaryForeground: AppColors.lightPrimaryForeground,
     secondary: AppColors.lightSecondary,
     muted: AppColors.lightMuted,
     mutedForeground: AppColors.lightMutedForeground,
-    accent: Color(0xFFE9EBEF),
+    accent: AppColors.lightAccent,
     accentForeground: AppColors.lightSecondaryForeground,
     border: AppColors.lightBorder,
-    borderStrong: Color(0x26000000),
+    borderStrong: AppColors.lightBorderStrong,
     inputBackground: AppColors.lightInput,
     ring: AppColors.lightInputBorderFocused,
-    sidebarBackground: Colors.white,
+    sidebarBackground: AppColors.lightCard,
   );
 
   // ── Dark ──────────────────────────────────────────────────────────────────
 
   static const AdminColors dark = AdminColors(
     background: AppColors.darkBackground,
-    pageBackground: Color(0xFF1F211E),
+    pageBackground: AppColors.darkPageBackground,
     foreground: AppColors.darkForeground,
-    card: Color(0xFF252824),
+    card: AppColors.darkCard,
     cardForeground: AppColors.darkForeground,
     primary: AppColors.darkPrimary,
     primaryForeground: AppColors.darkPrimaryForeground,
     secondary: AppColors.darkSecondary,
     muted: AppColors.darkMuted,
     mutedForeground: AppColors.darkMutedForeground,
-    accent: Color(0xFF2D3045),
+    accent: AppColors.darkAccent,
     accentForeground: AppColors.darkForeground,
     border: AppColors.darkBorder,
-    borderStrong: Color(0x1FFFFFFF),
+    borderStrong: AppColors.darkBorderStrong,
     inputBackground: AppColors.darkInput,
     ring: AppColors.darkInputBorderFocused,
     sidebarBackground: AppColors.darkBackground,
@@ -168,26 +168,25 @@ class AdminColors extends ThemeExtension<AdminColors> {
     Color? inputBackground,
     Color? ring,
     Color? sidebarBackground,
-  }) =>
-      AdminColors(
-        background: background ?? this.background,
-        pageBackground: pageBackground ?? this.pageBackground,
-        foreground: foreground ?? this.foreground,
-        card: card ?? this.card,
-        cardForeground: cardForeground ?? this.cardForeground,
-        primary: primary ?? this.primary,
-        primaryForeground: primaryForeground ?? this.primaryForeground,
-        secondary: secondary ?? this.secondary,
-        muted: muted ?? this.muted,
-        mutedForeground: mutedForeground ?? this.mutedForeground,
-        accent: accent ?? this.accent,
-        accentForeground: accentForeground ?? this.accentForeground,
-        border: border ?? this.border,
-        borderStrong: borderStrong ?? this.borderStrong,
-        inputBackground: inputBackground ?? this.inputBackground,
-        ring: ring ?? this.ring,
-        sidebarBackground: sidebarBackground ?? this.sidebarBackground,
-      );
+  }) => AdminColors(
+    background: background ?? this.background,
+    pageBackground: pageBackground ?? this.pageBackground,
+    foreground: foreground ?? this.foreground,
+    card: card ?? this.card,
+    cardForeground: cardForeground ?? this.cardForeground,
+    primary: primary ?? this.primary,
+    primaryForeground: primaryForeground ?? this.primaryForeground,
+    secondary: secondary ?? this.secondary,
+    muted: muted ?? this.muted,
+    mutedForeground: mutedForeground ?? this.mutedForeground,
+    accent: accent ?? this.accent,
+    accentForeground: accentForeground ?? this.accentForeground,
+    border: border ?? this.border,
+    borderStrong: borderStrong ?? this.borderStrong,
+    inputBackground: inputBackground ?? this.inputBackground,
+    ring: ring ?? this.ring,
+    sidebarBackground: sidebarBackground ?? this.sidebarBackground,
+  );
 
   @override
   AdminColors lerp(ThemeExtension<AdminColors>? other, double t) {
@@ -199,20 +198,29 @@ class AdminColors extends ThemeExtension<AdminColors> {
       card: Color.lerp(card, other.card, t)!,
       cardForeground: Color.lerp(cardForeground, other.cardForeground, t)!,
       primary: Color.lerp(primary, other.primary, t)!,
-      primaryForeground:
-          Color.lerp(primaryForeground, other.primaryForeground, t)!,
+      primaryForeground: Color.lerp(
+        primaryForeground,
+        other.primaryForeground,
+        t,
+      )!,
       secondary: Color.lerp(secondary, other.secondary, t)!,
       muted: Color.lerp(muted, other.muted, t)!,
       mutedForeground: Color.lerp(mutedForeground, other.mutedForeground, t)!,
       accent: Color.lerp(accent, other.accent, t)!,
-      accentForeground:
-          Color.lerp(accentForeground, other.accentForeground, t)!,
+      accentForeground: Color.lerp(
+        accentForeground,
+        other.accentForeground,
+        t,
+      )!,
       border: Color.lerp(border, other.border, t)!,
       borderStrong: Color.lerp(borderStrong, other.borderStrong, t)!,
       inputBackground: Color.lerp(inputBackground, other.inputBackground, t)!,
       ring: Color.lerp(ring, other.ring, t)!,
-      sidebarBackground:
-          Color.lerp(sidebarBackground, other.sidebarBackground, t)!,
+      sidebarBackground: Color.lerp(
+        sidebarBackground,
+        other.sidebarBackground,
+        t,
+      )!,
     );
   }
 }
@@ -222,39 +230,52 @@ class AdminColors extends ThemeExtension<AdminColors> {
 // =============================================================================
 
 class AppTheme {
+  static const categoryColors = ActionCardTheme(
+    transport: Color(0xFF4CAF50),
+    alimentation: Color(0xFFFF9800),
+    energie: Color(0xFFFFC107),
+    eau: Color(0xFF2196F3),
+    dechet: Color(0xFF795548),
+    numerique: Color(0xFF9C27B0),
+    logement: Color(0xFF607D8B),
+    biodiversite: Color(0xFF009688),
+    textile: Color(0xFFE91E63),
+    defaultColor: Colors.grey,
+  );
   const AppTheme._();
 
   // ===========================================================================
   // ESPACEMENT
   // ===========================================================================
-  static const double spacingXs  = 4.0;
-  static const double spacingSm  = 8.0;
-  static const double spacingMd  = 16.0;
-  static const double spacingLg  = 24.0;
-  static const double spacingXl  = 32.0;
+  static const double spacingXs = 4.0;
+  static const double spacingSm = 8.0;
+  static const double spacingMd = 16.0;
+  static const double spacingLg = 24.0;
+  static const double spacingXl = 32.0;
   static const double spacingXxl = 48.0;
 
   // ===========================================================================
   // RAYONS DE BORDURE
   // ===========================================================================
-  static const double radiusSm  = 6.0;
-  static const double radiusMd  = 8.0;
-  static const double radiusLg  = 10.0;
-  static const double radiusXl  = 16.0;
+  static const double radiusSm = 6.0;
+  static const double radiusMd = 8.0;
+  static const double radiusLg = 10.0;
+  static const double radiusXl = 16.0;
   static const double radiusXxl = 24.0;
 
   // ===========================================================================
   // COULEURS SÉMANTIQUES (ex-AdminTheme)
   // ===========================================================================
-  static const Color actionGreen           = AppColors.lightPrimary;
-  static const Color actionGreenLight      = AppColors.lightPrimaryContainer;
+  static const Color actionGreen = AppColors.lightPrimary;
+  static const Color actionGreenLight = AppColors.lightPrimaryContainer;
+  static const Color actionContainerForeground = AppColors.lightTextGreen;
   static const Color actionGreenForeground = AppColors.lightPrimaryForeground;
-  static const Color errorForeground       = AppColors.lightDestructive;
-  static const Color successForeground     = AppColors.lightPrimary;
-  static const Color warningForeground     = Color(0xFFD69E2E);
-  static const Color warningBackground     = Color(0xFFFFFBEB);
-  static const Color warningBorder         = Color(0xFFFDE68A);
-  static const Color mutedForeground       = AppColors.lightMutedForeground;
+  static const Color errorForeground = AppColors.lightDestructive;
+  static const Color successForeground = AppColors.lightPrimary;
+  static const Color warningForeground = AppColors.warning;
+  static const Color warningBackground = AppColors.warningBackground;
+  static const Color warningBorder = AppColors.warningBorder;
+  static const Color mutedForeground = AppColors.lightMutedForeground;
 
   // Helper pour créer des bordures d'input personnalisées avec une couleur spécifique
   static OutlineInputBorder _border(Color color) => OutlineInputBorder(
@@ -289,18 +310,7 @@ class AppTheme {
           disabledColor: Colors.grey.shade300,
         ),
 
-        ActionCardTheme(
-          transport: Color(0xFF4CAF50),
-          alimentation: Color(0xFFFF9800),
-          energie: Color(0xFFFFC107),
-          eau: Color(0xFF2196F3),
-          dechet: Color(0xFF795548),
-          numerique: Color(0xFF9C27B0),
-          logement: Color(0xFF607D8B),
-          biodiversite: Color(0xFF009688),
-          textile: Color(0xFFE91E63),
-          defaultColor: Colors.grey,
-        ),
+        categoryColors,
       ],
 
       colorScheme: const ColorScheme.light(
@@ -331,9 +341,13 @@ class AppTheme {
         elevation: 0,
         indicatorColor: AppColors.lightPrimaryContainer,
         useIndicator: true,
-        unselectedIconTheme: IconThemeData(color: AppColors.lightMutedForeground),
+        unselectedIconTheme: IconThemeData(
+          color: AppColors.lightMutedForeground,
+        ),
         selectedIconTheme: IconThemeData(color: AppColors.lightPrimary),
-        unselectedLabelTextStyle: TextStyle(color: AppColors.lightMutedForeground),
+        unselectedLabelTextStyle: TextStyle(
+          color: AppColors.lightMutedForeground,
+        ),
         selectedLabelTextStyle: TextStyle(
           color: AppColors.lightPrimary,
           fontWeight: FontWeight.w600,
@@ -396,18 +410,7 @@ class AppTheme {
           disabledColor: AppColors.darkMuted,
         ),
 
-        ActionCardTheme(
-          transport: Color(0xFF4CAF50),
-          alimentation: Color(0xFFFF9800),
-          energie: Color(0xFFFFC107),
-          eau: Color(0xFF2196F3),
-          dechet: Color(0xFF795548),
-          numerique: Color(0xFF9C27B0),
-          logement: Color(0xFF607D8B),
-          biodiversite: Color(0xFF009688),
-          textile: Color(0xFFE91E63),
-          defaultColor: Colors.grey,
-        ),
+        categoryColors,
       ],
 
       colorScheme: const ColorScheme.dark(
@@ -437,9 +440,13 @@ class AppTheme {
         elevation: 0,
         indicatorColor: AppColors.darkPrimary.withValues(alpha: 0.15),
         useIndicator: true,
-        unselectedIconTheme: const IconThemeData(color: AppColors.darkMutedForeground),
+        unselectedIconTheme: const IconThemeData(
+          color: AppColors.darkMutedForeground,
+        ),
         selectedIconTheme: const IconThemeData(color: AppColors.darkPrimary),
-        unselectedLabelTextStyle: const TextStyle(color: AppColors.darkMutedForeground),
+        unselectedLabelTextStyle: const TextStyle(
+          color: AppColors.darkMutedForeground,
+        ),
         selectedLabelTextStyle: const TextStyle(
           color: AppColors.darkPrimary,
           fontWeight: FontWeight.w600,

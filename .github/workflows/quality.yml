@@ -1,0 +1,57 @@
+name: Quality
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  flutter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.5'
+          cache: true
+      - run: npm ci --ignore-scripts
+      - run: node scripts/check-architecture.mjs
+      - run: node scripts/build-publicodes.mjs
+      - run: git diff --exit-code -- assets/js/publicodes_bundle.js
+      - run: node --test scripts/publicodes.test.mjs
+      - run: npm audit --audit-level=high
+      - run: node scripts/sync_questions.js --sql
+      - run: git diff --exit-code -- supabase/seed_questions.sql
+      - run: flutter pub get
+      - run: dart format --output=none --set-exit-if-changed lib test
+      - run: flutter analyze
+      - run: flutter test
+      - run: flutter build web --release --no-wasm-dry-run --dart-define-from-file=config/example.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - run: flutter build apk --debug --dart-define-from-file=config/example.json
+  database:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.72.7
+      - run: npm ci --ignore-scripts
+      - shell: pwsh
+        run: ./scripts/local.ps1 -Action setup
+      - shell: pwsh
+        run: ./scripts/local.ps1 -Action test
+      - run: supabase db lint --local --level warning
+      - run: supabase test db
+      - if: always()
+        run: supabase stop

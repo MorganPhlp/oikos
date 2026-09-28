@@ -1,8 +1,9 @@
+import 'package:oikos/core/common/presentation/extensions/asset_urls.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:oikos/core/theme/app_theme.dart';
-import 'package:oikos/features/admin/data/models/models.dart';
+import 'package:oikos/features/admin/domain/models/models.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_state.dart';
 
@@ -32,7 +33,6 @@ class CommunityCard extends StatelessWidget {
     final colors = AdminColors.of(context);
     final state = context.watch<CommunityBloc>().state as CommunityLoaded;
     final community = state.data.communities[index];
-    final rank = index + 1;
 
     return Container(
       decoration: colors.cardDecoration,
@@ -137,19 +137,6 @@ class CommunityCard extends StatelessWidget {
         child,
       ],
     );
-  }
-
-  Color _getRankColor(int rank, AdminColors colors) {
-    switch (rank) {
-      case 1:
-        return const Color(0xFFD97706); // Ambre (or)
-      case 2:
-        return const Color(0xFF6B7280); // Gris (argent)
-      case 3:
-        return const Color(0xFFB45309); // Bronze
-      default:
-        return colors.mutedForeground;
-    }
   }
 }
 
@@ -290,19 +277,6 @@ class MobileCommunityCard extends StatelessWidget {
       ),
     );
   }
-
-  Color _getRankColor(int rank, AdminColors colors) {
-    switch (rank) {
-      case 1:
-        return const Color(0xFFD97706);
-      case 2:
-        return const Color(0xFF6B7280);
-      case 3:
-        return const Color(0xFFB45309);
-      default:
-        return colors.mutedForeground;
-    }
-  }
 }
 
 // ============================================================================
@@ -428,9 +402,7 @@ class _ActionButtons extends StatelessWidget {
             style: OutlinedButton.styleFrom(
               foregroundColor: colors.mutedForeground,
               side: BorderSide(color: colors.border),
-              padding: const EdgeInsets.symmetric(
-                vertical: AppTheme.spacingSm,
-              ),
+              padding: const EdgeInsets.symmetric(vertical: AppTheme.spacingSm),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppTheme.radiusMd),
               ),
@@ -446,11 +418,9 @@ class _ActionButtons extends StatelessWidget {
             label: const Text('Voir les membres'),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.actionGreenLight,
-              foregroundColor: AppTheme.actionGreen,
+              foregroundColor: AppTheme.actionContainerForeground,
               elevation: 0,
-              padding: const EdgeInsets.symmetric(
-                vertical: AppTheme.spacingSm,
-              ),
+              padding: const EdgeInsets.symmetric(vertical: AppTheme.spacingSm),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppTheme.radiusMd),
               ),
@@ -468,7 +438,7 @@ class _ActionButtons extends StatelessWidget {
 
 /// Carte affichant les informations d'un membre
 class MemberCard extends StatelessWidget {
-  final Utilisateurs user;
+  final UserEntity user;
   final VoidCallback onChangeCommunity;
   final VoidCallback onRemoveFromCommunity;
 

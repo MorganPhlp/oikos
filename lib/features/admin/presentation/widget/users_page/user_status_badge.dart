@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:oikos/core/theme/app_theme.dart';
 
 /// Badge coloré indiquant l'état du compte d'un utilisateur.
@@ -12,20 +12,20 @@ class UserStatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final (Color bg, Color fg, String label) = switch (etatCompte) {
       EtatCompte.actif => (
-          AppTheme.actionGreenLight,
-          AppTheme.actionGreen,
-          'Actif',
-        ),
+        AppTheme.actionGreenLight,
+        AppTheme.actionContainerForeground,
+        'Actif',
+      ),
       EtatCompte.anonymise => (
-          const Color(0xFFFEE2E2),
-          AppTheme.errorForeground,
-          'Anonymisé',
-        ),
+        const Color(0xFFFEE2E2),
+        AppTheme.errorForeground,
+        'Anonymisé',
+      ),
       EtatCompte.supprime => (
-          const Color(0xFFF3F4F6),
-          AppTheme.mutedForeground,
-          'Supprimé',
-        ),
+        const Color(0xFFF3F4F6),
+        AppTheme.mutedForeground,
+        'Supprimé',
+      ),
     };
 
     return Container(

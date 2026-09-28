@@ -1,5 +1,5 @@
-import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
-import 'package:oikos/features/admin/data/models/aggregates/community_data.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
+import 'package:oikos/features/admin/domain/models/aggregates/community_data.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ENUMS
@@ -27,7 +27,7 @@ class UsersLoaded extends UsersState {
   final CommunityData data;
 
   /// Liste pré-filtrée/triée prête à l'affichage
-  final List<Utilisateurs> filteredUsers;
+  final List<UserEntity> filteredUsers;
 
   final String searchQuery;
 
@@ -55,7 +55,7 @@ class UsersLoaded extends UsersState {
 
   UsersLoaded copyWith({
     CommunityData? data,
-    List<Utilisateurs>? filteredUsers,
+    List<UserEntity>? filteredUsers,
     String? searchQuery,
     String? selectedCommunityCode,
     bool clearCommunityFilter = false,

@@ -1,0 +1,5 @@
+{
+  "SUPABASE_URL": "http://127.0.0.1:41002",
+  "SUPABASE_ANON_KEY": "REPLACE_WITH_PUBLIC_ANON_OR_PUBLISHABLE_KEY",
+  "AUTH_REDIRECT_URL": "http://localhost:3000/reset-password"
+}

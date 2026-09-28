@@ -1,7 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:oikos/core/common/domain/interfaces/utilisateurs_rep.dart';
 import 'package:oikos/core/error/failures.dart';
-import 'package:oikos/features/admin/data/models/models.dart';
+import 'package:oikos/features/admin/domain/models/models.dart';
 import 'package:oikos/features/admin/domain/interfaces/community_rep.dart';
 
 class GetCommunityData {

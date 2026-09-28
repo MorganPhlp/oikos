@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/core/theme/breakpoints.dart';
-import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
-import 'package:oikos/features/admin/data/models/models.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
+import 'package:oikos/features/admin/domain/models/models.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_bloc.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_event.dart';
 import 'package:oikos/features/admin/presentation/bloc/community_state.dart';
@@ -23,7 +23,7 @@ enum MobileView {
 }
 
 class CommunityManagementPage extends StatefulWidget {
-  final Utilisateurs user;
+  final UserEntity user;
   final Company company;
   const CommunityManagementPage({
     super.key,
@@ -45,7 +45,7 @@ class _CommunityManagementPageState extends State<CommunityManagementPage> {
     );
   }
 
-  Utilisateurs get user => widget.user;
+  UserEntity get user => widget.user;
   Company get company => widget.company;
 
   // ============================================================================
@@ -88,7 +88,7 @@ class _CommunityManagementPageState extends State<CommunityManagementPage> {
     BuildContext context,
     MobileView view, {
     Community? community,
-    Utilisateurs? user,
+    UserEntity? user,
   }) {
     // Si on navigue vers changeUser, on sélectionne d'abord l'utilisateur
     if (view == MobileView.changeUser && user != null) {
@@ -109,7 +109,7 @@ class _CommunityManagementPageState extends State<CommunityManagementPage> {
   // ============================================================================
 
   /// Récupère les utilisateurs d'une communauté spécifique
-  List<Utilisateurs> _getUsers(String communityId, List<Utilisateurs> users) {
+  List<UserEntity> _getUsers(String communityId, List<UserEntity> users) {
     return users.where((u) => u.codeCommunaute == communityId).toList();
   }
 

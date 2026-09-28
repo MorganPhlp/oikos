@@ -1,15 +1,15 @@
+import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 
 final logger = Logger(
   printer: PrettyPrinter(
-    methodCount: 0,       // Nombre d'appels de fonctions à afficher
-    errorMethodCount: 5,  // Pile d'appels si c'est une erreur
-    lineLength: 80,       // Largeur du log
-    colors: true,         // Couleurs pour VS Code / Android Studio
-    printEmojis: true,    // Emojis pour identifier le type de log
+    methodCount: 0, // Nombre d'appels de fonctions à afficher
+    errorMethodCount: 5, // Pile d'appels si c'est une erreur
+    lineLength: 80, // Largeur du log
+    colors: true, // Couleurs pour VS Code / Android Studio
+    printEmojis: true, // Emojis pour identifier le type de log
   ),
-  filter:ProductionFilter()
-
+  level: kReleaseMode ? Level.off : Level.debug,
 );
 
 // Utilisation

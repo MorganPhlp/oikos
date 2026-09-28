@@ -1,9 +1,10 @@
+import 'package:oikos/core/theme/action_card_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:oikos/core/theme/app_theme.dart';
 import 'package:oikos/core/theme/app_size.dart';
 import 'package:oikos/core/theme/breakpoints.dart';
-import 'package:oikos/features/admin/data/models/models.dart';
+import 'package:oikos/features/admin/domain/models/models.dart';
 
 /// Widget de répartition par catégorie - Version Responsive
 class CategoryBreakdown extends StatefulWidget {
@@ -18,35 +19,7 @@ class CategoryBreakdown extends StatefulWidget {
 class _CategoryBreakdownState extends State<CategoryBreakdown> {
   int? _touchedIndex;
 
-  // Données par défaut
-  static const List<CategoryData> _defaultData = [
-    CategoryData(
-      name: 'Transport',
-      percentage: 30,
-      co2: 0.48,
-      color: Color(0xFF3B82F6),
-    ),
-    CategoryData(
-      name: 'Alimentation',
-      percentage: 40,
-      co2: 0.64,
-      color: Color(0xFF10B981),
-    ),
-    CategoryData(
-      name: 'Logement',
-      percentage: 20,
-      co2: 0.32,
-      color: Color(0xFFF59E0B),
-    ),
-    CategoryData(
-      name: 'Numérique',
-      percentage: 10,
-      co2: 0.16,
-      color: Color(0xFF8B5CF6),
-    ),
-  ];
-
-  List<CategoryData> get categoryData => widget.data ?? _defaultData;
+  List<CategoryData> get categoryData => widget.data ?? [];
   double get totalCO2 => categoryData.fold(0, (sum, cat) => sum + cat.co2);
 
   @override
@@ -57,18 +30,19 @@ class _CategoryBreakdownState extends State<CategoryBreakdown> {
         final dim = _ChartDimensions.fromWidth(width);
 
         return Container(
-          
           decoration: AdminColors.of(context).cardDecoration,
           padding: EdgeInsets.all(dim.spacing),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Consommation CO₂ par catégorie',
-                  style: AppSizes.headlineSize(context).copyWith(fontWeight: FontWeight.w600)
+              Text(
+                'Consommation CO₂ par catégorie',
+                style: AppSizes.headlineSize(
+                  context,
+                ).copyWith(fontWeight: FontWeight.w600),
               ),
-              _buildContent(dim)
-              
+              _buildContent(dim),
             ],
           ),
         );
@@ -77,6 +51,12 @@ class _CategoryBreakdownState extends State<CategoryBreakdown> {
   }
 
   Widget _buildContent(_ChartDimensions dim) {
+    if (categoryData.isEmpty || totalCO2 == 0) {
+      return const Padding(
+        padding: EdgeInsets.all(24),
+        child: Text('Aucun bilan détaillé disponible.'),
+      );
+    }
     // Mobile : layout vertical
     if (dim.isMobile) {
       return Column(
@@ -158,7 +138,7 @@ class _CategoryBreakdownState extends State<CategoryBreakdown> {
       final radius = isTouched ? dim.pieRadius + 10 : dim.pieRadius;
 
       return PieChartSectionData(
-        color: data.color,
+        color: _categoryColor(context, data.name),
         value: data.percentage,
         title: '${data.percentage.toInt()}%',
         radius: radius,
@@ -166,7 +146,7 @@ class _CategoryBreakdownState extends State<CategoryBreakdown> {
           fontSize: fontSize,
           fontWeight: FontWeight.bold,
           color: Colors.white,
-          shadows: const [Shadow(color: Colors.black26, blurRadius: 2)],
+          shadows: [Shadow(color: Colors.black26, blurRadius: 2)],
         ),
         badgeWidget: isTouched ? _buildBadge(data, dim) : null,
         badgePositionPercentageOffset: dim.isMobile ? 1.2 : 1.3,
@@ -196,7 +176,7 @@ class _CategoryBreakdownState extends State<CategoryBreakdown> {
         style: TextStyle(
           fontSize: dim.isMobile ? 10 : 12,
           fontWeight: FontWeight.w600,
-          color: data.color,
+          color: _categoryColor(context, data.name),
         ),
       ),
     );
@@ -222,7 +202,7 @@ class _CategoryBreakdownState extends State<CategoryBreakdown> {
         ),
 
         SizedBox(height: dim.spacing * 0.5),
-        const Divider(color: Color(0xFFE5E7EB), height: 1),
+        Divider(color: AdminColors.of(context).border, height: 1),
         SizedBox(height: dim.spacing * 0.5),
 
         // Total
@@ -235,7 +215,7 @@ class _CategoryBreakdownState extends State<CategoryBreakdown> {
     return Container(
       padding: EdgeInsets.all(dim.isMobile ? 12 : 16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF3F4F6),
+        color: AdminColors.of(context).muted,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -246,7 +226,7 @@ class _CategoryBreakdownState extends State<CategoryBreakdown> {
             style: TextStyle(
               fontSize: dim.fontSize,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF111827),
+              color: AdminColors.of(context).foreground,
             ),
           ),
           Text(
@@ -254,7 +234,7 @@ class _CategoryBreakdownState extends State<CategoryBreakdown> {
             style: TextStyle(
               fontSize: dim.fontSize,
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF111827),
+              color: AdminColors.of(context).foreground,
             ),
           ),
         ],
@@ -395,7 +375,7 @@ class _LegendItem extends StatelessWidget {
             height: dim.isMobile ? 12 : 16,
             margin: const EdgeInsets.only(top: 2),
             decoration: BoxDecoration(
-              color: data.color,
+              color: _categoryColor(context, data.name),
               borderRadius: BorderRadius.circular(4),
             ),
           ),
@@ -413,7 +393,6 @@ class _LegendItem extends StatelessWidget {
                         style: TextStyle(
                           fontSize: dim.fontSize,
                           fontWeight: FontWeight.w500,
-                          
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -422,7 +401,7 @@ class _LegendItem extends StatelessWidget {
                       '${data.co2.toStringAsFixed(2)} Kg CO2e',
                       style: TextStyle(
                         fontSize: dim.fontSize,
-                        fontWeight: FontWeight.w600,  
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -432,17 +411,17 @@ class _LegendItem extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
                     value: progressValue.clamp(0.0, 1.0),
-                    backgroundColor: const Color(0xFFE5E7EB),
-                    valueColor: AlwaysStoppedAnimation<Color>(data.color),
+                    backgroundColor: AdminColors.of(context).border,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      _categoryColor(context, data.name),
+                    ),
                     minHeight: dim.progressBarHeight,
                   ),
                 ),
                 SizedBox(height: dim.isMobile ? 2 : 3),
                 Text(
                   '${data.percentage.toInt()}% de votre empreinte',
-                  style: TextStyle(
-                    fontSize: dim.labelFontSize,
-                  ),
+                  style: TextStyle(fontSize: dim.labelFontSize),
                 ),
               ],
             ),
@@ -451,4 +430,15 @@ class _LegendItem extends StatelessWidget {
       ),
     );
   }
+}
+
+Color _categoryColor(BuildContext context, String name) {
+  final colors = Theme.of(context).extension<ActionCardTheme>()!;
+  return switch (name.toLowerCase()) {
+    'transport' => colors.transport,
+    'alimentation' => colors.alimentation,
+    'logement' => colors.logement,
+    'services sociétaux' => colors.numerique,
+    _ => colors.defaultColor,
+  };
 }

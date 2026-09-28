@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:oikos/init_dependencies.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:oikos/core/logger.dart';
 
 Color hexToColor(String hexString) {
   final buffer = StringBuffer();
@@ -13,9 +12,7 @@ Color hexToColor(String hexString) {
 
 class StorageUtils {
   static String getNetworkUrl(String bucket, String path) {
-
-    final String netWorkUrl = serviceLocator<SupabaseClient>(instanceName: 'supabaseExternal')
-        .storage
+    final String netWorkUrl = serviceLocator<SupabaseClient>().storage
         .from(bucket)
         .getPublicUrl(path.trim());
 
@@ -23,16 +20,11 @@ class StorageUtils {
   }
 
   static String getLocalUrl(String bucket, String path) {
-
     final String getLocalUrl = "assets/$bucket/${path.trim()}";
-
 
     return getLocalUrl;
   }
-
-
 }
-
 
 extension StringExtension on String {
   String capitalize() {
@@ -40,4 +32,3 @@ extension StringExtension on String {
     return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
   }
 }
-

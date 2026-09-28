@@ -4,13 +4,26 @@ class AppColors {
   // Empêcher l'instanciation de cette classe utilitaire
   const AppColors._();
 
+  static const lightPageBackground = Color(0xFFF2F7E8);
+  static const darkPageBackground = Color(0xFF1F211E);
+  static const lightCard = Colors.white;
+  static const darkCard = Color(0xFF252824);
+  static const lightAccent = Color(0xFFE9EBEF);
+  static const darkAccent = Color(0xFF2D3045);
+  static const lightBorderStrong = Color(0x26000000);
+  static const darkBorderStrong = Color(0x1FFFFFFF);
+  static const warning = Color(0xFFD69E2E);
+  static const warningBackground = Color(0xFFFFFBEB);
+  static const warningBorder = Color(0xFFFDE68A);
   // --- Light Mode Palette ---
   static const Color lightBackground = Color(0xFFF9FDF0);
   static const Color lightForeground = Color(0xFF252525);
 
   static const Color lightPrimary = Color(0xFF65BA74);
   static const Color lightPrimaryForeground = Color(0xFFFFFFFF);
-  static const Color lightPrimaryContainer = Color(0xFFDCFCE7); // fond vert très clair (ex-actionGreenLight)
+  static const Color lightPrimaryContainer = Color(
+    0xFFDCFCE7,
+  ); // fond vert très clair (ex-actionGreenLight)
 
   static const Color gradientGreenStart = Color(0xFFBDEE63);
   static const Color gradientGreenEnd = Color(0xFF65BA74);

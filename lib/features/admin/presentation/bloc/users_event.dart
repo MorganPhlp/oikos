@@ -1,4 +1,4 @@
-import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:oikos/features/admin/presentation/bloc/users_state.dart';
 
 abstract class UsersEvent {}
@@ -29,6 +29,6 @@ class UsersSortOrderChanged extends UsersEvent {
 
 /// Demande l'anonymisation de [user].
 class UsersAnonymizeRequested extends UsersEvent {
-  final Utilisateurs user;
+  final UserEntity user;
   UsersAnonymizeRequested({required this.user});
 }

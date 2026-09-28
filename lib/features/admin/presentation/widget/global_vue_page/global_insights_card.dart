@@ -132,16 +132,16 @@ class _KPICardState extends State<KPICard> {
         duration: const Duration(milliseconds: 200),
         width: double.infinity,
         decoration: AdminColors.of(context).cardDecoration.copyWith(
-              boxShadow: _isHovered
-                  ? [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ]
-                  : [],
-            ),
+          boxShadow: _isHovered
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : [],
+        ),
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: widget.isLoading
@@ -196,9 +196,9 @@ class _KPICardState extends State<KPICard> {
             if (widget.value != null) ...[
               Text(
                 widget.value!,
-                style: AppSizes.headlineSize(context).copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: AppSizes.headlineSize(
+                  context,
+                ).copyWith(fontWeight: FontWeight.bold),
               ),
             ],
             if (widget.unit != null) ...[
@@ -469,10 +469,7 @@ class KPICardsGrid extends StatelessWidget {
           );
         }
 
-        return Column(
-          spacing: spacing,
-          children: rows,
-        );
+        return Column(spacing: spacing, children: rows);
       },
     );
   }

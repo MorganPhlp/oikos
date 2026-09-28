@@ -1,8 +1,6 @@
-
-
 import 'package:fpdart/fpdart.dart';
 import 'package:oikos/core/error/failures.dart';
-import 'package:oikos/features/admin/data/models/models.dart';
+import 'package:oikos/features/admin/domain/models/models.dart';
 
 abstract class CompanyRep {
   Future<Either<Failure, Company>> getCompanyData(String companyId);

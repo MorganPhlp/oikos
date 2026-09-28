@@ -1,4 +1,4 @@
-import 'package:oikos/features/admin/data/models/models.dart';
+import 'package:oikos/features/admin/domain/models/models.dart';
 import 'package:oikos/features/admin/domain/entities/kpi_stats.dart';
 
 class CarbonFootPrintData {

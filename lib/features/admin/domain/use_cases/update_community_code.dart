@@ -10,14 +10,11 @@ class UpdateCommunityCode {
   Future<Either<Failure, void>> call(String newCode, String communityId) async {
     final codeExistResult = await rep.checkExistCode(newCode);
 
-    return codeExistResult.fold(
-      (failure) => left(failure),
-      (codeExist) async {
-        if (codeExist) {
-          return left(Failure("Le code est déjà existant"));
-        }
-        return await rep.updateCode(newCode, communityId);
-      },
-    );
+    return codeExistResult.fold((failure) => left(failure), (codeExist) async {
+      if (codeExist) {
+        return left(Failure("Le code est déjà existant"));
+      }
+      return await rep.updateCode(newCode, communityId);
+    });
   }
 }

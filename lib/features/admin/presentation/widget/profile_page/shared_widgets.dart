@@ -1,7 +1,8 @@
+import 'package:oikos/core/common/presentation/extensions/asset_urls.dart';
 import 'package:flutter/material.dart';
-import 'package:oikos/core/common/domain/entities/utilisateurs.dart';
+import 'package:oikos/core/common/domain/entities/user.dart';
 import 'package:oikos/core/theme/app_theme.dart';
-import 'package:oikos/features/admin/data/models/models.dart';
+import 'package:oikos/features/admin/domain/models/models.dart';
 
 // ─── Snackbar helper ─────────────────────────────────────────────────────────
 
@@ -232,7 +233,7 @@ class RoleBadge extends StatelessWidget {
 // ─── AvatarEditor ────────────────────────────────────────────────────────────
 
 class AvatarEditor extends StatelessWidget {
-  final Utilisateurs user;
+  final UserEntity user;
   final VoidCallback onTap;
 
   const AvatarEditor({super.key, required this.user, required this.onTap});
