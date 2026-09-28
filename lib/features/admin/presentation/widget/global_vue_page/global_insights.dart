@@ -27,8 +27,6 @@ class GlobalInsightsKPIs extends StatelessWidget {
     final numberFormat = NumberFormat('#,##0', 'fr_FR');
     // final decimalFormat = NumberFormat('#,##0.0', 'fr_FR');
 
- 
-
     final RetentionRateKPI? retentionRateKPI = stats?.retentionRateKPI;
     final ChallengesAcceptedKPI? challengesAcceptedKPI =
         stats?.challengesAcceptedKPI;
