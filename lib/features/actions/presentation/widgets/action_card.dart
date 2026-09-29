@@ -7,7 +7,7 @@ import 'package:oikos/features/actions/presentation/bloc/actions_bloc.dart';
 import 'package:oikos/features/actions/presentation/bloc/actions_event.dart';
 import 'package:oikos/features/actions/presentation/widgets/action_stats_chip.dart';
 import 'package:oikos/features/actions/presentation/widgets/category_chip.dart';
-import 'package:oikos/features/actions/presentation/widgets/ecarter_Actions_Modal.dart';
+import 'package:oikos/features/actions/presentation/widgets/ecarter_actions_modal.dart';
 import 'package:oikos/features/actions/presentation/widgets/tag.dart';
 import '../../domain/entities/action_entity.dart';
 
